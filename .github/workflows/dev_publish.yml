@@ -42,8 +42,8 @@ jobs:
       - name: Copy Web.Config
         run: copy web.config C:\inetpub\sites\dev\web.config
 
-      - name: cd ./src/ui/
-        run: cd ./src/ui/
+      - name: cd .\src\ui\
+        run: cd .\src\ui\
       
       - name: npm install
         run: npm install
