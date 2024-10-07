@@ -53,8 +53,8 @@ jobs:
 #    needs: publish-api
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: aactions/setup-node@v3
       - name: Build UI
-        run: .\build.ps1
+        run: .\build.bat
 
       
