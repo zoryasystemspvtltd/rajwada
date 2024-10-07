@@ -5,6 +5,8 @@ on:
     inputs:
       publish-api:
         description: 'Publish to DEV Server'
+env:
+  CI: false
 
 permissions:
   contents: read
@@ -57,7 +59,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: .\install.bat
-      - run: .\build.bat
+      - run: .\install.ps1
+      - run: .\build.ps1
       - run: xcopy /e /i \src\ui\build\* C:\inetpub\sites\dev\wwwroot\* /Y
       
