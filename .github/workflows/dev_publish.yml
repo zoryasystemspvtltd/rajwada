@@ -53,7 +53,7 @@ jobs:
 #    needs: publish-api
 
     steps:
-      - uses: aactions/setup-node@v3
+      - uses: actions/setup-node@v3
       - name: Build UI
         run: .\build.bat
 
