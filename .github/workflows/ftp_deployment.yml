@@ -61,15 +61,17 @@ jobs:
       url: ${{ steps.deploy-to-ftp.outputs.webapp-url }}
 
     steps:
-    - name: Download artifact from build job
-      uses: actions/download-artifact@v3
-      with:
-        name: .net-app        
+      - uses: actions/checkout@v4
+      - run: cd ./src/ui/src/build/static
 
-    - name: Deploy to FTP
-      id: deploy-to-ftp
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ vars.FTP_LOCATION }}
-        username: ${{ vars.FTP_USER }}
-        password: ${{ secrets.FTP_PASSWORD }}
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: API-UI
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_RAJWADA_DEMO }}
+          channelId: live
+          projectId: rajwada-demo
