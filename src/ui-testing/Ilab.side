@@ -1,0 +1,21 @@
+{
+  "id": "478cb673-658b-4356-87cb-64bb5f44c016",
+  "version": "2.0",
+  "name": "Ilab",
+  "url": "",
+  "tests": [{
+    "id": "32ec6941-80cd-4bb9-b77f-0f7d29b800a2",
+    "name": "Untitled",
+    "commands": []
+  }],
+  "suites": [{
+    "id": "b88709f0-79d7-4709-a280-ee076b7906e4",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["32ec6941-80cd-4bb9-b77f-0f7d29b800a2"]
+  }],
+  "urls": [],
+  "plugins": []
+}

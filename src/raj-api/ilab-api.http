@@ -1,0 +1,6 @@
+@IlabApi_HostAddress = http://localhost:5009
+
+GET {{IlabApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
