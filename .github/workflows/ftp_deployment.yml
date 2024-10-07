@@ -28,10 +28,7 @@ jobs:
         run: iisreset /stop
 
       - name: Clean Up Web server
-        run: del /q C:\inetpub\sites\dev\*
-
-      - name: Clean Up Web server SubFolder
-        run: for /d %x in (C:\inetpub\sites\dev\*) do @rd /s /q "%x"
+        run: Remove-Item C:\inetpub\sites\dev\* -Recurse -Force -Confirm:$false
 
       - name: Publish API
         run: dotnet publish -c Release ./src/PlanManagement.sln -o C:\inetpub\sites\dev
