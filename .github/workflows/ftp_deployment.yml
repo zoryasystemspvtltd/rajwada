@@ -24,6 +24,11 @@ jobs:
       - name: Build API
         run: dotnet build --no-restore ./src/PlanManagement.sln 
 
+      - name: iisreset /stop
+        run: iisreset /stop
+
+      - name: Clean Up Web server
+        run: del /S C:\inetpub\sites\dev*
       - name: Publish API
         run: dotnet publish -c Release ./src/PlanManagement.sln -o C:\inetpub\sites\dev
 
@@ -41,6 +46,9 @@ jobs:
         with:
           name: UI
           path: C:\inetpub\sites\dev\wwwroot
+
+      - name: iisreset /start
+        run: iisreset /start
 
 
       
