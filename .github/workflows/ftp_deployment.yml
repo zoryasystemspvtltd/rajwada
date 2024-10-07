@@ -1,9 +1,10 @@
 name: Build & deploy to FTP
 
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
+on: pull_request
+# on:
+#   push:
+#     branches: [ "main" ]
+#   workflow_dispatch:
 
 permissions:
   contents: read
