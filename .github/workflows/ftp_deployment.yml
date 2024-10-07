@@ -61,8 +61,11 @@ jobs:
       url: ${{ steps.deploy-to-ftp.outputs.webapp-url }}
 
     steps:
+      - name: Build UI
+        run: cd ./src/ui/src/ && npm install && npm run build
+
       - uses: actions/checkout@v4
-      - run: cd ./src/ui/src/build/static
+      - run: cd ./build/static
 
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
