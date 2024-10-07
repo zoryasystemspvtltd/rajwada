@@ -18,19 +18,37 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - name: Restore Dependencies
+      - name: Restore Dependencies API 
         run: dotnet restore ./src/PlanManagement.sln 
-      - name: Build
+      - name: Build API
         run: dotnet build --no-restore ./src/PlanManagement.sln 
 
-      - name: dotnet publish
+      - name: Publish API
         run: dotnet publish -c Release ./src/PlanManagement.sln -o ${{env.DOTNET_ROOT}}/raj-host
 
-      - name: Upload Artifact for deployment job
+      - name: Upload API Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: .net-app
+          name: API
           path: ${{env.DOTNET_ROOT}}/raj-host
+
+      - name: Build UI
+        run: cd ./src/ui/src/ && npm install && npm run build
+      
+      - name: Upload API Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: UI
+          path: ${{env.DOTNET_ROOT}}/raj-host/wwwroot
+
+      - name: Zip artifact for deployment
+        run: zip release.zip ./* -r
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v2
+        with:
+          name: API-UI
+          path: release.zip
 
   deploy:
     permissions:
