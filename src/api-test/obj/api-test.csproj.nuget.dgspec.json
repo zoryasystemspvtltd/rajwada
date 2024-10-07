@@ -1,0 +1,207 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/arghya_biswas_lab/projects/rajwada/src/api-test/api-test.csproj": {}
+  },
+  "projects": {
+    "/home/arghya_biswas_lab/projects/rajwada/src/api-test/api-test.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/arghya_biswas_lab/projects/rajwada/src/api-test/api-test.csproj",
+        "projectName": "api-test",
+        "projectPath": "/home/arghya_biswas_lab/projects/rajwada/src/api-test/api-test.csproj",
+        "packagesPath": "/home/arghya_biswas_lab/.nuget/packages/",
+        "outputPath": "/home/arghya_biswas_lab/projects/rajwada/src/api-test/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/arghya_biswas_lab/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/home/arghya_biswas_lab/projects/rajwada/src/raj-api/raj-api.csproj": {
+                "projectPath": "/home/arghya_biswas_lab/projects/rajwada/src/raj-api/raj-api.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.11.1, )"
+            },
+            "MySql.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.5, )"
+            },
+            "NSubstitute": {
+              "target": "Package",
+              "version": "[5.1.0, )"
+            },
+            "coverlet.collector": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[6.0.2, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.9.0, )"
+            },
+            "xunit.runner.visualstudio": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.8.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/snap/dotnet-sdk/250/sdk/8.0.400/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/arghya_biswas_lab/projects/rajwada/src/raj-api/raj-api.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/arghya_biswas_lab/projects/rajwada/src/raj-api/raj-api.csproj",
+        "projectName": "raj-api",
+        "projectPath": "/home/arghya_biswas_lab/projects/rajwada/src/raj-api/raj-api.csproj",
+        "packagesPath": "/home/arghya_biswas_lab/.nuget/packages/",
+        "outputPath": "/home/arghya_biswas_lab/projects/rajwada/src/raj-api/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/arghya_biswas_lab/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "MySql.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.5, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.7.3, )"
+            },
+            "ilab-extension": {
+              "target": "Package",
+              "version": "[1.0.5, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/snap/dotnet-sdk/250/sdk/8.0.400/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
