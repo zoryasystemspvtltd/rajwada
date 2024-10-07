@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Publish to DEV'
+        description: 'Publish to DEV Server'
 
 permissions:
   contents: read
