@@ -56,9 +56,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - run: cd ./src/ui/
-      - run:  npm install
-      - run:  npm run build
+      - run: npm install
+      - run: npm run build
       - run: xcopy /e /i build\* C:\inetpub\sites\dev\wwwroot\* /Y
       
