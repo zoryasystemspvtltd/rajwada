@@ -57,12 +57,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - name: cd ./src/ui/
-        run: cd ./src/ui/
-      - name: npm install
-        run:  npm install
-      - name: Build UI
-        run:  npm run build
-      - name: copy
-        run: xcopy /e /i build\* C:\inetpub\sites\dev\wwwroot\* /Y
+      - run: cd ./src/ui/
+      - run:  npm install
+      - run:  npm run build
+      - run: xcopy /e /i build\* C:\inetpub\sites\dev\wwwroot\* /Y
       
