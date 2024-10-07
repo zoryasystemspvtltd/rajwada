@@ -3,14 +3,14 @@ name: Publish to DEV Server
 on:
   workflow_dispatch:
     inputs:
-      publish:
+      publish-api:
         description: 'Publish to DEV Server'
 
 permissions:
   contents: read
 
 jobs:
-  publish:
+  publish-api:
     runs-on: self-hosted
 
     steps:
@@ -41,21 +41,24 @@ jobs:
 
       - name: Copy Web.Config
         run: copy web.config C:\inetpub\sites\dev\web.config
-
-      - name: cd .\src\ui\
-        run: cd .\src\ui\
-      
-      - name: npm install
-        run: npm install
-      
-      - name: npm run build
-        run: npm run build
-      
-      - name: mv build\* C:\inetpub\sites\dev\wwwroot\*
-        run: mv build\* C:\inetpub\sites\dev\wwwroot\*
       
       - name: iisreset /start
         run: iisreset /start
+
+    
+  publish-ui:
+    permissions:
+      contents: none
+    runs-on: self-hosted
+    needs: publish-api
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: build ui
+        run: cd ./src/ui/ && npm install && npm run build
+
+      - name: mv build\* C:\inetpub\sites\dev\wwwroot\*
+        run: mv build\* C:\inetpub\sites\dev\wwwroot\*
 
 
       
