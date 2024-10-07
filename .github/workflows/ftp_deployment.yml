@@ -39,8 +39,17 @@ jobs:
       - name: Copy appsettings.json
         run: copy appsettings.json C:\inetpub\sites\dev\appsettings.json
 
-      - name: Build UI
-        run: (cd ./src/ui/src/) -and (npm install) -and (npm run build) -and (mv build C:\inetpub\sites\dev\wwwroot\*)
+      - name: cd ./src/ui/src/
+        run: cd ./src/ui/src/
+      
+      - name: npm install
+        run: npm install
+      
+      - name: npm run build
+        run: npm run build
+      
+      - name: mv build\* C:\inetpub\sites\dev\wwwroot\*
+        run: mv build\* C:\inetpub\sites\dev\wwwroot\*
       
       - name: iisreset /start
         run: iisreset /start
