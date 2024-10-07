@@ -55,6 +55,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build UI
-        run: .\build.bat
+        run: .\build.ps1
 
       
