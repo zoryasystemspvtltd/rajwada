@@ -1,4 +1,4 @@
-name: Build & deploy to DEV Server
+name: Publish to DEV Server
 
 on:
   push:
