@@ -46,7 +46,7 @@ jobs:
         run: zip release.zip ${{env.DOTNET_ROOT}}/raj-host/* -r
 
       - uses: actions/checkout@v4
-      - run: cd ./src/ui/src/ && npm install && npm run build && cd ./build/static
+      - run: cd ./src/ui/src/ && npm install && npm run build && cd ./src/ui/src/build/static
 
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
