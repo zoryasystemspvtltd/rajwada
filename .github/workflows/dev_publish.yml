@@ -61,5 +61,6 @@ jobs:
           node-version: 20
       - run: .\install.ps1
       - run: .\build.ps1
-      - run: xcopy /e /i \src\ui\build\* C:\inetpub\sites\dev\wwwroot\* /Y
+      - run: ls
+      - run: xcopy /e /i .\src\ui\build\* C:\inetpub\sites\dev\wwwroot\* /Y
       
