@@ -57,8 +57,10 @@ jobs:
       - name: cd ./src/ui/
         run: cd ./src/ui/
       - uses: actions/setup-node@v3
+      - name: npm install
+        run:  npm install
       - name: Build UI
-        run:  npm install && npm run build
+        run:  npm run build
       - uses: actions/checkout@v4
       - name: copy
         run: xcopy /e /i build\* C:\inetpub\sites\dev\wwwroot\* /Y
