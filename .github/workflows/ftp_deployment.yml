@@ -4,12 +4,15 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish to DEV'
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  publish:
     runs-on: self-hosted
 
     steps:
