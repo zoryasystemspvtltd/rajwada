@@ -33,9 +33,9 @@ jobs:
       - name: Copy appsettings.json
         run: copy appsettings.json C:\inetpub\sites\dev\appsettings.json
       
-      - name: EF Migration
-        run: dotnet ef database update --project raj-api --startup-project raj-host --context RajApi.Data.ApplicationDbContext
-        
+      # - name: EF Migration
+      #   run: dotnet ef database update --project raj-api --startup-project raj-host --context RajApi.Data.ApplicationDbContext
+
       - name: Publish API
         run: dotnet publish -c Release ./src/PlanManagement.sln -o C:\inetpub\sites\dev
 
