@@ -46,7 +46,7 @@ jobs:
         run: zip release.zip ${{env.DOTNET_ROOT}}/raj-host/* -r
 
       - uses: actions/checkout@v4
-      - run: ls && cd ./build/static
+      - run: ls && cd ./src/ui/src/build/static
 
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
@@ -54,7 +54,7 @@ jobs:
           name: API-UI
 
       - uses: actions/checkout@v4
-      - run: cd ../../
+      - run: cd ./src/ui/src/
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
