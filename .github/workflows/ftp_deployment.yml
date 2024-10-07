@@ -1,4 +1,4 @@
-name: Build $ deploy to FTP
+name: Build & deploy to FTP
 
 on:
   push:
@@ -49,7 +49,7 @@ jobs:
 
     - name: Deploy to FTP
       id: deploy-to-ftp
-      uses: azure/webapps-deploy@v2
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ vars.FTP_LOCATION }}
         username: ${{ vars.FTP_USER }}
