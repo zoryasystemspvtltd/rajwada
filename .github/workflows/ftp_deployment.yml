@@ -65,9 +65,12 @@ jobs:
       - run: cd ./src/ui/src/build/static
 
       - name: Download artifact from build job
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: API-UI
+
+      - uses: actions/checkout@v4
+      - run: cd ../../
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
