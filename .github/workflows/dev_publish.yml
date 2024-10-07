@@ -54,15 +54,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: cd ./src/ui/
-        run: cd ./src/ui/ 
-      - name: ls
-        run: ls 
-      - name: npm install
-        run: npm install
-      - name: npm run build
-        run: npm run build
-      - name: xcopy 
-        run: xcopy /e /i build\* C:\inetpub\sites\dev\wwwroot\* /Y
+      - name: Build UI
+        run: .\build.bat
 
       
