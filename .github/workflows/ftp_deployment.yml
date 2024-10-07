@@ -40,14 +40,8 @@ jobs:
         run: copy appsettings.json C:\inetpub\sites\dev\appsettings.json
 
       - name: Build UI
-        run: (cd ./src/ui/src/) -and (npm install) -and (npm run build)
+        run: (cd ./src/ui/src/) -and (npm install) -and (npm run build) -and (mv build C:\inetpub\sites\dev\wwwroot\*)
       
-      - name: Copy UI to wwwroot
-        uses: actions/upload-artifact@v3
-        with:
-          name: UI
-          path: C:\inetpub\sites\dev\wwwroot
-
       - name: iisreset /start
         run: iisreset /start
 
