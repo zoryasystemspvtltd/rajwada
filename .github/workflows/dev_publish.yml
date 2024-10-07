@@ -57,7 +57,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: (cd ./src/ui/) -and (npm install)
-      - run: npm run build
-      - run: xcopy /e /i build\* C:\inetpub\sites\dev\wwwroot\* /Y
+      - run: npm install .\src\ui\
+      - run: npm run build .\src\ui\
+      - run: xcopy /e /i .\src\ui\build\* C:\inetpub\sites\dev\wwwroot\* /Y
       
