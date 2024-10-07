@@ -28,7 +28,7 @@ jobs:
         run: dotnet publish -c Release ./src/PlanManagement.sln -o ./publish
 
       - name: Build UI
-        run: cd ./src/ui/src/ && npm install && npm run build
+        run: (cd ./src/ui/src/) -and (npm install) -and (npm run build)
       
       - name: Copy UI to wwwroot
         uses: actions/upload-artifact@v3
