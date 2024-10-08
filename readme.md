@@ -22,10 +22,10 @@ Update-Database -Project raj-api -StartupProject raj-api
 
 ##### Authentication
 
-dotnet ef migrations add --project ilab-authentication --startup-project raj-host --context IlabAuthentication.Data.AuthenticationDbContext
-dotnet ef database update --project ilab-authentication --startup-project raj-host --context IlabAuthentication.Data.AuthenticationDbContext
+dotnet ef migrations add --project ./src/ilab-authentication/ilab-authentication.csproj --startup-project ./src/raj-host/raj-host.csproj --context IlabAuthentication.Data.AuthenticationDbContext
+dotnet ef database update --project ./src/ilab-authentication/ilab-authentication.csproj --startup-project ./src/raj-host/raj-host.csproj --context IlabAuthentication.Data.AuthenticationDbContext
 
 ##### API
 
-dotnet ef migrations add --project raj-api --startup-project raj-host -Context RajApi.Data.ApplicationDbContext
-dotnet ef database update --project raj-api --startup-project raj-host --context RajApi.Data.ApplicationDbContext
+dotnet ef migrations add --project ./src/raj-api/raj-api.csproj --startup-project ./src/raj-host/raj-host.csproj -Context RajApi.Data.ApplicationDbContext
+dotnet ef database update --project ./src/raj-api/raj-api.csproj --startup-project ./src/raj-host/raj-host.csproj --context RajApi.Data.ApplicationDbContext
