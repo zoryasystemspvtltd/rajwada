@@ -1,13 +1,19 @@
 # Rajwada project plan management
 
+#### Plans
+
+TODO
+
 #### Database Migration
 
 ##### Authentication
+
 Add-Migration -Project ilab-authentication -Startup raj-host -Context IlabAuthentication.Data.AuthenticationDbContext
 Update-Database -Project ilab-authentication -StartupProject raj-host -Context IlabAuthentication.Data.AuthenticationDbContext
 Update-Database -Project ilab-authentication -StartupProject raj-authentication
 
 ##### API
+
 Add-Migration -Project raj-api -Startup raj-host -Context RajApi.Data.ApplicationDbContext
 Update-Database -Project raj-api -StartupProject raj-host -Context RajApi.Data.ApplicationDbContext
 Update-Database -Project raj-api -StartupProject raj-api
