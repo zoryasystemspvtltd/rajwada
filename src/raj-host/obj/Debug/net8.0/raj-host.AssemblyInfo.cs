@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("raj-host")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1a5e170a5443a5da34fb4c13457b50060fbf62b6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4c563e9a40e6486268c0129ddda1beeaf0eb0ba4")]
 [assembly: System.Reflection.AssemblyProductAttribute("raj-host")]
 [assembly: System.Reflection.AssemblyTitleAttribute("raj-host")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

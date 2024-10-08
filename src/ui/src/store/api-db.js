@@ -7,6 +7,15 @@ const initialState = {
     //data: { items: [], recordPerPage: 0 },// 0:all
 }
 
+// Calling api => get 'stateType' , return single object
+export const getEnumData = createAsyncThunk("data/getEnumData", async (action, store) => {
+    if (!action) {
+        return null;
+    }
+
+    return await api.getEnumData(action);
+})
+
 // Calling api => get 'user/id' , return single object
 export const getSingleData = createAsyncThunk("data/getSingleData", async (action, store) => {
     if (!action) {
@@ -118,16 +127,75 @@ export const apiSlice = createSlice({
             state[action?.payload?.module] = { items: action?.payload?.data }
         },
         resetSave: (state, action) => {
-            state[action?.payload?.module] = {...state[action?.payload?.module],saved : ""}
+            state[action?.payload?.module] = { ...state[action?.payload?.module], saved: "" }
             state["any"].saved = ""
         },
         setSave: (state, action) => {
-            state[action?.payload?.module] = {...state[action?.payload?.module],saved : "saved"}
-            state["any"].saved = "saved" 
+            state[action?.payload?.module] = { ...state[action?.payload?.module], saved: "saved" }
+            state["any"].saved = "saved"
+        },
+        setSelected: (state, action) => {
+            state[action?.payload?.module] = { ...state[action?.payload?.module], selectedId: action.payload.id }
+
+            //   store.getState().api[action.module]
+            const items = action?.payload?.items;
+            if (items) {
+                const index = items?.findIndex(item => `${item.id}` === `${action.payload.id}`)
+                const selectedItem = { ...items[index], selected: !items[index]?.selected }
+
+                state[action?.payload?.module].items = [
+                    ...items?.slice(0, index), // everything before array
+                    selectedItem,
+                    ...items?.slice(index + 1), // everything after array
+                ]
+
+                //state[action?.payload?.module].items = action?.payload?.items;
+            }
+            // const items = state[action?.payload?.module].items;
+            // if (items) {
+            //     const index = items?.findIndex(item => `${item.id}` === action.payload.id)
+            //     const selectedItem = { ...action?.payload.items, selected: !items[index]?.selected }
+            //     console.log(selectedItem)
+            //     state[action?.payload?.module].items = [
+            //         ...items?.slice(0, index), // everything before array
+            //         selectedItem,
+            //         ...items?.slice(index + 1), // everything after array
+            //     ]
+            // }
         }
+        ,
     },
     extraReducers(builder) {
         builder
+        .addCase(getEnumData.pending, (state, action) => {
+            state[action.meta.arg.module] = { ...state[action.meta.arg.module], status: "loading" }
+            state["any"].status = "loading"
+        })
+        .addCase(getEnumData.fulfilled, (state, action) => {
+            state[action.meta.arg.module].status = "succeeded"
+            state["any"].status = "succeeded"
+
+            const items = state[action.meta.arg.module].items;
+            if (items) {
+                const index = items?.findIndex(item => `${item.id}` === action.meta.arg.id)
+                state[action.meta.arg.module].items = [
+                    ...items?.slice(0, index), // everything before array
+                    {
+                        ...items[index],
+                        ...action.payload.data
+                    },
+                    ...items?.slice(index + 1), // everything after array
+                ]
+            }
+        })
+        .addCase(getEnumData.rejected, (state, action) => {
+            state[action.meta.arg.module] = { ...state[action.meta.arg.module] }
+            state[action.meta.arg.module].status = "error"
+            state[action.meta.arg.module].message = action.error.message
+
+            state["any"].status = "error"
+            state["any"].message = state[action.meta.arg.module].message
+        })
             .addCase(getSingleData.pending, (state, action) => {
                 state[action.meta.arg.module] = { ...state[action.meta.arg.module], status: "loading" }
                 state["any"].status = "loading"
@@ -333,6 +401,6 @@ export const apiSlice = createSlice({
 
 
 // Action creators are generated for each case reducer function
-export const { setModuleDataItem, resetSave, setSave } = apiSlice.actions
+export const { setModuleDataItem, resetSave, setSave, setSelected } = apiSlice.actions
 
 export default apiSlice.reducer
