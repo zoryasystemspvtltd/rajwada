@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiBaseUrl = "https://65.0.190.66/api"; // TODO Environment
+const apiBaseUrl = "http://localhost:5008/api"; // TODO Environment
 
 const api = axios.create({ baseURL: apiBaseUrl });
 

@@ -330,18 +330,29 @@ export const IUIMonthStrip = (props) => {
                 ))}
             </div> */}
             <div className="z-2 " ref={parentRef} style={{ height: '10px', width: '100%' }}>
-                <div className="float-left text-end" role="progressbar"
+                <div className='position-absolute'>
+                {/* <div className="float-left text-end" role="progressbar"
                     style={{ width: `${start + size.l}px` }}
                     aria-valuenow={start} aria-valuemin="0" aria-valuemax={length}
                     onMouseDown={e => onMouseDown(e, -1)}
                     onMouseUp={onMouseUp}
                     onMouseMove={onMouseMove}>
                     &nbsp;
-                </div>
+                </div> */}
                 {width > 0 &&
                     <>
-                        <div className="progress progress-bar progress-bar-striped float-left text-center bg-success " role="progressbar"
-                            style={{ width: `16px` }}
+                        
+
+                        <div className="position-absolute progress progress-bar progress-bar-striped text-center bg-success"
+                            role="progressbar"
+                            style={{ left: `${start + size.l}px`,width: `${width - size.l + size.r}px`, cursor: 'move' }}
+                            aria-valuenow={width - size.l + size.r}
+                            aria-valuemin="0" aria-valuemax={length}
+                            onMouseDown={e => onMouseDown(e, 0)}
+                            onMouseUp={onMouseUp}
+                            onMouseMove={onMouseMove}>
+                            <div className="position-absolute text-center " role="progressbar"
+                            style={{ width: `16px`,backgroundColor:'red' }}
                             aria-valuenow={1} aria-valuemin="0" aria-valuemax="5">
                             <i className={`fa-solid `} style={{ cursor: 'e-resize' }}
                                 onMouseDown={e => onMouseDown(e, -1)}
@@ -349,36 +360,28 @@ export const IUIMonthStrip = (props) => {
                                 onMouseMove={onMouseMove}
                             >&nbsp;</i>
                         </div>
-
-                        <div className="progress progress-bar progress-bar-striped float-left text-center bg-success"
-                            role="progressbar"
-                            style={{ width: `${width - size.l + size.r - 32}px`, cursor: 'move' }}
-                            aria-valuenow={width - size.l + size.r - 32}
-                            aria-valuemin="0" aria-valuemax={length - 32}
-                            onMouseDown={e => onMouseDown(e, 0)}
-                            onMouseUp={onMouseUp}
-                            onMouseMove={onMouseMove}>
-                            &nbsp;
-                        </div>
-
-                        <div className="progress progress-bar progress-bar-striped float-left text-center bg-success" role="progressbar"
-                            style={{ width: `16px` }} aria-valuenow={1} aria-valuemin="0" aria-valuemax="5">
+                        <div className="position-absolute text-center" role="progressbar"
+                            style={{ width: `16px`,backgroundColor:'blue',right:'0px' }} aria-valuenow={1} aria-valuemin="0" aria-valuemax="5">
                             <i className={`fa-solid`} style={{ cursor: 'e-resize' }}
                                 onMouseDown={e => onMouseDown(e, 1)}
                                 onMouseUp={onMouseUp}
                                 onMouseMove={onMouseMove}
                             >&nbsp;</i>
                         </div>
+                        </div>
+
+                        
                     </>
                 }
-                <div className="float-left cursor-zoom-in" role="progressbar"
+                </div>
+                {/* <div className="float-left cursor-zoom-in" role="progressbar"
                     style={{ width: `${length - (start + width) - (size.l + size.r)}px` }}
                     aria-valuenow={length - (start + width) - (size.l + size.r)} aria-valuemin="0" aria-valuemax={length}
                     onMouseDown={e => onMouseDown(e, 1)}
                     onMouseUp={onMouseUp}
                     onMouseMove={onMouseMove}>
                     &nbsp;
-                </div>
+                </div> */}
             </div>
 
         </>
