@@ -82,9 +82,9 @@ const IUIPageElement = (props) => {
         <>
             <Row>
                 {schema?.map((fld, f) => (
-                    <>
+                    <React.Fragment key={f}>
                         {fld.type === 'hidden-filter' &&
-                            <span key={f}>
+                            <span >
                                 <IUIHiddenState
                                     value={fld.value}
                                     id={fld.field}
@@ -93,7 +93,7 @@ const IUIPageElement = (props) => {
                             </span>
                         }
                         {fld.type !== 'hidden-filter' &&
-                            <Col md={fld.width || 12} key={f}>
+                            <Col md={fld.width || 12} >
                                 {fld.type === 'h1' &&
                                     <>
                                         <h1>{data[fld.field]}</h1>
@@ -431,7 +431,7 @@ const IUIPageElement = (props) => {
                                 }
                             </Col>
                         }
-                    </>
+                    </React.Fragment>
                 ))}
             </Row>
         </>

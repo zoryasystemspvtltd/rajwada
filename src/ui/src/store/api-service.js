@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const apiBaseUrl = "https://65.0.190.66/api"; // TODO Environment
-
+const apiBaseUrl = process.env.REACT_APP_API_URL || "http://localhost:5008/api"; 
+console.log(`Server is running on port ${apiBaseUrl}.`)
 const api = axios.create({ baseURL: apiBaseUrl });
 
 api.interceptors.request.use(

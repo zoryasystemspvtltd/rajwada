@@ -1,6 +1,8 @@
 
 import { Col, Row, Table } from "react-bootstrap";
 import IUITree from "../../common/IUITree";
+import { Gantt, Task, EventOption, StylingOption, ViewMode, DisplayOption } from 'gantt-task-react';
+import "gantt-task-react/dist/index.css";
 
 export const PlanCreate = () => {
     const flatSchema = {
@@ -77,9 +79,72 @@ export const PlanCreate = () => {
         schema: towerSchema
     }
 
+    let tasks = [
+        {
+			type: "project",
+			id: "ProjectSample",
+			name: "1.Project",
+			start: new Date(2021, 6, 1),
+			end: new Date(2021, 9, 30),
+			progress: 25,
+			hideChildren: false,
+		},
+		{
+			type: "task",
+			id: "Task 0",
+			name: "1.1 Task",
+			start: new Date(2021, 6, 1),
+			end: new Date(2021, 6, 30),
+			progress: 45,
+			project: "ProjectSample",
+		},
+		{
+			type: "task",
+			id: "Task 1",
+			name: "1.2 Task",
+			start: new Date(2021, 7, 1),
+			end: new Date(2021, 7, 30),
+			progress: 25,
+			dependencies: ["Task 0"],
+			project: "ProjectSample",
+		},
+		{
+			type: "task",
+			id: "Task 2",
+			name: "1.3 Task",
+			start: new Date(2021, 6, 1),
+			end: new Date(2021, 7, 30),
+			progress: 10,
+			dependencies: ["Task 1"],
+			project: "ProjectSample",
+		},
+		{
+			type: "milestone",
+			id: "Task 6",
+			name: "1.3.1 MileStone (KT)",
+			start: new Date(2021, 6, 1),
+			end: new Date(2021, 6, 30),
+			progress: 100,
+			dependencies: ["Task 2"],
+			project: "ProjectSample",
+		},
+    ];
+
     return (
         <>
-            <IUITree schema={schema} />
+            {/* <IUITree schema={schema} /> */}
+            <div className="main-card mb-3 card">
+                <div className="card-body">
+                    <div style={{border:'1px solid red'}}>
+                    <Gantt 
+                        tasks={tasks}
+                        viewMode={ViewMode.Month}
+                        columnWidth={200}
+                        ganttHeight={200} />
+                    </div>
+                </div>
+            </div>
+            
         </>
     )
 }

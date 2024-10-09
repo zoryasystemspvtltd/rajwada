@@ -8,3 +8,4 @@
 **/node_modules/**
 **/ui/build/**
 **/publish/**
+src/ui/.env

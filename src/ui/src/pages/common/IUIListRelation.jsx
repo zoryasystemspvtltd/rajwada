@@ -107,7 +107,7 @@ const IUIListRelation = (props) => {
                                         <Button
                                             variant="contained"
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
-                                            onClick={() => navigate(`/${schema?.path}/add/${props?.parentId}`)}
+                                            onClick={() => navigate(`/${schema?.path}/add/`)}
                                         >
                                             Add New {schema?.title}
                                         </Button>
