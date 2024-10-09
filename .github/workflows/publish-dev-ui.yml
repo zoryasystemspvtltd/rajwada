@@ -1,0 +1,29 @@
+name: UI Deploy to DEV
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish-api:
+        description: 'Note'
+env:
+  CI: false
+  REACT_APP_API_URL: https://65.0.190.66/api
+
+permissions:
+  contents: read
+
+jobs:
+  publish-ui:
+    permissions:
+      contents: none
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: .\install.ps1
+      - run: .\build.ps1
+      - run: xcopy /e /i .\src\ui\build\* C:\inetpub\sites\dev\wwwroot\* /Y
+      
