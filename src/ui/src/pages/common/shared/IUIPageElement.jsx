@@ -11,6 +11,7 @@ import IUIResetPasswordElement from '../../ResetUserPassword';
 import IUILookUpLink from './IUILookUpLink';
 import IUIHiddenState from './IUIHiddenState';
 import IUILookUpFilter from './IUILookUpFilter';
+import IUILookUpEnum from './IUILookUpEnum';
 import ILab from './IUICanvas';
 
 
@@ -45,7 +46,7 @@ const IUIPageElement = (props) => {
             return
 
         let newData = { ...data, [e.target.id]: e.target.value }
-        if (e.target?.dataset?.name ) {
+        if (e.target?.dataset?.name) {
             newData = { ...newData, [e.target?.dataset?.name]: e.target[e.target.selectedIndex].text };
         }
 
@@ -83,18 +84,51 @@ const IUIPageElement = (props) => {
                 {schema?.map((fld, f) => (
                     <>
                         {fld.type === 'hidden-filter' &&
-                            <>
-                                <span key={f}>
-                                    <IUIHiddenState
-                                        value={fld.value}
-                                        id={fld.field}
-                                        onChange={handleChange}
-                                    />
-                                </span>
-                            </>
+                            <span key={f}>
+                                <IUIHiddenState
+                                    value={fld.value}
+                                    id={fld.field}
+                                    onChange={handleChange}
+                                />
+                            </span>
                         }
                         {fld.type !== 'hidden-filter' &&
                             <Col md={fld.width || 12} key={f}>
+                                {fld.type === 'h1' &&
+                                    <>
+                                        <h1>{data[fld.field]}</h1>
+                                    </>
+                                }
+                                {fld.type === 'h2' &&
+                                    <>
+                                        <h2>{data[fld.field]}</h2>
+                                    </>
+                                }
+                                {fld.type === 'h3' &&
+                                    <>
+                                        <h3>{data[fld.field]}</h3>
+                                    </>
+                                }
+                                {fld.type === 'h4' &&
+                                    <>
+                                        <h4>{data[fld.field]}</h4>
+                                    </>
+                                }
+                                {fld.type === 'h5' &&
+                                    <>
+                                        <h5>{data[fld.field]}</h5>
+                                    </>
+                                }
+                                {fld.type === 'h6' &&
+                                    <>
+                                        <h6>{data[fld.field]}</h6>
+                                    </>
+                                }
+                                {fld.type === 'p' &&
+                                    <>
+                                        <p>{data[fld.field]}</p>
+                                    </>
+                                }
                                 {fld.type === 'link' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
@@ -232,7 +266,6 @@ const IUIPageElement = (props) => {
                                                 name={fld.field}
                                                 id={fld.field}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                                placeholder={fld.placeholder}
                                                 value={data[fld.field]?.substring(0, 10) || ""}
                                                 disabled={props.readonly || fld.readonly || false}
                                                 onChange={handleChange} />
@@ -299,6 +332,29 @@ const IUIPageElement = (props) => {
                                             </Form.Label>
 
                                             <IUILookUp
+                                                value={data[fld.field]}
+                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                id={fld.field}
+                                                nameField={fld.nameField}
+                                                schema={fld.schema}
+                                                onChange={handleChange}
+                                                readonly={props.readonly || fld.readonly || false}
+                                            />
+
+                                        </Form.Group>
+                                        <p className="text-danger">{errors[fld.field]}</p>
+                                    </>
+                                }
+                                {fld.type === 'lookup-enum' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+
+                                            <IUILookUpEnum
                                                 value={data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                 id={fld.field}

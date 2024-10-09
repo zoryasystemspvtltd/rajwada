@@ -26,6 +26,31 @@ export const ListFlat = () => {
     return (<IUIListFilter schema={schema} filter="flat" />)
 }
 
+export const FlatDashboard = () => {
+
+    const schema = {
+        module: 'plan',
+        title: 'Flat',
+        relationKey: "type",
+        path: 'flats',
+        paging: true,
+        searching: true,
+        editing: true,
+        adding: true,
+        fields: [
+            {
+                text: 'Floor', field: 'parentName', type: 'text', sorting: false, searching: false,width:100,
+            },
+            { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true, width: 100 },
+            { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
+            
+        ]
+    }
+
+
+    return (<IUIListFilter schema={schema} filter="flat" />)
+}
+
 export const ViewFlat = () => {
     const schema = {
         module: 'plan',
@@ -42,12 +67,8 @@ export const ViewFlat = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
-                    {
-                        text: 'Floor', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
-                        schema: { module: 'plan', filter: 'type', value: 'floor' }
-                    },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 },
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'h5', required: true, width: 12 },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'p', required: true, width: 12 },
                     { field: 'name', type: 'ilab-canvas', width: 12 },
                 ]
             },

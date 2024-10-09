@@ -109,7 +109,7 @@ const IUIListRelation = (props) => {
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
                                             onClick={() => navigate(`/${schema?.path}/add/${props?.parentId}`)}
                                         >
-                                            Add New
+                                            Add New {schema?.title}
                                         </Button>
                                     }
                                     <IUIModuleMessage schema={props.schema} />
@@ -176,14 +176,14 @@ const IUIListRelation = (props) => {
 
                                                 {
                                                     dataSet?.items?.map((item, i) => (
-                                                        <tr key={i}>
+                                                        <tr key={i} >
                                                             {schema?.editing &&
                                                                 <td width={10}>
                                                                     <Link to={`/${schema?.path}/${item?.id}/edit/${props?.parentId}`}><i className="fa-solid fa-pencil"></i></Link>
                                                                 </td>
                                                             }
                                                             {schema?.fields?.map((fld, f) => (
-                                                                <td key={f}>
+                                                                <td key={f} width={fld.width}>
                                                                     {fld.type === 'link' &&
                                                                         <Link to={`/${schema.path}/${item.id}`}>{item[fld.field]}</Link>
                                                                     }

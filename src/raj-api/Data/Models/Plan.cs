@@ -91,6 +91,9 @@ public class Plan : LabModel, IAssignable
     /// </summary>
     public virtual DateTime? EndDate { get; set; }
 
+    [NotMapped]
+    public bool Selected { get { return true; } }
+
     #endregion
 
     #region Relations
