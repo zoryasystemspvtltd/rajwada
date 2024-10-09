@@ -2,7 +2,12 @@
 # https://github.com/firebase/firebase-tools
 
 name: Build UI
-on: pull_request
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
 
 env:
   CI: false
