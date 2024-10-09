@@ -48,6 +48,9 @@ jobs:
       - name: Publish API
         run: dotnet publish -c Release ./src/PlanManagement.sln -o C:\inetpub\sites\dev
 
+      - name: Replace appsettings.json
+        run: copy appsettings.json :\inetpub\sites\dev\appsettings.json
+
       - name: Copy Web.Config
         run: copy web.config C:\inetpub\sites\dev\web.config
       
