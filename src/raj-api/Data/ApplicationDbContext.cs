@@ -125,9 +125,8 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Company> Companys { get; set; }
     public virtual DbSet<Project> Projects { get; set; }
     public virtual DbSet<Plan> Plans { get; set; }
-    public virtual DbSet<Activity> Activities { get; set; }
-    public virtual DbSet<ActivityDependency> ActivityDependencies { get; set; }
-    public virtual DbSet<ActivityResource> ActivityResources { get; set; }
+
+
     public virtual DbSet<AssetGroup> AssetGroups { get; set; }
     public virtual DbSet<Asset> Assets { get; set; }
     public virtual DbSet<AssetType> AssetTypes { get; set; }

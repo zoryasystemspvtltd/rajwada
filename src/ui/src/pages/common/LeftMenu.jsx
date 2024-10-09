@@ -115,7 +115,7 @@ const LeftMenu = (props) => {
             ],
             transaction: [
                 { name: "activityDependency", text: "Activity Dependency", icon: "vector-square", path: "/home" },
-                { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
+                { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/home" },
                 { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/home" }
             ],
             report: [

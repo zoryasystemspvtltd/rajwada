@@ -21,10 +21,4 @@
     public interface ICompany
     {
     }
-    public interface IActivity
-    {
-        long? ProjectId { get; set; }
-        long? ParentId { get; set; }
-        Activity? Parent { get; set; }
-    }    
 }

@@ -3,7 +3,6 @@ import { Button, Col, Row, Container } from "react-bootstrap";
 import { useDispatch, useSelector } from 'react-redux'
 import Form from 'react-bootstrap/Form';
 import api from '../../../store/api-service'
-import { Link } from 'react-router-dom';
 const IUILookUp = (props) => {
     const schema = props?.schema;
     const [value, setValue] = useState("")
@@ -64,14 +63,7 @@ const IUILookUp = (props) => {
                     }
                     {props?.textonly &&
                         <>
-                            {schema?.path &&
-                                <Link to={`/${schema.path}/${value}`}>{text}</Link>
-                            }
-                            {!schema?.path &&
-                                <>
-                                    {text}
-                                </>
-                            }
+                            {text}
                         </>
                     }
                 </>

@@ -24,7 +24,6 @@ import ForgotPassword from "../pages/ForgotPassword";
 import { AddDepartment, EditDepartment, ListDepartment, ViewDepartment } from "../pages/app/schema/Departments";
 import { AddUOM, EditUOM, ListUOM, ViewUOM } from "../pages/app/schema/UOMs";
 import { AddItemType, EditItemType, ListItemType, ViewItemType } from "../pages/app/schema/ItemType";
-import { ListActivity, ViewActivity, EditActivity, AddActivity } from "../pages/app/schema/Activities";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -274,22 +273,6 @@ const Routes = () => {
                 {
                     path: "/item-types/add",
                     element: <AddItemType />
-                },
-                {
-                    path: "/activities",
-                    element: <ListActivity />
-                },
-                {
-                    path: "/activities/:id",
-                    element: <ViewActivity />
-                },
-                {
-                    path: "/activities/:id/edit",
-                    element: <EditActivity />
-                },
-                {
-                    path: "/activities/add",
-                    element: <AddActivity />
                 },
             ],
         },
