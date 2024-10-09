@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiBaseUrl = "/api"; // TODO Environment
+const apiBaseUrl = "https://65.0.190.66/api"; // TODO Environment
 
 const api = axios.create({ baseURL: apiBaseUrl });
 
@@ -127,6 +127,12 @@ api.getSingleData = async (action) => {
     const url = `${action.module}/${action.id}`;
     return await api.get(url);
 }
+api.getEnumData = async (action) => {
+    //api.defaults.headers.common["Authorization"] = "Bearer " + loggedInUser?.accessToken;
+    const url = `enum/${action.module}`;
+    return await api.get(url);
+}
+
 api.getModules = async () => {
     //api.defaults.headers.common["Authorization"] = "Bearer " + loggedInUser?.accessToken;
     const url = `module`;

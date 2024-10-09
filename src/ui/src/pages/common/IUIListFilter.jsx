@@ -74,7 +74,9 @@ const IUIListFilter = (props) => {
             }
 
             let condition = searchFields[searchFields.length - 1];
-
+            if (baseFilter) {
+                condition.And = baseFilter
+            }
             const searchOptions = {
                 currentPage: 1,
                 search: search,
@@ -183,7 +185,7 @@ const IUIListFilter = (props) => {
                                                                 </td>
                                                             }
                                                             {schema?.fields?.map((fld, f) => (
-                                                                <td key={f}>
+                                                                <td key={f} width={fld.width}>
                                                                     {fld.type === 'link' &&
                                                                         <Link to={`/${schema.path}/${item.id}`}>{item[fld.field]}</Link>
                                                                     }

@@ -26,6 +26,31 @@ export const ListFloor = () => {
     return (<IUIListFilter schema={schema} filter="floor" />)
 }
 
+export const FloorDashboard = () => {
+
+    const schema = {
+        module: 'plan',
+        title: 'Floor',
+        relationKey: "type",
+        path: 'floors',
+        paging: true,
+        searching: true,
+        editing: true,
+        adding: true,
+        fields: [
+            {
+                text: 'Tower', field: 'parentName', type: 'text', sorting: false, searching: false, width: 100,
+            },
+            { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true, width: 100, },
+            { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
+
+        ]
+    }
+
+
+    return (<IUIListFilter schema={schema} filter="floor" />)
+}
+
 export const ViewFloor = () => {
     const schema = {
         module: 'plan',
@@ -42,14 +67,36 @@ export const ViewFloor = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     {
-                        text: 'Tower', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
-                        schema: { module: 'plan', filter: 'type', value: 'tower' }
+                        text: 'Tower', field: 'parentId', type: 'lookup-link', required: false, width: 12,
+                        schema: { module: 'plan', filter: 'type', value: 'tower', path:'towers' }
                     },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'h5', required: true, width: 12 },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'p', required: true, width: 12 }
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        type: 'module-relation',
+                        schema: {
+                            module: 'plan',
+                            relationKey: "parentId",
+                            path: 'flats',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            fields: [
+                                { text: 'Flat', field: 'name', type: 'link', sorting: true, searching: true, width: 100, },
+                                { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
+
+                            ]
+                        },
+                    }
+                ]
+            }
         ]
     }
 
