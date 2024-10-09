@@ -77,7 +77,6 @@ var connectionString = $"Server={databaseSettings.Server};" +
     $"Password={databaseSettings.Password};" +
     //$"Trusted_Connection=SSPI;Encrypt=false;TrustServerCertificate=true";
     $"Integrated security=False;TrustServerCertificate=true";
-    
 builder.Services.AddDbContext<AuthenticationDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddDbContext<DbContext, ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 

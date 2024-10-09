@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>IlabAuthentication</RootNamespace>
-		<Platforms>AnyCPU</Platforms>
+		<Platforms>AnyCPU;x64</Platforms>
 		<ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
 		<OutputType>Library</OutputType>
 	</PropertyGroup>

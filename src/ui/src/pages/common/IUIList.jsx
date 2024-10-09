@@ -156,7 +156,7 @@ const IUIList = (props) => {
                                                             </th>
                                                         }
                                                         {schema?.fields?.map((fld, f) => (
-                                                            <th key={f} width={fld.width}>
+                                                            <th key={f}>
                                                                 {fld.sorting &&
                                                                     <button
                                                                         type="submit"
