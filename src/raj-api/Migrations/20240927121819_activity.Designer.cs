@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RajApi.Data;
 
@@ -11,9 +12,11 @@ using RajApi.Data;
 namespace RajApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240927121819_activity")]
+    partial class activity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,6 +44,9 @@ namespace RajApi.Migrations
 
                     b.Property<int?>("ApprovalStatus")
                         .HasColumnType("int");
+
+                    b.Property<string>("AssignedTo")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("CostEstimate")
                         .HasColumnType("decimal(18,2)");
@@ -247,7 +253,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             ActivityType = 0,
-                            Date = new DateTime(2024, 9, 29, 8, 50, 37, 543, DateTimeKind.Utc).AddTicks(2606),
+                            Date = new DateTime(2024, 9, 27, 12, 18, 13, 437, DateTimeKind.Utc).AddTicks(4238),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -258,7 +264,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             ActivityType = 0,
-                            Date = new DateTime(2024, 9, 29, 8, 50, 37, 543, DateTimeKind.Utc).AddTicks(2612),
+                            Date = new DateTime(2024, 9, 27, 12, 18, 13, 437, DateTimeKind.Utc).AddTicks(4244),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -269,7 +275,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             ActivityType = 0,
-                            Date = new DateTime(2024, 9, 29, 8, 50, 37, 543, DateTimeKind.Utc).AddTicks(2617),
+                            Date = new DateTime(2024, 9, 27, 12, 18, 13, 437, DateTimeKind.Utc).AddTicks(4249),
                             EntityId = 2L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -411,7 +417,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "FA",
-                            Date = new DateTime(2024, 9, 29, 8, 50, 37, 543, DateTimeKind.Utc).AddTicks(2703),
+                            Date = new DateTime(2024, 9, 27, 12, 18, 13, 437, DateTimeKind.Utc).AddTicks(4377),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Fixed Asset",
@@ -421,7 +427,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "CB",
-                            Date = new DateTime(2024, 9, 29, 8, 50, 37, 543, DateTimeKind.Utc).AddTicks(2708),
+                            Date = new DateTime(2024, 9, 27, 12, 18, 13, 437, DateTimeKind.Utc).AddTicks(4382),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Consumption Base",
@@ -431,7 +437,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             Code = "SA",
-                            Date = new DateTime(2024, 9, 29, 8, 50, 37, 543, DateTimeKind.Utc).AddTicks(2713),
+                            Date = new DateTime(2024, 9, 27, 12, 18, 13, 437, DateTimeKind.Utc).AddTicks(4386),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Service Assets",
@@ -554,7 +560,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "RE",
-                            Date = new DateTime(2024, 9, 29, 8, 50, 37, 543, DateTimeKind.Utc).AddTicks(1957),
+                            Date = new DateTime(2024, 9, 27, 12, 18, 13, 437, DateTimeKind.Utc).AddTicks(3778),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Rajwara",
@@ -602,7 +608,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "CI",
-                            Date = new DateTime(2024, 9, 29, 8, 50, 37, 543, DateTimeKind.Utc).AddTicks(2504),
+                            Date = new DateTime(2024, 9, 27, 12, 18, 13, 437, DateTimeKind.Utc).AddTicks(4157),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Civil",
@@ -612,7 +618,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "LE",
-                            Date = new DateTime(2024, 9, 29, 8, 50, 37, 543, DateTimeKind.Utc).AddTicks(2513),
+                            Date = new DateTime(2024, 9, 27, 12, 18, 13, 437, DateTimeKind.Utc).AddTicks(4163),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Legal",

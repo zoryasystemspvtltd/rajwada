@@ -4929,3 +4929,33 @@ text-align:center!important
 .no-gutters { margin-right:0; margin-left:0 }
 .no-gutters>.col, 
 .no-gutters>[class*=col-] { padding-right: 0;  padding-left: 0; }
+
+.tree-cell{
+    float: left;
+    height: 22px;
+    border:1px solid #CCC;
+    width: 100%;
+}
+.tree-month{
+    border:1px solid #CCC;
+}
+.tree-cell-hidden{
+    float: left;
+    height: 5px;
+    border:1px solid #CCC;
+    width: 100%;
+}
+.tree-label{
+    height: 22px;
+    background-color: red;
+    position: relative;
+}
+.overlay-text {
+    /* these two are needed - the align self makes the column not stretch the whole height of the image column and the translate moves the column over the image */
+    float:left;
+    width:100%; /*important*/
+    bottom:22px; /*important*/
+    padding: 0px;
+    position:relative;;
+    
+  }
