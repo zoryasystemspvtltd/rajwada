@@ -290,7 +290,7 @@ const Routes = () => {
                 {
                     path: "/activities/add",
                     element: <AddActivity />
-                },
+                }                
             ],
         },
     ];
