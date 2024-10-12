@@ -26,5 +26,12 @@
         long? ProjectId { get; set; }
         long? ParentId { get; set; }
         Activity? Parent { get; set; }
-    }    
+    }
+
+    public interface IWorkflow
+    {
+        long? ProjectId { get; set; }
+        long? ParentId { get; set; }
+        Workflow? Parent { get; set; }
+    }
 }
