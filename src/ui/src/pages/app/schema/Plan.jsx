@@ -140,7 +140,7 @@ export const PlanCreate = () => {
     },[parentRef])
     return (
         <>
-            {/* <IUITree schema={schema} /> */}
+            <IUITree schema={schema} />
             {/* <Row>
                 <Col>
                 <div className="main-card mb-3 card">
