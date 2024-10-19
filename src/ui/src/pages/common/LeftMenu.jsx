@@ -114,7 +114,7 @@ const LeftMenu = (props) => {
                 { name: "activityManagement", text: "Activity", icon: "cubes-stacked" },
             ],
             transaction: [
-                { name: "activityDependency", text: "Activity Dependency", icon: "vector-square", path: "/home" },
+                { name: "activityDependency", text: "Activity Dependency", icon: "vector-square", path: "/workflow" },
                 { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
                 { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/home" }
             ],

@@ -25,7 +25,7 @@ import { AddDepartment, EditDepartment, ListDepartment, ViewDepartment } from ".
 import { AddUOM, EditUOM, ListUOM, ViewUOM } from "../pages/app/schema/UOMs";
 import { AddItemType, EditItemType, ListItemType, ViewItemType } from "../pages/app/schema/ItemType";
 import { ListActivity, ViewActivity, EditActivity, AddActivity } from "../pages/app/schema/Activities";
-
+import { AddWorkflow } from "../pages/app/schema/Workflow";
 const Routes = () => {
     const { token } = useAuth();
 
@@ -290,7 +290,11 @@ const Routes = () => {
                 {
                     path: "/activities/add",
                     element: <AddActivity />
-                }                
+                },
+                {
+                    path: "/workflow",
+                    element: <AddWorkflow />
+                },
             ],
         },
     ];
