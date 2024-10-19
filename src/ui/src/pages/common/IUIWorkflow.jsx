@@ -8,8 +8,7 @@ import IUIModuleMessage from './shared/IUIModuleMessage';
 import api from '../../store/api-service'
 import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIAssign from './shared/IUIAssign';
-import { Gantt } from "gantt-task-react";
-import { IUIViewDependency } from "../common/IUIViewWorkflow";
+import IUIViewWorkFlow from "../common/IUIViewWorkflow"
 
 const IUIWorkflow = (props) => {
     // Properties
@@ -137,7 +136,7 @@ const IUIWorkflow = (props) => {
     useEffect(() => {
         const parent = parentRef.current.offsetWidth
         setLength(parent);
-    },[parentRef])
+    }, [parentRef])
 
     return (
         <>
@@ -288,9 +287,11 @@ const IUIWorkflow = (props) => {
                 <Col>
                     <div className="main-card mb-3 card">
                         <div className="card-body" ref={parentRef} style={{ height: '450px', width: '100%' }}>
-                            <div  className='position-absolute'
-                            style={{ width: `${length-35}px` }}>
-                                <IUIViewDependency></IUIViewDependency>
+                            <div className='position-absolute'
+                                style={{ width: `${length - 35}px` }}>
+                                {(dependencyArr.length > 0) &&
+                                    <IUIViewWorkFlow schema={dependencyArr}></IUIViewWorkFlow>
+                                }
                             </div>
                         </div>
                     </div>

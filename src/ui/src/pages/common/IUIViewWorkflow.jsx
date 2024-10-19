@@ -1,80 +1,82 @@
 import React from "react";
-import { Task, ViewMode, Gantt } from "gantt-task-react";
-import { getStartEndDateForProject, initTasks } from "../../store/helper"
+import { ViewMode, Gantt } from "gantt-task-react";
+import { getStartEndDateForProject } from "../../store/helper"
 import "gantt-task-react/dist/index.css";
 
 
-  const ViewSwitcher= ({
-    onViewModeChange,
-    onViewListChange,
-    isChecked,
-  }) => {
-    return (
-      <div className="ViewContainer">
-        <button
-          className="Button"
-          onClick={() => onViewModeChange(ViewMode.Hour)}
-        >
-          Hour
-        </button>
-        <button
-          className="Button"
-          onClick={() => onViewModeChange(ViewMode.QuarterDay)}
-        >
-          Quarter of Day
-        </button>
-        <button
-          className="Button"
-          onClick={() => onViewModeChange(ViewMode.HalfDay)}
-        >
-          Half of Day
-        </button>
-        <button className="Button" onClick={() => onViewModeChange(ViewMode.Day)}>
-          Day
-        </button>
-        <button
-          className="Button"
-          onClick={() => onViewModeChange(ViewMode.Week)}
-        >
-          Week
-        </button>
-        <button
-          className="Button"
-          onClick={() => onViewModeChange(ViewMode.Month)}
-        >
-          Month
-        </button>
-        <button
-          className="Button"
-          onClick={() => onViewModeChange(ViewMode.Year)}
-        >
-          Year
-        </button>
-        <button
-          className="Button"
-          onClick={() => onViewModeChange(ViewMode.QuarterYear)}
-        >
-          Quarter Year
-        </button>
-        <div className="Switch">
-          <label className="Switch_Toggle">
-            <input
-              type="checkbox"
-              defaultChecked={isChecked}
-              onClick={() => onViewListChange(!isChecked)}
-            />
-            <span className="Slider" />
-          </label>
-          Show Task List
-        </div>
+const ViewSwitcher = ({
+  onViewModeChange,
+  onViewListChange,
+  isChecked,
+}) => {
+  return (
+    <div className="ViewContainer">
+      <button
+        className="Button"
+        onClick={() => onViewModeChange(ViewMode.Hour)}
+      >
+        Hour
+      </button>
+      <button
+        className="Button"
+        onClick={() => onViewModeChange(ViewMode.QuarterDay)}
+      >
+        Quarter of Day
+      </button>
+      <button
+        className="Button"
+        onClick={() => onViewModeChange(ViewMode.HalfDay)}
+      >
+        Half of Day
+      </button>
+      <button className="Button" onClick={() => onViewModeChange(ViewMode.Day)}>
+        Day
+      </button>
+      <button
+        className="Button"
+        onClick={() => onViewModeChange(ViewMode.Week)}
+      >
+        Week
+      </button>
+      <button
+        className="Button"
+        onClick={() => onViewModeChange(ViewMode.Month)}
+      >
+        Month
+      </button>
+      <button
+        className="Button"
+        onClick={() => onViewModeChange(ViewMode.Year)}
+      >
+        Year
+      </button>
+      <button
+        className="Button"
+        onClick={() => onViewModeChange(ViewMode.QuarterYear)}
+      >
+        Quarter Year
+      </button>
+      <div className="Switch">
+        <label className="Switch_Toggle">
+          <input
+            type="checkbox"
+            defaultChecked={isChecked}
+            onClick={() => onViewListChange(!isChecked)}
+          />
+          <span className="Slider" />
+        </label>
+        Show Task List
       </div>
-    );
-  };
+    </div>
+  );
+};
 
 // Init
-const IUIViewWorkflow = () => {
+const IUIViewWorkflow = (props) => {
+  // Properties
+  const data = props?.dependencyArr;
   const [view, setView] = React.useState(ViewMode.Day);
-  const [tasks, setTasks] = React.useState(initTasks());
+  const [tasks, setTasks] = React.useState(data);
   const [isChecked, setIsChecked] = React.useState(true);
   let columnWidth = 65;
   if (view === ViewMode.Year) {
@@ -140,8 +142,8 @@ const IUIViewWorkflow = () => {
         onViewModeChange={viewMode => setView(viewMode)}
         onViewListChange={setIsChecked}
         isChecked={isChecked}
-      />      
-      <Gantt 
+      />
+      <Gantt
         tasks={tasks}
         viewMode={view}
         onDateChange={handleTaskChange}
