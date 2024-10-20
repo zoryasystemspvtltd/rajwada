@@ -25,7 +25,8 @@ import { AddDepartment, EditDepartment, ListDepartment, ViewDepartment } from ".
 import { AddUOM, EditUOM, ListUOM, ViewUOM } from "../pages/app/schema/UOMs";
 import { AddItemType, EditItemType, ListItemType, ViewItemType } from "../pages/app/schema/ItemType";
 import { ListActivity, ViewActivity, EditActivity, AddActivity } from "../pages/app/schema/Activities";
-import { AddWorkflow } from "../pages/app/schema/Workflow";
+import { ListDependency, ViewDependency, EditDependency, AddDependency } from "../pages/app/schema/Dependencies";
+import CreateWorkflow from "../pages/app/schema/Workflow";
 const Routes = () => {
     const { token } = useAuth();
 
@@ -292,8 +293,24 @@ const Routes = () => {
                     element: <AddActivity />
                 },
                 {
+                    path: "/dependencies",
+                    element: <ListDependency />
+                },
+                {
+                    path: "/dependencies/:id",
+                    element: <ViewDependency />
+                },
+                {
+                    path: "/dependencies/:id/edit",
+                    element: <EditDependency />
+                },
+                {
+                    path: "/dependencies/add",
+                    element: <AddDependency />
+                },
+                {
                     path: "/workflow",
-                    element: <AddWorkflow />
+                    element: <CreateWorkflow />
                 },
             ],
         },
