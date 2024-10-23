@@ -125,8 +125,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Company> Companys { get; set; }
     public virtual DbSet<Project> Projects { get; set; }
     public virtual DbSet<Plan> Plans { get; set; }
-    public virtual DbSet<Activity> Activities { get; set; }
-    public virtual DbSet<Workflow> Workflows { get; set; }
+    public virtual DbSet<Activity> Activities { get; set; }   
     public virtual DbSet<ActivityResource> ActivityResources { get; set; }
     public virtual DbSet<AssetGroup> AssetGroups { get; set; }
     public virtual DbSet<Asset> Assets { get; set; }
@@ -135,7 +134,8 @@ public class ApplicationDbContext : DbContext
     #region Masters
     public virtual DbSet<Department> Departments { get; set; }
     public virtual DbSet<Uom> Uoms { get; set; }
-
+    public virtual DbSet<Dependency> Dependencies { get; set; }
+    public virtual DbSet<Workflow> Workflows { get; set; }
 
     #endregion
 

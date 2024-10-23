@@ -273,6 +273,26 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                     </>
                                 }
+                                {(fld.type === 'datetype') &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >
+                                                {fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+                                            <Form.Control type="date"
+                                                name={fld.field}
+                                                id={fld.field}
+                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                value={data[fld.field] || new Date()}
+                                                disabled={props.readonly || fld.readonly || false}
+                                                onChange={handleChange} />
+
+                                        </Form.Group>
+                                    </>
+                                }
                                 {fld.type === 'check' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
