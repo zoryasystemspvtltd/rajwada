@@ -1,32 +1,32 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { useAuth } from "../provider/authProvider";
-import { ProtectedRoute } from "./ProtectedRoute";
+import ForgotPassword from "../pages/ForgotPassword";
+import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Logout from "../pages/Logout";
-import ResetPassword from "../pages/ResetPassword";
-import Dashboard from "../pages/app/Dashboard";
-import Home from "../pages/Home"
-import Signup from "../pages/Signup";
-import { ListRole, ViewRole, EditRole, AddRole } from "../pages/app/schema/Roles";
-import { ListUser, ViewUser, EditUser, AddUser } from "../pages/app/schema/Users";
-import { ListItemGroup, ViewItemGroup, EditItemGroup, AddItemGroup } from "../pages/app/schema/ItemGroups";
-import { ListItemMaster, ViewItemMaster, EditItemMaster, AddItemMaster } from "../pages/app/schema/ItemMasters";
-import { ListProject, ViewProject, EditProject, AddProject } from "../pages/app/schema/Projects";
-import { ListCompany, ViewCompany, EditCompany, AddCompany } from "../pages/app/schema/Companys";
-import { ListTower, ViewTower, EditTower, AddTower } from "../pages/app/schema/Towers";
-import { ListFloor, ViewFloor, EditFloor, AddFloor } from "../pages/app/schema/Floors";
-import { ListFlat, ViewFlat, EditFlat, AddFlat } from "../pages/app/schema/Flats";
 import Refresh from "../pages/Refresh";
+import ResetPassword from "../pages/ResetPassword";
+import Signup from "../pages/Signup";
 import ChangePassword from "../pages/app/ChangePassword";
 import ChangePasswordSuccess from "../pages/app/ChangePasswordSuccess";
-import { ViewProfile, EditProfile } from "../pages/app/Profile";
-import ForgotPassword from "../pages/ForgotPassword";
+import Dashboard from "../pages/app/Dashboard";
+import { EditProfile, ViewProfile } from "../pages/app/Profile";
+import { AddActivity, EditActivity, ListActivity, ViewActivity } from "../pages/app/schema/Activities";
+import { AddCompany, EditCompany, ListCompany, ViewCompany } from "../pages/app/schema/Companys";
 import { AddDepartment, EditDepartment, ListDepartment, ViewDepartment } from "../pages/app/schema/Departments";
-import { AddUOM, EditUOM, ListUOM, ViewUOM } from "../pages/app/schema/UOMs";
+import { AddDependency, EditDependency, ListDependency, ViewDependency } from "../pages/app/schema/Dependencies";
+import { AddFlat, EditFlat, ListFlat, ViewFlat } from "../pages/app/schema/Flats";
+import { AddFloor, EditFloor, ListFloor, ViewFloor } from "../pages/app/schema/Floors";
+import { AddItemGroup, EditItemGroup, ListItemGroup, ViewItemGroup } from "../pages/app/schema/ItemGroups";
+import { AddItemMaster, EditItemMaster, ListItemMaster, ViewItemMaster } from "../pages/app/schema/ItemMasters";
 import { AddItemType, EditItemType, ListItemType, ViewItemType } from "../pages/app/schema/ItemType";
-import { ListActivity, ViewActivity, EditActivity, AddActivity } from "../pages/app/schema/Activities";
-import { ListDependency, ViewDependency, EditDependency, AddDependency } from "../pages/app/schema/Dependencies";
-import CreateWorkflow from "../pages/app/schema/Workflow";
+import { AddProject, EditProject, ListProject, ViewProject } from "../pages/app/schema/Projects";
+import { AddRole, EditRole, ListRole, ViewRole } from "../pages/app/schema/Roles";
+import { AddTower, EditTower, ListTower, ViewTower } from "../pages/app/schema/Towers";
+import { AddUOM, EditUOM, ListUOM, ViewUOM } from "../pages/app/schema/UOMs";
+import { AddUser, EditUser, ListUser, ViewUser } from "../pages/app/schema/Users";
+import { AddWorkflow, EditWorkflow, ListWorkflow, ViewWorkflow } from "../pages/app/schema/Workflows";
+import { useAuth } from "../provider/authProvider";
+import { ProtectedRoute } from "./ProtectedRoute";
 const Routes = () => {
     const { token } = useAuth();
 
@@ -309,9 +309,21 @@ const Routes = () => {
                     element: <AddDependency />
                 },
                 {
-                    path: "/workflow",
-                    element: <CreateWorkflow />
+                    path: "/workflows",
+                    element: <ListWorkflow />
                 },
+                {
+                    path: "/workflows/:id",
+                    element: <ViewWorkflow />
+                },
+                {
+                    path: "/workflows/:id/edit",
+                    element: <EditWorkflow />
+                },
+                {
+                    path: "/workflows/add",
+                    element: <AddWorkflow />
+                }
             ],
         },
     ];

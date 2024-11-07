@@ -5,7 +5,7 @@ export const ListDependency = () => {
     const schema = {
         module: 'dependency',
         title: 'Dependency',
-        path: 'Dependencies',
+        path: 'dependencies',
         paging: true,
         searching: true,
         editing: true,
@@ -22,9 +22,9 @@ export const ListDependency = () => {
 
 export const ViewDependency = () => {
     const schema = {
-        module: 'dependencie',
+        module: 'dependency',
         title: 'Dependency',
-        path: 'Dependencies',
+        path: 'dependencies',
         showBreadcrumbs: true,
         editing: true,
         adding: false,
@@ -49,7 +49,7 @@ export const EditDependency = () => {
     const schema = {
         module: 'dependency',
         title: 'Dependency',
-        path: 'Dependencies',        
+        path: 'dependencies',        
         back: false,
         fields: [
             {
@@ -70,7 +70,7 @@ export const AddDependency = () => {
     const schema = {
         module: 'dependency',
         title: 'Dependency',
-        path: 'Dependencies',       
+        path: 'dependencies',       
         back: true,
         fields: [
             {

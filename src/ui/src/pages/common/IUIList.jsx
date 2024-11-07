@@ -33,6 +33,7 @@ const IUIList = (props) => {
         modulePrivileges.forEach(p => {
             access = { ...access, ...{ [p]: true } }
         })
+        console.log(access)
         setPrivileges(access)
     }, [loggedInUser, module]);
 

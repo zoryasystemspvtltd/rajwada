@@ -1,0 +1,25 @@
+/* styles.css */
+.flow-container {
+    display: flex;
+    /* Use flexbox for layout */
+    height: 100vh;
+    /* Full height */
+}
+
+.sidebar {
+    width: 280px;
+    /* Fixed width for the sidebar */
+    background-color: #f4f4f4;
+    /* Light gray background */
+    padding: 10px;
+    /* Some padding */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    /* Shadow for depth */
+}
+
+.react-flow {
+    flex-grow: 1;
+    /* Fill the remaining space */
+    position: relative;
+    /* Relative positioning for the React Flow */
+}

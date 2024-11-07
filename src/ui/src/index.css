@@ -2,6 +2,9 @@
 @import url(./assets/css/theme.css);
 @import url(./assets/css/defaultColor.css);
 @import url(./assets/css/fontawesome/css/all.css);
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .Wrapper {
     margin-bottom: 2rem;

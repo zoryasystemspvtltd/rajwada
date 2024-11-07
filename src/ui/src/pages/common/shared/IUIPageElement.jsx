@@ -12,7 +12,9 @@ import IUILookUpLink from './IUILookUpLink';
 import IUIHiddenState from './IUIHiddenState';
 import IUILookUpFilter from './IUILookUpFilter';
 import IUILookUpEnum from './IUILookUpEnum';
-import ILab from './IUICanvas';
+// import ILab from './IUICanvas';
+import ILab from "../../canvas-helper/Ilab-Canvas";
+import FlowchartInit from '../../flowchart-helper/FlowchartInit';
 
 
 const IUIPageElement = (props) => {
@@ -445,8 +447,21 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'ilab-canvas' &&
                                     <>
-                                        <ILab.Canvas schema={fld.schema} />
+                                        <ILab.MarkerCanvas schema={fld.schema} />
                                         <br />
+                                    </>
+                                }
+                                {fld.type === 'ilab-flowchart' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+                                            <FlowchartInit onChange={handleChange} schema={fld.schema} />
+                                            <br />
+                                        </Form.Group>
                                     </>
                                 }
                             </Col>
