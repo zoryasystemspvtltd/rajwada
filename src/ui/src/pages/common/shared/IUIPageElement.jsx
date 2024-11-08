@@ -454,11 +454,11 @@ const IUIPageElement = (props) => {
                                 {fld.type === 'ilab-flowchart' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                            {/* <Form.Label htmlFor={fld.field} >{fld.text}
                                                 {fld.required &&
                                                     <span className="text-danger">*</span>
                                                 }
-                                            </Form.Label>
+                                            </Form.Label> */}
                                             <FlowchartInit onChange={handleChange} schema={fld.schema} />
                                             <br />
                                         </Form.Group>

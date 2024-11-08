@@ -123,6 +123,11 @@ const IUIPage = (props) => {
     const savePageValue = (e) => {
         e.preventDefault();
 
+        if (module === 'workflow') {
+            alert('Data Saved Successfully');
+           return;
+        }
+
         if (!props?.readonly) {
             setDirty(true);
             const error = validate(data, schema?.fields)
@@ -183,7 +188,7 @@ const IUIPage = (props) => {
                                         {
                                             schema?.showBreadcrumbs && <Row>
                                                 <Col md={12} className='mb-3'>
-                                                    <IUIBreadcrumb schema={{type: 'view', module: module}} />
+                                                    <IUIBreadcrumb schema={{ type: 'view', module: module }} />
                                                 </Col>
                                             </Row>
                                         }

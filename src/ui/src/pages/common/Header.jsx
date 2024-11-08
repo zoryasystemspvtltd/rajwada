@@ -54,8 +54,9 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                 { name: "activityManagement", text: "Activity", icon: "cubes-stacked" },
             ],
             transaction: [
-                { name: "activityDependency", text: "Activity Dependency", icon: "vector-square", path: "/workflow" },
-                { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/home" },
+                { name: "workItemCreation", text: "Work Item Creation", icon: "vector-square", path: "/workitems" },
+                { name: "dependencyLabelSetting", text: "Dependency Label Setting", icon: "vector-square", path: "/labelsettings" },
+                { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
                 { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/home" }
             ],
             report: [

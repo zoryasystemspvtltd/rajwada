@@ -13,7 +13,7 @@ import { EditProfile, ViewProfile } from "../pages/app/Profile";
 import { AddActivity, EditActivity, ListActivity, ViewActivity } from "../pages/app/schema/Activities";
 import { AddCompany, EditCompany, ListCompany, ViewCompany } from "../pages/app/schema/Companys";
 import { AddDepartment, EditDepartment, ListDepartment, ViewDepartment } from "../pages/app/schema/Departments";
-import { AddDependency, EditDependency, ListDependency, ViewDependency } from "../pages/app/schema/Dependencies";
+import { AddWorkItem, EditWorkItem, ListWorkItem, ViewWorkItem } from "../pages/app/schema/Dependencies";
 import { AddFlat, EditFlat, ListFlat, ViewFlat } from "../pages/app/schema/Flats";
 import { AddFloor, EditFloor, ListFloor, ViewFloor } from "../pages/app/schema/Floors";
 import { AddItemGroup, EditItemGroup, ListItemGroup, ViewItemGroup } from "../pages/app/schema/ItemGroups";
@@ -293,35 +293,35 @@ const Routes = () => {
                     element: <AddActivity />
                 },
                 {
-                    path: "/dependencies",
-                    element: <ListDependency />
+                    path: "/workitems",
+                    element: <ListWorkItem />
                 },
                 {
-                    path: "/dependencies/:id",
-                    element: <ViewDependency />
+                    path: "/workitems/:id",
+                    element: <ViewWorkItem />
                 },
                 {
-                    path: "/dependencies/:id/edit",
-                    element: <EditDependency />
+                    path: "/workitems/:id/edit",
+                    element: <EditWorkItem />
                 },
                 {
-                    path: "/dependencies/add",
-                    element: <AddDependency />
+                    path: "/workitems/add",
+                    element: <AddWorkItem />
                 },
                 {
-                    path: "/workflows",
+                    path: "/labelsettings",
                     element: <ListWorkflow />
                 },
                 {
-                    path: "/workflows/:id",
+                    path: "/labelsettings/:id",
                     element: <ViewWorkflow />
                 },
                 {
-                    path: "/workflows/:id/edit",
+                    path: "/labelsettings/:id/edit",
                     element: <EditWorkflow />
                 },
                 {
-                    path: "/workflows/add",
+                    path: "/labelsettings/add",
                     element: <AddWorkflow />
                 }
             ],

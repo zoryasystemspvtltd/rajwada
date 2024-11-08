@@ -5,8 +5,8 @@ export const ListWorkflow = () => {
 
     const schema = {
         module: 'workflow',
-        title: 'Workflow',
-        path: 'workflows',
+        title: 'Dependency Label Setting',
+        path: 'labelsettings',
         paging: true,
         searching: true,
         editing: true,
@@ -23,8 +23,8 @@ export const ListWorkflow = () => {
 export const ViewWorkflow = () => {
     const schema = {
         module: 'workflow',
-        title: 'Workflow',
-        path: 'workflows',
+        title: 'Dependency Label Setting',
+        path: 'labelsettings',
         showBreadcrumbs: true,
         editing: true,
         adding: false,
@@ -49,8 +49,8 @@ export const ViewWorkflow = () => {
 export const EditWorkflow = () => {
     const schema = {
         module: 'workflow',
-        title: 'Workflow',
-        path: 'workflows',
+        title: 'Dependency Label Setting',
+        path: 'labelsettings',
         back: false,
         fields: [
             {
@@ -69,8 +69,8 @@ export const EditWorkflow = () => {
 export const AddWorkflow = () => {
     const schema = {
         module: 'workflow',
-        title: 'Workflow',
-        path: 'workflows',
+        title: 'Dependency Label Setting',
+        path: 'labelsettings',
         back: true,
         fields: [
             {
@@ -78,7 +78,7 @@ export const AddWorkflow = () => {
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Alias', field: 'code', type: 'text', required: true, width: 6 },
-                    { text: 'Dependency Label Setting', field: 'Data', type: 'ilab-flowchart', width: 12 }
+                    { text: 'Setting', field: 'Data', type: 'ilab-flowchart', width: 12 }
                 ]
             },
         ]

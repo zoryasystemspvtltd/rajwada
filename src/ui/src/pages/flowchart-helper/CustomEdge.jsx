@@ -4,6 +4,11 @@ import { getBezierPath } from 'reactflow';
 const CustomEdge = React.forwardRef(({ id, sourceX, sourceY, targetX, targetY }, ref) => {
     const [path] = getBezierPath({ sourceX, sourceY, targetX, targetY });
 
+    // Calculate the angle of the edge based on the source and target positions
+    const deltaX = targetX - sourceX;
+    const deltaY = targetY - sourceY;
+    const angle = Math.atan2(deltaY, deltaX); // Angle in radians
+
     return (
         <g ref={ref}>
             <path
@@ -22,7 +27,7 @@ const CustomEdge = React.forwardRef(({ id, sourceX, sourceY, targetX, targetY },
                     refY="3.5"
                     orient="auto"
                 >
-                    <polygon points="0 0, 10 3.5, 0 7" fill="#222" />
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#222" transform={`rotate(${angle})`} transformOrigin='center' />
                 </marker>
             </defs>
         </g>

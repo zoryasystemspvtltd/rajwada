@@ -11,9 +11,10 @@ import ReactFlow, {
     updateEdge,
     useEdgesState,
     useNodesState,
-    useReactFlow,
+    useReactFlow
 } from "reactflow";
-import CustomEdge from "./CustomEdge";
+import CustomNode from "./CustomNode";
+import CustomEdge from './CustomEdge';
 import "reactflow/dist/style.css";
 import { useSelector } from "react-redux";
 import ContextMenu from "./ContextMenu";
@@ -26,11 +27,16 @@ function downloadImage(dataUrl) {
     a.setAttribute("href", dataUrl);
     a.click();
 }
+
 const imageWidth = 1024;
 const imageHeight = 768;
+
 const edgeTypes = {
     custom: CustomEdge,
 };
+
+const nodeTypes = { customNode: CustomNode };
+
 const Content = () => {
     const module = 'dependency';
     const dataSet = useSelector((state) => state.api[module]);
@@ -41,6 +47,7 @@ const Content = () => {
     const [nodeName, setNodeName] = useState();
     const [nodeId, setNodeId] = useState();
     const [nodeColor, setNodeColor] = useState("#ffffff");
+    const [nodeType, setNodeType] = useState("customNode");
     const [selectedElements, setSelectedElements] = useState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
     const edgeUpdateSuccessful = useRef(true);
@@ -50,6 +57,7 @@ const Content = () => {
     const [newNodeInput, setNewNodeInput] = useState({
         id: "",
         name: "",
+        type: 'customNode',
         color: "#ffffff",
     });
     const { setViewport } = useReactFlow();
@@ -79,6 +87,7 @@ const Content = () => {
             },
         }).then(downloadImage);
     };
+
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge({ ...params, type: 'custom' }, eds)),
         [setEdges]
@@ -101,7 +110,8 @@ const Content = () => {
         let nodeTemplates = dataSet?.items?.map((item) => {
             return {
                 data: { label: item?.name },
-                color: getRandomLightColor()
+                type: 'customNode',
+                color: getRandomLightColor(),
             }
         });
         setDefaultNodeTemplates(nodeTemplates);
@@ -145,8 +155,10 @@ const Content = () => {
         setSelectedElements([node]);
         setNodeName(node.data.label);
         setNodeId(node.id);
+        setNodeType("customNode");
         setNodeColor(node.style.background);
     }, []);
+
     const onEdgeUpdateStart = useCallback(() => {
         edgeUpdateSuccessful.current = false;
     }, []);
@@ -175,6 +187,7 @@ const Content = () => {
         event.preventDefault();
         const newNode = {
             id: newNodeInput.id.length > 0 ? newNodeInput.id : getId(),
+            type: 'customNode',
             position: { x: 400, y: 50 }, // You can set the initial position as needed
             data: {
                 label:
@@ -183,10 +196,11 @@ const Content = () => {
             style: {
                 background:
                     newNodeInput.color.length > 0 ? newNodeInput.color : nodeColor, // Default color
+                borderRadius: "25px"
             },
         };
         setNodes((prevNodes) => [...prevNodes, newNode]);
-        setNewNodeInput({ id: "", name: "", color: "#ffffff" });
+        setNewNodeInput({ id: "", name: "", color: "#ffffff", type: 'customNode' });
     };
     useEffect(() => {
         if (selectedElements.length > 0) {
@@ -200,7 +214,9 @@ const Content = () => {
                         node.style = {
                             ...node.style,
                             background: nodeColor,
+                            borderRadius: "25px"
                         };
+                        node.type = 'customNode';
                     }
                     return node;
                 })
@@ -268,9 +284,11 @@ const Content = () => {
                 id: getId(),
                 node,
                 position,
+                type: 'customNode',
                 data: { label: `${node.data.label}` },
                 style: {
                     background: node.color,
+                    borderRadius: "25px"
                 },
             };
 
@@ -416,25 +434,25 @@ const Content = () => {
                             {/* Save and Restore Buttons */}
                             <div className="flex flex-col space-y-3">
                                 <div className="text-sm font-bold text-black">CONTROLS</div>
-                                <div className="flex flex-row space-x-3">
-                                    <button
+                                <div className="flex flex-row space-x-1">
+                                    {/* <button
                                         className="flex-1 p-2 text-sm text-white transition duration-300 ease-in-out rounded bg-slate-700 hover:bg-slate-800 active:bg-slate-900"
                                         onClick={onSave}
                                     >
                                         Save
-                                    </button>
+                                    </button> */}
                                     <button
                                         className="flex-1 p-2 text-sm text-white rounded bg-slate-700 hover:bg-slate-800 active:bg-slate-900"
                                         onClick={onRestore}
                                     >
                                         Reset{" "}
                                     </button>
-                                    <button
+                                    {/* <button
                                         className="flex-1 p-2 text-sm text-white rounded bg-slate-700 hover:bg-slate-800 active:bg-slate-900"
                                         onClick={download}
                                     >
                                         Download{" "}
-                                    </button>
+                                    </button> */}
                                 </div>
                             </div>
                         </div>
@@ -448,6 +466,7 @@ const Content = () => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                nodeTypes={nodeTypes}
                 onNodeClick={onNodeClick}
                 edgeTypes={edgeTypes}
                 onInit={setReactFlowInstance}

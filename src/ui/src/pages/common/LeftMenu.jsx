@@ -114,8 +114,8 @@ const LeftMenu = (props) => {
                 { name: "activityManagement", text: "Activity", icon: "cubes-stacked" },
             ],
             transaction: [
-                { name: "dependencyCreation", text: "Dependency Creation", icon: "vector-square", path: "/dependencies" },
-                { name: "activityDependency", text: "Activity Dependency", icon: "vector-square", path: "/workflows" },
+                { name: "workItemCreation", text: "Work Item Creation", icon: "vector-square", path: "/workitems" },
+                { name: "dependencyLabelSetting", text: "Dependency Label Setting", icon: "vector-square", path: "/labelsettings" },
                 { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
                 { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/home" }
             ],
@@ -202,7 +202,7 @@ const LeftMenu = (props) => {
                     <ul className="vertical-nav-menu">
                         {/* <li className="app-sidebar__heading">Project Management</li> */}
                         <li>
-                            <div className="app-header-center my-2 p-2" style={{backgroundColor: "white"}}>
+                            <div className="app-header-center my-2 p-2" style={{ backgroundColor: "white" }}>
                                 <div className="logo-center"><img src={clientLogo} alt="Rajwada" /></div>
                             </div>
                         </li>
