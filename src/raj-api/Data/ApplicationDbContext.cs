@@ -136,7 +136,9 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Uom> Uoms { get; set; }
     public virtual DbSet<Dependency> Dependencies { get; set; }
     public virtual DbSet<Workflow> Workflows { get; set; }
-
+    public virtual DbSet<Mouza> Mouzas { get; set; }
+    public virtual DbSet<RsDaag> RsDaags { get; set; }
+    public virtual DbSet<NameMaster> NameMasters { get; set; }
     #endregion
 
 }
