@@ -13,7 +13,7 @@ const IUIPage = (props) => {
     // Properties
     const schema = props?.schema;
     const module = schema?.module;
-
+    const flowchartKey = "dependency-flow";
     // Parameter
     const { id } = useParams();
     const { parentId } = useParams();
@@ -123,11 +123,6 @@ const IUIPage = (props) => {
     const savePageValue = (e) => {
         e.preventDefault();
 
-        if (module === 'workflow') {
-            alert('Data Saved Successfully');
-           return;
-        }
-
         if (!props?.readonly) {
             setDirty(true);
             const error = validate(data, schema?.fields)
@@ -138,7 +133,7 @@ const IUIPage = (props) => {
                 setDisabled(true)
                 if (id != undefined)
                     try {
-                        api.editData({ module: module, data: data });
+                        api.editData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
 
                         const timeId = setTimeout(() => {
@@ -156,11 +151,12 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
-                        api.addData({ module: module, data: data });
+                        api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
                             navigate(-1);
+                            localStorage.removeItem(flowchartKey);
                         }, 1000)
 
                         return () => {

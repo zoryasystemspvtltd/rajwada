@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
+import { useSelector } from 'react-redux';
 import { useState } from "react";
 
 
 const IUIMenuItem = (props) => {
-
+    const privileges = useSelector((state) => state.api.loggedInUser?.privileges);
     const [value, setValue] = useState(props.schema);
 
     const expandMenu = (e, index) => {
@@ -27,9 +28,23 @@ const IUIMenuItem = (props) => {
                         <li key={item.name} className={item.expanded ? "mm-active" : ""}>
                             {!item.schema &&
                                 <>
-                                    <Link to={item.path}>
-                                        <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`}></i>{item.text}
-                                    </Link>
+                                    {
+                                        item?.access ? privileges?.some(p => p.module === item.access) ?
+                                            (
+                                                <Link to={item.path}>
+                                                    <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`}></i>{item.text}
+                                                </Link>
+                                            )
+                                            :
+                                            null
+                                            :
+                                            (
+                                                <Link to={item.path}>
+                                                    <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`}></i>{item.text}
+                                                </Link>
+                                            )
+                                    }
+
                                     {/* {item.name === 'home' &&
                                         <Link to={item.path}>
                                             <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`}></i>{item.text}

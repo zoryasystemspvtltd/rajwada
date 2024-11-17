@@ -14,6 +14,10 @@ export const ListWorkflow = () => {
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Alias', field: 'code', type: 'text', sorting: true, searching: true },
+            {
+                text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'project' }
+            }
         ]
     }
 
@@ -35,9 +39,13 @@ export const ViewWorkflow = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', type: 'label', width: 6 },
-                    { text: 'Alias', field: 'code', type: 'label', width: 6 },
-                    { field: 'Data', type: 'ilab-flowchart', width: 12 }
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', type: 'label', width: 4 },
+                    { text: 'Alias', field: 'code', type: 'label', width: 4 },
+                    {
+                        text: 'Project', field: 'projectId', type: 'lookup-link', width: 4,
+                        schema: { module: 'project' }
+                    },
+                    { field: 'data', type: 'ilab-flowchart', width: 12 }
                 ]
             }
         ]
@@ -56,8 +64,13 @@ export const EditWorkflow = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
-                    { text: 'Alias', field: 'code', type: 'text', required: true, width: 6 },
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 4 },
+                    { text: 'Alias', field: 'code', type: 'text', required: true, width: 4 },
+                    {
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 4,
+                        schema: { module: 'project' }
+                    },
+                    { text: 'Setting', field: 'data', type: 'ilab-flowchart', width: 12 }
                 ]
             },
         ]
@@ -76,9 +89,13 @@ export const AddWorkflow = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
-                    { text: 'Alias', field: 'code', type: 'text', required: true, width: 6 },
-                    { text: 'Setting', field: 'Data', type: 'ilab-flowchart', width: 12 }
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 4 },
+                    { text: 'Alias', field: 'code', type: 'text', required: true, width: 4 },
+                    {
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 4,
+                        schema: { module: 'project' }
+                    },
+                    { text: 'Setting', field: 'data', type: 'ilab-flowchart', width: 12 }
                 ]
             },
         ]

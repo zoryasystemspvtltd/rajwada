@@ -1,6 +1,7 @@
 import React, { Fragment, useRef, useState } from "react";
 import { SketchPicker } from 'react-color';
 import Modal from 'react-bootstrap/Modal';
+import { Button, Form } from "react-bootstrap";
 import { useEffect } from "react";
 import markerIcon from "./assets/marker-icon.png";
 import cameraIcon from "./assets/camera.png";
@@ -22,9 +23,6 @@ export const Controls = (props) => {
             props.onChange(e, mode);
         }
     }
-
-
-
     return (
         <div className="tools" style={{ backgroundColor: '#CCC' }}>
             <a onClick={() => zoomIn()} title="Zoom +" className="btn">
@@ -60,7 +58,7 @@ export const Marker = (props) => {
     const [isMouseDown, setIsMouseDown] = useState(false);
     const [isMove, setIsMove] = useState(false);
     const [modeStyle, setModeStyle] = useState({});
-    const [displayColorPicker, setDisplayColorPicker] = useState(false);
+    const [displayMarkerColorPicker, setDisplayMarkerColorPicker] = useState(false);
     const [point, setPoint] = useState({
         x: props?.x - props?.width / 2,
         y: props?.y - props?.height,
@@ -76,6 +74,7 @@ export const Marker = (props) => {
             width: props?.width,
             height: props?.height,
             color: props?.color,
+            label: props?.label,
             type: 'marker'
         })
     }, [props]);
@@ -84,7 +83,7 @@ export const Marker = (props) => {
         e.preventDefault();
         if (!isMove) {
             // alert(`Marker Selected ${props?.id}`);
-            setDisplayColorPicker(!displayColorPicker);
+            setDisplayMarkerColorPicker(!displayMarkerColorPicker);
             props?.markerToCanvasForColor(true);
         }
         setIsMove(false)
@@ -113,6 +112,7 @@ export const Marker = (props) => {
             width: point?.width,
             height: point?.height,
             color: point?.color,
+            label: point?.label,
             type: 'marker'
         }
 
@@ -132,6 +132,7 @@ export const Marker = (props) => {
                 width: point?.width,
                 height: point?.height,
                 color: point?.color,
+                label: point?.label,
                 type: 'marker'
             })
         }
@@ -168,6 +169,7 @@ export const Marker = (props) => {
                     >
                         <path fill={point?.color || "#ff2424"} d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z" />
                     </svg>
+                    <title>{point?.label}</title>
                 </g>
             </a>
         </g>
@@ -175,6 +177,7 @@ export const Marker = (props) => {
 };
 
 export const Rectangle = (props) => {
+    const [displayRectColorPicker, setDisplayRectColorPicker] = useState(false);
     const [point, setPoint] = useState({
         x: props?.x,
         y: props?.y,
@@ -189,13 +192,16 @@ export const Rectangle = (props) => {
             y: props?.y,
             width: props?.width,
             height: props?.height,
-            type: 'rectangle'
+            type: 'rectangle',
+            color: props?.color
         })
     }, [props]);
 
     const selectMarkar = (e) => {
         e.preventDefault();
-        alert(`Marker Selected ${props?.id}`);
+        // alert(`Marker Selected ${props?.id}`);
+        setDisplayRectColorPicker(!displayRectColorPicker);
+        props?.rectToCanvasForColor(true);
     }
 
 
@@ -217,6 +223,12 @@ export const Rectangle = (props) => {
         }
     };
 
+    const onClick = (e) => {
+        if (props?.onClick) {
+            props.onClick(e)
+        }
+    };
+
     return (
         <g data-cell-id="1" >
             <a href="./" xlinkHref="./" onClick={selectMarkar}>
@@ -229,8 +241,17 @@ export const Rectangle = (props) => {
                         onMouseDown={onMouseDown}
                         onMouseUp={onMouseUp}
                         onMouseMove={onMouseMove}
-
-                        style={{ fill: 'blue', stroke: 'blue', strokeWidth: 1, fillOpacity: 0.1, strokeOpacity: 0.9 }} />
+                        onClick={onClick}
+                        style={
+                            {
+                                fill: point?.color ? point.color : 'blue',
+                                stroke: point?.color ? point.color : 'blue',
+                                strokeWidth: 2,
+                                fillOpacity: 0.3,
+                                strokeOpacity: 0.9
+                            }
+                        }
+                    />
                 </g>
             </a>
         </g>
@@ -372,7 +393,10 @@ export const IlabMarkerCanvas = () => {
     const [temp, setTemp] = useState()
     const [pallet, setPallet] = useState({ height: 600, width: 800 })
     const [selectedColor, setSelectedColor] = useState("#ff2424");
-    const [displayColorPicker, setDisplayColorPicker] = useState(false);
+    const [selectedRectColor, setSelectedRectColor] = useState("#ff2424");
+    const [markerLabel, setMarkerLabel] = useState("");
+    const [displayMarkerColorPicker, setDisplayMarkerColorPicker] = useState(false);
+    const [displayRectColorPicker, setDisplayRectColorPicker] = useState(false);
     const [currentId, setCurrentId] = useState(1);
     const [planImage, setPlanImage] = useState(null);
     const parentRef = useRef(null)
@@ -494,11 +518,16 @@ export const IlabMarkerCanvas = () => {
     }
 
     const markerToCanvasForColor = (colorPickerState) => {
-        setDisplayColorPicker(colorPickerState);
+        setDisplayMarkerColorPicker(colorPickerState);
+    }
+
+    const rectToCanvasForColor = (colorPickerState) => {
+        setDisplayRectColorPicker(colorPickerState);
     }
 
     const handleChangeComplete = (color) => {
         setSelectedColor(color.hex);
+        console.log(currentId);
         const marker = markers?.filter(item => `${item.id}` === `${currentId}`);
         const index = markers?.findIndex(item => `${item.id}` === `${currentId}`);
 
@@ -514,9 +543,49 @@ export const IlabMarkerCanvas = () => {
         }
     };
 
+    const handleRectChangeComplete = (color) => {
+        setSelectedRectColor(color.hex);
+        console.log(currentId);
+        const marker = markers?.filter(item => `${item.id}` === `${currentId}`);
+        const index = markers?.findIndex(item => `${item.id}` === `${currentId}`);
+
+        if (index >= 0) {
+            let newMarker = marker[0];
+            newMarker.color = color.hex;
+            const newMarkers = [
+                ...markers?.slice(0, index), // everything before array
+                newMarker,
+                ...markers?.slice(index + 1), // everything after array
+            ]
+            setMarker(newMarkers);
+        }
+    }
+
+    const handleMarkerLabelChange = (event) => {
+        setMarkerLabel(event.target.value);
+        const marker = markers?.filter(item => `${item.id}` === `${currentId}`);
+        const index = markers?.findIndex(item => `${item.id}` === `${currentId}`);
+
+        if (index >= 0) {
+            let newMarker = marker[0];
+            newMarker.label = event.target.value;
+            const newMarkers = [
+                ...markers?.slice(0, index), // everything before array
+                newMarker,
+                ...markers?.slice(index + 1), // everything after array
+            ]
+            setMarker(newMarkers);
+        }
+    };
+
     const handleClose = () => {
-        setDisplayColorPicker(false);
+        setDisplayMarkerColorPicker(false);
         markerToCanvasForColor(false);
+    };
+
+    const handleRectClose = () => {
+        setDisplayRectColorPicker(false);
+        rectToCanvasForColor(false);
     };
 
     function handleTransform(e) {
@@ -535,11 +604,32 @@ export const IlabMarkerCanvas = () => {
                 width: (m.type === 'marker' || m.type === 'camera') ? (size.width / newScale) : m.width,
                 height: (m.type === 'marker' || m.type === 'camera') ? (size.height / newScale) : m.height,
                 type: m.type,
-                color: m?.color
+                color: m?.color,
+                label: m?.label
             }
         })
         setMarker(newMarkers)
     }
+
+    const listStyles = {
+        list: {
+            listStyleType: 'none',
+            padding: 0,
+        },
+        listItem: {
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '10px',
+        },
+        icon: {
+            marginRight: '10px',
+            fontSize: '16px', // Adjust the size of the icon
+        },
+        text: {
+            fontSize: '16px', // Size of the text
+        },
+    };
+
     return (
         <div className="container-fluid">
             <div className='row'>
@@ -580,13 +670,16 @@ export const IlabMarkerCanvas = () => {
                                                             x={temp.x}
                                                             y={temp.y}
                                                             width={temp.width}
+                                                            color={temp?.color}
                                                             height={temp.height}
                                                             onChange={updateMarker}
                                                             onMove={handleSelectionMode}
                                                             onMouseUp={handleMouseUp}
                                                             onMouseDown={handleMouseDown}
                                                             onMouseMove={handleMouseMove}
+                                                            onClick={(e) => setCurrentId(1)}
                                                             style={modeStyle}
+                                                            rectToCanvasForColor={rectToCanvasForColor}
                                                         />
                                                     }
                                                     {markers.map((m, i) => (
@@ -599,12 +692,15 @@ export const IlabMarkerCanvas = () => {
                                                                     y={m.y}
                                                                     width={m.width}
                                                                     height={m.height}
+                                                                    color={m?.color}
                                                                     onChange={updateMarker}
                                                                     onMove={handleSelectionMode}
                                                                     onMouseUp={handleMouseUp}
                                                                     onMouseDown={handleMouseDown}
                                                                     onMouseMove={handleMouseMove}
+                                                                    onClick={(e) => setCurrentId(i + 1)}
                                                                     style={modeStyle}
+                                                                    rectToCanvasForColor={rectToCanvasForColor}
                                                                 />
                                                             }
                                                         </Fragment>
@@ -621,11 +717,12 @@ export const IlabMarkerCanvas = () => {
                                                                     x={m.x}
                                                                     y={m.y}
                                                                     color={m?.color}
+                                                                    label={m?.label}
                                                                     width={m.width}
                                                                     height={m.height}
                                                                     onChange={updateMarker}
                                                                     onMove={handleSelectionMode}
-                                                                    onClick={(e) => setCurrentId(i + 1)}
+                                                                    onClick={(e) => { setCurrentId(i + 1); setMarkerLabel(m?.label); setSelectedColor(m?.color) }}
                                                                     markerToCanvasForColor={markerToCanvasForColor}
                                                                 />
                                                             }
@@ -664,34 +761,117 @@ export const IlabMarkerCanvas = () => {
                     </div>
                 </div>
                 <div className='col-md-3'>
-                    <ol>
-                        {markers.map((m, i) => (
-                            <li key={i}  >
-                                {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
-                            </li>
-                        ))}
+                    <ol style={listStyles.list}>
+                        {markers.map((m, i) => {
+                            if (m.type === 'marker') {
+                                return (
+                                    <li key={i} style={listStyles.listItem}>
+                                        <i className="fa-solid fa-location-dot fa-lg" style={{ ...listStyles.icon, color: m?.color ? m.color : "#ff2424" }}></i>
+                                        <span style={listStyles.text}>
+                                            {m?.label ? m.label : m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
+                                        </span>
+                                    </li>
+                                )
+                            }
+                            else if (m.type === 'rectangle') {
+                                return (
+                                    <li key={i} style={listStyles.listItem}>
+                                        <i className="bi bi-bounding-box fs-5" style={listStyles.icon}></i>
+                                        <span style={listStyles.text}>
+                                            {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
+                                        </span>
+                                    </li>
+                                )
+                            }
+                            else {
+                                return (
+                                    <li key={i} style={listStyles.listItem}>
+                                        <span style={listStyles.text}>
+                                            <i className="bi bi-camera-fill fs-5" style={listStyles.icon}></i>
+                                            {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
+                                        </span>
+                                    </li>
+                                )
+                            }
+                        })}
                     </ol>
                 </div>
-                {displayColorPicker ? (
-                    <div style={{ position: 'absolute', zIndex: '2' }}>
-                        <div
-                            style={{
-                                position: 'absolute',
-                                top: '0',
-                                right: '0',
-                                background: 'white',
-                                border: '1px solid #ccc',
-                                padding: '10px',
-                            }}
-                        >
-                            <SketchPicker
-                                color={selectedColor}
-                                onChangeComplete={handleChangeComplete}
-                            />
-                            <button onClick={handleClose}>Close</button>
-                        </div>
-                    </div>
+                {displayMarkerColorPicker ? (
+                    <Modal
+                        size="md"
+                        show={displayMarkerColorPicker}
+                        onHide={() => setDisplayMarkerColorPicker(false)}
+                        aria-labelledby="example-modal-sizes-title-marker-lg"
+                    >
+                        <Modal.Header closeButton>
+                            <Modal.Title id="example-modal-sizes-title-marker-lg">
+                                {`Marker Menu`}
+                            </Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <div className="container">
+                                <div className="row d-flex justify-content-center">
+                                    <div className="col-sm-12 col-md-6">
+                                        <SketchPicker
+                                            color={selectedColor}
+                                            onChangeComplete={handleChangeComplete}
+                                        />
+                                    </div>
+                                    <div className="col-sm-12 col-md-6 d-flex align-items-center">
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor="markerLabel" >
+                                                Marker Label
+                                            </Form.Label>
+
+                                            <Form.Control type="text"
+                                                name="markerLabel"
+                                                id="markerLabel"
+                                                placeholder="Marker Label here........"
+                                                value={markerLabel}
+                                                onChange={handleMarkerLabelChange}
+                                            />
+
+                                        </Form.Group>
+                                    </div>
+                                </div>
+                                <div className="row mt-2">
+                                    <div className="col d-flex justify-content-center">
+                                        <Button
+                                            variant="contained"
+                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-dark btn-md mr-2"
+                                            onClick={handleClose}>
+                                            Close
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </Modal.Body>
+                    </Modal>
                 ) : null}
+                {
+                    displayRectColorPicker ? (
+                        <div style={{ position: 'absolute', zIndex: '2' }}>
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: '0',
+                                    right: '0',
+                                    background: 'white',
+                                    border: '1px solid #ccc',
+                                    padding: '10px',
+                                }}
+                            >
+                                <SketchPicker
+                                    color={selectedRectColor}
+                                    onChangeComplete={handleRectChangeComplete}
+                                />
+                                <button onClick={handleRectClose}>Close</button>
+                            </div>
+                        </div>
+                    )
+                        :
+                        null
+                }
             </div>
         </div>
     );

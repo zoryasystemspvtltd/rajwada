@@ -34,12 +34,12 @@ export default function ContextMenu({
             <p style={{ margin: "0.5em" }}>
                 <small>node: {id}</small>
             </p>
-            <button
+            {/* <button
                 onClick={duplicateNode}
                 className="hover:bg-slate-200 bg-slate-100  block p-[0.5em] text-left w-[100%]"
             >
                 <small>Duplicate</small>
-            </button>
+            </button> */}
             <button
                 onClick={deleteNode}
                 className="hover:bg-slate-200 bg-slate-100 block p-[0.5em] text-left w-[100%]"

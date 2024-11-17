@@ -13,8 +13,8 @@ export const ListWorkItem = () => {
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Code', field: 'code', type: 'text', sorting: false, searching: false },
-            { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false }
-
+            { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
+            { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false }
         ]
     }
     return (<IUIList schema={schema} />)
@@ -37,7 +37,8 @@ export const ViewWorkItem = () => {
                 , fields: [
                     { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Code', field: 'code', type: 'text', required: true, width: 6 },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'text', required: true, width: 12 },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'text', required: true, width: 6 },
+                    { text: 'Type', field: 'type', placeholder: 'Type here...', type: 'text', required: true, width: 6 }
                 ]
             },
         ]
@@ -57,7 +58,16 @@ export const EditWorkItem = () => {
                 , fields: [
                     { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Code', field: 'code', placeholder: 'Code here...', type: 'text', required: true, width: 6 },
-                    { text: 'Description', field: 'description', type: 'text', required: true, width: 12 }
+                    { text: 'Description', field: 'description', type: 'text', required: true, width: 6 },
+                    {
+                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 6,
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'Inside' },
+                                { name: 'Outside' }
+                            ]
+                        }
+                    }
                 ]
             },
         ]
@@ -78,7 +88,16 @@ export const AddWorkItem = () => {
                 , fields: [
                     { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Code', field: 'code', placeholder: 'Code here...', type: 'text', required: true, width: 6 },
-                    { text: 'Description', field: 'description', type: 'text', required: true, width: 12 }
+                    { text: 'Description', field: 'description', type: 'text', required: true, width: 6 },
+                    {
+                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 6,
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'Inside' },
+                                { name: 'Outside' }
+                            ]
+                        }
+                    }
                 ]
             },
         ]

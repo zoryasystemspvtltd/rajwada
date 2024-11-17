@@ -4,6 +4,7 @@ import ReactFlow, {
     addEdge,
     Background,
     Controls,
+    MarkerType,
     getRectOfNodes,
     getTransformForBounds,
     MiniMap,
@@ -14,7 +15,6 @@ import ReactFlow, {
     useReactFlow
 } from "reactflow";
 import CustomNode from "./CustomNode";
-import CustomEdge from './CustomEdge';
 import "reactflow/dist/style.css";
 import { useSelector } from "react-redux";
 import ContextMenu from "./ContextMenu";
@@ -31,14 +31,11 @@ function downloadImage(dataUrl) {
 const imageWidth = 1024;
 const imageHeight = 768;
 
-const edgeTypes = {
-    custom: CustomEdge,
-};
-
 const nodeTypes = { customNode: CustomNode };
 
-const Content = () => {
+const Content = (props) => {
     const module = 'dependency';
+    const readonlyMode = props?.readonly;
     const dataSet = useSelector((state) => state.api[module]);
     const isSidebarOpen = true;
     const [defaultNodeTemplates, setDefaultNodeTemplates] = useState([]);
@@ -51,8 +48,17 @@ const Content = () => {
     const [selectedElements, setSelectedElements] = useState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
     const edgeUpdateSuccessful = useRef(true);
+    const [selectedEdge, setSelectedEdge] = useState(null);
     const [menu, setMenu] = useState(null);
     const ref = useRef(null);
+
+    useEffect(() => {
+        if (props?.value) {
+            const tempData = JSON.parse(props?.value);
+            setNodes(tempData?.nodes);
+            setEdges(tempData?.edges);
+        }
+    }, [props?.value, setNodes, setEdges]);
 
     const [newNodeInput, setNewNodeInput] = useState({
         id: "",
@@ -62,6 +68,7 @@ const Content = () => {
     });
     const { setViewport } = useReactFlow();
     const { getNodes } = useReactFlow();
+
     const download = (event) => {
         // we calculate a transform for the nodes so that all nodes are visible
         // we then overwrite the transform of the `.react-flow__viewport` element
@@ -89,9 +96,21 @@ const Content = () => {
     };
 
     const onConnect = useCallback(
-        (params) => setEdges((eds) => addEdge({ ...params, type: 'custom' }, eds)),
+        (params) => setEdges((eds) => addEdge({
+            ...params, markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: '#2f303d',
+            },
+            style: {
+                strokeWidth: 2,
+                stroke: '#2f303d',
+            },
+        }, eds)),
         [setEdges]
     );
+
     const [id, setId] = useState(0);
 
     const getRandomLightColor = () => {
@@ -101,10 +120,16 @@ const Content = () => {
         const b = Math.floor(Math.random() * 256);
 
         // Adjust brightness to ensure the color is light
-        const lightShade = `rgb(${Math.min(r + 100, 255)}, ${Math.min(g + 100, 255)}, ${Math.min(b + 100, 255)})`;
+        const adjustedR = Math.min(r + 100, 255);
+        const adjustedG = Math.min(g + 100, 255);
+        const adjustedB = Math.min(b + 100, 255);
 
-        return lightShade;
+        // Convert RGB values to hex and format them as a string
+        const hexColor = `#${((1 << 24) + (adjustedR << 16) + (adjustedG << 8) + adjustedB).toString(16).slice(1).toUpperCase()}`;
+
+        return hexColor;
     };
+
 
     useEffect(() => {
         let nodeTemplates = dataSet?.items?.map((item) => {
@@ -115,7 +140,40 @@ const Content = () => {
             }
         });
         setDefaultNodeTemplates(nodeTemplates);
+        localStorage.removeItem("dependency-flow");
     }, []);
+
+    // Handle the context menu (right-click) to select the edge
+    const handleEdgeContextMenu = (event, edge) => {
+        event.preventDefault(); // Prevent default right-click behavior
+        setSelectedEdge(edge);  // Store the selected edge
+    };
+
+    // Handle the keyboard delete key event
+    const handleDeleteEdge = useCallback(() => {
+        if (selectedEdge) {
+            // Filter out the selected edge from the edges array
+            setEdges((eds) => eds.filter((e) => e.id !== selectedEdge.id));
+            setSelectedEdge(null); // Reset selected edge after deletion
+        }
+    }, [selectedEdge, setEdges]);
+
+    // Listen for the Delete key press
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Delete') {
+                handleDeleteEdge(); // Delete edge when Delete key is pressed
+            }
+        };
+
+        // Attach the keydown event listener
+        window.addEventListener('keydown', handleKeyDown);
+
+        // Clean up the event listener on unmount
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleDeleteEdge]);
 
     const getId = useCallback(() => {
         setId((prevId) => prevId + 1);
@@ -165,7 +223,6 @@ const Content = () => {
 
     const onEdgeUpdate = useCallback(
         (oldEdge, newConnection) => {
-            alert("1")
             edgeUpdateSuccessful.current = true;
             setEdges((els) => updateEdge(oldEdge, newConnection, els));
         },
@@ -297,10 +354,10 @@ const Content = () => {
         [reactFlowInstance, getId, setNodes]
     );
 
-    const flowKey = "example-flow";
+    const flowKey = "dependency-flow";
 
     const onSave = useCallback((event) => {
-        event.preventDefault();
+        // event.preventDefault();
         if (reactFlowInstance) {
             const flow = reactFlowInstance.toObject();
             localStorage.setItem(flowKey, JSON.stringify(flow));
@@ -327,7 +384,7 @@ const Content = () => {
 
     return (
         <div className="flow-container">
-            <div className={`sidebar ${isSidebarOpen ? "left-0" : "-left-64"}`}>
+            <div className={`sidebar ${isSidebarOpen ? "left-0" : "-left-64"} ${readonlyMode ? "d-none" : ""}`}>
                 <div className="relative flex flex-col w-70 px-4 py-8 overflow-y-auto bg-white border-r" style={{ height: "85vh" }}>
                     <div className="">
                         <h2 className="text-lg font-semibold text-gray-700 ">
@@ -342,7 +399,7 @@ const Content = () => {
                         </div>
                         <div className="flex flex-col p-1 space-y-3 rounded outline outline-2">
                             {
-                                defaultNodeTemplates.map((node, index) => {
+                                defaultNodeTemplates?.map((node, index) => {
                                     return (
                                         <div
                                             key={`node_${node.data.label}_${index}`}
@@ -463,12 +520,13 @@ const Content = () => {
                 ref={ref}
                 nodes={nodes}
                 edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
+                onNodesChange={(e) => { onNodesChange(e); onSave(e) }}
+                onEdgesChange={(e) => { onEdgesChange(e); onSave(e) }}
+                onConnect={(e) => { onConnect(e); onSave(e) }}
+                //onViewportChange={handleViewportChange}
                 nodeTypes={nodeTypes}
                 onNodeClick={onNodeClick}
-                edgeTypes={edgeTypes}
+                //edgeTypes={edgeTypes}
                 onInit={setReactFlowInstance}
                 onDrop={onDrop}
                 onDragOver={onDragOver}
@@ -477,9 +535,14 @@ const Content = () => {
                 onEdgeUpdateEnd={onEdgeUpdateEnd}
                 onPaneClick={onPaneClick}
                 onNodeContextMenu={onNodeContextMenu}
+                onEdgeClick={(event, edge) => handleEdgeContextMenu(event, edge)}
+                nodesDraggable={!readonlyMode}     // Disable node dragging
+                nodesConnectable={!readonlyMode}   // Disable node connections
+                elementsSelectable={!readonlyMode} // Disable selecting elements
+                panOnDrag={!readonlyMode}          // Disable panning when dragging
             >
                 {/* sidebar */}
-                <Controls />
+                <Controls className={readonlyMode ? "d-none" : ""} />
                 <MiniMap zoomable pannable />
                 <Background variant="dots" gap={12} size={1} />
                 {/* context menu */}
@@ -489,13 +552,21 @@ const Content = () => {
     );
 };
 
-const ReactFlowProviderContent = () => {
+const ReactFlowProviderContent = (props) => {
+    const [value, setValue] = useState("");
+
+    useEffect(() => {
+        if (props?.value) {
+            setValue(props?.value);
+        }
+    }, [props?.value]);
+
     return (
         <ReactFlowProvider>
             <div
                 className={`h-[calc(100vh-74px)] flex flex-col`}
             >
-                <Content />
+                <Content readonly={props?.readonly} value={value} />
             </div>
         </ReactFlowProvider>
     );

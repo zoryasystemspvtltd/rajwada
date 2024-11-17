@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import ReactFlowProviderContent from "./ReactFlowProviderContent";
 
 const FlowchartInit = (props) => {
-    const schema = props?.schema;
+    const readonly = props?.readonly || false;
+    const [value, setValue] = useState("");
+
+    useEffect(() => {
+        if (props?.value) {
+            setValue(props?.value);
+        }
+    }, [props?.value]);
 
     return (
         <div className="tab-content">
@@ -11,7 +18,7 @@ const FlowchartInit = (props) => {
                     <div className="col-md-12">
                         <div className="main-card card">
                             <div className="card-body">
-                                <ReactFlowProviderContent />
+                                <ReactFlowProviderContent readonly={readonly} value={value} />
                             </div>
                         </div>
                     </div>

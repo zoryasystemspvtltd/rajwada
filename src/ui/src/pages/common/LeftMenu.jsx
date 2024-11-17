@@ -94,7 +94,7 @@ const LeftMenu = (props) => {
                 { name: "projectManagement", text: "Project", icon: "sitemap", path: "/projects", access: "project" }
             ],
             transaction: [
-                { name: "resetPassword", text: "Reset Password", icon: "vector-square", path: "/home" }
+                { name: "resetPassword", text: "Reset Password", icon: "vector-square", path: "/users", access: "user" }
             ],
             report: [
                 { name: "adminReport", text: "Admin Report", icon: "vector-square", path: "/home" }

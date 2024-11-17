@@ -16,7 +16,6 @@ import IUILookUpEnum from './IUILookUpEnum';
 import ILab from "../../canvas-helper/Ilab-Canvas";
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
 
-
 const IUIPageElement = (props) => {
     // Properties
     const schema = props?.schema;
@@ -459,7 +458,10 @@ const IUIPageElement = (props) => {
                                                     <span className="text-danger">*</span>
                                                 }
                                             </Form.Label> */}
-                                            <FlowchartInit onChange={handleChange} schema={fld.schema} />
+                                            <FlowchartInit
+                                                readonly={props?.readonly || fld?.readonly || false}
+                                                value={data[fld.field]}
+                                            />
                                             <br />
                                         </Form.Group>
                                     </>
