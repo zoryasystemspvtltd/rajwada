@@ -134,7 +134,7 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
-                                            <span><Link className="stretched-link" to={`${fld.to}${data[fld.field]}`}> {data[fld.field]} </Link></span>
+                                            <span id={fld.field}><Link className="stretched-link" to={`${fld.to}${data[fld.field]}`}> {data[fld.field]} </Link></span>
                                         </Form.Group>
                                     </>
                                 }
@@ -142,7 +142,7 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
-                                            <span> {data[fld.field]} </span>
+                                            <span id={fld.field}> {data[fld.field]} </span>
                                         </Form.Group>
                                     </>
                                 }
@@ -150,7 +150,7 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
-                                            <span> {data[fld.field]?.substring(0, 10)} </span>
+                                            <span id={fld.field}> {data[fld.field]?.substring(0, 10)} </span>
                                         </Form.Group>
                                     </>
                                 }

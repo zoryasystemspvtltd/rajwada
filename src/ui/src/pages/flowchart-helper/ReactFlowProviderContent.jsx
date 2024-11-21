@@ -50,6 +50,7 @@ const Content = (props) => {
     const edgeUpdateSuccessful = useRef(true);
     const [selectedEdge, setSelectedEdge] = useState(null);
     const [menu, setMenu] = useState(null);
+    const [id, setId] = useState(0);
     const ref = useRef(null);
 
     useEffect(() => {
@@ -57,6 +58,7 @@ const Content = (props) => {
             const tempData = JSON.parse(props?.value);
             setNodes(tempData?.nodes);
             setEdges(tempData?.edges);
+            setId(tempData?.nodes?.length || 0);
         }
     }, [props?.value, setNodes, setEdges]);
 
@@ -110,8 +112,6 @@ const Content = (props) => {
         }, eds)),
         [setEdges]
     );
-
-    const [id, setId] = useState(0);
 
     const getRandomLightColor = () => {
         // Generate random RGB values
@@ -291,7 +291,7 @@ const Content = (props) => {
 
         if (name === "name") setNodeName(value);
         else if (name === "background") setNodeColor(value.background);
-
+        
         // Find the selected node and update its data
         setNodes((prevNodes) =>
             prevNodes.map((n) =>
@@ -469,18 +469,19 @@ const Content = (props) => {
                                         name="name"
                                         placeholder="Name"
                                         value={nodeName}
-                                        onChange={handleUpdateNode}
+                                        onChange={(e) => { handleUpdateNode(e); onSave(e) }}
                                         className="p-[1px] border pl-1 "
                                     />
                                     <div className="flex flex-row gap-x-5">
                                         <div className="flex flex-row gap-x-2">
-                                            <label className="font-semibold ">Color:</label>
+                                            <label className="font-semibold" htmlFor="node-color-picker">Color:</label>
                                             <input
                                                 type="color"
                                                 placeholder="bgColor"
                                                 name="background"
                                                 value={nodeColor}
-                                                onChange={handleUpdateNode}
+                                                id="node-color-picker"
+                                                onChange={(e) => { handleUpdateNode(e); onSave(e) }}
                                                 className="p-[1px] border pl-1"
                                             />
                                         </div>
