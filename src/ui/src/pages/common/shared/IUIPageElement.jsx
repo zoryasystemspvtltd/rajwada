@@ -3,6 +3,7 @@ import { Col, Form, Row, InputGroup } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import MaskedInput from 'react-text-mask';
 import IUILookUp from './IUILookUp';
+import IUILookUpDynamic from './IUILookUpDynamic';
 import IUIPictureUpload from './IUIPictureUpload';
 import IUIRolePrivilege from './IUIRolePrivilege';
 import IUIUserRoleEdit from './IUIUserRole';
@@ -13,7 +14,7 @@ import IUIHiddenState from './IUIHiddenState';
 import IUILookUpFilter from './IUILookUpFilter';
 import IUILookUpEnum from './IUILookUpEnum';
 import ILab from './IUICanvas';
-
+import IUIDocUpload from './IUIDocUpload';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -315,6 +316,34 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                     </>
                                 }
+                                {fld.type === 'radio' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >
+                                                {fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+                                            <InputGroup>
+                                                <Form.Check className="mb-3"
+                                                    inline
+                                                    type="radio"
+                                                    id={`${fld.field}1`}                                                    
+                                                    onChange={(e) => handleChange(e)}
+                                                    label='Alive'
+                                                />
+                                                <Form.Check className="mb-3"
+                                                    inline
+                                                    type="radio"
+                                                    id={fld.field}                                                    
+                                                    onChange={(e) => handleChange(e)}
+                                                    label='Death'
+                                                />
+                                            </InputGroup>
+                                        </Form.Group>
+                                    </>
+                                }
                                 {fld.type === 'user-roles' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
@@ -352,6 +381,29 @@ const IUIPageElement = (props) => {
                                             </Form.Label>
 
                                             <IUILookUp
+                                                value={data[fld.field]}
+                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                id={fld.field}
+                                                nameField={fld.nameField}
+                                                schema={fld.schema}
+                                                onChange={handleChange}
+                                                readonly={props.readonly || fld.readonly || false}
+                                            />
+
+                                        </Form.Group>
+                                        <p className="text-danger">{errors[fld.field]}</p>
+                                    </>
+                                }
+                                {fld.type === 'lookup-dynamic' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+
+                                            <IUILookUpDynamic
                                                 value={data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                 id={fld.field}
@@ -409,6 +461,24 @@ const IUIPageElement = (props) => {
 
                                         </Form.Group>
                                         <p className="text-danger">{errors[fld.field]}</p>
+                                    </>
+                                }
+                                {fld.type === 'doc-upload' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+                                            <IUIDocUpload value={data[fld.field] || []}
+                                                id={fld.field}
+                                                text={fld.text}
+                                                onChange={handleChange}
+                                                readonly={props.readonly || fld.readonly || false}
+                                            />
+                                        </Form.Group>
+                                        <br />
                                     </>
                                 }
                                 {fld.type === 'picture-upload' &&
