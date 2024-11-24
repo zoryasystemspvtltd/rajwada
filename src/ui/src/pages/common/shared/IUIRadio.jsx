@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 const IUIRadio = (props) => {
     const name = props?.name;
     const [value, setValue] = useState("")
 
+    useEffect(() => {
+        if (props?.value) {
+            setValue(props?.value);
+        }
+    }, [props?.value]);
+    
     const handleChange = (e) => {
         e.preventDefault();
         if (!props?.readonly) {

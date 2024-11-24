@@ -1,20 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import { Link } from "react-router-dom";
 const IUIDocUpload = (props) => {
     const schema = props?.schema;
     const [file, setFile] = useState([]);
     const fileRef = React.createRef()
-    const cardBodyStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-        height: '10px',
-        overflow: 'hidden',
-        position: 'relative'
-    };
 
     useEffect(() => {
         if (props?.value)
@@ -31,10 +20,9 @@ const IUIDocUpload = (props) => {
         if (props.onChange) {
             props.onChange(event);
         }
-
     }
 
-    const triggerClick = (e) => {
+    const handleClick = (e) => {
         e.preventDefault();
         fileRef.current.click()
     }
@@ -56,14 +44,23 @@ const IUIDocUpload = (props) => {
         <>
             <div className="card position-relative" >
                 <div>
-                    <Form.Control
-                        id={props?.id}
-                        type="file"
-                        onChange={handleChange}
-                        disabled={props.readonly || false}
-                        ref={fileRef}
-                    ></Form.Control>
+                    {props?.readonly && (file.length > 0) &&
+                        <button
+                            className='btn btn-sm btn-pill btn-success'
+                            onClick={handleClick}
+                        >Download</button>}
+                        
+                    {props?.readonly && (file.length === 0) && <span className="profile-pic-upload-text">No File Uploaded</span>}
 
+                    {!props?.readonly &&
+                        <Form.Control
+                            id={props?.id}
+                            type="file"
+                            onChange={handleChange}
+                            disabled={props.readonly || false}
+                            ref={fileRef}
+                        ></Form.Control>
+                    }
                 </div>
             </div>
         </>
