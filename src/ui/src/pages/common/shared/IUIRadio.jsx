@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Form } from 'react-bootstrap';
 
 const IUIRadio = (props) => {
     const name = props?.name;
@@ -12,7 +13,6 @@ const IUIRadio = (props) => {
 
     const handleChange = (e) => {
         e.preventDefault();
-        console.log("Val: " + value + "Name: " + name)
         if (!props?.readonly) {
             setValue({ ...value, ...e.target.value });
             props.onChange(e);
@@ -20,20 +20,23 @@ const IUIRadio = (props) => {
     };
 
     return (
-        <>
-            {!props?.readonly &&
-                <label style={{ marginRight: '10px' }}>
-                    <input
-                        type="radio"
-                        name={name} // All radio buttons for the same relation share the same name to be part of the same group
-                        value={name}    // The value will be either "Alive" or "Dead"
-                        checked={value === name}  // Check if this radio button is selected
-                        onChange={(e) => handleChange(e)} // Trigger the onChange function on change
-                    />
-                    {name}
-                </label>
+        <div>
+            {
+                props.options.map((x, i) =>
+                    <div key={i} className={`form-check${props.isVertical ? '' : ` form-check-inline`}`}>
+                        <Form.Check className='text-capitalize'
+                            type="radio"
+                            style={{ transform: 'scale(1.2)' }}
+                            id={name}
+                            value={x.label}
+                            checked={value === x.label || false}
+                            onChange={(e) => handleChange(e)}
+                            disabled={props.readonly}
+                            label={x.label}
+                        />
+                    </div>)
             }
-        </>
+        </div>
     );
 
 };

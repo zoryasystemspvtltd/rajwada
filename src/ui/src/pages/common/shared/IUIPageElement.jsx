@@ -21,7 +21,7 @@ const IUIPageElement = (props) => {
     const schema = props?.schema;
     const isAliveStatus = [
         { value: "true", label: "Alive" },
-        { value: "false", label: "Death" }
+        { value: "false", label: "Dead" }
     ];
     // Local State
     const [data, setData] = useState({});
@@ -331,16 +331,12 @@ const IUIPageElement = (props) => {
 
                                             <InputGroup>
                                                 <IUIRadio
-                                                    name="Alive"
+                                                    id={fld.field}
+                                                    name={fld.field}
+                                                    onChange={handleChange}
                                                     value={data[fld.field]}
-                                                    onChange={(e) => handleChange(e)}
-                                                    readonly={props.readonly || fld.readonly || false}
-                                                />
-                                                <IUIRadio
-                                                    name="Dead"
-                                                    value={data[fld.field]}
-                                                    onChange={(e) => handleChange(e)}
-                                                    readonly={props.readonly || fld.readonly || false}
+                                                    options={isAliveStatus}
+                                                    readonly={props.readonly}
                                                 />
                                             </InputGroup>
                                         </Form.Group>
