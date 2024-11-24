@@ -5,6 +5,7 @@ namespace RajApi.Data.Models
     public class Dependency : LabModel
     {
         public string Code { get; set; }
+        public string Type { get; set; }
         public string Description { get; set; }
     }
 }
