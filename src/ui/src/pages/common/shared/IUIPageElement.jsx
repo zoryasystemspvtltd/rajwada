@@ -3,7 +3,6 @@ import { Col, Form, Row, InputGroup } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import MaskedInput from 'react-text-mask';
 import IUILookUp from './IUILookUp';
-import IUILookUpDynamic from './IUILookUpDynamic';
 import IUIPictureUpload from './IUIPictureUpload';
 import IUIRolePrivilege from './IUIRolePrivilege';
 import IUIUserRoleEdit from './IUIUserRole';
@@ -15,11 +14,15 @@ import IUILookUpFilter from './IUILookUpFilter';
 import IUILookUpEnum from './IUILookUpEnum';
 import ILab from './IUICanvas';
 import IUIDocUpload from './IUIDocUpload';
+import IUIRadio from './IUIRadio';
 
 const IUIPageElement = (props) => {
     // Properties
     const schema = props?.schema;
-
+    const isAliveStatus = [
+        { value: "true", label: "Alive" },
+        { value: "false", label: "Death" }
+    ];
     // Local State
     const [data, setData] = useState({});
     const [errors, setErrors] = useState({});
@@ -325,22 +328,14 @@ const IUIPageElement = (props) => {
                                                     <span className="text-danger">*</span>
                                                 }
                                             </Form.Label>
-                                            <InputGroup>
-                                                <Form.Check className="mb-3"
-                                                    inline
-                                                    type="radio"
-                                                    id={`${fld.field}1`}                                                    
-                                                    onChange={(e) => handleChange(e)}
-                                                    label='Alive'
-                                                />
-                                                <Form.Check className="mb-3"
-                                                    inline
-                                                    type="radio"
-                                                    id={fld.field}                                                    
-                                                    onChange={(e) => handleChange(e)}
-                                                    label='Death'
-                                                />
-                                            </InputGroup>
+                                            <IUIRadio
+                                                id={fld.field}
+                                                name={fld.field}
+                                                onChange={handleChange}
+                                                value={data[fld.field]}
+                                                options={isAliveStatus}
+                                            />
+
                                         </Form.Group>
                                     </>
                                 }
@@ -393,30 +388,7 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                         <p className="text-danger">{errors[fld.field]}</p>
                                     </>
-                                }
-                                {fld.type === 'lookup-dynamic' &&
-                                    <>
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor={fld.field} >{fld.text}
-                                                {fld.required &&
-                                                    <span className="text-danger">*</span>
-                                                }
-                                            </Form.Label>
-
-                                            <IUILookUpDynamic
-                                                value={data[fld.field]}
-                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                                id={fld.field}
-                                                nameField={fld.nameField}
-                                                schema={fld.schema}
-                                                onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
-                                            />
-
-                                        </Form.Group>
-                                        <p className="text-danger">{errors[fld.field]}</p>
-                                    </>
-                                }
+                                }                                
                                 {fld.type === 'lookup-enum' &&
                                     <>
                                         <Form.Group className="position-relative form-group">

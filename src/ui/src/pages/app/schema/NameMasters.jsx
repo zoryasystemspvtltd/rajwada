@@ -41,10 +41,10 @@ export const ViewNameMaster = () => {
                 , fields: [
                     { text: 'LL Name', field: 'llName', type: 'text', required: true, width: 6 },
                     { text: 'Father Name', field: 'fatherName', type: 'text', required: true, width: 6 },
-                    { text: 'Is Father Alive', field: 'isFatherAlive', type: 'radio', required: true, width: 6 },
+                    { text: 'Is Father Alive', field: 'isFatherAlive', type: 'radio', required: false, width: 6 },
                     { text: 'Father Certificate', field: 'fatherCertificate', type: 'doc-upload', required: true, width: 6 },
                     { text: 'Mother Name', field: 'motherName', type: 'text', required: true, width: 6 },
-                    { text: 'Is Mother Alive', field: 'isMotherAlive', type: 'radio', required: true, width: 6 },
+                    { text: 'Is Mother Alive', field: 'isMotherAlive', type: 'radio', required: false, width: 6 },
                     { text: 'Mother Certificate', field: 'motherCertificate', type: 'doc-upload', required: true, width: 6 },
                     { text: 'Grand Father Name', field: 'grandFatherName', type: 'text', required: false, width: 6 },
                     { text: 'Is Grand Father Alive', field: 'isGrandFatherAlive', type: 'radio', required: false, width: 6 },
@@ -58,7 +58,7 @@ export const ViewNameMaster = () => {
                     },
                     {
                         text: 'RS Daag No', field: 'rsDaagId', width: 6, type: 'lookup-link', required: true,
-                        schema: { module: 'rsDaag', path: 'rsdaags' }
+                        schema: { module: 'rsDaag', path: 'rsdaags', nameField: 'rsDaagNo' }
                     },
                     { text: 'LR No', field: 'lrNo', type: 'text', required: true, width: 6 },
                 ]
@@ -81,10 +81,10 @@ export const EditNameMaster = () => {
                 , fields: [
                     { text: 'LL Name', field: 'llName', type: 'text', required: true, width: 6 },
                     { text: 'Father Name', field: 'fatherName', type: 'text', required: true, width: 6 },
-                    { text: 'Is Father Alive', field: 'isFatherAlive', type: 'radio', required: true, width: 6 },
+                    { text: 'Is Father Alive', field: 'isFatherAlive', type: 'radio', required: false, width: 6 },
                     { text: 'Father Certificate', field: 'fatherCertificate', type: 'doc-upload', required: true, width: 6 },
                     { text: 'Mother Name', field: 'motherName', type: 'text', required: true, width: 6 },
-                    { text: 'Is Mother Alive', field: 'isMotherAlive', type: 'radio', required: true, width: 6 },
+                    { text: 'Is Mother Alive', field: 'isMotherAlive', type: 'radio', required: false, width: 6 },
                     { text: 'Mother Certificate', field: 'motherCertificate', type: 'doc-upload', required: true, width: 6 },
                     { text: 'Grand Father Name', field: 'grandFatherName', type: 'text', required: false, width: 6 },
                     { text: 'Is Grand Father Alive', field: 'isGrandFatherAlive', type: 'radio', required: false, width: 6 },
@@ -97,8 +97,8 @@ export const EditNameMaster = () => {
                         schema: { module: 'mouza' }
                     },
                     {
-                        text: 'RS Daag No', field: 'rsDaagId', nameField: 'rsDaagNo', width: 6, type: 'lookup', required: true,
-                        schema: { module: 'rsDaag' }
+                        text: 'RS Daag No', field: 'rsDaagId', nameField: 'rsDaagNo', width: 6, type: 'lookup',
+                        required: true, schema: { module: 'rsDaag', dynamic: true }
                     },
                     { text: 'LR No', field: 'lrNo', type: 'text', required: true, width: 6 },
                 ]
@@ -121,10 +121,10 @@ export const AddNameMaster = () => {
                 , fields: [
                     { text: 'LL Name', field: 'llName', placeholder: 'LL Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Father Name', field: 'fatherName', placeholder: 'Father Name here...', type: 'text', required: true, width: 6 },
-                    { text: 'Is Father Alive', field: 'isFatherAlive', type: 'radio', required: true, width: 6 },
+                    { text: 'Is Father Alive', field: 'isFatherAlive', type: 'radio', required: false, width: 6 },
                     { text: 'Father Certificate', field: 'fatherCertificate', type: 'doc-upload', required: true, width: 6 },
                     { text: 'Mother Name', field: 'motherName', placeholder: 'Mother Name here...', type: 'text', required: true, width: 6 },
-                    { text: 'Is Mother Alive', field: 'isMotherAlive', type: 'radio', required: true, width: 6 },
+                    { text: 'Is Mother Alive', field: 'isMotherAlive', type: 'radio', required: false, width: 6 },
                     { text: 'Mother Certificate', field: 'motherCertificate', type: 'doc-upload', required: true, width: 6 },
                     { text: 'Grand Father Name', field: 'grandFatherName', placeholder: 'Grand Father Name here...', type: 'text', required: false, width: 6 },
                     { text: 'Is Grand Father Alive', field: 'isGrandFatherAlive', type: 'radio', required: false, width: 6 },
@@ -137,8 +137,8 @@ export const AddNameMaster = () => {
                         schema: { module: 'mouza' }
                     },
                     {
-                        text: 'RS Daag No', field: 'rsDaagId', nameField: 'rsDaagNo', width: 6, type: 'lookup-dynamic', required: true,
-                        schema: { module: 'rsDaag' }
+                        text: 'RS Daag No', field: 'rsDaagId', nameField: 'rsDaagNo', width: 6, type: 'lookup',
+                        required: true, schema: { module: 'rsDaag', dynamic: true }
                     },
                     { text: 'LR No', field: 'lrNo', placeholder: 'LR No here...', type: 'text', required: true, width: 6 },
                 ]

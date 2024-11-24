@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Col, Row, Container } from "react-bootstrap";
-import { useDispatch, useSelector } from 'react-redux'
-import Form from 'react-bootstrap/Form';
 import api from '../../../store/api-service'
 import { Link } from 'react-router-dom';
 const IUILookUpLink = (props) => {
@@ -30,20 +27,27 @@ const IUILookUpLink = (props) => {
 
     return (
         <>
-            
-                {schema?.module &&
-                    <>
-                        <span>
-                            <Link className="stretched-link" to={`/${schema?.path}/${item?.id}`}> {item?.name}</Link>
-                        </span>
-                    </>
-                }
-                {!schema?.module &&
-                    <>
-                        <span> {item?.name}</span>
-                    </>
-                }
-           
+
+            {schema?.module && schema?.nameField &&
+                <>
+                    <span>
+                        <Link className="stretched-link" to={`/${schema?.path}/${item?.id}`}> {item[schema?.nameField]}</Link>
+                    </span>
+                </>
+            }
+            {schema?.module &&
+                <>
+                    <span>
+                        <Link className="stretched-link" to={`/${schema?.path}/${item?.id}`}> {item?.name}</Link>
+                    </span>
+                </>
+            }
+            {!schema?.module &&
+                <>
+                    <span> {item?.name}</span>
+                </>
+            }
+
         </>
     );
 }

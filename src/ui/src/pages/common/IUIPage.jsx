@@ -90,6 +90,9 @@ const IUIPage = (props) => {
                     errors[item.field] = 'Invalid phone number.'
                 }
             }
+            if (item.type === 'radio') {
+                errors = { ...errors, ...validate(values, item.fields) }
+            }
         }
         return errors;
     };
@@ -151,6 +154,7 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
+                         debugger;
                         api.addData({ module: module, data: data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
