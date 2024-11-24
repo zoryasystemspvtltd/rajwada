@@ -1,19 +1,17 @@
 ﻿using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RajApi.Data;
-using System.Reflection;
-using System.Reflection.Metadata;
 
 namespace ILab.Data
 {
-    public class RajDataService: ILabDataService
+    public class RajDataService : ILabDataService
     {
+       
         public readonly RajDataHandler dataHandler;
         public RajDataService(RajDataHandler handler
             , ILogger<RajDataService> logger)
-            :base(handler,logger)
+            : base(handler, logger)
         {
             dataHandler = handler;
         }
@@ -22,7 +20,12 @@ namespace ILab.Data
         /// 
         /// </summary>
         public virtual ModuleIdentity Identity { get { return dataHandler.Identity; } set { dataHandler.Identity = value; } }
+        public async Task<dynamic> GetUploadedfile(string module, long id)
+        {
+            var data = await Get(module, id);
+            return data;
 
+        }
         public override Type? GetType(string model)
         {
             var asm = typeof(RajDataService).Assembly;

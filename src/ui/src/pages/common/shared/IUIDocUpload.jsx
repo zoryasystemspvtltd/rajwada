@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from "react-router-dom";
+import api from '../../store/api-service'
 import Form from 'react-bootstrap/Form';
 const IUIDocUpload = (props) => {
-    const schema = props?.schema;
+    //const schema = props?.schema;
+    //const module = schema?.module;
     const [file, setFile] = useState([]);
     const fileRef = React.createRef()
+    // const { id } = useParams();
+    // const columnName = props?.field;
+    // const [dfile, setData] = useState({});
 
     useEffect(() => {
         if (props?.value)
@@ -22,9 +28,14 @@ const IUIDocUpload = (props) => {
         }
     }
 
-    const handleClick = (e) => {
-        e.preventDefault();
-        fileRef.current.click()
+    const handleClick = () => {
+        // async function fetchData() {
+        //     if (id) {
+        //         const item = await api.downloadFIle({ module: module, id: id, columnName:columnName });
+        //         setData(item.data);
+        //     }
+        // }
+        // fetchData();
     }
 
     const convertBase64 = (file) => {
@@ -49,7 +60,7 @@ const IUIDocUpload = (props) => {
                             className='btn btn-sm btn-pill btn-success'
                             onClick={handleClick}
                         >Download</button>}
-                        
+
                     {props?.readonly && (file.length === 0) && <span className="profile-pic-upload-text">No File Uploaded</span>}
 
                     {!props?.readonly &&
