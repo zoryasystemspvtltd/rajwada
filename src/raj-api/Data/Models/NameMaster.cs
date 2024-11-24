@@ -9,16 +9,16 @@ public class NameMaster : LabModel, IGlobal
     public string? Code { get; set; }
     public string? LLName { get; set; }
     public string? FatherName { get; set; }
-    public bool? IsFatherAlive { get; set; }
+    public string? FatherStatus { get; set; }
     public string? FatherCertificate { get; set; }
     public string? MotherName { get; set; }
-    public bool? IsMotherAlive { get; set; }
+    public string? MotherStatus { get; set; }
     public string? MotherCertificate { get; set; }
     public string? GrandFatherName { get; set; }
-    public bool? IsGrandFatherAlive { get; set; }
+    public string? GrandFatherStatus { get; set; }
     public string? GrandFatherCertificate { get; set; }
     public string? GrandMotherName { get; set; }
-    public bool? IsGrandMotherAlive { get; set; }
+    public string? GrandMotherStatus { get; set; }
     public string? GrandMotherCertificate { get; set; }
     public string? LrNo { get; set; }
 
