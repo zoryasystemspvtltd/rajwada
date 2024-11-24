@@ -1,4 +1,5 @@
-import React, { useState ,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
+
 const IUIRadio = (props) => {
     const name = props?.name;
     const [value, setValue] = useState("")
@@ -8,9 +9,10 @@ const IUIRadio = (props) => {
             setValue(props?.value);
         }
     }, [props?.value]);
-    
+
     const handleChange = (e) => {
         e.preventDefault();
+        console.log("Val: " + value + "Name: " + name)
         if (!props?.readonly) {
             setValue({ ...value, ...e.target.value });
             props.onChange(e);
@@ -20,25 +22,20 @@ const IUIRadio = (props) => {
     return (
         <>
             {!props?.readonly &&
-                <div>
-                    {props.options.map((x, i) => <div key={i} className={`form-check${props.isVertical ? '' : ` form-check-inline`}`}>
-                        <input
-                            type="radio"
-                            name={name}
-                            className=""
-                            id={x.value}
-                            value={x.value}
-                            onChange={e => handleChange(e)} />
-                        <label
-                            className="form-check-label"
-                            htmlFor={x.value}>
-                            {x.label}
-                        </label>
-                    </div>)}
-                </div>
+                <label style={{ marginRight: '10px' }}>
+                    <input
+                        type="radio"
+                        name={name} // All radio buttons for the same relation share the same name to be part of the same group
+                        value={name}    // The value will be either "Alive" or "Dead"
+                        checked={value === name}  // Check if this radio button is selected
+                        onChange={(e) => handleChange(e)} // Trigger the onChange function on change
+                    />
+                    {name}
+                </label>
             }
         </>
     );
-}
 
-export default IUIRadio
+};
+
+export default IUIRadio;

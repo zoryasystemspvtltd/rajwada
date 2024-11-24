@@ -328,14 +328,21 @@ const IUIPageElement = (props) => {
                                                     <span className="text-danger">*</span>
                                                 }
                                             </Form.Label>
-                                            <IUIRadio
-                                                id={fld.field}
-                                                name={fld.field}
-                                                onChange={handleChange}
-                                                value={data[fld.field]}
-                                                options={isAliveStatus}
-                                            />
 
+                                            <InputGroup>
+                                                <IUIRadio
+                                                    name="Alive"
+                                                    value={data[fld.field]}
+                                                    onChange={(e) => handleChange(e)}
+                                                    readonly={props.readonly || fld.readonly || false}
+                                                />
+                                                <IUIRadio
+                                                    name="Dead"
+                                                    value={data[fld.field]}
+                                                    onChange={(e) => handleChange(e)}
+                                                    readonly={props.readonly || fld.readonly || false}
+                                                />
+                                            </InputGroup>
                                         </Form.Group>
                                     </>
                                 }
@@ -388,7 +395,7 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                         <p className="text-danger">{errors[fld.field]}</p>
                                     </>
-                                }                                
+                                }
                                 {fld.type === 'lookup-enum' &&
                                     <>
                                         <Form.Group className="position-relative form-group">

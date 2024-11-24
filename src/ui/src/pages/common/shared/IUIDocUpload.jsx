@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from "react-router-dom";
-import api from '../../store/api-service'
+import api from '../../../store/api-service';
 import Form from 'react-bootstrap/Form';
 const IUIDocUpload = (props) => {
     //const schema = props?.schema;
