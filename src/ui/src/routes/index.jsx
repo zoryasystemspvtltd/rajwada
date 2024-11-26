@@ -16,6 +16,7 @@ import { ListCompany, ViewCompany, EditCompany, AddCompany } from "../pages/app/
 import { ListTower, ViewTower, EditTower, AddTower } from "../pages/app/schema/Towers";
 import { ListFloor, ViewFloor, EditFloor, AddFloor } from "../pages/app/schema/Floors";
 import { ListFlat, ViewFlat, EditFlat, AddFlat } from "../pages/app/schema/Flats";
+import { ListRoom, ViewRoom, EditRoom, AddRoom } from "../pages/app/schema/Rooms";
 import Refresh from "../pages/Refresh";
 import ChangePassword from "../pages/app/ChangePassword";
 import ChangePasswordSuccess from "../pages/app/ChangePasswordSuccess";
@@ -363,6 +364,22 @@ const Routes = () => {
                 {
                     path: "/namemasters/add",
                     element: <AddNameMaster />
+                },
+                {
+                    path: "/rooms",
+                    element: <ListRoom />
+                },
+                {
+                    path: "/rooms/:id",
+                    element: <ViewRoom />
+                },
+                {
+                    path: "/rooms/:id/edit",
+                    element: <EditRoom />
+                },
+                {
+                    path: "/rooms/add",
+                    element: <AddRoom />
                 },
             ],
         },

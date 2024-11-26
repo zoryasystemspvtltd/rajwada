@@ -51,6 +51,7 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                 { name: "towerManagement", text: "Tower", icon: "industry", path: "/towers", access: "plan" },
                 { name: "floorManagement", text: "Floor", icon: "cubes", path: "/floors", access: "plan" },
                 { name: "flatManagement", text: "Flat", icon: "bed", path: "/flats", access: "plan" },
+                { name: "roomManagement", text: "Room", icon: "cubes", path: "/rooms", access: "plan" },
                 { name: "activityManagement", text: "Activity", icon: "cubes-stacked" },
             ],
             transaction: [
