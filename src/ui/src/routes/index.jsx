@@ -31,6 +31,7 @@ import CreateWorkflow from "../pages/app/schema/Workflow";
 import { ListMouza, ViewMouza, EditMouza, AddMouza } from "../pages/app/schema/Mouzas";
 import { ListRsDaag, ViewRsDaag, EditRsDaag, AddRsDaag } from "../pages/app/schema/RsDaags";
 import { ListNameMaster, ViewNameMaster, EditNameMaster, AddNameMaster } from "../pages/app/schema/NameMasters";
+import { ListContractor, ViewContractor, EditContractor, AddContractor } from "../pages/app/schema/Contractors";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -380,6 +381,22 @@ const Routes = () => {
                 {
                     path: "/rooms/add",
                     element: <AddRoom />
+                },
+                {
+                    path: "/contractors",
+                    element: <ListContractor />
+                },
+                {
+                    path: "/contractors/:id",
+                    element: <ViewContractor />
+                },
+                {
+                    path: "/contractors/:id/edit",
+                    element: <EditContractor />
+                },
+                {
+                    path: "/contractors/add",
+                    element: <AddContractor />
                 },
             ],
         },

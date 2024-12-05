@@ -140,6 +140,8 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<RsDaag> RsDaags { get; set; }
     public virtual DbSet<NameMaster> NameMasters { get; set; }
     public virtual DbSet<Room> Rooms { get; set; }
+
+    public virtual DbSet<Contractor> Contractors { get; set; }
     #endregion
 
 }
