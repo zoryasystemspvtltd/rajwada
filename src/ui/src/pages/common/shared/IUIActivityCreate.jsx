@@ -16,6 +16,7 @@ import IUIActivityWizard from './IUIActivityWizard';
 const IUIActivityCreate = (props) => {
     // Properties
     const setupSchema = props?.setupSchema;
+    const creationSchema = props?.creationSchema;
     const module = setupSchema?.module;
     const dependencyModule = 'workflow';
     const flowchartKey = "dependency-flow";
@@ -396,7 +397,7 @@ const IUIActivityCreate = (props) => {
                                             }
 
                                             <Row className={!isSetupComplete ? "d-none" : ""}>
-                                                <IUIActivityWizard />
+                                                <IUIActivityWizard sequence={bfsSequence} schema={creationSchema} />
                                             </Row>
 
                                             {(!setupSchema?.readonly && (privileges?.add || privileges?.edit)) &&
