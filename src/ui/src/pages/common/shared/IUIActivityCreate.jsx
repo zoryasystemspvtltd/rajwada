@@ -396,9 +396,19 @@ const IUIActivityCreate = (props) => {
                                                     </Row> : null
                                             }
 
-                                            <Row className={!isSetupComplete ? "d-none" : ""}>
-                                                <IUIActivityWizard sequence={bfsSequence} schema={creationSchema} />
-                                            </Row>
+                                            <div className={!isSetupComplete ? "d-none" : "row d-flex justify-content-center"}>
+                                                <div className="col-sm-12 col-lg-12">
+                                                    <div className="main-card card">
+                                                        <div className="card-body">
+                                                            {
+                                                                (bfsSequence.length) ? (
+                                                                    <IUIActivityWizard sequence={bfsSequence} schema={creationSchema} />
+                                                                ) : null
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                             {(!setupSchema?.readonly && (privileges?.add || privileges?.edit)) &&
                                                 <hr />

@@ -287,8 +287,8 @@ export const AddActivity = () => {
                         text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false,
                         schema: { module: 'Activity' }
                     },
-                    { text: 'Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: false },
-                    { text: 'End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: false },
+                    { text: 'Planned Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: false },
+                    { text: 'Planned End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: false },
                     { text: 'Actual Start Date', field: 'actualStartDate', placeholder: 'Actual Start Date here...', width: 4, type: 'date', required: false },
                     { text: 'Actual End Date', field: 'actualEndDate', placeholder: 'Actual End Date here...', width: 4, type: 'date', required: false },
                     {

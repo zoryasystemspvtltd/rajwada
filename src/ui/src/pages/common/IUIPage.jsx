@@ -155,8 +155,14 @@ const IUIPage = (props) => {
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
-                            navigate(-1);
-                            localStorage.removeItem(flowchartKey);
+                            if (module === 'activity') {
+                                props?.activityCallback(true);
+                                return;
+                            }
+                            else {
+                                navigate(-1);
+                                localStorage.removeItem(flowchartKey);
+                            }
                         }, 1000)
 
                         return () => {
@@ -164,6 +170,10 @@ const IUIPage = (props) => {
                         }
                     } catch (e) {
                         // TODO
+                        if (module === 'activity') {
+                            props?.activityCallback(false);
+                            return;
+                        }
                     }
             }
         }
@@ -172,7 +182,7 @@ const IUIPage = (props) => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading"> {schema?.title}</div>
+                <div className="page-title-heading"> {(module !== 'activity') ? schema?.title : ''}</div>
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -191,7 +201,7 @@ const IUIPage = (props) => {
                                         <Form>
                                             <Row>
                                                 <Col>
-                                                    {schema?.back &&
+                                                    {(schema?.back && module !== 'activity') &&
                                                         <Button variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(-1)}> Back</Button>
@@ -259,7 +269,7 @@ const IUIPage = (props) => {
                                                     <IUIModuleMessage schema={props.schema} />
                                                 </Col>
                                             </Row>
-                                            {(schema?.back || schema?.adding || schema?.editing) &&
+                                            {(schema?.back || schema?.adding || schema?.editing) && (module !== 'activity') &&
                                                 <hr />
                                             }
                                             <Row>
@@ -315,9 +325,13 @@ const IUIPage = (props) => {
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save </Button>
 
-                                                                    <Button variant="contained"
-                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                                        onClick={() => navigate(-1)}> Cancel</Button>
+                                                                    {
+                                                                        (module !== 'activity') ?
+                                                                            <Button variant="contained"
+                                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
+                                                                                onClick={() => navigate(-1)}> Cancel</Button>
+                                                                            : null
+                                                                    }
                                                                 </>
                                                             }
                                                         </>

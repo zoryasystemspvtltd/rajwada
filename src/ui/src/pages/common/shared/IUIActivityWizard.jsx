@@ -1,30 +1,34 @@
-import React, { useEffect } from "react";
-import $ from "jquery";  // Import jQuery
-import "smartwizard/dist/css/smart_wizard_all.min.css";  // SmartWizard CSS
+import $ from "jquery"; // Import jQuery
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "smartwizard/dist/css/smart_wizard_all.min.css"; // SmartWizard CSS
 import "smartwizard/dist/js/jquery.smartWizard.min.js"; // SmartWizard JS
+import IUIPage from "../IUIPage";
 
 const IUIActivityWizard = (props) => {
     const sequence = props?.sequence;
     const schema = props?.schema;
+    const [isCreationSuccessful, setIsCreationSuccessful] = useState(true);
+    const navigate = useNavigate();
+
     const customNextStepLogic = () => {
         // Custom logic goes here
-        console.log("Running custom logic before proceeding to the next step.");
-        // For example, you could validate inputs or save data here
-        return true; // Return true to allow moving to the next step, or false to prevent it
+        if (isCreationSuccessful) {
+            return true;
+        }
+        else {
+            return false;
+        }
     };
 
     // Define the custom function to be triggered on step changing
     const handleStepChanging = (event, anchorObject, stepIndex, stepDirection, stepPosition) => {
         event.stopImmediatePropagation();
-        console.log("Step Changing Triggered");
-        console.log("Step Index:", stepIndex);
-        console.log("Step Direction:", stepDirection);
-        console.log("Step Position:", stepPosition);
-
         // Call custom function before proceeding to the next step
         if (stepIndex < stepDirection) {
             // If moving to the next step, call the custom function
             const result = customNextStepLogic();
+            console.log(result)
             if (!result) {
                 // If the custom logic fails, prevent moving to the next step
                 return false;
@@ -33,6 +37,10 @@ const IUIActivityWizard = (props) => {
         // Allow the step change if no issues with custom logic
         return true;
     };
+
+    const activityCallback = (creationStatus) => {
+        setIsCreationSuccessful(creationStatus);
+    }
 
     useEffect(() => {
         // Initialize SmartWizard
@@ -49,15 +57,19 @@ const IUIActivityWizard = (props) => {
                     showNextButton: true, // show/hide a Next button
                     showPreviousButton: false, // show/hide a Previous button
                     extraHtml: '' // Extra html to show on toolbar
-                },
-                lang: {
-                    next: 'Save & Proceed'
                 }
             });
 
             $("#smartwizard").on("leaveStep", handleStepChanging);
 
             $(".sw-btn-next").addClass("btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success").removeClass("sw-btn");
+
+            if (!isCreationSuccessful) {
+                $(".sw-btn-next").prop('disabled', true);
+            }
+            else {
+                $(".sw-btn-next").prop('disabled', false);
+            }
 
             // Check if the custom button already exists
             if (!$("#finish-btn").length) {
@@ -67,15 +79,19 @@ const IUIActivityWizard = (props) => {
                     .append(`<button id="finish-btn" class="btn btn-info">Finish</button>`);
 
                 // Define custom button behavior
-                $("#finish-btn").on("click", function () {
-                    alert("Custom button clicked!");
+                $("#finish-btn").on("click", function (e) {
+                    e.preventDefault();
+                    alert("Activities Creation Successful");
+                    navigate(`/${schema?.path}`)
                 });
 
                 $("#smartwizard").on("showStep", function (e, anchorObject, stepNumber, stepDirection, stepPosition) {
-                    if (stepPosition !== 'final') {
-                        $("#finish-btn").hide();
-                    } else {
+                    e.preventDefault();
+                    setIsCreationSuccessful(false);
+                    if (stepPosition === 'final') {
                         $("#finish-btn").show();
+                    } else {
+                        $("#finish-btn").hide();
                     }
                 });
             }
@@ -87,7 +103,7 @@ const IUIActivityWizard = (props) => {
                 $("#smartwizard").smartWizard("destroy");
             }
         };
-    }, []);  // Empty dependency array ensures it runs only once
+    }, [navigate, schema?.path, sequence?.length, isCreationSuccessful]);  // Empty dependency array ensures it runs only once
 
     return (
         <div>
@@ -107,11 +123,11 @@ const IUIActivityWizard = (props) => {
 
                 <div className="tab-content">
                     {
-                        sequence?.map((activity, index) => {
+                        sequence?.map((activity, index) => (
                             <div id={`step-${index + 1}`} className="tab-pane" role="tabpanel" aria-labelledby={`step-${index + 1}`} key={`tab-${activity}-${index}`}>
-                                Step content
+                                <IUIPage schema={schema} activityCallback={activityCallback} />
                             </div>
-                        })
+                        ))
                     }
                 </div>
 

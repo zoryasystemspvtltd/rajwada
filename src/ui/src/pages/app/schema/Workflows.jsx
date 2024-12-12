@@ -42,19 +42,28 @@ export const ViewWorkflow = () => {
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', type: 'label', width: 4 },
                     { text: 'Alias', field: 'code', type: 'label', width: 4 },
                     {
-                        text: 'Project', field: 'projectId', type: 'lookup-link', width: 4,
+                        text: 'Type', field: 'type', type: 'lookup-link', width: 4,
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'Inside' },
+                                { name: 'Outside' }
+                            ]
+                        }
+                    },
+                    {
+                        text: 'Project', field: 'projectId', type: 'lookup-link', width: 3,
                         schema: { module: 'project', path: 'projects' }
                     },
                     {
-                        text: 'Tower', field: 'towerId', type: 'lookup-link', width: 4,
+                        text: 'Tower', field: 'towerId', type: 'lookup-link', width: 3,
                         schema: { module: 'plan', path: 'towers' }
                     },
                     {
-                        text: 'Floor', field: 'floorId', type: 'lookup-link', width: 4,
+                        text: 'Floor', field: 'floorId', type: 'lookup-link', width: 3,
                         schema: { module: 'plan', path: 'floors' }
                     },
                     {
-                        text: 'Flat', field: 'flatId', type: 'lookup-link', width: 4,
+                        text: 'Flat', field: 'flatId', type: 'lookup-link', width: 3,
                         schema: { module: 'plan', path: 'flats' }
                     },
                     { field: 'data', type: 'ilab-flowchart', width: 12 }
@@ -79,8 +88,13 @@ export const EditWorkflow = () => {
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 4 },
                     { text: 'Alias', field: 'code', type: 'text', required: true, width: 4 },
                     {
-                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'project' }
+                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'Inside' },
+                                { name: 'Outside' }
+                            ]
+                        }
                     }
                 ]
             },
@@ -88,11 +102,15 @@ export const EditWorkflow = () => {
                 type: "area", width: 12
                 , fields: [
                     {
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
+                        schema: { module: 'project' }
+                    },
+                    {
                         type: 'lookup-relation',
                         parent: 'projectId',
                         field: 'towerId',
                         text: 'Tower',
-                        width: 4,
+                        width: 3,
                         schema: {
                             module: 'plan',
                             relationKey: "projectId",
@@ -104,7 +122,7 @@ export const EditWorkflow = () => {
                         parent: 'towerId',
                         field: 'floorId',
                         text: 'Floor',
-                        width: 4,
+                        width: 3,
                         schema: {
                             module: 'plan',
                             relationKey: "parentId",
@@ -116,7 +134,7 @@ export const EditWorkflow = () => {
                         parent: 'floorId',
                         field: 'flatId',
                         text: 'Flat',
-                        width: 4,
+                        width: 3,
                         schema: {
                             module: 'plan',
                             relationKey: "parentId",
@@ -150,8 +168,13 @@ export const AddWorkflow = () => {
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 4 },
                     { text: 'Alias', field: 'code', type: 'text', required: true, width: 4 },
                     {
-                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'project' }
+                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'Inside' },
+                                { name: 'Outside' }
+                            ]
+                        }
                     }
                 ]
             },
@@ -159,11 +182,15 @@ export const AddWorkflow = () => {
                 type: "area", width: 12
                 , fields: [
                     {
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
+                        schema: { module: 'project' }
+                    },
+                    {
                         type: 'lookup-relation',
                         parent: 'projectId',
                         field: 'towerId',
                         text: 'Tower',
-                        width: 4,
+                        width: 3,
                         schema: {
                             module: 'plan',
                             relationKey: "projectId",
@@ -175,7 +202,7 @@ export const AddWorkflow = () => {
                         parent: 'towerId',
                         field: 'floorId',
                         text: 'Floor',
-                        width: 4,
+                        width: 3,
                         schema: {
                             module: 'plan',
                             relationKey: "parentId",
@@ -187,7 +214,7 @@ export const AddWorkflow = () => {
                         parent: 'floorId',
                         field: 'flatId',
                         text: 'Flat',
-                        width: 4,
+                        width: 3,
                         schema: {
                             module: 'plan',
                             relationKey: "parentId",
