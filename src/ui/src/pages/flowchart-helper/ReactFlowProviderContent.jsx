@@ -17,6 +17,7 @@ import ReactFlow, {
 import CustomNode from "./CustomNode";
 import "reactflow/dist/style.css";
 import { useSelector } from "react-redux";
+import api from "../../store/api-service";
 import ContextMenu from "./ContextMenu";
 import "./styles.css";
 
@@ -36,7 +37,6 @@ const nodeTypes = { customNode: CustomNode };
 const Content = (props) => {
     const module = 'dependency';
     const readonlyMode = props?.readonly;
-    const dataSet = useSelector((state) => state.api[module]);
     const isSidebarOpen = true;
     const [defaultNodeTemplates, setDefaultNodeTemplates] = useState([]);
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -52,6 +52,29 @@ const Content = (props) => {
     const [menu, setMenu] = useState(null);
     const [id, setId] = useState(0);
     const ref = useRef(null);
+
+    useEffect(() => {
+        async function fetchData() {
+            const pageOptions = {
+                recordPerPage: 0
+            }
+
+            const response = await api.getData({ module: module, options: pageOptions });
+            
+            let nodeTemplates = response?.data?.items?.map((item) => {
+                return {
+                    data: { label: item?.name },
+                    type: 'customNode',
+                    color: getRandomLightColor(),
+                }
+            });
+            setDefaultNodeTemplates(nodeTemplates);
+            localStorage.removeItem("dependency-flow");
+        }
+
+        fetchData();
+    }, [module]);
+
 
     useEffect(() => {
         if (props?.value) {
@@ -129,19 +152,6 @@ const Content = (props) => {
 
         return hexColor;
     };
-
-
-    useEffect(() => {
-        let nodeTemplates = dataSet?.items?.map((item) => {
-            return {
-                data: { label: item?.name },
-                type: 'customNode',
-                color: getRandomLightColor(),
-            }
-        });
-        setDefaultNodeTemplates(nodeTemplates);
-        localStorage.removeItem("dependency-flow");
-    }, []);
 
     // Handle the context menu (right-click) to select the edge
     const handleEdgeContextMenu = (event, edge) => {
@@ -291,7 +301,7 @@ const Content = (props) => {
 
         if (name === "name") setNodeName(value);
         else if (name === "background") setNodeColor(value.background);
-        
+
         // Find the selected node and update its data
         setNodes((prevNodes) =>
             prevNodes.map((n) =>

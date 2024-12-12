@@ -2,6 +2,8 @@
 @import url(./assets/css/theme.css);
 @import url(./assets/css/defaultColor.css);
 @import url(./assets/css/fontawesome/css/all.css);
+@import url(./assets/css/animation.min.css);
+@import url(./assets/css/elementerLoder.css);
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
