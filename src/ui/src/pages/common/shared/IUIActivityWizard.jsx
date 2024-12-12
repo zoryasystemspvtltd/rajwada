@@ -3,7 +3,7 @@ import $ from "jquery";  // Import jQuery
 import "smartwizard/dist/css/smart_wizard_all.min.css";  // SmartWizard CSS
 import "smartwizard/dist/js/jquery.smartWizard.min.js"; // SmartWizard JS
 
-const IUIActivityWizard = () => {
+const IUIActivityWizard = (props) => {
     const sequence = props?.sequence;
     const schema = props?.schema;
     const customNextStepLogic = () => {
