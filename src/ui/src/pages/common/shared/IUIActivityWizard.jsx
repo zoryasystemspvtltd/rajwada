@@ -28,7 +28,6 @@ const IUIActivityWizard = (props) => {
         if (stepIndex < stepDirection) {
             // If moving to the next step, call the custom function
             const result = customNextStepLogic();
-            console.log(result)
             if (!result) {
                 // If the custom logic fails, prevent moving to the next step
                 return false;
@@ -76,25 +75,25 @@ const IUIActivityWizard = (props) => {
                 // Add a custom button to the toolbar manually
                 $("#smartwizard")
                     .find(".sw-toolbar-elm")
-                    .append(`<button id="finish-btn" class="btn btn-info">Finish</button>`);
+                    .append(`<button id="finish-btn" class="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-dark ml-2">Finish</button>`);
 
-                // Define custom button behavior
-                $("#finish-btn").on("click", function (e) {
-                    e.preventDefault();
-                    alert("Activities Creation Successful");
-                    navigate(`/${schema?.path}`)
-                });
-
-                $("#smartwizard").on("showStep", function (e, anchorObject, stepNumber, stepDirection, stepPosition) {
-                    e.preventDefault();
-                    setIsCreationSuccessful(false);
-                    if (stepPosition === 'final') {
-                        $("#finish-btn").show();
-                    } else {
-                        $("#finish-btn").hide();
-                    }
-                });
             }
+            // Define custom button behavior
+            $("#finish-btn").on("click", function (e) {
+                e.preventDefault();
+                // alert("Activities Creation Successful");
+                navigate(`/${schema?.path}`)
+            });
+
+            $("#smartwizard").on("showStep", function (e, anchorObject, stepNumber, stepDirection, stepPosition) {
+                // e.preventDefault();
+                setIsCreationSuccessful(false);
+                if (stepPosition === 'last') {
+                    $("#finish-btn").fadeIn();
+                } else {
+                    $("#finish-btn").fadeOut();
+                }
+            });
         }
 
         // Cleanup when component unmounts
