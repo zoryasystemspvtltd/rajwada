@@ -17,7 +17,6 @@ import { ListTower, ViewTower, EditTower, AddTower } from "../pages/app/schema/T
 import { ListFloor, ViewFloor, EditFloor, AddFloor } from "../pages/app/schema/Floors";
 import { ListFlat, ViewFlat, EditFlat, AddFlat } from "../pages/app/schema/Flats";
 import { ListRoom, ViewRoom, EditRoom, AddRoom } from "../pages/app/schema/Rooms";
-import Refresh from "../pages/Refresh";
 
 import ChangePassword from "../pages/app/ChangePassword";
 import ChangePasswordSuccess from "../pages/app/ChangePasswordSuccess";
