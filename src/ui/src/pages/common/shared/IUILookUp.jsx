@@ -76,7 +76,24 @@ const IUILookUp = (props) => {
                     }
                 </>
             }
-            {!props?.readonly &&
+            {!props?.readonly && schema?.dynamic &&
+                <select
+                    aria-label={props.placeholder}
+                    id={props.id}
+                    value={value}
+                    data-name={props.nameField}
+                    name='select'
+                    className={`fs-6 form-control ${props.className}`}
+                    disabled={props.readonly || false}
+                    onChange={(e) => handleChange(e)}>
+                    <option>--Select--</option>
+                    {dataSet?.items?.map((item, i) => (
+                        <option key={i} value={item.id || item[props.nameField]}>{item[props.nameField]}</option>
+                    ))}
+
+                </select>
+            }
+            {!props?.readonly && !schema?.dynamic &&
                 <select
                     aria-label={props.placeholder}
                     id={props.id}

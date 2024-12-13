@@ -90,6 +90,9 @@ const IUIPage = (props) => {
                     errors[item.field] = 'Invalid phone number.'
                 }
             }
+            if (item.type === 'radio') {
+                errors = { ...errors, ...validate(values, item.fields) }
+            }
         }
         return errors;
     };

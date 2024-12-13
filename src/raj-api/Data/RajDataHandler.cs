@@ -2,6 +2,7 @@
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
 
@@ -9,6 +10,8 @@ namespace RajApi.Data;
 
 public class RajDataHandler : LabDataHandler
 {
+
+    public readonly LabDataHandler handler;
     public RajDataHandler(DbContext dbContext,
         ILogger<RajDataHandler> logger)
         : base(dbContext, logger)
@@ -17,6 +20,7 @@ public class RajDataHandler : LabDataHandler
     }
 
     public ModuleIdentity Identity { get; set; }
+
 
     public override IQueryable<T> FilterIdentity<T>(DbSet<T> dbSet)
     {
@@ -100,15 +104,15 @@ public class RajDataHandler : LabDataHandler
         if (typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
         {
             var assignableItem = (IAssignable)item;
-            if (assignableItem != null 
-                && assignableItem.ProjectId == null 
+            if (assignableItem != null
+                && assignableItem.ProjectId == null
                 && assignableItem.ParentId != null)
             {
                 if (assignableItem.Parent == null)
                 {
                     assignableItem.Parent = Load<Plan>((long)assignableItem.ParentId);
                 }
-                
+
                 return getProjectId(assignableItem.Parent);
             }
         }

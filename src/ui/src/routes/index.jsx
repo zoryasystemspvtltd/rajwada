@@ -6,6 +6,19 @@ import Logout from "../pages/Logout";
 import Refresh from "../pages/Refresh";
 import ResetPassword from "../pages/ResetPassword";
 import Signup from "../pages/Signup";
+
+import { ListRole, ViewRole, EditRole, AddRole } from "../pages/app/schema/Roles";
+import { ListUser, ViewUser, EditUser, AddUser } from "../pages/app/schema/Users";
+import { ListItemGroup, ViewItemGroup, EditItemGroup, AddItemGroup } from "../pages/app/schema/ItemGroups";
+import { ListItemMaster, ViewItemMaster, EditItemMaster, AddItemMaster } from "../pages/app/schema/ItemMasters";
+import { ListProject, ViewProject, EditProject, AddProject } from "../pages/app/schema/Projects";
+import { ListCompany, ViewCompany, EditCompany, AddCompany } from "../pages/app/schema/Companys";
+import { ListTower, ViewTower, EditTower, AddTower } from "../pages/app/schema/Towers";
+import { ListFloor, ViewFloor, EditFloor, AddFloor } from "../pages/app/schema/Floors";
+import { ListFlat, ViewFlat, EditFlat, AddFlat } from "../pages/app/schema/Flats";
+import { ListRoom, ViewRoom, EditRoom, AddRoom } from "../pages/app/schema/Rooms";
+import Refresh from "../pages/Refresh";
+
 import ChangePassword from "../pages/app/ChangePassword";
 import ChangePasswordSuccess from "../pages/app/ChangePasswordSuccess";
 import Dashboard from "../pages/app/Dashboard";
@@ -19,6 +32,7 @@ import { AddFloor, EditFloor, ListFloor, ViewFloor } from "../pages/app/schema/F
 import { AddItemGroup, EditItemGroup, ListItemGroup, ViewItemGroup } from "../pages/app/schema/ItemGroups";
 import { AddItemMaster, EditItemMaster, ListItemMaster, ViewItemMaster } from "../pages/app/schema/ItemMasters";
 import { AddItemType, EditItemType, ListItemType, ViewItemType } from "../pages/app/schema/ItemType";
+
 import { AddProject, EditProject, ListProject, ViewProject } from "../pages/app/schema/Projects";
 import { AddRole, EditRole, ListRole, ViewRole } from "../pages/app/schema/Roles";
 import { AddTower, EditTower, ListTower, ViewTower } from "../pages/app/schema/Towers";
@@ -27,6 +41,16 @@ import { AddUser, EditUser, ListUser, ViewUser } from "../pages/app/schema/Users
 import { AddWorkflow, EditWorkflow, ListWorkflow, ViewWorkflow } from "../pages/app/schema/Workflows";
 import { useAuth } from "../provider/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
+
+import { ListActivity, ViewActivity, EditActivity, AddActivity } from "../pages/app/schema/Activities";
+import { ListDependency, ViewDependency, EditDependency, AddDependency } from "../pages/app/schema/Dependencies";
+import CreateWorkflow from "../pages/app/schema/Workflow";
+import { ListMouza, ViewMouza, EditMouza, AddMouza } from "../pages/app/schema/Mouzas";
+import { ListRsDaag, ViewRsDaag, EditRsDaag, AddRsDaag } from "../pages/app/schema/RsDaags";
+import { ListNameMaster, ViewNameMaster, EditNameMaster, AddNameMaster } from "../pages/app/schema/NameMasters";
+import { ListContractor, ViewContractor, EditContractor, AddContractor } from "../pages/app/schema/Contractors";
+
+
 const Routes = () => {
     const { token } = useAuth();
 
@@ -323,7 +347,87 @@ const Routes = () => {
                 {
                     path: "/labelsettings/add",
                     element: <AddWorkflow />
-                }
+                },
+                {
+                    path: "/mouzas",
+                    element: <ListMouza />
+                },
+                {
+                    path: "/mouzas/:id",
+                    element: <ViewMouza />
+                },
+                {
+                    path: "/mouzas/:id/edit",
+                    element: <EditMouza />
+                },
+                {
+                    path: "/mouzas/add",
+                    element: <AddMouza />
+                },
+                {
+                    path: "/rsdaags",
+                    element: <ListRsDaag />
+                },
+                {
+                    path: "/rsdaags/:id",
+                    element: <ViewRsDaag />
+                },
+                {
+                    path: "/rsdaags/:id/edit",
+                    element: <EditRsDaag />
+                },
+                {
+                    path: "/rsdaags/add",
+                    element: <AddRsDaag />
+                },
+                {
+                    path: "/namemasters",
+                    element: <ListNameMaster />
+                },
+                {
+                    path: "/namemasters/:id",
+                    element: <ViewNameMaster />
+                },
+                {
+                    path: "/namemasters/:id/edit",
+                    element: <EditNameMaster />
+                },
+                {
+                    path: "/namemasters/add",
+                    element: <AddNameMaster />
+                },
+                {
+                    path: "/rooms",
+                    element: <ListRoom />
+                },
+                {
+                    path: "/rooms/:id",
+                    element: <ViewRoom />
+                },
+                {
+                    path: "/rooms/:id/edit",
+                    element: <EditRoom />
+                },
+                {
+                    path: "/rooms/add",
+                    element: <AddRoom />
+                },
+                {
+                    path: "/contractors",
+                    element: <ListContractor />
+                },
+                {
+                    path: "/contractors/:id",
+                    element: <ViewContractor />
+                },
+                {
+                    path: "/contractors/:id/edit",
+                    element: <EditContractor />
+                },
+                {
+                    path: "/contractors/add",
+                    element: <AddContractor />
+                },
             ],
         },
     ];
