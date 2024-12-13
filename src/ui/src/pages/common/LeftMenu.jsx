@@ -127,7 +127,10 @@ const LeftMenu = (props) => {
             text: "Legal",
             icon: "user-tie",
             master: [
-                { name: "legal", text: "Legal", icon: "cubes-stacked", path: "/home", access: "legal" },
+                { name: "mouza", text: "Mouza", icon: "cubes-stacked", path: "/mouzas", access: "mouza" },
+                { name: "rsDaag", text: "RS Master", icon: "cubes-stacked", path: "/rsdaags", access: "rsDaag" },
+                { name: "mouza", text: "Mouza", icon: "cubes-stacked", path: "/mouzas", access: "mouza" },
+                { name: "mouza", text: "Mouza", icon: "cubes-stacked", path: "/mouzas", access: "mouza" },
             ],
             transaction: [
                 { name: "legalTransaction1", text: "Legal Transaction 1", icon: "vector-square", path: "/home" },

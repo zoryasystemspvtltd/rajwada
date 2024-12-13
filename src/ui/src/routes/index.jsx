@@ -16,6 +16,7 @@ import { ListCompany, ViewCompany, EditCompany, AddCompany } from "../pages/app/
 import { ListTower, ViewTower, EditTower, AddTower } from "../pages/app/schema/Towers";
 import { ListFloor, ViewFloor, EditFloor, AddFloor } from "../pages/app/schema/Floors";
 import { ListFlat, ViewFlat, EditFlat, AddFlat } from "../pages/app/schema/Flats";
+import { ListRoom, ViewRoom, EditRoom, AddRoom } from "../pages/app/schema/Rooms";
 import Refresh from "../pages/Refresh";
 import ChangePassword from "../pages/app/ChangePassword";
 import ChangePasswordSuccess from "../pages/app/ChangePasswordSuccess";
@@ -27,6 +28,11 @@ import { AddItemType, EditItemType, ListItemType, ViewItemType } from "../pages/
 import { ListActivity, ViewActivity, EditActivity, AddActivity } from "../pages/app/schema/Activities";
 import { ListDependency, ViewDependency, EditDependency, AddDependency } from "../pages/app/schema/Dependencies";
 import CreateWorkflow from "../pages/app/schema/Workflow";
+import { ListMouza, ViewMouza, EditMouza, AddMouza } from "../pages/app/schema/Mouzas";
+import { ListRsDaag, ViewRsDaag, EditRsDaag, AddRsDaag } from "../pages/app/schema/RsDaags";
+import { ListNameMaster, ViewNameMaster, EditNameMaster, AddNameMaster } from "../pages/app/schema/NameMasters";
+import { ListContractor, ViewContractor, EditContractor, AddContractor } from "../pages/app/schema/Contractors";
+
 const Routes = () => {
     const { token } = useAuth();
 
@@ -311,6 +317,86 @@ const Routes = () => {
                 {
                     path: "/workflow",
                     element: <CreateWorkflow />
+                },
+                {
+                    path: "/mouzas",
+                    element: <ListMouza />
+                },
+                {
+                    path: "/mouzas/:id",
+                    element: <ViewMouza />
+                },
+                {
+                    path: "/mouzas/:id/edit",
+                    element: <EditMouza />
+                },
+                {
+                    path: "/mouzas/add",
+                    element: <AddMouza />
+                },
+                {
+                    path: "/rsdaags",
+                    element: <ListRsDaag />
+                },
+                {
+                    path: "/rsdaags/:id",
+                    element: <ViewRsDaag />
+                },
+                {
+                    path: "/rsdaags/:id/edit",
+                    element: <EditRsDaag />
+                },
+                {
+                    path: "/rsdaags/add",
+                    element: <AddRsDaag />
+                },
+                {
+                    path: "/namemasters",
+                    element: <ListNameMaster />
+                },
+                {
+                    path: "/namemasters/:id",
+                    element: <ViewNameMaster />
+                },
+                {
+                    path: "/namemasters/:id/edit",
+                    element: <EditNameMaster />
+                },
+                {
+                    path: "/namemasters/add",
+                    element: <AddNameMaster />
+                },
+                {
+                    path: "/rooms",
+                    element: <ListRoom />
+                },
+                {
+                    path: "/rooms/:id",
+                    element: <ViewRoom />
+                },
+                {
+                    path: "/rooms/:id/edit",
+                    element: <EditRoom />
+                },
+                {
+                    path: "/rooms/add",
+                    element: <AddRoom />
+                },
+                {
+                    path: "/contractors",
+                    element: <ListContractor />
+                },
+                {
+                    path: "/contractors/:id",
+                    element: <ViewContractor />
+                },
+                {
+                    path: "/contractors/:id/edit",
+                    element: <EditContractor />
+                },
+                {
+                    path: "/contractors/add",
+                    element: <AddContractor />
                 },
             ],
         },

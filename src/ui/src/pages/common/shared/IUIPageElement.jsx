@@ -13,12 +13,16 @@ import IUIHiddenState from './IUIHiddenState';
 import IUILookUpFilter from './IUILookUpFilter';
 import IUILookUpEnum from './IUILookUpEnum';
 import ILab from './IUICanvas';
-
+import IUIDocUpload from './IUIDocUpload';
+import IUIRadio from './IUIRadio';
 
 const IUIPageElement = (props) => {
     // Properties
     const schema = props?.schema;
-
+    const isAliveStatus = [
+        { value: "true", label: "Alive" },
+        { value: "false", label: "Dead" }
+    ];
     // Local State
     const [data, setData] = useState({});
     const [errors, setErrors] = useState({});
@@ -315,6 +319,29 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                     </>
                                 }
+                                {fld.type === 'radio' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >
+                                                {fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+
+                                            <InputGroup>
+                                                <IUIRadio
+                                                    id={fld.field}
+                                                    name={fld.field}
+                                                    onChange={handleChange}
+                                                    value={data[fld.field]}
+                                                    options={isAliveStatus}
+                                                    readonly={props.readonly}
+                                                />
+                                            </InputGroup>
+                                        </Form.Group>
+                                    </>
+                                }
                                 {fld.type === 'user-roles' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
@@ -409,6 +436,24 @@ const IUIPageElement = (props) => {
 
                                         </Form.Group>
                                         <p className="text-danger">{errors[fld.field]}</p>
+                                    </>
+                                }
+                                {fld.type === 'doc-upload' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+                                            <IUIDocUpload value={data[fld.field] || []}
+                                                id={fld.field}
+                                                text={fld.text}
+                                                onChange={handleChange}
+                                                readonly={props.readonly || fld.readonly || false}
+                                            />
+                                        </Form.Group>
+                                        <br />
                                     </>
                                 }
                                 {fld.type === 'picture-upload' &&

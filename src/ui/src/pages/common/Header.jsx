@@ -45,12 +45,14 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
             icon: "screwdriver-wrench",
             master: [
                 { name: "uom", text: "UOM", icon: "cubes-stacked", path: "/uoms", access: "uom" },
+                { name: "contractor", text: "Contractor", icon: "cubes-stacked", path: "/contractors", access: "contractor" },
                 { name: "itemTypeManagement", text: "Item Type", icon: "cubes-stacked", path: "/item-types", access: "assetType" },
                 { name: "itemGroupManagement", text: "Item Group", icon: "cubes-stacked", path: "/item-groups", access: "assetGroup" },
                 { name: "itemMasterManagement", text: "Item", icon: "vector-square", path: "/item-masters", access: "asset" },
                 { name: "towerManagement", text: "Tower", icon: "industry", path: "/towers", access: "plan" },
                 { name: "floorManagement", text: "Floor", icon: "cubes", path: "/floors", access: "plan" },
                 { name: "flatManagement", text: "Flat", icon: "bed", path: "/flats", access: "plan" },
+                { name: "roomManagement", text: "Room", icon: "cubes", path: "/rooms", access: "plan" },
                 { name: "activityManagement", text: "Activity", icon: "cubes-stacked" },
             ],
             transaction: [
@@ -66,7 +68,10 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
             text: "Legal",
             icon: "user-tie",
             master: [
-                { name: "legal", text: "Legal", icon: "cubes-stacked", path: "/home", access: "legal" },
+                { name: "mouza", text: "Mouza", icon: "cubes-stacked", path: "/mouzas", access: "mouza" },
+                { name: "rsDaag", text: "RS Master", icon: "cubes-stacked", path: "/rsdaags", access: "rsDaag" },
+                { name: "nameMaster", text: "Name Master", icon: "cubes-stacked", path: "/nameMasters", access: "nameMaster" },
+                { name: "wonership", text: "Woner Ship", icon: "cubes-stacked", path: "/mouzas", access: "mouza" },
             ],
             transaction: [
                 { name: "legalTransaction1", text: "Legal Transaction 1", icon: "vector-square", path: "/home" },
