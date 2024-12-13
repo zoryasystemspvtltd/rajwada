@@ -7,47 +7,35 @@ import Refresh from "../pages/Refresh";
 import ResetPassword from "../pages/ResetPassword";
 import Signup from "../pages/Signup";
 
-import { ListRole, ViewRole, EditRole, AddRole } from "../pages/app/schema/Roles";
-import { ListUser, ViewUser, EditUser, AddUser } from "../pages/app/schema/Users";
-import { ListItemGroup, ViewItemGroup, EditItemGroup, AddItemGroup } from "../pages/app/schema/ItemGroups";
-import { ListItemMaster, ViewItemMaster, EditItemMaster, AddItemMaster } from "../pages/app/schema/ItemMasters";
-import { ListProject, ViewProject, EditProject, AddProject } from "../pages/app/schema/Projects";
-import { ListCompany, ViewCompany, EditCompany, AddCompany } from "../pages/app/schema/Companys";
-import { ListTower, ViewTower, EditTower, AddTower } from "../pages/app/schema/Towers";
-import { ListFloor, ViewFloor, EditFloor, AddFloor } from "../pages/app/schema/Floors";
-import { ListFlat, ViewFlat, EditFlat, AddFlat } from "../pages/app/schema/Flats";
-import { ListRoom, ViewRoom, EditRoom, AddRoom } from "../pages/app/schema/Rooms";
+import { AddCompany, EditCompany, ListCompany, ViewCompany } from "../pages/app/schema/Companys";
+import { AddFlat, EditFlat, ListFlat, ViewFlat } from "../pages/app/schema/Flats";
+import { AddFloor, EditFloor, ListFloor, ViewFloor } from "../pages/app/schema/Floors";
+import { AddItemGroup, EditItemGroup, ListItemGroup, ViewItemGroup } from "../pages/app/schema/ItemGroups";
+import { AddItemMaster, EditItemMaster, ListItemMaster, ViewItemMaster } from "../pages/app/schema/ItemMasters";
+import { AddProject, EditProject, ListProject, ViewProject } from "../pages/app/schema/Projects";
+import { AddRole, EditRole, ListRole, ViewRole } from "../pages/app/schema/Roles";
+import { AddRoom, EditRoom, ListRoom, ViewRoom } from "../pages/app/schema/Rooms";
+import { AddTower, EditTower, ListTower, ViewTower } from "../pages/app/schema/Towers";
+import { AddUser, EditUser, ListUser, ViewUser } from "../pages/app/schema/Users";
 
 import ChangePassword from "../pages/app/ChangePassword";
 import ChangePasswordSuccess from "../pages/app/ChangePasswordSuccess";
 import Dashboard from "../pages/app/Dashboard";
 import { EditProfile, ViewProfile } from "../pages/app/Profile";
 import { AddActivity, EditActivity, ListActivity, ViewActivity } from "../pages/app/schema/Activities";
-import { AddCompany, EditCompany, ListCompany, ViewCompany } from "../pages/app/schema/Companys";
 import { AddDepartment, EditDepartment, ListDepartment, ViewDepartment } from "../pages/app/schema/Departments";
 import { AddWorkItem, EditWorkItem, ListWorkItem, ViewWorkItem } from "../pages/app/schema/Dependencies";
-import { AddFlat, EditFlat, ListFlat, ViewFlat } from "../pages/app/schema/Flats";
-import { AddFloor, EditFloor, ListFloor, ViewFloor } from "../pages/app/schema/Floors";
-import { AddItemGroup, EditItemGroup, ListItemGroup, ViewItemGroup } from "../pages/app/schema/ItemGroups";
-import { AddItemMaster, EditItemMaster, ListItemMaster, ViewItemMaster } from "../pages/app/schema/ItemMasters";
 import { AddItemType, EditItemType, ListItemType, ViewItemType } from "../pages/app/schema/ItemType";
 
-import { AddProject, EditProject, ListProject, ViewProject } from "../pages/app/schema/Projects";
-import { AddRole, EditRole, ListRole, ViewRole } from "../pages/app/schema/Roles";
-import { AddTower, EditTower, ListTower, ViewTower } from "../pages/app/schema/Towers";
 import { AddUOM, EditUOM, ListUOM, ViewUOM } from "../pages/app/schema/UOMs";
-import { AddUser, EditUser, ListUser, ViewUser } from "../pages/app/schema/Users";
 import { AddWorkflow, EditWorkflow, ListWorkflow, ViewWorkflow } from "../pages/app/schema/Workflows";
 import { useAuth } from "../provider/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 
-import { ListActivity, ViewActivity, EditActivity, AddActivity } from "../pages/app/schema/Activities";
-import { ListDependency, ViewDependency, EditDependency, AddDependency } from "../pages/app/schema/Dependencies";
-import CreateWorkflow from "../pages/app/schema/Workflow";
-import { ListMouza, ViewMouza, EditMouza, AddMouza } from "../pages/app/schema/Mouzas";
-import { ListRsDaag, ViewRsDaag, EditRsDaag, AddRsDaag } from "../pages/app/schema/RsDaags";
-import { ListNameMaster, ViewNameMaster, EditNameMaster, AddNameMaster } from "../pages/app/schema/NameMasters";
-import { ListContractor, ViewContractor, EditContractor, AddContractor } from "../pages/app/schema/Contractors";
+import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
+import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/Mouzas";
+import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from "../pages/app/schema/NameMasters";
+import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
 
 
 const Routes = () => {
