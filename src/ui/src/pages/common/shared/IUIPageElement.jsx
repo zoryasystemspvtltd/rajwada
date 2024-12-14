@@ -12,7 +12,11 @@ import IUILookUpLink from './IUILookUpLink';
 import IUIHiddenState from './IUIHiddenState';
 import IUILookUpFilter from './IUILookUpFilter';
 import IUILookUpEnum from './IUILookUpEnum';
-import ILab from './IUICanvas';
+// import ILab from './IUICanvas';
+import ILab from "../../canvas-helper/Ilab-Canvas";
+import FlowchartInit from '../../flowchart-helper/FlowchartInit';
+import IUILookUpRelation from './IUILookUpRelation';
+
 import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
 
@@ -137,7 +141,7 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
-                                            <span><Link className="stretched-link" to={`${fld.to}${data[fld.field]}`}> {data[fld.field]} </Link></span>
+                                            <span id={fld.field}><Link className="stretched-link" to={`${fld.to}${data[fld.field]}`}> {data[fld.field]} </Link></span>
                                         </Form.Group>
                                     </>
                                 }
@@ -145,7 +149,7 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
-                                            <span> {data[fld.field]} </span>
+                                            <span id={fld.field}> {data[fld.field]} </span>
                                         </Form.Group>
                                     </>
                                 }
@@ -153,7 +157,7 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
-                                            <span> {data[fld.field]?.substring(0, 10)} </span>
+                                            <span id={fld.field}> {data[fld.field]?.substring(0, 10)} </span>
                                         </Form.Group>
                                     </>
                                 }
@@ -477,6 +481,32 @@ const IUIPageElement = (props) => {
                                         <br />
                                     </>
                                 }
+                                {fld.type === 'lookup-relation' &&
+                                    <>
+                                        {
+                                            (data[fld.parent]) && (
+                                                <Form.Group className="position-relative form-group">
+                                                    <Form.Label htmlFor={fld.field} >{fld.text}
+                                                        {fld.required &&
+                                                            <span className="text-danger">*</span>
+                                                        }
+                                                    </Form.Label>
+
+                                                    <IUILookUpRelation
+                                                        schema={fld.schema}
+                                                        id={fld.field}
+                                                        value={data[fld.field]}
+                                                        className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                        parentId={parseInt(data[fld.parent])}
+                                                        onChange={handleChange}
+                                                        readonly={props.readonly || fld.readonly || false}
+                                                    />
+                                                </Form.Group>
+                                            )
+                                        }
+                                        <br />
+                                    </>
+                                }
                                 {fld.type === 'reset-password' &&
                                     <>
                                         <Form.Group className="position-relative">
@@ -490,8 +520,24 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'ilab-canvas' &&
                                     <>
-                                        <ILab.Canvas schema={fld.schema} />
+                                        <ILab.MarkerCanvas schema={fld.schema} />
                                         <br />
+                                    </>
+                                }
+                                {fld.type === 'ilab-flowchart' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            {/* <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label> */}
+                                            <FlowchartInit
+                                                readonly={props?.readonly || fld?.readonly || false}
+                                                value={data[fld.field]}
+                                            />
+                                            <br />
+                                        </Form.Group>
                                     </>
                                 }
                             </Col>

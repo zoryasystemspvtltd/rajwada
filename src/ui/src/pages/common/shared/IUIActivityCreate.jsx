@@ -1,35 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Col, Row, Form, Container } from "react-bootstrap";
+import React, { useEffect, useState } from 'react';
+import { Button, Col, Form, Row } from "react-bootstrap";
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from "react-router-dom";
-import { getSingleData, editData, addData, setSave } from '../../store/api-db'
-import { useDispatch, useSelector } from 'react-redux'
-import IUIPageElement from './shared/IUIPageElement';
-import IUIModuleMessage from './shared/IUIModuleMessage';
-import api from '../../store/api-service'
-import IUIBreadcrumb from './shared/IUIBreadcrumb';
-import IUIAssign from './shared/IUIAssign';
+import { setSave } from '../../../store/api-db';
+import { getData } from '../../../store/api-db';
+import api from '../../../store/api-service';
+import IUIAssign from './IUIAssign';
+import IUIBreadcrumb from './IUIBreadcrumb';
+import IUIPageElement from './IUIPageElement';
+import IUIModuleMessage from './IUIModuleMessage';
+import FlowchartInit from '../../flowchart-helper/FlowchartInit';
+import { bfsTraversal } from '../../flowchart-helper/GraphHelper';
+import IUIActivityWizard from './IUIActivityWizard';
 
-const IUIPage = (props) => {
+const IUIActivityCreate = (props) => {
     // Properties
-    const schema = props?.schema;
-    const module = schema?.module;
+    const setupSchema = props?.setupSchema;
+    const creationSchema = props?.creationSchema;
+    const module = setupSchema?.module;
+    const dependencyModule = 'workflow';
     const flowchartKey = "dependency-flow";
+    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null };
     // Parameter
     const { id } = useParams();
-    const { parentId } = useParams();
     // console.log(parentId)
     // Global State
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
-    const [dirty, setDirty] = useState(false)
+    const [dirty, setDirty] = useState(false);
+    const [isSetupComplete, setIsSetupComplete] = useState(false)
     // Local State
     const [data, setData] = useState({});
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
-    const [disabled, setDisabled] = useState(false)
+    const [dependencySelectParams, setDependencySelectParams] = useState(initialParams);
+    const [allDependencies, setAllDependencies] = useState([]); // API should be in backend to filter and fetch dependencies
+    const [selectedOption, setSelectedOption] = useState(0);
+    const [bfsSequence, setBfsSequence] = useState([]);
+    const [disabled, setDisabled] = useState(false);
+
+    const filteredDependencies = allDependencies.filter(item => {
+        // Apply filter only if the corresponding filter value is not null or undefined
+        const matchesA = dependencySelectParams?.projectId !== null ? item.projectId === parseInt(dependencySelectParams.projectId) : true;
+        const matchesB = dependencySelectParams?.towerId !== null ? item.towerId === parseInt(dependencySelectParams.towerId) : true;
+        const matchesC = dependencySelectParams?.floorId !== null ? item.floorId === parseInt(dependencySelectParams.floorId) : true;
+        const matchesD = dependencySelectParams?.flatId !== null ? item.flatId === parseInt(dependencySelectParams.flatId) : true;
+
+        // Return item if it matches all non-null filter conditions
+        return matchesA && matchesB && matchesC && matchesD;
+    });
 
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        async function fetchData() {
+            const pageOptions = {
+                recordPerPage: 0
+            }
+
+            const response = await api.getData({ module: dependencyModule, options: pageOptions });
+            setAllDependencies(response?.data?.items);
+        }
+
+        fetchData();
+    }, [dependencyModule]);
 
     useEffect(() => {
         async function fetchData() {
@@ -53,7 +88,7 @@ const IUIPage = (props) => {
 
     useEffect(() => {
         if (dirty) {
-            const error = validate(data, schema?.fields)
+            const error = validate(data, setupSchema?.fields)
             setErrors(error);
         }
     }, [data, dirty]);
@@ -62,6 +97,11 @@ const IUIPage = (props) => {
         e.preventDefault();
         const newData = { ...data, ...e.target.value }
         setData(newData);
+        setDependencySelectParams({ ...dependencySelectParams, ...e.target.value });
+    };
+
+    const handleDependencySelection = (event) => {
+        setSelectedOption(parseInt(event.target.value));
     };
 
     const validate = (values, fields) => {
@@ -89,9 +129,6 @@ const IUIPage = (props) => {
                 if (!regex.test(values[item.field])) {
                     errors[item.field] = 'Invalid phone number.'
                 }
-            }
-            if (item.type === 'radio') {
-                errors = { ...errors, ...validate(values, item.fields) }
             }
         }
         return errors;
@@ -128,13 +165,13 @@ const IUIPage = (props) => {
 
         if (!props?.readonly) {
             setDirty(true);
-            const error = validate(data, schema?.fields)
+            const error = validate(data, setupSchema?.fields)
             setErrors(error);
             if (Object.keys(error).length === 0) {
                 if (!data)
                     return
                 setDisabled(true)
-                if (id != undefined)
+                if (id !== undefined)
                     try {
                         api.editData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
@@ -154,18 +191,16 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
+                        if (module === 'activity') {
+                            console.log(data);
+                            return;
+                        }
                         api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
-                            if (module === 'activity') {
-                                props?.activityCallback(true);
-                                return;
-                            }
-                            else {
-                                navigate(-1);
-                                localStorage.removeItem(flowchartKey);
-                            }
+                            navigate(-1);
+                            localStorage.removeItem(flowchartKey);
                         }, 1000)
 
                         return () => {
@@ -173,19 +208,24 @@ const IUIPage = (props) => {
                         }
                     } catch (e) {
                         // TODO
-                        if (module === 'activity') {
-                            props?.activityCallback(false);
-                            return;
-                        }
                     }
             }
         }
     };
 
+    const prepareActivityCreation = (e) => {
+        e.preventDefault();
+        const selectedDependency = allDependencies?.filter((dependency) => dependency.id === parseInt(selectedOption))[0];
+        const dependencyGraph = JSON.parse(selectedDependency?.data);
+        const result = bfsTraversal(dependencyGraph?.nodes, dependencyGraph?.edges, 'node_0');
+        setBfsSequence(result.map(node => node.data.label));
+        setIsSetupComplete(true);
+    };
+
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading"> {(module !== 'activity') ? schema?.title : ''}</div>
+                <div className="page-title-heading"> {setupSchema?.title}</div>
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -195,7 +235,7 @@ const IUIPage = (props) => {
                                 <div className="card-body">
                                     <div>
                                         {
-                                            schema?.showBreadcrumbs && <Row>
+                                            setupSchema?.showBreadcrumbs && <Row>
                                                 <Col md={12} className='mb-3'>
                                                     <IUIBreadcrumb schema={{ type: 'view', module: module }} />
                                                 </Col>
@@ -204,12 +244,12 @@ const IUIPage = (props) => {
                                         <Form>
                                             <Row>
                                                 <Col>
-                                                    {(schema?.back && module !== 'activity') &&
+                                                    {setupSchema?.back &&
                                                         <Button variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(-1)}> Back</Button>
                                                     }
-                                                    {/* {!schema?.readonly &&
+                                                    {/* {!setupSchema?.readonly &&
                                                         <>
                                                             {(privileges?.add || privileges?.edit) &&
                                                                 <>
@@ -224,33 +264,33 @@ const IUIPage = (props) => {
                                                             }
                                                         </>
                                                     } */}
-                                                    {schema?.adding &&
+                                                    {setupSchema?.adding &&
                                                         <>
                                                             {privileges?.add &&
                                                                 <Button
                                                                     variant="contained"
                                                                     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={() => navigate(`/${schema.path}/add`)}
+                                                                    onClick={() => navigate(`/${setupSchema.path}/add`)}
                                                                 >
                                                                     Add New
                                                                 </Button>
                                                             }
                                                         </>
                                                     }
-                                                    {schema?.editing &&
+                                                    {setupSchema?.editing &&
                                                         <>
                                                             {privileges?.edit &&
                                                                 <Button
                                                                     variant="contained"
                                                                     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={() => navigate(`/${schema.path}/${id}/edit`)}
+                                                                    onClick={() => navigate(`/${setupSchema.path}/${id}/edit`)}
                                                                 >
                                                                     Edit
                                                                 </Button>
                                                             }
                                                         </>
                                                     }
-                                                    {schema?.deleting &&
+                                                    {setupSchema?.deleting &&
                                                         <>
                                                             {privileges?.delete &&
                                                                 <Button
@@ -263,29 +303,29 @@ const IUIPage = (props) => {
                                                             }
                                                         </>
                                                     }
-                                                    {schema?.assign &&
+                                                    {setupSchema?.assign &&
                                                         <IUIAssign onClick={assignPageValue} />
                                                         // <Button variant="contained"
                                                         //     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                         //     onClick={assignPageValue}>Assign </Button>
                                                     }
-                                                    <IUIModuleMessage schema={props.schema} />
+                                                    <IUIModuleMessage schema={props.setupSchema} />
                                                 </Col>
                                             </Row>
-                                            {(schema?.back || schema?.adding || schema?.editing) && (module !== 'activity') &&
+                                            {(setupSchema?.back || setupSchema?.adding || setupSchema?.editing) &&
                                                 <hr />
                                             }
-                                            <Row>
-                                                {schema?.fields?.map((fld, f) => (
+                                            <Row className={isSetupComplete ? "d-none" : ""}>
+                                                {setupSchema?.fields?.map((fld, f) => (
                                                     <Col md={fld.width || 6} key={f}>
                                                         {fld.type === 'area' &&
                                                             <>
                                                                 <IUIPageElement
-                                                                    id={schema.module}
+                                                                    id={setupSchema.module}
                                                                     schema={fld.fields}
                                                                     value={data}
                                                                     errors={errors}
-                                                                    readonly={schema.readonly}
+                                                                    readonly={setupSchema.readonly}
                                                                     onChange={handleChange}
                                                                     dirty={dirty}
                                                                 />
@@ -295,12 +335,12 @@ const IUIPage = (props) => {
                                                         {fld.type !== 'area' &&
                                                             <>
                                                                 <IUIPageElement
-                                                                    id={schema.module}
+                                                                    id={setupSchema.module}
                                                                     schema={[fld]}
                                                                     value={data}
                                                                     errors={errors}
                                                                     onChange={handleChange}
-                                                                    readonly={schema.readonly}
+                                                                    readonly={setupSchema.readonly}
                                                                 />
                                                                 {/* <br /> */}
                                                             </>
@@ -309,62 +349,99 @@ const IUIPage = (props) => {
                                                 ))}
                                             </Row>
 
-                                            {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
+                                            <Row className={isSetupComplete ? "d-none" : ""}>
+                                                {
+                                                    (dependencySelectParams.projectId !== null && filteredDependencies.length > 0) && (
+                                                        <Form.Group className="position-relative form-group">
+                                                            <Form.Label className='text-uppercase mb-2'>
+                                                                Select a Dependency Label Setting
+                                                            </Form.Label>
+                                                            <div>
+                                                                {
+                                                                    filteredDependencies?.map((dependency, index) => (
+                                                                        <div key={`dep-${index}`}>
+                                                                            <Form.Check className='text-capitalize form-check-inline'
+                                                                                type="radio"
+                                                                                value={dependency.id}
+                                                                                checked={selectedOption == dependency.id}
+                                                                                onChange={handleDependencySelection}
+                                                                                label={dependency.name}
+                                                                            />
+                                                                            <br />
+                                                                        </div>
+                                                                    ))
+                                                                }
+                                                            </div>
+                                                        </Form.Group>
+                                                    )
+                                                }
+                                                {
+                                                    (dependencySelectParams.projectId !== null && filteredDependencies.length === 0) && (
+                                                        <Form.Group className="position-relative form-group">
+                                                            <Form.Label className='text-uppercase mb-2'>
+                                                                No Matching Dependencies Found
+                                                            </Form.Label>
+                                                        </Form.Group>
+                                                    )
+                                                }
+                                            </Row>
+
+                                            {
+                                                (selectedOption && !isSetupComplete) ?
+                                                    <Row>
+                                                        <FlowchartInit
+                                                            readonly={true}
+                                                            value={allDependencies?.filter((dependency) => dependency.id === parseInt(selectedOption))[0]?.data}
+                                                        />
+                                                    </Row> : null
+                                            }
+
+                                            <div className={!isSetupComplete ? "d-none" : "row d-flex justify-content-center"}>
+                                                <div className="col-sm-12 col-lg-12">
+                                                    <div className="main-card card">
+                                                        <div className="card-body">
+                                                            {
+                                                                (bfsSequence.length) ? (
+                                                                    <IUIActivityWizard sequence={bfsSequence} schema={creationSchema} />
+                                                                ) : null
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {(!setupSchema?.readonly && (privileges?.add || privileges?.edit)) &&
                                                 <hr />
                                             }
                                             <Row>
                                                 <Col>
-                                                    {/* {schema?.back &&
+                                                    {/* {setupSchema?.back &&
                                                         <Button variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(-1)}> Back</Button>
                                                     } */}
-                                                    {!schema?.readonly &&
+                                                    {!setupSchema?.readonly &&
                                                         <>
                                                             {(privileges?.add || privileges?.edit) &&
                                                                 <>
-                                                                    <Button variant="contained"
+                                                                    {/* <Button variant="contained"
                                                                         disabled={disabled}
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
-                                                                        onClick={savePageValue}>Save </Button>
-
+                                                                        onClick={savePageValue}>Save </Button> */}
                                                                     {
-                                                                        (module !== 'activity') ?
-                                                                            <Button variant="contained"
-                                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                                                onClick={() => navigate(-1)}> Cancel</Button>
-                                                                            : null
+                                                                        (selectedOption && !isSetupComplete) ? <Button variant="contained"
+                                                                            disabled={disabled}
+                                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success btn-md mr-2"
+                                                                            onClick={prepareActivityCreation}>Proceed</Button> : null
                                                                     }
+
+                                                                    <Button variant="contained"
+                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
+                                                                        onClick={() => navigate(-1)}> Cancel</Button>
                                                                 </>
                                                             }
                                                         </>
                                                     }
-                                                    {/* {schema?.adding &&
-                                                        <>
-                                                            {privileges?.add &&
-                                                                <Button
-                                                                    variant="contained"
-                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={() => navigate(`/${schema.module}s/add`)}
-                                                                >
-                                                                    Add New
-                                                                </Button>
-                                                            }
-                                                        </>
-                                                    } */}
-                                                    {/* {schema?.editing &&
-                                                        <>
-                                                            {privileges?.edit &&
-                                                                <Button
-                                                                    variant="contained"
-                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={() => navigate(`/${schema.module}s/${id}/edit`)}
-                                                                >
-                                                                    Edit
-                                                                </Button>
-                                                            }
-                                                        </>
-                                                    } */}
                                                 </Col>
                                             </Row>
                                         </Form>
@@ -380,4 +457,4 @@ const IUIPage = (props) => {
     )
 }
 
-export default IUIPage;
+export default IUIActivityCreate;
