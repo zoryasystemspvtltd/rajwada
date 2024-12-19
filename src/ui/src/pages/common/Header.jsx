@@ -31,7 +31,8 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                 { name: "roleManagement", text: "Role", icon: "sitemap", path: "/roles", access: "role" },
                 { name: "userManagement", text: "User", icon: "users", path: "/users", access: "user" },
                 { name: "companyManagement", text: "Company", icon: "cubes-stacked", path: "/companies", access: "company" },
-                { name: "projectManagement", text: "Project", icon: "sitemap", path: "/projects", access: "project" }
+                { name: "projectManagement", text: "Project", icon: "sitemap", path: "/projects", access: "project" },
+                { name: "approverManagement", text: "Approver", icon: "sitemap", path: "/approvers", access: "approver" }
             ],
             transaction: [
                 { name: "resetPassword", text: "Reset Password", icon: "vector-square", path: "/home" }

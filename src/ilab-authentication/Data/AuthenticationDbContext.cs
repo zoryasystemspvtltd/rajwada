@@ -411,5 +411,7 @@ public class AuthenticationDbContext : IdentityDbContext<ApplicationUser, Applic
 
     }
     public virtual DbSet<Privilege> Privileges { get; set; }
+
+    public virtual DbSet<Approver> Approvers { get; set; }
 }
 

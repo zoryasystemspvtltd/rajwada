@@ -17,6 +17,7 @@ import { AddRole, EditRole, ListRole, ViewRole } from "../pages/app/schema/Roles
 import { AddRoom, EditRoom, ListRoom, ViewRoom } from "../pages/app/schema/Rooms";
 import { AddTower, EditTower, ListTower, ViewTower } from "../pages/app/schema/Towers";
 import { AddUser, EditUser, ListUser, ViewUser } from "../pages/app/schema/Users";
+import { AddApprover, EditApprover, ListApprover, ViewApprover } from "../pages/app/schema/Approvers";
 
 import ChangePassword from "../pages/app/ChangePassword";
 import ChangePasswordSuccess from "../pages/app/ChangePasswordSuccess";
@@ -118,6 +119,22 @@ const Routes = () => {
                 {
                     path: "/users/add",
                     element: <AddUser />
+                },
+                {
+                    path: "/approvers",
+                    element: <ListApprover />
+                },
+                {
+                    path: "/approvers/:id",
+                    element: <ViewApprover />
+                },
+                {
+                    path: "/approvers/:id/edit",
+                    element: <EditApprover />
+                },
+                {
+                    path: "/approvers/add",
+                    element: <AddApprover />
                 },
                 {
                     path: "/departments",
