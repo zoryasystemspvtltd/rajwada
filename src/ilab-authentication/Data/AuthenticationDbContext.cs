@@ -406,102 +406,10 @@ public class AuthenticationDbContext : IdentityDbContext<ApplicationUser, Applic
                     RoleId = superUserId,
                     Key = rootKey,
                     Member = "root",
-                },
-                 new Privilege()
-                 {
-                     Id = 32,
-                     Module = "approver",
-                     Name = "add",
-                     RoleId = rootRoleId,
-                     Key = rootKey,
-                     Member = "root",
-                 },
-                new Privilege()
-                {
-                    Id = 33,
-                    Module = "approver",
-                    Name = "edit",
-                    RoleId = rootRoleId,
-                    Key = rootKey,
-                    Member = "root",
-                },
-                new Privilege()
-                {
-                    Id = 34,
-                    Module = "approver",
-                    Name = "delete",
-                    RoleId = rootRoleId,
-                    Key = rootKey,
-                    Member = "root",
-                },
-                new Privilege()
-                {
-                    Id = 35,
-                    Module = "approver",
-                    Name = "view",
-                    RoleId = rootRoleId,
-                    Key = rootKey,
-                    Member = "root",
-                },
-                new Privilege()
-                {
-                    Id = 36,
-                    Module = "approver",
-                    Name = "list",
-                    RoleId = rootRoleId,
-                    Key = rootKey,
-                    Member = "root",
-                },
-                 new Privilege()
-                 {
-                     Id = 37,
-                     Module = "approver",
-                     Name = "add",
-                     RoleId = superUserId,
-                     Key = rootKey,
-                     Member = "root",
-                 },
-                new Privilege()
-                {
-                    Id = 38,
-                    Module = "approver",
-                    Name = "edit",
-                    RoleId = superUserId,
-                    Key = rootKey,
-                    Member = "root",
-                },
-                new Privilege()
-                {
-                    Id = 39,
-                    Module = "approver",
-                    Name = "delete",
-                    RoleId = superUserId,
-                    Key = rootKey,
-                    Member = "root",
-                },
-                new Privilege()
-                {
-                    Id = 40,
-                    Module = "approver",
-                    Name = "view",
-                    RoleId = superUserId,
-                    Key = rootKey,
-                    Member = "root",
-                },
-                new Privilege()
-                {
-                    Id = 41,
-                    Module = "approver",
-                    Name = "list",
-                    RoleId = superUserId,
-                    Key = rootKey,
-                    Member = "root",
                 }
             );
 
     }
     public virtual DbSet<Privilege> Privileges { get; set; }
-
-    public virtual DbSet<Approver> Approvers { get; set; }
 }
 

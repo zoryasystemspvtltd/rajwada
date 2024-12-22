@@ -35,6 +35,9 @@ public class EnumController : ControllerBase
             case "priorityStatusType":
                 type = typeof(PriorityStatusType);
                 break;
+            case "qualityType":
+                type = typeof(QualityType);
+                break;
         }
 
         foreach (var itemType in Enum.GetValues(type))

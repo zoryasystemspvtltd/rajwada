@@ -16,7 +16,7 @@ import IUILookUpModule from './IUILookUpModule';
 import ILab from "../../canvas-helper/Ilab-Canvas";
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
 import IUILookUpRelation from './IUILookUpRelation';
-
+import IUIListInline from '../IUIListInline';
 import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
 
@@ -110,6 +110,11 @@ const IUIPageElement = (props) => {
                                 {fld.type === 'h2' &&
                                     <>
                                         <h2>{data[fld.field]}</h2>
+                                    </>
+                                }
+                                {fld.type === 'h2l' &&
+                                    <>
+                                        <h2>{fld.field}</h2>
                                     </>
                                 }
                                 {fld.type === 'h3' &&
@@ -500,6 +505,21 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative mt-2">
                                             <IUIListRelation schema={fld.schema} parentId={data.id} />
+                                        </Form.Group>
+                                        <br />
+                                    </>
+                                }
+                                {fld.type === 'module-relation-inline' &&
+                                    <>
+                                        <Form.Group className="position-relative">
+                                            <IUIListInline
+                                                value={data[fld.field]}
+                                                // className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                id={fld.field}
+                                                schema={fld.schema}
+                                                onChange={handleChange}
+                                                readonly={props.readonly || fld.readonly || false}
+                                            />
                                         </Form.Group>
                                         <br />
                                     </>

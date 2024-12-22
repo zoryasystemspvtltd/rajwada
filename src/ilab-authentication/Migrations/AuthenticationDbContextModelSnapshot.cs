@@ -238,44 +238,7 @@ namespace IlabAuthentication.Migrations
                             TwoFactorEnabled = false,
                             UserName = "super@rajwada.com"
                         });
-                });
-
-            modelBuilder.Entity("IlabAuthentication.Data.Models.Approver", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("Level")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Member")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Module")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Approvers");
-                });
+                });           
 
             modelBuilder.Entity("IlabAuthentication.Data.Models.Privilege", b =>
                 {
@@ -587,96 +550,6 @@ namespace IlabAuthentication.Migrations
                             Module = "department",
                             Name = "list",
                             RoleId = 2L
-                        },
-                        new
-                        {
-                            Id = 32L,
-                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
-                            Member = "root",
-                            Module = "approver",
-                            Name = "add",
-                            RoleId = 1L
-                        },
-                        new
-                        {
-                            Id = 33L,
-                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
-                            Member = "root",
-                            Module = "approver",
-                            Name = "edit",
-                            RoleId = 1L
-                        },
-                        new
-                        {
-                            Id = 34L,
-                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
-                            Member = "root",
-                            Module = "approver",
-                            Name = "delete",
-                            RoleId = 1L
-                        },
-                        new
-                        {
-                            Id = 35L,
-                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
-                            Member = "root",
-                            Module = "approver",
-                            Name = "view",
-                            RoleId = 1L
-                        },
-                        new
-                        {
-                            Id = 36L,
-                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
-                            Member = "root",
-                            Module = "approver",
-                            Name = "list",
-                            RoleId = 1L
-                        },
-                        new
-                        {
-                            Id = 37L,
-                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
-                            Member = "root",
-                            Module = "approver",
-                            Name = "add",
-                            RoleId = 2L
-                        },
-                        new
-                        {
-                            Id = 38L,
-                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
-                            Member = "root",
-                            Module = "approver",
-                            Name = "edit",
-                            RoleId = 2L
-                        },
-                        new
-                        {
-                            Id = 39L,
-                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
-                            Member = "root",
-                            Module = "approver",
-                            Name = "delete",
-                            RoleId = 2L
-                        },
-                        new
-                        {
-                            Id = 40L,
-                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
-                            Member = "root",
-                            Module = "approver",
-                            Name = "view",
-                            RoleId = 2L
-                        },
-                        new
-                        {
-                            Id = 41L,
-                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
-                            Member = "root",
-                            Module = "approver",
-                            Name = "list",
-                            RoleId = 2L
                         });
                 });
 
@@ -803,15 +676,7 @@ namespace IlabAuthentication.Migrations
 
                     b.Navigation("Parent");
                 });
-
-            modelBuilder.Entity("IlabAuthentication.Data.Models.Approver", b =>
-                {
-                    b.HasOne("IlabAuthentication.Data.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("ApplicationUser");
-                });
+           
 
             modelBuilder.Entity("IlabAuthentication.Data.Models.Privilege", b =>
                 {
