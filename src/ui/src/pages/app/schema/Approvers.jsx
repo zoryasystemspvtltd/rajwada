@@ -33,27 +33,21 @@ export const ViewApprover = () => {
         adding: false,
         back: true,
         readonly: true,
-        fields: [            
+        fields: [
             {
                 type: "area", width: 12
-                , fields: [                    
+                , fields: [
+                    { text: 'Module', field: 'module', type: 'label', width: 6 },
                     {
-                        text: 'Module', field: 'module', type: 'lookup-link', width: 6,
-                        schema: {
-                            module: 'module',
-                            path: 'modules'
-                        }
-                    },  
-                    {
-                        text: 'Approver', field: 'userName', type: 'lookup-link', width: 6,
+                        text: 'Approver', field: 'userId', type: 'lookup-link', width: 6,
                         schema: {
                             module: 'user',
                             path: 'users'
                         }
-                    },                   
+                    },
                     { text: 'Level', field: 'level', type: 'label', width: 6 },
                 ]
-            }            
+            }
         ]
     }
 
@@ -66,25 +60,25 @@ export const EditApprover = () => {
         title: 'Approver',
         path: 'approvers',
         back: false,
-        fields: [            
+        fields: [
             {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Module', field: 'module', fieldIcon: 'building', placeholder: 'Module here...', type: 'lookup', required: true, width: 6,
+                        text: 'Module', field: 'module', fieldIcon: 'building', placeholder: 'Module here...', type: 'lookup-module', required: true, width: 6,
                         schema: {
-                            module: 'module'                           
+                            module: 'module'
                         }
                     },
                     {
-                        text: 'Approver', field: 'userName', fieldIcon: 'building', placeholder: 'Module here...', type: 'lookup', required: true, width: 6,
+                        text: 'Approver', field: 'userId', nameField: 'userName', fieldIcon: 'building', placeholder: 'Approver here...', type: 'lookup', required: true, width: 6,
                         schema: {
-                            module: 'user'                           
+                            module: 'user'
                         }
                     },
                     { text: 'Level', field: 'level', fieldIcon: 'location-dot', placeholder: 'Level here...', type: 'text', required: false, width: 6 },
                 ]
-            }            
+            }
         ]
     }
 
@@ -102,20 +96,20 @@ export const AddApprover = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Module', field: 'module', fieldIcon: 'building', placeholder: 'Module here...', type: 'lookup', required: true, width: 6,
+                        text: 'Module', field: 'module', fieldIcon: 'building', placeholder: 'Module here...', type: 'lookup-module', required: true, width: 6,
                         schema: {
-                            module: 'module'                           
+                            module: 'module'
                         }
                     },
                     {
-                        text: 'Approver', field: 'userName', fieldIcon: 'building', placeholder: 'Module here...', type: 'lookup', required: true, width: 6,
+                        text: 'Approver', field: 'userId', nameField: 'userName', fieldIcon: 'building', placeholder: 'Approver here...', type: 'lookup', required: true, width: 6,
                         schema: {
-                            module: 'user'                           
+                            module: 'user'
                         }
                     },
                     { text: 'Level', field: 'level', fieldIcon: 'location-dot', placeholder: 'Level here...', type: 'text', required: false, width: 6 },
                 ]
-            }    
+            }
         ]
     }
 

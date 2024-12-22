@@ -12,7 +12,7 @@ import IUILookUpLink from './IUILookUpLink';
 import IUIHiddenState from './IUIHiddenState';
 import IUILookUpFilter from './IUILookUpFilter';
 import IUILookUpEnum from './IUILookUpEnum';
-// import ILab from './IUICanvas';
+import IUILookUpModule from './IUILookUpModule';
 import ILab from "../../canvas-helper/Ilab-Canvas";
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
 import IUILookUpRelation from './IUILookUpRelation';
@@ -406,6 +406,29 @@ const IUIPageElement = (props) => {
                                             </Form.Label>
 
                                             <IUILookUpEnum
+                                                value={data[fld.field]}
+                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                id={fld.field}
+                                                nameField={fld.nameField}
+                                                schema={fld.schema}
+                                                onChange={handleChange}
+                                                readonly={props.readonly || fld.readonly || false}
+                                            />
+
+                                        </Form.Group>
+                                        <p className="text-danger">{errors[fld.field]}</p>
+                                    </>
+                                }
+                                {fld.type === 'lookup-module' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+
+                                            <IUILookUpModule
                                                 value={data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                 id={fld.field}

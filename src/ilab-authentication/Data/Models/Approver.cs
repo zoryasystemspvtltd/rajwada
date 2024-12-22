@@ -20,5 +20,6 @@ namespace IlabAuthentication.Data.Models
         public virtual ApplicationUser? ApplicationUser { get; set; }
         public virtual string? Member { get; set; }
         public virtual string? Key { get; set; }
+        public virtual string? Notes { get; set; }
     }
 }

@@ -261,6 +261,9 @@ namespace IlabAuthentication.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long?>("UserId")
                         .HasColumnType("bigint");
 
@@ -582,6 +585,96 @@ namespace IlabAuthentication.Migrations
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "root",
                             Module = "department",
+                            Name = "list",
+                            RoleId = 2L
+                        },
+                        new
+                        {
+                            Id = 32L,
+                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
+                            Member = "root",
+                            Module = "approver",
+                            Name = "add",
+                            RoleId = 1L
+                        },
+                        new
+                        {
+                            Id = 33L,
+                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
+                            Member = "root",
+                            Module = "approver",
+                            Name = "edit",
+                            RoleId = 1L
+                        },
+                        new
+                        {
+                            Id = 34L,
+                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
+                            Member = "root",
+                            Module = "approver",
+                            Name = "delete",
+                            RoleId = 1L
+                        },
+                        new
+                        {
+                            Id = 35L,
+                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
+                            Member = "root",
+                            Module = "approver",
+                            Name = "view",
+                            RoleId = 1L
+                        },
+                        new
+                        {
+                            Id = 36L,
+                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
+                            Member = "root",
+                            Module = "approver",
+                            Name = "list",
+                            RoleId = 1L
+                        },
+                        new
+                        {
+                            Id = 37L,
+                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
+                            Member = "root",
+                            Module = "approver",
+                            Name = "add",
+                            RoleId = 2L
+                        },
+                        new
+                        {
+                            Id = 38L,
+                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
+                            Member = "root",
+                            Module = "approver",
+                            Name = "edit",
+                            RoleId = 2L
+                        },
+                        new
+                        {
+                            Id = 39L,
+                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
+                            Member = "root",
+                            Module = "approver",
+                            Name = "delete",
+                            RoleId = 2L
+                        },
+                        new
+                        {
+                            Id = 40L,
+                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
+                            Member = "root",
+                            Module = "approver",
+                            Name = "view",
+                            RoleId = 2L
+                        },
+                        new
+                        {
+                            Id = 41L,
+                            Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
+                            Member = "root",
+                            Module = "approver",
                             Name = "list",
                             RoleId = 2L
                         });

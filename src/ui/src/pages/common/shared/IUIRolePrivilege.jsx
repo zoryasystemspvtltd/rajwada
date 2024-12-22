@@ -33,9 +33,10 @@ const IUIRolePrivilege = (props) => {
         async function fetchData() {
             const response = await api.getModules();
             const items = response?.data
-            const modulePrivileges = [
-                { id: 999, name: 'role', text: "Role", items: privileges },
+            const modulePrivileges = [               
                 { id: 998, name: 'user', text: "User", items: privileges },
+                { id: 999, name: 'role', text: "Role", items: privileges },
+                { id: 1000, name: 'approver', text: "Approver", items: privileges },
             ].concat(items.map((item, index) => {
                 return {
                     id: index,
