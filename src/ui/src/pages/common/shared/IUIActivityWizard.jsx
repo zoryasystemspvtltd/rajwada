@@ -8,6 +8,8 @@ import IUIPage from "../IUIPage";
 const IUIActivityWizard = (props) => {
     const sequence = props?.sequence;
     const schema = props?.schema;
+    const dependencyData = props?.dependencyData
+    console.log(dependencyData)
     const [isCreationSuccessful, setIsCreationSuccessful] = useState(true);
     const navigate = useNavigate();
 
@@ -124,7 +126,7 @@ const IUIActivityWizard = (props) => {
                     {
                         sequence?.map((activity, index) => (
                             <div id={`step-${index + 1}`} className="tab-pane" role="tabpanel" aria-labelledby={`step-${index + 1}`} key={`tab-${activity}-${index}`}>
-                                <IUIPage schema={schema} activityCallback={activityCallback} />
+                                <IUIPage schema={schema} activityCallback={activityCallback} defaultValues={dependencyData} />
                             </div>
                         ))
                     }

@@ -19,10 +19,12 @@ import IUILookUpRelation from './IUILookUpRelation';
 
 import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
+import IUIItemRequirement from './IUIItemRequirement';
 
 const IUIPageElement = (props) => {
     // Properties
     const schema = props?.schema;
+    const defaultFields = props?.defaultFields;
     const isAliveStatus = [
         { value: "true", label: "Alive" },
         { value: "false", label: "Dead" }
@@ -383,13 +385,13 @@ const IUIPageElement = (props) => {
                                             </Form.Label>
 
                                             <IUILookUp
-                                                value={data[fld.field]}
+                                                value={fld?.defaultValue || data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                 id={fld.field}
                                                 nameField={fld.nameField}
                                                 schema={fld.schema}
                                                 onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
+                                                readonly={props.readonly || fld.readonly || defaultFields?.includes(fld.field) || false}
                                             />
 
                                         </Form.Group>
@@ -468,6 +470,7 @@ const IUIPageElement = (props) => {
                                                 text={fld.text}
                                                 onChange={handleChange}
                                                 readonly={props.readonly || fld.readonly || false}
+                                                shape={fld.shape || "circle"}
                                             />
                                         </Form.Group>
                                         <br />
@@ -481,6 +484,23 @@ const IUIPageElement = (props) => {
                                         <br />
                                     </>
                                 }
+                                {fld.type === 'items-list' &&
+                                    <>
+                                        <Form.Label htmlFor={fld.field} className='fw-bold'>{fld.text}
+                                            {fld.required &&
+                                                <span className="text-danger">*</span>
+                                            }
+                                        </Form.Label>
+
+                                        <IUIItemRequirement
+                                            id={fld.field}
+                                            value={data[fld.field]}
+                                            onChange={handleChange}
+                                            readonly={props.readonly || fld.readonly || false}
+                                        />
+                                        <br />
+                                    </>
+                                }
                                 {fld.type === 'lookup-relation' &&
                                     <>
                                         {
@@ -488,6 +508,9 @@ const IUIPageElement = (props) => {
                                                 <Form.Group className="position-relative form-group">
                                                     <Form.Label htmlFor={fld.field} >{fld.text}
                                                         {fld.required &&
+                                                            <span className="text-danger">*</span>
+                                                        }
+                                                        {(fld?.exclusionCondition && data[fld?.exclusionCondition?.field] === fld?.exclusionCondition?.value) &&
                                                             <span className="text-danger">*</span>
                                                         }
                                                     </Form.Label>

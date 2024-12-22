@@ -20,7 +20,7 @@ const IUIActivityCreate = (props) => {
     const module = setupSchema?.module;
     const dependencyModule = 'workflow';
     const flowchartKey = "dependency-flow";
-    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null };
+    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, dependencyId: null };
     // Parameter
     const { id } = useParams();
     // console.log(parentId)
@@ -102,6 +102,7 @@ const IUIActivityCreate = (props) => {
 
     const handleDependencySelection = (event) => {
         setSelectedOption(parseInt(event.target.value));
+        setDependencySelectParams({ ...dependencySelectParams, dependencyId: event.target.value });
     };
 
     const validate = (values, fields) => {
@@ -241,7 +242,7 @@ const IUIActivityCreate = (props) => {
                                                 </Col>
                                             </Row>
                                         }
-                                        <Form>
+                                        <div>
                                             <Row>
                                                 <Col>
                                                     {setupSchema?.back &&
@@ -402,7 +403,7 @@ const IUIActivityCreate = (props) => {
                                                         <div className="card-body">
                                                             {
                                                                 (bfsSequence.length) ? (
-                                                                    <IUIActivityWizard sequence={bfsSequence} schema={creationSchema} />
+                                                                    <IUIActivityWizard sequence={bfsSequence} schema={creationSchema} dependencyData={dependencySelectParams} />
                                                                 ) : null
                                                             }
                                                         </div>
@@ -444,7 +445,7 @@ const IUIActivityCreate = (props) => {
                                                     }
                                                 </Col>
                                             </Row>
-                                        </Form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
