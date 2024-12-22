@@ -34,6 +34,7 @@ import { useAuth } from "../provider/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
+import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
 import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/Mouzas";
 import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from "../pages/app/schema/NameMasters";
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
@@ -431,6 +432,22 @@ const Routes = () => {
                 {
                     path: "/contractors/add",
                     element: <AddContractor />
+                },
+                {
+                    path: "/suppliers",
+                    element: <ListSupplier />
+                },
+                {
+                    path: "/suppliers/:id",
+                    element: <ViewSupplier />
+                },
+                {
+                    path: "/suppliers/:id/edit",
+                    element: <EditSupplier />
+                },
+                {
+                    path: "/suppliers/add",
+                    element: <AddSupplier />
                 },
             ],
         },

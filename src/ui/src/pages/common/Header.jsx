@@ -47,6 +47,7 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
             master: [
                 { name: "uom", text: "UOM", icon: "cubes-stacked", path: "/uoms", access: "uom" },
                 { name: "contractor", text: "Contractor", icon: "cubes-stacked", path: "/contractors", access: "contractor" },
+                { name: "supplier", text: "Supplier", icon: "cubes-stacked", path: "/suppliers", access: "supplier" },
                 { name: "itemTypeManagement", text: "Item Type", icon: "cubes-stacked", path: "/item-types", access: "assetType" },
                 { name: "itemGroupManagement", text: "Item Group", icon: "cubes-stacked", path: "/item-groups", access: "assetGroup" },
                 { name: "itemMasterManagement", text: "Item", icon: "vector-square", path: "/item-masters", access: "asset" },
@@ -81,7 +82,7 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
             report: [
                 { name: "legalReport", text: "Legal Report", icon: "vector-square", path: "/home" },
             ]
-        }
+        },        
     };
 
     useEffect(() => {
