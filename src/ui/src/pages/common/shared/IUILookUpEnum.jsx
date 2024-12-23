@@ -25,12 +25,12 @@ const IUILookUpEnum = (props) => {
 
     useEffect(() => {
         const newValue = schema?.module
-            ? dataSet?.items?.find(item => item.value === value)?.name
+            ? dataSet?.find(item => item.value === value)?.name
             : value
         if (newValue) {
             setText(newValue);
         }
-    }, [dataSet?.items, value]);
+    }, [dataSet, value]);
 
     useEffect(() => {
         if (props?.value) {
@@ -77,7 +77,7 @@ const IUILookUpEnum = (props) => {
                     disabled={props.readonly || false}
                     onChange={(e) => handleChange(e)}>
                     <option>--Select--</option>
-                    {dataSet?.items?.map((item, i) => (
+                    {dataSet?.map((item, i) => (
                         <option key={i} value={item.value || item.name}>{item.name}</option>
                     ))}
 

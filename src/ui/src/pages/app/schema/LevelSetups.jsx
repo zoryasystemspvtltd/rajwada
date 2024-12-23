@@ -48,7 +48,7 @@ export const AddLevelSetup = () => {
                     {
                         text: 'Supplier Name', field: 'supplierId', nameField: 'supplierName', type: 'lookup', required: true, width: 6,
                         schema: { module: 'supplier' }
-                    },
+                    },                    
                     { text: 'Remarks', field: 'remarks', placeholder: 'Remarks here...', type: 'text', required: false, width: 12 },
                 ]
             },
