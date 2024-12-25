@@ -133,7 +133,7 @@ const IUIItemRequirement = (props) => {
                     <Col>
                         <Box
                             m="0 0 0 0"
-                            height="50vh"
+                            height="45vh"
                             sx={{
                                 "& .MuiDataGrid-root": {
                                     border: "none",

@@ -550,8 +550,11 @@ const IUIPageElement = (props) => {
                                         </Form.Label>
 
                                         <ILab.MarkerCanvas
+                                            id={fld.field}
                                             value={data[fld.field] || []}
                                             schema={fld.schema}
+                                            onChange={handleChange}
+                                            readonly={props.readonly || fld.readonly || false}
                                         />
                                         <br />
                                     </>
