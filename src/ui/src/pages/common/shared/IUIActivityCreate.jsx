@@ -20,7 +20,7 @@ const IUIActivityCreate = (props) => {
     const module = setupSchema?.module;
     const dependencyModule = 'workflow';
     const flowchartKey = "dependency-flow";
-    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, dependencyId: null };
+    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, dependencyId: null, photoUrl: null };
     // Parameter
     const { id } = useParams();
     // console.log(parentId)
@@ -214,11 +214,19 @@ const IUIActivityCreate = (props) => {
         }
     };
 
-    const prepareActivityCreation = (e) => {
+    const prepareActivityCreation = async (e) => {
         e.preventDefault();
         const selectedDependency = allDependencies?.filter((dependency) => dependency.id === parseInt(selectedOption))[0];
         const dependencyGraph = JSON.parse(selectedDependency?.data);
         const result = bfsTraversal(dependencyGraph?.nodes, dependencyGraph?.edges, 'node_0');
+        const item = (selectedDependency?.flatId !== null) ? await api.getSingleData({ module: 'plan', id: selectedDependency?.flatId }) : await api.getSingleData({ module: 'project', id: selectedDependency?.projectId });
+        setDependencySelectParams({
+            ...dependencySelectParams,
+            towerId: selectedDependency?.towerId,
+            floorId: selectedDependency?.floorId,
+            flatId: selectedDependency?.flatId,
+            photoUrl: item?.data?.blueprint
+        })
         setBfsSequence(result.map(node => node.data.label));
         setIsSetupComplete(true);
     };

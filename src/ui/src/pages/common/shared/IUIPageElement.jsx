@@ -543,7 +543,16 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'ilab-canvas' &&
                                     <>
-                                        <ILab.MarkerCanvas schema={fld.schema} />
+                                        <Form.Label htmlFor={fld.field} className='fw-bold'>{fld.text}
+                                            {fld.required &&
+                                                <span className="text-danger">*</span>
+                                            }
+                                        </Form.Label>
+
+                                        <ILab.MarkerCanvas
+                                            value={data[fld.field] || []}
+                                            schema={fld.schema}
+                                        />
                                         <br />
                                     </>
                                 }

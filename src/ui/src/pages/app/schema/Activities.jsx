@@ -149,16 +149,16 @@ export const EditActivity = () => {
                             ]
                         }
                     },
-                    {
-                        text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup', required: false,
-                        schema: { module: 'priorityStatusType' }
-                    },
+                    // {
+                    //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup', required: false,
+                    //     schema: { module: 'priorityStatusType' }
+                    // },
                     { text: 'Duration', field: 'Duration', placeholder: 'Duration here...', width: 4, type: 'number', required: false },
                     { text: 'Progress(%)', field: 'progressPercentage', placeholder: 'Progress(%) here...', width: 4, type: 'number', required: false },
-                    {
-                        text: 'Approval Status', field: 'approvalStatus', width: 4, type: 'lookup', required: false,
-                        schema: { module: 'approvalStatusType' }
-                    },
+                    // {
+                    //     text: 'Approval Status', field: 'approvalStatus', width: 4, type: 'lookup', required: false,
+                    //     schema: { module: 'approvalStatusType' }
+                    // },
                     { text: 'Estimate Cost', field: 'costEstimate', placeholder: 'Estimate Cost here...', width: 4, type: 'number', required: false },
                     { text: 'Actual Cost', field: 'actualCost', placeholder: 'Actual Cost here...', width: 4, type: 'number', required: false },
                     // { text: 'Document Links', field: 'documentLinks', placeholder: 'Document Links here...', width: 4, type: 'text', required: false },
@@ -294,7 +294,7 @@ export const AddActivity = () => {
         title: 'Activity',
         path: 'activities',
         back: true,
-        defaultFields: ["projectId", "dependencyId", "towerId", "floorId", "flatId"],
+        defaultFields: ["projectId", "dependencyId", "towerId", "floorId", "flatId", "photoUrl"],
         fields: [
             {
                 type: "area", width: 12
@@ -312,15 +312,15 @@ export const AddActivity = () => {
                     },
                     {
                         text: 'Project', field: 'projectId', width: 4, type: 'lookup', required: true,
-                        schema: { module: 'Project' }
+                        schema: { module: 'project' }
                     },
                     {
                         text: 'Dependency', field: 'dependencyId', width: 4, type: 'lookup', required: true,
-                        schema: { module: 'Workflow' }
+                        schema: { module: 'workflow' }
                     },
                     {
                         text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false,
-                        schema: { module: 'Activity' }
+                        schema: { module: 'activity' }
                     },
                     {
                         text: 'Tower', field: 'towerId', type: 'lookup-filter', required: false, width: 4,
@@ -372,7 +372,12 @@ export const AddActivity = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Item List', field: 'items', width: 12, type: 'items-list', required: true }
+                    { text: 'Item List', field: 'items', width: 12, type: 'items-list', required: true },
+                    { text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true, 
+                        schema: {
+                            upload: false
+                        }
+                    }
                 ]
             }
         ]

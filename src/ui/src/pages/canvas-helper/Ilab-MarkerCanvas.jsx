@@ -6,7 +6,9 @@ import { useEffect } from "react";
 import markerIcon from "./assets/marker-icon.png";
 import cameraIcon from "./assets/camera.png";
 import cameraMarker from "./assets/camera-marker.png";
+import pencilMarkerIcon from "./assets/pencil.png";
 import customBeforeAfter from "./assets/custom-before-after.jpg";
+import defaultImage from "./assets/sample-floor-map.jpg";
 
 import {
     TransformWrapper,
@@ -16,6 +18,8 @@ import {
 
 export const Controls = (props) => {
     const { zoomIn, zoomOut, resetTransform } = useControls();
+    const [color, setColor] = useState('#000000'); // Initial color
+    const [thickness, setThickness] = useState(2); // Initial thickness
 
     const selectMode = (e, mode) => {
         e.preventDefault();
@@ -23,6 +27,25 @@ export const Controls = (props) => {
             props.onChange(e, mode);
         }
     }
+
+    // Handle color change
+    const handleColorChange = (e) => {
+        e.preventDefault();
+        if (props?.onPencilColorChange) {
+            props.onPencilColorChange(e.target.value);
+            setColor(e.target.value);
+        }
+    };
+
+    // Handle thickness change
+    const handleThicknessChange = (e) => {
+        e.preventDefault();
+        if (props?.onPencilThicknessChange) {
+            props.onPencilThicknessChange(e.target.value);
+            setThickness(e.target.value);
+        }
+    };
+
     return (
         <div className="tools" style={{ backgroundColor: '#CCC' }}>
             <a onClick={() => zoomIn()} title="Zoom +" className="btn">
@@ -50,6 +73,30 @@ export const Controls = (props) => {
             >
                 <i className="bi bi-camera-fill fs-5"></i>
             </a>
+            <a title="Pencil" className="btn"
+                href="./#" onClick={(e) => selectMode(e, 'pencil')}
+            >
+                <i className="bi bi-pencil fs-5"></i>
+            </a>
+            <a title="Pencil" className="btn"
+                href="./#"
+            >
+                <label>
+                    <input type="color" value={color} onChange={handleColorChange} />
+                </label>
+            </a>
+            <div title="Pencil" className="btn"
+            >
+                <label>
+                    <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={thickness}
+                        onChange={handleThicknessChange}
+                    />
+                </label>
+            </div>
         </div>
     );
 };
@@ -246,7 +293,7 @@ export const Rectangle = (props) => {
                             {
                                 fill: point?.color ? point.color : 'blue',
                                 stroke: point?.color ? point.color : 'blue',
-                                strokeWidth: 2,
+                                strokeWidth: 5,
                                 fillOpacity: 0.3,
                                 strokeOpacity: 0.9
                             }
@@ -295,12 +342,6 @@ export const Camera = (props) => {
         setIsMouseDown(true);
     };
 
-    const onClick = (e) => {
-        if (props?.onClick) {
-            props.onClick(e)
-        }
-    };
-
     const onMouseMove = ({ nativeEvent }) => {
         if (!isMouseDown) {
             return;
@@ -334,10 +375,6 @@ export const Camera = (props) => {
                 type: 'camera'
             })
         }
-    };
-
-    const handleModalClose = () => {
-        setDisplayImageBeforeAfter(false);
     };
 
     return (
@@ -383,15 +420,16 @@ export const Camera = (props) => {
     )
 };
 
-export const IlabMarkerCanvas = () => {
+export const IlabMarkerCanvas = (props) => {
     const [mode, setMode] = useState('')
+    const schema = props?.schema;
     const [modeStyle, setModeStyle] = useState({})
     const [scale, setScale] = useState(1)
     const size = { height: 49, width: 30 }
     const [markers, setMarker] = useState([])
     const [start, setStart] = useState()
     const [temp, setTemp] = useState()
-    const [pallet, setPallet] = useState({ height: 600, width: 800 })
+    const [pallet, setPallet] = useState({ height: 500, width: 600 })
     const [selectedColor, setSelectedColor] = useState("#ff2424");
     const [selectedRectColor, setSelectedRectColor] = useState("#ff2424");
     const [markerLabel, setMarkerLabel] = useState("");
@@ -400,12 +438,105 @@ export const IlabMarkerCanvas = () => {
     const [currentId, setCurrentId] = useState(1);
     const [planImage, setPlanImage] = useState(null);
     const parentRef = useRef(null)
+    // Pencil Properties
+    const [isDrawing, setIsDrawing] = useState(false);
+    const [paths, setPaths] = useState([]);
+    const [color, setColor] = useState('#000000'); // Initial color
+    const [thickness, setThickness] = useState(2); // Initial thickness
+    const [lastPos, setLastPos] = useState(null);  // To track last position
+    const [base64SVG, setBase64SVG] = useState(""); // Variable to store the Base64 SVG
 
     useEffect(() => {
-        if (parentRef.current) {
-            setPallet({ height: parentRef.current.offsetHeight, width: parentRef.current.offsetWidth })
+        if (props?.value)
+            setPlanImage(props?.value);
+    }, [props?.value]);
+
+    // Start drawing on mouse down
+    const startDrawing = (e) => {
+        e.preventDefault(); // Prevent any default behavior (like dragging)
+        const { offsetX, offsetY } = e.nativeEvent;
+        setLastPos({ x: offsetX, y: offsetY });  // Store last position
+        setIsDrawing(true);
+
+        // Create a new path for the current drawing
+        const newPath = {
+            color,
+            thickness,
+            pathData: `M${offsetX} ${offsetY}`,  // Start the path at the mouse position
+        };
+
+        // Add the new path to the existing paths
+        setPaths((prevPaths) => [...prevPaths, newPath]);
+    };
+
+    // Draw on mouse move
+    const draw = (e) => {
+        if (!isDrawing) return;
+
+        const { offsetX, offsetY } = e.nativeEvent;
+
+        // If the last position exists, we can create a smooth curve
+        if (lastPos) {
+            const cx = (lastPos.x + offsetX) / 2;  // Control point x
+            const cy = (lastPos.y + offsetY) / 2;  // Control point y
+
+            // Update the last path with a cubic Bezier curve (C)
+            setPaths((prevPaths) => {
+                const updatedPaths = [...prevPaths];
+                const lastPath = updatedPaths[updatedPaths.length - 1];
+
+                // Add a cubic Bezier curve command: C x1 y1 x2 y2 x y
+                lastPath.pathData += ` C${cx} ${cy} ${cx} ${cy} ${offsetX} ${offsetY}`;
+
+                // Return the updated array with all paths
+                return updatedPaths;
+            });
         }
-    }, []);
+
+        // Update the last position for the next movement
+        setLastPos({ x: offsetX, y: offsetY });
+    };
+    // Stop drawing on mouse up or mouse leave
+    const stopDrawing = () => {
+        setIsDrawing(false);
+        setLastPos(null); // Clear last position after drawing
+        setMode('');
+        setModeStyle({});
+    };
+
+    // Handle color change
+    const handleColorChange = (color) => {
+        setColor(color);
+    };
+
+    // Handle thickness change
+    const handleThicknessChange = (thickness) => {
+        setThickness(thickness);
+    };
+
+    // Convert the SVG to Base64 and store it in a variable
+    const convertSVGToBase64 = (e) => {
+        e.preventDefault();
+        const svgElement = document.getElementById("drawing-svg");
+
+        // Serialize the SVG to a string
+        const svgString = new XMLSerializer().serializeToString(svgElement);
+
+        // Encode the SVG string to Base64
+        const base64Encoded = btoa(unescape(encodeURIComponent(svgString)));
+
+        // Store the Base64 string in the state
+        setBase64SVG(base64Encoded);
+
+        // Optionally, log the Base64 string for debugging
+        // console.log(base64Encoded);
+    };
+
+    // useEffect(() => {
+    //     if (parentRef.current) {
+    //         setPallet({ height: parentRef.current.offsetHeight, width: parentRef.current.offsetWidth })
+    //     }
+    // }, []);
 
     const handlePlanImageChange = (event) => {
         const file = event.target.files[0];
@@ -470,7 +601,6 @@ export const IlabMarkerCanvas = () => {
     }
 
     const handleMouseMove = (e) => {
-
         if (mode === 'rectangle' && start) {
 
             setTemp({
@@ -493,6 +623,8 @@ export const IlabMarkerCanvas = () => {
             case 'camera': setModeStyle({ cursor: `url(${cameraMarker}) 30 49,auto` })
                 break;
             case 'rectangle': setModeStyle({ cursor: `crosshair` })
+                break;
+            case 'pencil': setModeStyle({ cursor: `url(${pencilMarkerIcon}) 30 49,auto` })
                 break;
             case 'move':
                 setModeStyle({ cursor: `move` })
@@ -527,7 +659,7 @@ export const IlabMarkerCanvas = () => {
 
     const handleChangeComplete = (color) => {
         setSelectedColor(color.hex);
-        console.log(currentId);
+        // console.log(currentId);
         const marker = markers?.filter(item => `${item.id}` === `${currentId}`);
         const index = markers?.findIndex(item => `${item.id}` === `${currentId}`);
 
@@ -545,7 +677,7 @@ export const IlabMarkerCanvas = () => {
 
     const handleRectChangeComplete = (color) => {
         setSelectedRectColor(color.hex);
-        console.log(currentId);
+        // console.log(currentId);
         const marker = markers?.filter(item => `${item.id}` === `${currentId}`);
         const index = markers?.findIndex(item => `${item.id}` === `${currentId}`);
 
@@ -631,13 +763,17 @@ export const IlabMarkerCanvas = () => {
     };
 
     return (
-        <div className="container-fluid">
+        <div className="container">
             <div className='row'>
-                <div className='col-md-9'>
-                    <div className="mb-2">
-                        <h6>Image Upload</h6>
-                        <input type="file" accept="image/*" onChange={handlePlanImageChange} />
-                    </div>
+                <div className='col-md-8'>
+                    {
+                        (schema?.upload) && (
+                            <div className="mb-2">
+                                <h6>Image Upload</h6>
+                                <input type="file" accept="image/*" onChange={handlePlanImageChange} />
+                            </div>
+                        )
+                    }
                     <div ref={parentRef} style={{ border: '1px solid #CCC' }}>
                         <TransformWrapper
                             panning={{ excluded: ['drag-exclude'] }}
@@ -650,18 +786,28 @@ export const IlabMarkerCanvas = () => {
                             onTransformed={(e) => handleTransform(e)}                >
                             {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
                                 <>
-                                    <Controls onChange={handleSelectionMode} />
+                                    <Controls onChange={handleSelectionMode} onPencilColorChange={handleColorChange} onPencilThicknessChange={handleThicknessChange} />
                                     <TransformComponent>
-                                        <svg xmlns="http://www.w3.org/2000/svg" style={modeStyle} xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" width={`${pallet.width - 4}px`} height={`${pallet.height - 4}px`} viewBox={`0 0 ${pallet.width} ${pallet.height}`} >
+                                        <svg
+                                            id="drawing-svg"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            style={modeStyle}
+                                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                                            version="1.1"
+                                            width={`${pallet.width + 100}px`}
+                                            height={`${pallet.height - 4}px`}
+                                            viewBox={`0 0 ${pallet.width + 50} ${pallet.height}`}
+                                        >
                                             <defs />
                                             <rect fill="#ffffff" width="100%" height="100%" x="0" y="0" />
                                             <g>
                                                 <image x="0" y="0" width="100%" height="100%"
-                                                    className={mode === 'rectangle' ? 'drag-exclude' : ''}
-                                                    onMouseUp={handleMouseUp}
-                                                    onMouseDown={handleMouseDown}
-                                                    onMouseMove={handleMouseMove}
-                                                    xlinkHref={planImage ? planImage : "https://res.cloudinary.com/urbana-cdn/image/upload/fl_lossy,f_auto/cloud-storage/images/T9.jpg"}
+                                                    className={(mode === 'rectangle' || mode === 'pencil') ? 'drag-exclude' : ''}
+                                                    onMouseUp={(e) => (mode !== 'pencil') ? handleMouseUp(e) : stopDrawing()}
+                                                    onMouseDown={(e) => (mode !== 'pencil') ? handleMouseDown(e) : startDrawing(e)}
+                                                    onMouseMove={(e) => (mode !== 'pencil') ? handleMouseMove(e) : draw(e)}
+                                                    onMouseLeave={stopDrawing}
+                                                    xlinkHref={planImage ? planImage : defaultImage}
                                                 />
                                                 <g data-cell-id="0">
                                                     {temp &&
@@ -753,6 +899,15 @@ export const IlabMarkerCanvas = () => {
                                                     ))}
                                                 </g>
                                             </g>
+                                            {paths.map((path, index) => (
+                                                <path
+                                                    key={index}
+                                                    d={path.pathData}
+                                                    stroke={path.color}
+                                                    strokeWidth={path.thickness}
+                                                    fill="transparent"
+                                                />
+                                            ))}
                                         </svg>
                                     </TransformComponent>
                                 </>
@@ -760,7 +915,7 @@ export const IlabMarkerCanvas = () => {
                         </TransformWrapper>
                     </div>
                 </div>
-                <div className='col-md-3'>
+                <div className='col-md-4'>
                     <ol style={listStyles.list}>
                         {markers.map((m, i) => {
                             if (m.type === 'marker') {
@@ -795,6 +950,11 @@ export const IlabMarkerCanvas = () => {
                             }
                         })}
                     </ol>
+                    <div className="row mt-2">
+                        <div className="col d-flex justify-content-center">
+                            <button className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success" onClick={convertSVGToBase64}>Save Image</button>
+                        </div>
+                    </div>
                 </div>
                 {displayMarkerColorPicker ? (
                     <Modal
@@ -876,3 +1036,5 @@ export const IlabMarkerCanvas = () => {
         </div>
     );
 };
+
+//<img src={`data:image/svg+xml;base64,${base64SVG}`} />

@@ -45,13 +45,13 @@ const IUIPage = (props) => {
 
     useEffect(() => {
         if (props?.defaultValues) {
-            setDefaultValues(props?.dirty);
+            setDefaultValues(props?.defaultValues);
             const newData = { ...data };
             schema?.defaultFields?.forEach((fld) => {
-                newData[fld] = defaultValues[fld];
+                newData[fld] = (fld !== "photoUrl") ? parseInt(props?.defaultValues[fld]) : props?.defaultValues[fld];
             })
+            console.log(newData)
             setData(newData);
-
         }
     }, [props?.defaultValues]);
 
