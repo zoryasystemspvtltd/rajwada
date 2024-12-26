@@ -905,9 +905,9 @@ export const IlabMarkerCanvas = (props) => {
                                         style={modeStyle}
                                         xmlnsXlink="http://www.w3.org/1999/xlink"
                                         version="1.1"
-                                        width={`${pallet.width + 100}px`}
-                                        height={`${pallet.height - 4}px`}
-                                        viewBox={`0 0 ${pallet.width + 50} ${pallet.height}`}
+                                        width={`${pallet.width}px`}
+                                        height={`${pallet.height}px`}
+                                        viewBox={`0 0 ${pallet.width} ${pallet.height}`}
                                     >
                                         <defs />
                                         <rect fill="#ffffff" width="100%" height="100%" x="0" y="0" />

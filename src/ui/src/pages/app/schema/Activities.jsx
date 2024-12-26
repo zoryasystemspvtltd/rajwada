@@ -372,8 +372,34 @@ export const AddActivity = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Item List', field: 'items', width: 12, type: 'items-list', required: true },
-                    { text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true, 
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
+                        schema: {
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            fields: [
+                                {
+                                    text: 'Item', field: 'itemId', type: 'lookup', required: true,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, 
+                                    schema: { module: 'uom' }
+                                },
+                            ]
+                        }
+                    },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true,
                         schema: {
                             upload: false
                         }

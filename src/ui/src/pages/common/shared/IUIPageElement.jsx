@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Col, Form, Row, InputGroup } from "react-bootstrap";
+import { Col, Form, InputGroup, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import MaskedInput from 'react-text-mask';
+import IUIResetPasswordElement from '../../ResetUserPassword';
+import IUIListRelation from '../IUIListRelation';
+import IUIHiddenState from './IUIHiddenState';
 import IUILookUp from './IUILookUp';
+import IUILookUpEnum from './IUILookUpEnum';
+import IUILookUpFilter from './IUILookUpFilter';
+import IUILookUpLink from './IUILookUpLink';
 import IUIPictureUpload from './IUIPictureUpload';
 import IUIRolePrivilege from './IUIRolePrivilege';
 import IUIUserRoleEdit from './IUIUserRole';
-import IUIListRelation from '../IUIListRelation';
-import IUIResetPasswordElement from '../../ResetUserPassword';
-import IUILookUpLink from './IUILookUpLink';
-import IUIHiddenState from './IUIHiddenState';
-import IUILookUpFilter from './IUILookUpFilter';
-import IUILookUpEnum from './IUILookUpEnum';
 // import ILab from './IUICanvas';
 import ILab from "../../canvas-helper/Ilab-Canvas";
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
@@ -19,7 +19,7 @@ import IUILookUpRelation from './IUILookUpRelation';
 
 import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
-import IUIItemRequirement from './IUIItemRequirement';
+import IUITableInput from './IUITableInput';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -484,7 +484,7 @@ const IUIPageElement = (props) => {
                                         <br />
                                     </>
                                 }
-                                {fld.type === 'items-list' &&
+                                {fld.type === 'table-input' &&
                                     <>
                                         <Form.Label htmlFor={fld.field} className='fw-bold'>{fld.text}
                                             {fld.required &&
@@ -492,8 +492,9 @@ const IUIPageElement = (props) => {
                                             }
                                         </Form.Label>
 
-                                        <IUIItemRequirement
+                                        <IUITableInput
                                             id={fld.field}
+                                            schema={fld.schema}
                                             value={data[fld.field]}
                                             onChange={handleChange}
                                             readonly={props.readonly || fld.readonly || false}
