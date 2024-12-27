@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 
 const IUIPictureUpload = (props) => {
-    const schema = props?.schema;
+    const shape = props?.shape;
     const [file, setFile] = useState([]);
     const fileRef = React.createRef()
     const cardBodyStyle = {
@@ -54,32 +54,66 @@ const IUIPictureUpload = (props) => {
 
     return (
         <>
-            <div className="card position-relative" style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }}>
-                <div className="card-body" style={cardBodyStyle}>
-                    <button className="btn top-0 end-0" onClick={triggerClick}>
-                        {/* <i className="metismenu-icon fa-solid fa-cogs"></i> */}
-                        {
-                            (file.length > 0) && <img src={file} style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }} title='Profile Picture' alt='Profile Picture' />
-                        }
-                        {
-                            (file.length === 0) && <span className="profile-pic-upload-text">
-                                <i className="fa-solid fa-cloud-arrow-up"></i> Upload Profile Picture
-                            </span>
-                        }
-                    </button>
+            {
+                (shape === "circle") && (
+                    <div className="card position-relative" style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }}>
+                        <div className="card-body" style={cardBodyStyle}>
+                            <button className="btn top-0 end-0" onClick={triggerClick}>
+                                {/* <i className="metismenu-icon fa-solid fa-cogs"></i> */}
+                                {
+                                    (file.length > 0) && <img src={file} style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }} title='Profile Picture' alt='Profile Picture' />
+                                }
+                                {
+                                    (file.length === 0) && <span className="profile-pic-upload-text">
+                                        <i className="fa-solid fa-cloud-arrow-up"></i> {`Upload ${props?.text}`}
+                                    </span>
+                                }
+                            </button>
 
 
-                    <Form.Control
-                        className='d-none'
-                        id={props?.id}
-                        type="file"
-                        onChange={handleChange}
-                        disabled={props.readonly || false}
-                        ref={fileRef}
-                        accept="image/gif, image/jpeg, image/png"
-                    ></Form.Control>
-                </div>
-            </div>
+                            <Form.Control
+                                className='d-none'
+                                id={props?.id}
+                                type="file"
+                                onChange={handleChange}
+                                disabled={props.readonly || false}
+                                ref={fileRef}
+                                accept="image/gif, image/jpeg, image/png"
+                            ></Form.Control>
+                        </div>
+                    </div>
+                )
+            }
+            {
+                (shape === "rect") && (
+                    <div className="card position-relative" style={{ width: "50rem", height: "30rem", margin: "auto" }}>
+                        <div className="card-body" style={cardBodyStyle}>
+                            <button className="btn top-0 end-0 btn-info" onClick={triggerClick}>
+                                {/* <i className="metismenu-icon fa-solid fa-cogs"></i> */}
+                                {
+                                    (file.length > 0) && <img src={file} style={{ width: "50rem", height: "30rem", margin: "auto" }} title='Profile Picture' alt='Profile Picture' />
+                                }
+                                {
+                                    (file.length === 0) && <span className="profile-pic-upload-text">
+                                        <i className="fa-solid fa-cloud-arrow-up"></i> {`Upload ${props?.text}`}
+                                    </span>
+                                }
+                            </button>
+
+
+                            <Form.Control
+                                className='d-none'
+                                id={props?.id}
+                                type="file"
+                                onChange={handleChange}
+                                disabled={props.readonly || false}
+                                ref={fileRef}
+                                accept="image/gif, image/jpeg, image/png"
+                            ></Form.Control>
+                        </div>
+                    </div>
+                )
+            }
         </>
     );
 }

@@ -64,7 +64,13 @@ export const ViewProject = () => {
                     { text: 'Phone', field: 'phoneNumber', width: 4, type: 'label' },
                     { text: 'Contact Name', field: 'contactName', width: 4, type: 'label' }
                 ]
-            }
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect' },
+                ]
+            },
         ]
     }
 
@@ -105,6 +111,12 @@ export const EditProject = () => {
                     { text: 'Contact Name', field: 'contactName', placeholder: 'Contact Name here...', width: 4, type: 'text', required: false }
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                ]
+            }
         ]
     }
 
@@ -145,6 +157,12 @@ export const AddProject = () => {
                     { text: 'Contact Name', field: 'contactName', placeholder: 'Contact Name here...', width: 4, type: 'text', required: false }
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                ]
+            }
         ]
     }
 

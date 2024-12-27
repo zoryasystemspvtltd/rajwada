@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { Col, Form, Row, InputGroup } from "react-bootstrap";
+import { Col, Form, InputGroup, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import MaskedInput from 'react-text-mask';
+import IUIResetPasswordElement from '../../ResetUserPassword';
+import IUIListRelation from '../IUIListRelation';
+import IUIHiddenState from './IUIHiddenState';
 import IUILookUp from './IUILookUp';
+import IUILookUpEnum from './IUILookUpEnum';
+import IUILookUpFilter from './IUILookUpFilter';
+import IUILookUpLink from './IUILookUpLink';
 import IUIPictureUpload from './IUIPictureUpload';
 import IUIRolePrivilege from './IUIRolePrivilege';
 import IUIUserRoleEdit from './IUIUserRole';
-import IUIListRelation from '../IUIListRelation';
-import IUIResetPasswordElement from '../../ResetUserPassword';
-import IUILookUpLink from './IUILookUpLink';
-import IUIHiddenState from './IUIHiddenState';
-import IUILookUpFilter from './IUILookUpFilter';
-import IUILookUpEnum from './IUILookUpEnum';
-import IUILookUpModule from './IUILookUpModule';
+// import ILab from './IUICanvas';
 import ILab from "../../canvas-helper/Ilab-Canvas";
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
 import IUILookUpRelation from './IUILookUpRelation';
 import IUIListInline from '../IUIListInline';
 import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
+import IUITableInput from './IUITableInput';
 
 const IUIPageElement = (props) => {
     // Properties
     const schema = props?.schema;
+    const defaultFields = props?.defaultFields;
     const isAliveStatus = [
         { value: "true", label: "Alive" },
         { value: "false", label: "Dead" }
@@ -388,13 +390,13 @@ const IUIPageElement = (props) => {
                                             </Form.Label>
 
                                             <IUILookUp
-                                                value={data[fld.field]}
+                                                value={fld?.defaultValue || data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                 id={fld.field}
                                                 nameField={fld.nameField}
                                                 schema={fld.schema}
                                                 onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
+                                                readonly={props.readonly || fld.readonly || defaultFields?.includes(fld.field) || false}
                                             />
 
                                         </Form.Group>
@@ -423,30 +425,7 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                         <p className="text-danger">{errors[fld.field]}</p>
                                     </>
-                                }
-                                {fld.type === 'lookup-module' &&
-                                    <>
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor={fld.field} >{fld.text}
-                                                {fld.required &&
-                                                    <span className="text-danger">*</span>
-                                                }
-                                            </Form.Label>
-
-                                            <IUILookUpModule
-                                                value={data[fld.field]}
-                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                                id={fld.field}
-                                                nameField={fld.nameField}
-                                                schema={fld.schema}
-                                                onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
-                                            />
-
-                                        </Form.Group>
-                                        <p className="text-danger">{errors[fld.field]}</p>
-                                    </>
-                                }
+                                }                                
                                 {fld.type === 'lookup-filter' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
@@ -496,6 +475,7 @@ const IUIPageElement = (props) => {
                                                 text={fld.text}
                                                 onChange={handleChange}
                                                 readonly={props.readonly || fld.readonly || false}
+                                                shape={fld.shape || "circle"}
                                             />
                                         </Form.Group>
                                         <br />
@@ -509,18 +489,21 @@ const IUIPageElement = (props) => {
                                         <br />
                                     </>
                                 }
-                                {fld.type === 'module-relation-inline' &&
+                                {fld.type === 'table-input' &&
                                     <>
-                                        <Form.Group className="position-relative">
-                                            <IUIListInline
-                                                value={data[fld.field]}
-                                                // className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                                id={fld.field}
-                                                schema={fld.schema}
-                                                onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
-                                            />
-                                        </Form.Group>
+                                        <Form.Label htmlFor={fld.field} className='fw-bold'>{fld.text}
+                                            {fld.required &&
+                                                <span className="text-danger">*</span>
+                                            }
+                                        </Form.Label>
+
+                                        <IUITableInput
+                                            id={fld.field}
+                                            schema={fld.schema}
+                                            value={data[fld.field]}
+                                            onChange={handleChange}
+                                            readonly={props.readonly || fld.readonly || false}
+                                        />
                                         <br />
                                     </>
                                 }
@@ -531,6 +514,9 @@ const IUIPageElement = (props) => {
                                                 <Form.Group className="position-relative form-group">
                                                     <Form.Label htmlFor={fld.field} >{fld.text}
                                                         {fld.required &&
+                                                            <span className="text-danger">*</span>
+                                                        }
+                                                        {(fld?.exclusionCondition && data[fld?.exclusionCondition?.field] === fld?.exclusionCondition?.value) &&
                                                             <span className="text-danger">*</span>
                                                         }
                                                     </Form.Label>
@@ -563,7 +549,19 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'ilab-canvas' &&
                                     <>
-                                        <ILab.MarkerCanvas schema={fld.schema} />
+                                        <Form.Label htmlFor={fld.field} className='fw-bold'>{fld.text}
+                                            {fld.required &&
+                                                <span className="text-danger">*</span>
+                                            }
+                                        </Form.Label>
+
+                                        <ILab.MarkerCanvas
+                                            id={fld.field}
+                                            value={data[fld.field] || []}
+                                            schema={fld.schema}
+                                            onChange={handleChange}
+                                            readonly={props.readonly || fld.readonly || false}
+                                        />
                                         <br />
                                     </>
                                 }

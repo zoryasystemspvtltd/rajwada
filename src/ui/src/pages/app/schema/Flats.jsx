@@ -69,7 +69,13 @@ export const ViewFlat = () => {
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'h5', required: true, width: 12 },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'p', required: true, width: 12 },
-                    { field: 'name', type: 'ilab-canvas', width: 12 },
+                    // { field: 'name', type: 'ilab-canvas', width: 12 },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect' },
                 ]
             },
         ]
@@ -96,6 +102,12 @@ export const EditFlat = () => {
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                ]
+            },
             { field: 'type', type: 'hidden-filter', value: "flat" }
         ]
     }
@@ -120,6 +132,12 @@ export const AddFlat = () => {
                     },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 },
                     { field: 'type', type: 'hidden-filter', value: "flat" }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
                 ]
             },
         ]
