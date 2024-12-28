@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getData } from '../../store/api-db';
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from "react-router-dom";
@@ -8,7 +8,10 @@ import Table from 'react-bootstrap/Table';
 import { Button, Col, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import IUIModuleMessage from './shared/IUIModuleMessage';
-import IUILookUp from './shared/IUILookUp'
+import IUILookUp from './shared/IUILookUp';
+import { HiOutlineUpload } from 'react-icons/hi';
+import { RiDownload2Fill } from 'react-icons/ri';
+import * as XLSX from 'xlsx';
 
 const IUIListRelation = (props) => {
     console.log(props)
@@ -20,6 +23,34 @@ const IUIListRelation = (props) => {
     const [search, setSearch] = useState(useSelector((state) => state.api[module])?.options?.search);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const [message, setMessage] = useState("");
+    const fileInputRef = useRef(null);
+    const [data, setData] = useState([]);
+
+    const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+
+        if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const arrayBuffer = e.target.result;
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                const sheetName = workbook.SheetNames[0]; // Assuming the first sheet is needed
+                const sheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(sheet);
+                console.log(jsonData);
+                setData(jsonData);
+                setMessage("File successfully uploaded!");
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            setMessage("Error: Invalid file type. Please upload an Excel file (.xlsx, .xls).");
+        }
+    }
+
+    const handleButtonClick = () => {
+        fileInputRef.current.click(); // Trigger the file input click
+    };
 
     useEffect(() => {
         if (props?.parentId) {
@@ -107,10 +138,46 @@ const IUIListRelation = (props) => {
                                     {schema.adding &&
                                         <Button
                                             variant="contained"
-                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
+                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
                                             onClick={() => navigate(`/${schema?.path}/add/`)}
                                         >
                                             Add New {schema?.title}
+                                        </Button>
+                                    }
+                                    {schema?.downloading &&
+                                        <Button
+                                            variant="contained"
+                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                            onClick={() => {
+                                                const excelFileUrl = '/templates/FloorDetails.xlsx';
+                                                console.log(excelFileUrl);
+                                                const link = document.createElement("a");
+                                                link.href = excelFileUrl;
+                                                link.download = "FloorDetails.xlsx";
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link);
+                                            }}
+                                        >
+                                            <RiDownload2Fill className="inline-block mr-2"/>
+                                            Download
+                                        </Button>
+                                    }
+                                    {schema?.uploading &&
+                                        <Button
+                                            variant="contained"
+                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                            onClick={handleButtonClick}
+                                        >
+                                            <HiOutlineUpload className="inline-block mr-2"/>
+                                            <input
+                                                type='file'
+                                                accept='.xlsx, .xls'
+                                                ref={fileInputRef}
+                                                onChange={handleFileUpload}
+                                                style={{ display: 'none' }}
+                                            />
+                                            Upload
                                         </Button>
                                     }
                                     <IUIModuleMessage schema={props.schema} />

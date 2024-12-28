@@ -13,6 +13,8 @@ export const ListFloor = () => {
         searching: true,
         editing: true,
         adding: true,
+        uploading: true,
+        downloading: true,
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
@@ -81,6 +83,7 @@ export const ViewFloor = () => {
                     {
                         type: 'module-relation',
                         schema: {
+                            title: 'Flat',
                             module: 'plan',
                             relationKey: "parentId",
                             path: 'flats',
@@ -88,6 +91,8 @@ export const ViewFloor = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            uploading: true,
+                            downloading: true,
                             fields: [
                                 { text: 'Flat', field: 'name', type: 'link', sorting: true, searching: true, width: 100, },
                                 { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },

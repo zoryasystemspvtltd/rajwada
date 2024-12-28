@@ -269,7 +269,7 @@ const IUIPage = (props) => {
                                                         //     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                         //     onClick={assignPageValue}>Assign </Button>
                                                     }
-                                                    <IUIModuleMessage schema={props.schema} />
+                                                    <IUIModuleMessage schema={props.schema} />                                                   
                                                 </Col>
                                             </Row>
                                             {(schema?.back || schema?.adding || schema?.editing) && (module !== 'activity') &&
