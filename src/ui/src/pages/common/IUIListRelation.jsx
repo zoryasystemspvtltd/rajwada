@@ -11,7 +11,6 @@ import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from './shared/IUILookUp'
 
 const IUIListRelation = (props) => {
-    console.log(props)
     const schema = props.schema;
     const module = `${schema.module}#${props.parentId}`;
     const pageLength = schema.paging ? 10 : 0;

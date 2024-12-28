@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
 import api from '../../../store/api-service';
-import IUIPageElement from '../shared/IUIPageElement';
 import IUILookUp from '../../common/shared/IUILookUp';
+import IUITableInputElement from './IUITableInputElement';
 
 const IUITableInput = (props) => {
     // Properties
@@ -23,8 +23,7 @@ const IUITableInput = (props) => {
     const [data, setData] = useState({});
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
-    const [disabled, setDisabled] = useState(false)
-
+    const [disabled, setDisabled] = useState(false);
     const [dataArray, setDataArray] = useState([]);
     const [editingIndex, setEditingIndex] = useState(null);
 
@@ -54,6 +53,14 @@ const IUITableInput = (props) => {
             setErrors(error);
         }
     }, [data, dirty]);
+
+    useEffect(() => {
+        if (dataArray.length > 0) {
+            setData({});
+            setErrors({});
+            setDisabled(false)
+        }
+    }, [dataArray]);
 
     const handleChange = (e) => {
         e.preventDefault();
@@ -99,12 +106,14 @@ const IUITableInput = (props) => {
         return errors;
     };
 
-    const handleEdit = (index) => {
+    const handleEdit = (e, index) => {
+        e.preventDefault();
         setEditingIndex(index);
         setData(dataArray[index]);
     };
 
-    const handleDelete = (index) => {
+    const handleDelete = (e, index) => {
+        e.preventDefault();
         const updatedData = dataArray.filter((_, i) => i !== index);
         setDataArray(updatedData);
     };
@@ -116,13 +125,13 @@ const IUITableInput = (props) => {
             setDirty(true);
             const error = validate(data, schema?.fields)
             setErrors(error);
-            console.log(data)
-            console.log(error)
+            //console.log(data)
+            //console.log(error)
             if (Object.keys(error).length === 0) {
                 if (!data)
                     return
                 setDisabled(true)
-                console.log(data)
+                //console.log(data)
                 if (editingIndex !== null) {
                     const updatedData = [...dataArray];
                     updatedData[editingIndex] = data;
@@ -167,7 +176,7 @@ const IUITableInput = (props) => {
                                                     <Col md={fld.width || 6} key={f}>
                                                         {fld.type === 'area' &&
                                                             <>
-                                                                <IUIPageElement
+                                                                <IUITableInputElement
                                                                     id={schema.module}
                                                                     schema={fld.fields}
                                                                     value={data}
@@ -182,7 +191,7 @@ const IUITableInput = (props) => {
                                                         }
                                                         {fld.type !== 'area' &&
                                                             <>
-                                                                <IUIPageElement
+                                                                <IUITableInputElement
                                                                     id={schema.module}
                                                                     schema={[fld]}
                                                                     value={data}
@@ -200,7 +209,7 @@ const IUITableInput = (props) => {
                                                         className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success btn-sm'
                                                         onClick={handleSubmit}
                                                     >
-                                                        {editingIndex !== null ? 'Update' : 'Submit'}
+                                                        {editingIndex !== null ? 'Update' : 'Add'}
                                                     </button>
                                                 </Col>
                                             </Row>
@@ -215,7 +224,7 @@ const IUITableInput = (props) => {
                                                             <thead>
                                                                 <tr>
                                                                     {schema?.fields?.map((fld, f) => (
-                                                                        <th key={f} width={fld.width}>
+                                                                        <th key={f}>
                                                                             <button
                                                                                 type="submit"
                                                                                 className="btn btn-link text-white p-0"
@@ -240,10 +249,11 @@ const IUITableInput = (props) => {
                                                                                             <Link to={`${item.id}`}>{item[fld.field]}</Link>
                                                                                         }
                                                                                         {(!fld.type || fld.type === 'text') && item[fld.field]}
+                                                                                        {(fld.type === 'number') && item[fld.field]}
                                                                                         {fld.type === 'date' && item[fld.field]?.substring(0, 10)}
                                                                                         {(fld.type === 'lookup') &&
                                                                                             <IUILookUp
-                                                                                                value={item[fld.field]}
+                                                                                                value={parseInt(item[fld.field])}
                                                                                                 schema={fld.schema}
                                                                                                 readonly={true}
                                                                                                 textonly={true}
@@ -252,8 +262,8 @@ const IUITableInput = (props) => {
                                                                                     </td>
                                                                                 ))}
                                                                                 <td>
-                                                                                    <button className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-warning btn-s mr-2' onClick={() => handleEdit(i)}>Edit</button>
-                                                                                    <button className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm' onClick={() => handleDelete(i)}>Delete</button>
+                                                                                    <button className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-warning btn-s mr-2' onClick={(e) => handleEdit(e, i)}>Edit</button>
+                                                                                    <button className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm' onClick={(e) => handleDelete(e, i)}>Delete</button>
                                                                                 </td>
                                                                             </tr>
                                                                         ))

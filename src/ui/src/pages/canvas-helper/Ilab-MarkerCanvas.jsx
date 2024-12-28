@@ -379,7 +379,7 @@ export const Camera = (props) => {
     // Handle clicking on the marker to open the modal
     const selectMarker = (e) => {
         e.preventDefault();
-        console.log("Camera selected");
+        // console.log("Camera selected");
         if (!isMove) {
             setCurrentCameraId(props?.id);
             setDisplayImageBeforeAfter(true);
@@ -389,7 +389,7 @@ export const Camera = (props) => {
 
     // Handle mouse down event for dragging
     const onMouseDown = ({ nativeEvent }) => {
-        console.log("Camera Mouse Down");
+        // console.log("Camera Mouse Down");
 
         // Track initial mouse position when the user clicks on the marker
         initialMouseOffset.current = {
@@ -408,7 +408,7 @@ export const Camera = (props) => {
             return;  // Only update position when mouse is down (dragging)
         }
 
-        console.log("Camera Mouse Moving...");
+        // console.log("Camera Mouse Moving...");
         const { offsetX, offsetY } = nativeEvent;
 
         // Calculate new position based on the mouse movement and initial mouse offset
@@ -429,7 +429,7 @@ export const Camera = (props) => {
 
     // Handle mouse up event to stop dragging
     const onMouseUp = (e) => {
-        console.log("Camera Mouse Up");
+        // console.log("Camera Mouse Up");
         setIsMouseDown(false);  // Reset mouse down state
         setIsMove(false);  // Reset move state
         setModeStyle({});  // Reset cursor style
@@ -523,7 +523,7 @@ export const IlabMarkerCanvas = (props) => {
     const [markers, setMarker] = useState([])
     const [start, setStart] = useState()
     const [temp, setTemp] = useState()
-    const [pallet, setPallet] = useState({ height: 600, width: 1000 })
+    const [pallet, setPallet] = useState({ height: 600, width: 800 })
     const [selectedColor, setSelectedColor] = useState("#ff2424");
     const [selectedRectColor, setSelectedRectColor] = useState("#ff2424");
     const [markerLabel, setMarkerLabel] = useState("");

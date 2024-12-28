@@ -174,10 +174,10 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
-                        if (module === 'activity') {
-                            console.log(data);
-                            return;
-                        }
+                        // if (module === 'activity') {
+                        //     console.log(data);
+                        //     return;
+                        // }
                         api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {

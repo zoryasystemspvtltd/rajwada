@@ -22,6 +22,7 @@ namespace RajApi.Data.Models
         public virtual int? Longitude { get; set; }
         public virtual string? PhoneNumber { get; set; }
         public virtual string? ContactName { get; set; }
+        public string? Blueprint { get; set; }
 
         #region Workflow
         /// <summary>

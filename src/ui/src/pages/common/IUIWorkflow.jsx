@@ -127,7 +127,7 @@ const IUIWorkflow = (props) => {
             var newEndDate = new Date(data?.end);
             var newData = { ...data, start: new Date(newStartDate.getFullYear(), newStartDate.getMonth(), newStartDate.getDay()), end: new Date(newEndDate.getFullYear(), newEndDate.getMonth(), newEndDate.getDay()) }
 
-            console.log("After Start: " + newData);
+            // console.log("After Start: " + newData);
             setDependencyArr([...dependencyArr, newData]);
         }
     }

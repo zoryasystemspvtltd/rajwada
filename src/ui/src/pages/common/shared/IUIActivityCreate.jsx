@@ -405,7 +405,7 @@ const IUIActivityCreate = (props) => {
                                                     </Row> : null
                                             }
 
-                                            <div className={!isSetupComplete ? "d-none" : "row d-flex justify-content-center"}>
+                                            <div className={!isSetupComplete ? "d-none" : "row d-flex justify-content-center mb-3"}>
                                                 <div className="col-sm-12 col-lg-12">
                                                     <div className="main-card card">
                                                         <div className="card-body">
