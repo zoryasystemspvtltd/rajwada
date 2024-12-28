@@ -78,6 +78,12 @@ export const ViewFloor = () => {
             {
                 type: "area", width: 12
                 , fields: [
+                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect' },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
                     {
                         type: 'module-relation',
                         schema: {
@@ -121,6 +127,12 @@ export const EditFloor = () => {
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                ]
+            },
             { field: 'type', type: 'hidden-filter', value: "floor" }
         ]
     }
@@ -144,6 +156,12 @@ export const AddFloor = () => {
                         schema: { module: 'plan', filter: 'type', value: 'tower' }
                     },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "floor" }

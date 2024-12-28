@@ -17,10 +17,41 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
     const dispatch = useDispatch();
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const [profilePicture, setProfilePicture] = useState([]);
+    // Get the theme from localStorage or set the default to 'theme1'
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    const [theme, setTheme] = useState(savedTheme);
 
     const menuToHeader = (roleName) => {
         headerMenuToLayout(roleName);
     }
+
+    // Function to load the CSS file dynamically
+    const loadTheme = (themeName) => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = `/static/theme/${themeName}/theme.css`; // Path to the theme CSS files
+        link.id = 'theme-link';
+
+        const existingLink = document.getElementById('theme-link');
+        if (existingLink) {
+            existingLink.parentNode.removeChild(existingLink); // Remove the old theme link
+        }
+
+        document.head.appendChild(link); // Append the new theme link to the head
+    };
+
+    // Load the theme when the component mounts or theme changes
+    useEffect(() => {
+        loadTheme(theme);
+        // Save the selected theme to localStorage
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    // Handler for theme selection change
+    const handleThemeChange = (event) => {
+        setTheme(event.target.value);
+    };
 
     let schema = {
         admin: {
@@ -146,6 +177,18 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                         <IUIHeaderMenu schema={{ type: 'reports', schema: schema }} />
                         <IUIHeaderMenu schema={{ type: 'master', schema: schema }} />
                         <IUIHeaderMenu schema={{ type: 'module', schema: schema }} menuToHeader={menuToHeader} />
+                        <div className="header-dots">
+                            <select
+                                id="theme-select"
+                                value={theme}
+                                className="form-control mt-2"
+                                onChange={handleThemeChange}
+                            >
+                                <option value="light">Light</option>
+                                <option value="red">Red</option>
+                                {/* Add more themes as needed */}
+                            </select>
+                        </div>
                     </div>
                     <div className="header-btn-lg pr-0">
                         <div className="widget-content p-0">

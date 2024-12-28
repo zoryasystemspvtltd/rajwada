@@ -87,6 +87,12 @@ export const ViewTower = () => {
             {
                 type: "area", width: 12
                 , fields: [
+                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect' },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
                     {
                         type: 'module-relation',
                         schema: {
@@ -133,6 +139,12 @@ export const EditTower = () => {
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                ]
+            },
             { field: 'type', type: 'hidden-filter', value: "tower" }
         ]
     }
@@ -156,6 +168,12 @@ export const AddTower = () => {
                         schema: { module: 'project' }
                     },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "tower" }

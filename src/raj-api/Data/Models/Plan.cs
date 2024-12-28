@@ -8,6 +8,7 @@ public class Plan : LabModel, IAssignable
 {
     public string? Code { get; set; }
     public string? Description { get; set; }
+    public string? Blueprint { get; set; }
 
     #region Workflow
     /// <summary>

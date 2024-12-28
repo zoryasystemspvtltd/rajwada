@@ -5,7 +5,7 @@ export const ListWorkflow = () => {
 
     const schema = {
         module: 'workflow',
-        title: 'Dependency Label Setting',
+        title: 'Dependency Workflow',
         path: 'labelsettings',
         paging: true,
         searching: true,
@@ -27,7 +27,7 @@ export const ListWorkflow = () => {
 export const ViewWorkflow = () => {
     const schema = {
         module: 'workflow',
-        title: 'Dependency Label Setting',
+        title: 'Dependency Workflow',
         path: 'labelsettings',
         showBreadcrumbs: true,
         editing: true,
@@ -78,7 +78,7 @@ export const ViewWorkflow = () => {
 export const EditWorkflow = () => {
     const schema = {
         module: 'workflow',
-        title: 'Dependency Label Setting',
+        title: 'Dependency Workflow',
         path: 'labelsettings',
         back: false,
         fields: [
@@ -158,7 +158,7 @@ export const EditWorkflow = () => {
 export const AddWorkflow = () => {
     const schema = {
         module: 'workflow',
-        title: 'Dependency Label Setting',
+        title: 'Dependency Workflow',
         path: 'labelsettings',
         back: true,
         fields: [
@@ -189,6 +189,10 @@ export const AddWorkflow = () => {
                         type: 'lookup-relation',
                         parent: 'projectId',
                         field: 'towerId',
+                        exclusionCondition:{
+                            field: 'type',
+                            value: 'Inside'
+                        },
                         text: 'Tower',
                         width: 3,
                         schema: {
@@ -201,6 +205,10 @@ export const AddWorkflow = () => {
                         type: 'lookup-relation',
                         parent: 'towerId',
                         field: 'floorId',
+                        exclusionCondition:{
+                            field: 'type',
+                            value: 'Inside'
+                        },
                         text: 'Floor',
                         width: 3,
                         schema: {
@@ -213,6 +221,10 @@ export const AddWorkflow = () => {
                         type: 'lookup-relation',
                         parent: 'floorId',
                         field: 'flatId',
+                        exclusionCondition:{
+                            field: 'type',
+                            value: 'Inside'
+                        },
                         text: 'Flat',
                         width: 3,
                         schema: {

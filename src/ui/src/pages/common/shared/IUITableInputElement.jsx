@@ -21,7 +21,7 @@ import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
 import IUITableInput from './IUITableInput';
 
-const IUIPageElement = (props) => {
+const IUITableInputElement = (props) => {
     // Properties
     const schema = props?.schema;
     const defaultFields = props?.defaultFields;
@@ -32,7 +32,7 @@ const IUIPageElement = (props) => {
     // Local State
     const [data, setData] = useState({});
     const [errors, setErrors] = useState({});
-    const [dirty, setDirty] = useState(props.dirty)
+    const [dirty, setDirty] = useState(props.dirty);
 
     useEffect(() => {
         if (props?.value)
@@ -49,6 +49,14 @@ const IUIPageElement = (props) => {
         if (props?.errors)
             setErrors(props?.errors);
     }, [props?.errors]);
+
+    useEffect(() => {
+        if (props?.value) {
+            // setData({});
+            // setErrors({});
+            // console.log(data)
+        }
+    }, [props?.value]);
 
     const handleChange = (e) => {
         e.preventDefault();
@@ -90,7 +98,7 @@ const IUIPageElement = (props) => {
 
     return (
         <>
-            <Row>
+            <>
                 {schema?.map((fld, f) => (
                     <React.Fragment key={f}>
                         {fld.type === 'hidden-filter' &&
@@ -103,7 +111,7 @@ const IUIPageElement = (props) => {
                             </span>
                         }
                         {fld.type !== 'hidden-filter' &&
-                            <Col md={fld.width || 12} >
+                            <>
                                 {fld.type === 'h1' &&
                                     <>
                                         <h1>{data[fld.field]}</h1>
@@ -576,14 +584,14 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                     </>
                                 }
-                            </Col>
+                            </>
                         }
                     </React.Fragment>
                 ))}
-            </Row>
+            </>
         </>
 
     )
 }
 
-export default IUIPageElement;
+export default IUITableInputElement;

@@ -6,7 +6,9 @@ import { useEffect } from "react";
 import markerIcon from "./assets/marker-icon.png";
 import cameraIcon from "./assets/camera.png";
 import cameraMarker from "./assets/camera-marker.png";
+import pencilMarkerIcon from "./assets/pencil.png";
 import customBeforeAfter from "./assets/custom-before-after.jpg";
+import defaultImage from "./assets/sample-floor-map.jpg";
 
 import {
     TransformWrapper,
@@ -16,6 +18,8 @@ import {
 
 export const Controls = (props) => {
     const { zoomIn, zoomOut, resetTransform } = useControls();
+    const [color, setColor] = useState('#000000'); // Initial color
+    const [thickness, setThickness] = useState(2); // Initial thickness
 
     const selectMode = (e, mode) => {
         e.preventDefault();
@@ -23,6 +27,32 @@ export const Controls = (props) => {
             props.onChange(e, mode);
         }
     }
+
+    const deleteAllMarkers = (e) => {
+        e.preventDefault();
+        if (props?.deleteAllMarkers) {
+            props.deleteAllMarkers(true);
+        }
+    }
+
+    // Handle color change
+    const handleColorChange = (e) => {
+        e.preventDefault();
+        if (props?.onPencilColorChange) {
+            props.onPencilColorChange(e.target.value);
+            setColor(e.target.value);
+        }
+    };
+
+    // Handle thickness change
+    const handleThicknessChange = (e) => {
+        e.preventDefault();
+        if (props?.onPencilThicknessChange) {
+            props.onPencilThicknessChange(e.target.value);
+            setThickness(e.target.value);
+        }
+    };
+
     return (
         <div className="tools" style={{ backgroundColor: '#CCC' }}>
             <a onClick={() => zoomIn()} title="Zoom +" className="btn">
@@ -50,6 +80,33 @@ export const Controls = (props) => {
             >
                 <i className="bi bi-camera-fill fs-5"></i>
             </a>
+            <a title="Pencil" className="btn"
+                href="./#" onClick={(e) => selectMode(e, 'pencil')}
+            >
+                <i className="bi bi-pencil fs-5"></i>
+            </a>
+            <a title="Pencil" className="btn"
+                href="./#"
+            >
+                <label>
+                    <input type="color" value={color} onChange={handleColorChange} />
+                </label>
+            </a>
+            <div title="Pencil" className="btn"
+            >
+                <label>
+                    <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={thickness}
+                        onChange={handleThicknessChange}
+                    />
+                </label>
+            </div>
+            <a onClick={deleteAllMarkers} title="Delete All" className="btn">
+                <i className="bi bi-trash fs-5"></i>
+            </a>
         </div>
     );
 };
@@ -64,8 +121,17 @@ export const Marker = (props) => {
         y: props?.y - props?.height,
         width: props?.width,
         height: props?.height,
+        color: props?.color,
+        label: props?.label,
         type: 'marker'
-    })
+    });
+
+    // Track hover state and drag state
+    const [cursorMove, setCursorMove] = useState(false);
+    const [hasDragged, setHasDragged] = useState(false);
+    const hoverTimeoutRef = useRef(null);  // Timeout reference for hover delay
+    const initialMouseOffset = useRef({ x: 0, y: 0 }); // For calculating drag offset
+
     useEffect(() => {
         setPoint({
             id: props.id,
@@ -76,54 +142,65 @@ export const Marker = (props) => {
             color: props?.color,
             label: props?.label,
             type: 'marker'
-        })
+        });
     }, [props]);
 
-    const selectMarkar = (e) => {
+    // Handle clicking to display the color picker modal
+    const selectMarker = (e) => {
         e.preventDefault();
         if (!isMove) {
-            // alert(`Marker Selected ${props?.id}`);
             setDisplayMarkerColorPicker(!displayMarkerColorPicker);
-            props?.markerToCanvasForColor(true);
+            props?.markerToCanvasForColor(true);  // Notify parent (if needed) for color picker display
         }
-        setIsMove(false)
-    }
+        setIsMove(false);  // Reset move flag on click
+    };
 
+    // Handle mouse down event (start dragging)
     const onMouseDown = ({ nativeEvent }) => {
+        initialMouseOffset.current = {
+            x: nativeEvent.offsetX - point.x,
+            y: nativeEvent.offsetY - point.y
+        };
         setIsMouseDown(true);
+        setCursorMove(false);  // Reset cursor move state during mouse down
+        setHasDragged(false);  // Reset drag flag
     };
 
-    const onClick = (e) => {
-        if (props?.onClick) {
-            props.onClick(e)
-        }
-    };
-
+    // Handle mouse move event (dragging logic)
     const onMouseMove = ({ nativeEvent }) => {
         if (!isMouseDown) {
             return;
         }
-
         const { offsetX, offsetY } = nativeEvent;
         const newPoint = {
             id: point.id,
-            x: offsetX - point?.width / 2,//props?.x - props?.width / 2,
-            y: offsetY - point?.height / 2,//props?.y - props?.height,
+            x: offsetX - initialMouseOffset.current.x,
+            y: offsetY - initialMouseOffset.current.y,
             width: point?.width,
             height: point?.height,
             color: point?.color,
             label: point?.label,
             type: 'marker'
-        }
+        };
 
-        setPoint(newPoint)
-        setIsMove(true)
-        setModeStyle({ cursor: `move` })
+        setPoint(newPoint);  // Update point's position during drag
+        setIsMove(true);  // Indicate dragging is in progress
+        setModeStyle({ cursor: 'move' });  // Change cursor to "move" during drag
+        setHasDragged(true);  // Mark that dragging occurred
     };
 
+    // Handle mouse up event (end dragging)
     const onMouseUp = (e) => {
-        setIsMouseDown(false);
-        setModeStyle({})
+        setIsMouseDown(false);  // Reset mouse down state
+        setIsMove(false);  // Reset move state
+        setModeStyle({});  // Reset cursor style
+
+        // Only open modal if no drag occurred
+        if (!hasDragged) {
+            selectMarker(e);  // Open color picker modal if not dragged
+        }
+
+        // Notify parent component with updated position if the marker was dragged
         if (props?.onChange) {
             props.onChange(e, {
                 id: point.id,
@@ -134,29 +211,39 @@ export const Marker = (props) => {
                 color: point?.color,
                 label: point?.label,
                 type: 'marker'
-            })
+            });
         }
     };
 
+    // Handle hover and cursor change after delay
+    const handleMouseEnter = () => {
+        hoverTimeoutRef.current = setTimeout(() => {
+            setCursorMove(true);  // Change cursor to "move" after hover delay
+        }, 500);
+    };
+
+    const handleMouseLeave = () => {
+        clearTimeout(hoverTimeoutRef.current);  // Cancel hover timeout if mouse leaves
+        setCursorMove(false);  // Reset cursor state when mouse leaves
+    };
+
+    const onClick = (e) => {
+        if (props?.onClick) {
+            props.onClick(e)
+        }
+    };
+
+    // Set cursor style based on whether dragging is allowed
+    const cursorStyle = cursorMove ? 'move' : 'default';
 
     return (
-        <g data-cell-id="1" className='drag-exclude'>
-            <a href="./" xlinkHref="./" onClick={selectMarkar}>
+        <g data-cell-id="1" className="drag-exclude">
+            <a href="./" xlinkHref="./" onClick={(e) => e.preventDefault()}>
                 <g>
-                    {/* <image
-                        style={modeStyle}
-                        x={point?.x}
-                        y={point?.y}
-                        width={point?.width}
-                        height={point?.height}
-                        onMouseDown={onMouseDown}
-                        onMouseUp={onMouseUp}
-                        onMouseMove={onMouseMove}
-                        xlinkHref="assets/marker-icon.png" preserveAspectRatio="none" /> */}
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 384 512"
-                        style={modeStyle}
+                        style={{ cursor: cursorStyle }}
                         x={point?.x}
                         y={point?.y}
                         width={point?.width + 3}
@@ -165,6 +252,8 @@ export const Marker = (props) => {
                         onMouseUp={onMouseUp}
                         onMouseMove={onMouseMove}
                         onClick={onClick}
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
                         preserveAspectRatio="none"
                     >
                         <path fill={point?.color || "#ff2424"} d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z" />
@@ -173,7 +262,7 @@ export const Marker = (props) => {
                 </g>
             </a>
         </g>
-    )
+    );
 };
 
 export const Rectangle = (props) => {
@@ -234,8 +323,8 @@ export const Rectangle = (props) => {
             <a href="./" xlinkHref="./" onClick={selectMarkar}>
                 <g>
                     <rect
-                        width={point?.width}
-                        height={point?.height}
+                        width={Math.abs(point?.width)}
+                        height={Math.abs(point?.height)}
                         x={point?.x}
                         y={point?.y}
                         onMouseDown={onMouseDown}
@@ -246,7 +335,7 @@ export const Rectangle = (props) => {
                             {
                                 fill: point?.color ? point.color : 'blue',
                                 stroke: point?.color ? point.color : 'blue',
-                                strokeWidth: 2,
+                                strokeWidth: 5,
                                 fillOpacity: 0.3,
                                 strokeOpacity: 0.9
                             }
@@ -259,9 +348,9 @@ export const Rectangle = (props) => {
 };
 
 export const Camera = (props) => {
-    const [isMouseDown, setIsMouseDown] = useState(false);
-    const [isMove, setIsMove] = useState(false);
-    const [modeStyle, setModeStyle] = useState({});
+    const [isMouseDown, setIsMouseDown] = useState(false);  // Track mouse down state
+    const [isMove, setIsMove] = useState(false);  // Track if it's currently in move state
+    const [modeStyle, setModeStyle] = useState({});  // Style for cursor
     const [displayImageBeforeAfter, setDisplayImageBeforeAfter] = useState(false);
     const [currentCameraId, setCurrentCameraId] = useState(null);
     const [point, setPoint] = useState({
@@ -270,7 +359,12 @@ export const Camera = (props) => {
         width: props?.width,
         height: props?.height,
         type: 'camera'
-    })
+    });
+    const [cursorMove, setCursorMove] = useState(false); // Track if cursor should change to 'move'
+    const [hasDragged, setHasDragged] = useState(false); // Track if a drag has occurred
+    const hoverTimeoutRef = useRef(null); // To manage hover duration
+    const initialMouseOffset = useRef({ x: 0, y: 0 }); // To track initial mouse offset during drag
+
     useEffect(() => {
         setPoint({
             id: props.id,
@@ -279,51 +373,73 @@ export const Camera = (props) => {
             width: props?.width,
             height: props?.height,
             type: 'camera'
-        })
+        });
     }, [props]);
 
-    const selectMarkar = (e) => {
+    // Handle clicking on the marker to open the modal
+    const selectMarker = (e) => {
         e.preventDefault();
+        // console.log("Camera selected");
         if (!isMove) {
             setCurrentCameraId(props?.id);
             setDisplayImageBeforeAfter(true);
         }
-        setIsMove(false)
-    }
+        setIsMove(false);
+    };
 
+    // Handle mouse down event for dragging
     const onMouseDown = ({ nativeEvent }) => {
-        setIsMouseDown(true);
+        // console.log("Camera Mouse Down");
+
+        // Track initial mouse position when the user clicks on the marker
+        initialMouseOffset.current = {
+            x: nativeEvent.offsetX - point.x, // Save the offset difference from the marker's position
+            y: nativeEvent.offsetY - point.y
+        };
+
+        setIsMouseDown(true);  // Set mouse down state
+        setCursorMove(false);  // Reset the cursor move state during mouse down
+        setHasDragged(false);  // Reset drag flag
     };
 
-    const onClick = (e) => {
-        if (props?.onClick) {
-            props.onClick(e)
-        }
-    };
-
+    // Handle mouse move event for dragging and hovering
     const onMouseMove = ({ nativeEvent }) => {
         if (!isMouseDown) {
-            return;
+            return;  // Only update position when mouse is down (dragging)
         }
 
+        // console.log("Camera Mouse Moving...");
         const { offsetX, offsetY } = nativeEvent;
+
+        // Calculate new position based on the mouse movement and initial mouse offset
         const newPoint = {
             id: point.id,
-            x: offsetX - point?.width / 2,//props?.x - props?.width / 2,
-            y: offsetY - point?.height / 2,//props?.y - props?.height,
+            x: offsetX - initialMouseOffset.current.x, // Adjust with the initial offset
+            y: offsetY - initialMouseOffset.current.y, // Adjust with the initial offset
             width: point?.width,
             height: point?.height,
             type: 'camera'
-        }
+        };
 
-        setPoint(newPoint)
-        setIsMove(true)
-        setModeStyle({ cursor: `move` })
+        setPoint(newPoint);  // Update point's position
+        setIsMove(true);  // Set the move flag to true
+        setModeStyle({ cursor: 'move' });  // Set cursor to move while dragging
+        setHasDragged(true); // Mark that dragging occurred
     };
 
+    // Handle mouse up event to stop dragging
     const onMouseUp = (e) => {
-        setIsMouseDown(false);
-        setModeStyle({})
+        // console.log("Camera Mouse Up");
+        setIsMouseDown(false);  // Reset mouse down state
+        setIsMove(false);  // Reset move state
+        setModeStyle({});  // Reset cursor style
+
+        // Only trigger modal if no drag occurred
+        if (!hasDragged) {
+            selectMarker(e); // Open the modal if the marker wasn't dragged
+        }
+
+        // If the marker was dragged, update the position
         if (props?.onChange) {
             props.onChange(e, {
                 id: point.id,
@@ -332,20 +448,33 @@ export const Camera = (props) => {
                 width: point?.width,
                 height: point?.height,
                 type: 'camera'
-            })
+            });
         }
     };
 
-    const handleModalClose = () => {
-        setDisplayImageBeforeAfter(false);
+    // Handle hover and cursor change (delayed hover)
+    const handleMouseEnter = () => {
+        // Start hover effect with a timeout to change cursor after 500ms
+        hoverTimeoutRef.current = setTimeout(() => {
+            setCursorMove(true);  // Enable dragging after 500ms hover
+        }, 500);
     };
 
+    const handleMouseLeave = () => {
+        // Clear timeout if mouse leaves before the duration
+        clearTimeout(hoverTimeoutRef.current);
+        setCursorMove(false);  // Reset cursor state if mouse leaves
+    };
+
+    // Set cursor style based on whether dragging is enabled
+    const cursorStyle = cursorMove ? 'move' : 'default';
+
     return (
-        <g data-cell-id="1" className='drag-exclude'>
-            <a href="./" xlinkHref="./" onClick={selectMarkar}>
+        <g data-cell-id="1" className="drag-exclude">
+            <a href="./" xlinkHref="./" onClick={(e) => e.preventDefault()}>
                 <g>
                     <image
-                        style={modeStyle}
+                        style={{ cursor: cursorStyle }}
                         x={point?.x}
                         y={point?.y}
                         width={point?.width + 15}
@@ -353,7 +482,11 @@ export const Camera = (props) => {
                         onMouseDown={onMouseDown}
                         onMouseUp={onMouseUp}
                         onMouseMove={onMouseMove}
-                        xlinkHref={cameraIcon} preserveAspectRatio="none" />
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
+                        xlinkHref={cameraIcon}
+                        preserveAspectRatio="none"
+                    />
                 </g>
             </a>
             <Modal
@@ -371,20 +504,19 @@ export const Camera = (props) => {
                     <div className="container">
                         <div className="row d-flex justify-content-center">
                             <div className="col-sm-12 col-md-8">
-                                <img x="0" y="0" width="100%" height="100%"
-                                    src={customBeforeAfter}
-                                />
+                                <img x="0" y="0" width="100%" height="100%" src={customBeforeAfter} />
                             </div>
                         </div>
                     </div>
                 </Modal.Body>
             </Modal>
         </g>
-    )
+    );
 };
 
-export const IlabMarkerCanvas = () => {
+export const IlabMarkerCanvas = (props) => {
     const [mode, setMode] = useState('')
+    const schema = props?.schema;
     const [modeStyle, setModeStyle] = useState({})
     const [scale, setScale] = useState(1)
     const size = { height: 49, width: 30 }
@@ -400,12 +532,122 @@ export const IlabMarkerCanvas = () => {
     const [currentId, setCurrentId] = useState(1);
     const [planImage, setPlanImage] = useState(null);
     const parentRef = useRef(null)
+    // Pencil Properties
+    const [isDrawing, setIsDrawing] = useState(false);
+    const [paths, setPaths] = useState([]);
+    const [color, setColor] = useState('#000000'); // Initial color
+    const [thickness, setThickness] = useState(2); // Initial thickness
+    const [lastPos, setLastPos] = useState(null);  // To track last position
+    const [base64SVG, setBase64SVG] = useState(""); // Variable to store the Base64 SVG
 
     useEffect(() => {
-        if (parentRef.current) {
-            setPallet({ height: parentRef.current.offsetHeight, width: parentRef.current.offsetWidth })
+        if (props?.value)
+            setPlanImage(props?.value);
+    }, [props?.value]);
+
+    // Start drawing on mouse down
+    const startDrawing = (e) => {
+        e.preventDefault(); // Prevent any default behavior (like dragging)
+        const { offsetX, offsetY } = e.nativeEvent;
+        setLastPos({ x: offsetX, y: offsetY });  // Store last position
+        setIsDrawing(true);
+
+        // Create a new path for the current drawing
+        const newPath = {
+            color,
+            thickness,
+            pathData: `M${offsetX} ${offsetY}`,  // Start the path at the mouse position
+        };
+
+        // Add the new path to the existing paths
+        setPaths((prevPaths) => [...prevPaths, newPath]);
+    };
+
+    // Draw on mouse move
+    const draw = (e) => {
+        if (!isDrawing) return;
+
+        const { offsetX, offsetY } = e.nativeEvent;
+
+        // If the last position exists, we can create a smooth curve
+        if (lastPos) {
+            const cx = (lastPos.x + offsetX) / 2;  // Control point x
+            const cy = (lastPos.y + offsetY) / 2;  // Control point y
+
+            // Update the last path with a cubic Bezier curve (C)
+            setPaths((prevPaths) => {
+                const updatedPaths = [...prevPaths];
+                const lastPath = updatedPaths[updatedPaths.length - 1];
+
+                // Add a cubic Bezier curve command: C x1 y1 x2 y2 x y
+                lastPath.pathData += ` C${cx} ${cy} ${cx} ${cy} ${offsetX} ${offsetY}`;
+
+                // Return the updated array with all paths
+                return updatedPaths;
+            });
         }
-    }, []);
+
+        // Update the last position for the next movement
+        setLastPos({ x: offsetX, y: offsetY });
+    };
+    // Stop drawing on mouse up or mouse leave
+    const stopDrawing = () => {
+        setIsDrawing(false);
+        setLastPos(null); // Clear last position after drawing
+        setMode('');
+        setModeStyle({});
+    };
+
+    // Handle color change
+    const handleColorChange = (color) => {
+        setColor(color);
+    };
+
+    // Handle thickness change
+    const handleThicknessChange = (thickness) => {
+        setThickness(thickness);
+    };
+
+    const handleDeleteMarkers = (flag) => {
+        if (flag) {
+            setMarker([]);
+            setPaths([]);
+        }
+    };
+
+    // Convert the SVG to Base64 and store it in a variable
+    const convertSVGToBase64 = (e) => {
+        e.preventDefault();
+        const svgElement = document.getElementById("drawing-svg");
+
+        // Serialize the SVG to a string
+        const svgString = new XMLSerializer().serializeToString(svgElement);
+
+        // Encode the SVG string to Base64
+        const base64Encoded = btoa(unescape(encodeURIComponent(svgString)));
+
+        // Store the Base64 string in the state
+        setBase64SVG(base64Encoded);
+
+        // Optionally, log the Base64 string for debugging
+        // console.log(base64Encoded);
+        if (!props?.readonly) {
+            const modifiedEvent = {
+                target: {
+                    id: props?.id,
+                    value: `data:image/svg+xml;base64,${base64Encoded}`
+                },
+                preventDefault: function () { }
+            };
+            props.onChange(modifiedEvent);
+        }
+    };
+
+    // useEffect(() => {
+    //     if (parentRef.current) {
+    //         setPallet({ height: parentRef.current.offsetHeight, width: parentRef.current.offsetWidth })
+    //     }
+    // }, []);
 
     const handlePlanImageChange = (event) => {
         const file = event.target.files[0];
@@ -470,7 +712,6 @@ export const IlabMarkerCanvas = () => {
     }
 
     const handleMouseMove = (e) => {
-
         if (mode === 'rectangle' && start) {
 
             setTemp({
@@ -484,6 +725,7 @@ export const IlabMarkerCanvas = () => {
         }
     }
 
+
     const handleSelectionMode = (e, mode) => {
         //e.preventDefault();
         setMode(mode);
@@ -493,6 +735,8 @@ export const IlabMarkerCanvas = () => {
             case 'camera': setModeStyle({ cursor: `url(${cameraMarker}) 30 49,auto` })
                 break;
             case 'rectangle': setModeStyle({ cursor: `crosshair` })
+                break;
+            case 'pencil': setModeStyle({ cursor: `url(${pencilMarkerIcon}) 30 49,auto` })
                 break;
             case 'move':
                 setModeStyle({ cursor: `move` })
@@ -527,7 +771,7 @@ export const IlabMarkerCanvas = () => {
 
     const handleChangeComplete = (color) => {
         setSelectedColor(color.hex);
-        console.log(currentId);
+        // console.log(currentId);
         const marker = markers?.filter(item => `${item.id}` === `${currentId}`);
         const index = markers?.findIndex(item => `${item.id}` === `${currentId}`);
 
@@ -545,7 +789,7 @@ export const IlabMarkerCanvas = () => {
 
     const handleRectChangeComplete = (color) => {
         setSelectedRectColor(color.hex);
-        console.log(currentId);
+        // console.log(currentId);
         const marker = markers?.filter(item => `${item.id}` === `${currentId}`);
         const index = markers?.findIndex(item => `${item.id}` === `${currentId}`);
 
@@ -631,248 +875,276 @@ export const IlabMarkerCanvas = () => {
     };
 
     return (
-        <div className="container-fluid">
-            <div className='row'>
-                <div className='col-md-9'>
-                    <div className="mb-2">
-                        <h6>Image Upload</h6>
-                        <input type="file" accept="image/*" onChange={handlePlanImageChange} />
-                    </div>
-                    <div ref={parentRef} style={{ border: '1px solid #CCC' }}>
-                        <TransformWrapper
-                            panning={{ excluded: ['drag-exclude'] }}
-                            pinch={{ excluded: ['drag-exclude'] }}
-                            wheel={{ excluded: ['drag-exclude'] }}
-                            initialScale={1}
-                            minScale={.5}
-                            initialPositionX={0}
-                            initialPositionY={0}
-                            onTransformed={(e) => handleTransform(e)}                >
-                            {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
-                                <>
-                                    <Controls onChange={handleSelectionMode} />
-                                    <TransformComponent>
-                                        <svg xmlns="http://www.w3.org/2000/svg" style={modeStyle} xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" width={`${pallet.width - 4}px`} height={`${pallet.height - 4}px`} viewBox={`0 0 ${pallet.width} ${pallet.height}`} >
-                                            <defs />
-                                            <rect fill="#ffffff" width="100%" height="100%" x="0" y="0" />
-                                            <g>
-                                                <image x="0" y="0" width="100%" height="100%"
-                                                    className={mode === 'rectangle' ? 'drag-exclude' : ''}
-                                                    onMouseUp={handleMouseUp}
-                                                    onMouseDown={handleMouseDown}
-                                                    onMouseMove={handleMouseMove}
-                                                    xlinkHref={planImage ? planImage : "https://res.cloudinary.com/urbana-cdn/image/upload/fl_lossy,f_auto/cloud-storage/images/T9.jpg"}
-                                                />
-                                                <g data-cell-id="0">
-                                                    {temp &&
-                                                        <Rectangle
-                                                            id={0}
-                                                            x={temp.x}
-                                                            y={temp.y}
-                                                            width={temp.width}
-                                                            color={temp?.color}
-                                                            height={temp.height}
-                                                            onChange={updateMarker}
-                                                            onMove={handleSelectionMode}
-                                                            onMouseUp={handleMouseUp}
-                                                            onMouseDown={handleMouseDown}
-                                                            onMouseMove={handleMouseMove}
-                                                            onClick={(e) => setCurrentId(1)}
-                                                            style={modeStyle}
-                                                            rectToCanvasForColor={rectToCanvasForColor}
-                                                        />
-                                                    }
-                                                    {markers.map((m, i) => (
-                                                        <Fragment key={i}>
-
-                                                            {m.type === 'rectangle' &&
-                                                                <Rectangle
-                                                                    id={i + 1}
-                                                                    x={m.x}
-                                                                    y={m.y}
-                                                                    width={m.width}
-                                                                    height={m.height}
-                                                                    color={m?.color}
-                                                                    onChange={updateMarker}
-                                                                    onMove={handleSelectionMode}
-                                                                    onMouseUp={handleMouseUp}
-                                                                    onMouseDown={handleMouseDown}
-                                                                    onMouseMove={handleMouseMove}
-                                                                    onClick={(e) => setCurrentId(i + 1)}
-                                                                    style={modeStyle}
-                                                                    rectToCanvasForColor={rectToCanvasForColor}
-                                                                />
-                                                            }
-                                                        </Fragment>
-
-                                                    ))}
-                                                </g>
-                                                <g data-cell-id="01">
-
-                                                    {markers.map((m, i) => (
-                                                        <Fragment key={i}>
-                                                            {m.type === 'marker' &&
-                                                                <Marker
-                                                                    id={i + 1}
-                                                                    x={m.x}
-                                                                    y={m.y}
-                                                                    color={m?.color}
-                                                                    label={m?.label}
-                                                                    width={m.width}
-                                                                    height={m.height}
-                                                                    onChange={updateMarker}
-                                                                    onMove={handleSelectionMode}
-                                                                    onClick={(e) => { setCurrentId(i + 1); setMarkerLabel(m?.label); setSelectedColor(m?.color) }}
-                                                                    markerToCanvasForColor={markerToCanvasForColor}
-                                                                />
-                                                            }
-
-                                                        </Fragment>
-
-                                                    ))}
-                                                </g>
-                                                <g data-cell-id="02">
-
-                                                    {markers.map((m, i) => (
-                                                        <Fragment key={i}>
-                                                            {m.type === 'camera' &&
-                                                                <Camera
-                                                                    id={i + 1}
-                                                                    x={m.x}
-                                                                    y={m.y}
-                                                                    width={m.width}
-                                                                    height={m.height}
-                                                                    onChange={updateMarker}
-                                                                    onMove={handleSelectionMode}
-                                                                    onClick={(e) => setCurrentId(i + 1)}
-                                                                />
-                                                            }
-
-                                                        </Fragment>
-
-                                                    ))}
-                                                </g>
-                                            </g>
-                                        </svg>
-                                    </TransformComponent>
-                                </>
-                            )}
-                        </TransformWrapper>
-                    </div>
-                </div>
-                <div className='col-md-3'>
-                    <ol style={listStyles.list}>
-                        {markers.map((m, i) => {
-                            if (m.type === 'marker') {
-                                return (
-                                    <li key={i} style={listStyles.listItem}>
-                                        <i className="fa-solid fa-location-dot fa-lg" style={{ ...listStyles.icon, color: m?.color ? m.color : "#ff2424" }}></i>
-                                        <span style={listStyles.text}>
-                                            {m?.label ? m.label : m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
-                                        </span>
-                                    </li>
-                                )
-                            }
-                            else if (m.type === 'rectangle') {
-                                return (
-                                    <li key={i} style={listStyles.listItem}>
-                                        <i className="bi bi-bounding-box fs-5" style={listStyles.icon}></i>
-                                        <span style={listStyles.text}>
-                                            {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
-                                        </span>
-                                    </li>
-                                )
-                            }
-                            else {
-                                return (
-                                    <li key={i} style={listStyles.listItem}>
-                                        <span style={listStyles.text}>
-                                            <i className="bi bi-camera-fill fs-5" style={listStyles.icon}></i>
-                                            {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
-                                        </span>
-                                    </li>
-                                )
-                            }
-                        })}
-                    </ol>
-                </div>
-                {displayMarkerColorPicker ? (
-                    <Modal
-                        size="md"
-                        show={displayMarkerColorPicker}
-                        onHide={() => setDisplayMarkerColorPicker(false)}
-                        aria-labelledby="example-modal-sizes-title-marker-lg"
-                    >
-                        <Modal.Header closeButton>
-                            <Modal.Title id="example-modal-sizes-title-marker-lg">
-                                {`Marker Menu`}
-                            </Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <div className="container">
-                                <div className="row d-flex justify-content-center">
-                                    <div className="col-sm-12 col-md-6">
-                                        <SketchPicker
-                                            color={selectedColor}
-                                            onChangeComplete={handleChangeComplete}
-                                        />
-                                    </div>
-                                    <div className="col-sm-12 col-md-6 d-flex align-items-center">
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor="markerLabel" >
-                                                Marker Label
-                                            </Form.Label>
-
-                                            <Form.Control type="text"
-                                                name="markerLabel"
-                                                id="markerLabel"
-                                                placeholder="Marker Label here........"
-                                                value={markerLabel}
-                                                onChange={handleMarkerLabelChange}
-                                            />
-
-                                        </Form.Group>
-                                    </div>
-                                </div>
-                                <div className="row mt-2">
-                                    <div className="col d-flex justify-content-center">
-                                        <Button
-                                            variant="contained"
-                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-dark btn-md mr-2"
-                                            onClick={handleClose}>
-                                            Close
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </Modal.Body>
-                    </Modal>
-                ) : null}
+        <div className='row'>
+            <div className='col-md-9'>
                 {
-                    displayRectColorPicker ? (
-                        <div style={{ position: 'absolute', zIndex: '2' }}>
-                            <div
-                                style={{
-                                    position: 'absolute',
-                                    top: '0',
-                                    right: '0',
-                                    background: 'white',
-                                    border: '1px solid #ccc',
-                                    padding: '10px',
-                                }}
-                            >
-                                <SketchPicker
-                                    color={selectedRectColor}
-                                    onChangeComplete={handleRectChangeComplete}
-                                />
-                                <button onClick={handleRectClose}>Close</button>
-                            </div>
+                    (schema?.upload) && (
+                        <div className="mb-2">
+                            <h6>Image Upload</h6>
+                            <input type="file" accept="image/*" onChange={handlePlanImageChange} />
                         </div>
                     )
-                        :
-                        null
                 }
+                <div ref={parentRef} style={{ border: '1px solid #CCC' }}>
+                    <TransformWrapper
+                        panning={{ excluded: ['drag-exclude'] }}
+                        pinch={{ excluded: ['drag-exclude'] }}
+                        wheel={{ excluded: ['drag-exclude'] }}
+                        initialScale={1}
+                        minScale={.5}
+                        initialPositionX={0}
+                        initialPositionY={0}
+                        onTransformed={(e) => handleTransform(e)}                >
+                        {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
+                            <>
+                                <Controls onChange={handleSelectionMode} onPencilColorChange={handleColorChange} onPencilThicknessChange={handleThicknessChange} deleteAllMarkers={handleDeleteMarkers} />
+                                <TransformComponent>
+                                    <svg
+                                        id="drawing-svg"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        style={modeStyle}
+                                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                                        version="1.1"
+                                        width={`${pallet.width}px`}
+                                        height={`${pallet.height}px`}
+                                        viewBox={`0 0 ${pallet.width} ${pallet.height}`}
+                                    >
+                                        <defs />
+                                        <rect fill="#ffffff" width="100%" height="100%" x="0" y="0" />
+                                        <g>
+                                            <image x="0" y="0" width="100%" height="100%"
+                                                className={(mode === 'rectangle' || mode === 'pencil') ? 'drag-exclude' : ''}
+                                                onMouseUp={(e) => (mode !== 'pencil') ? handleMouseUp(e) : stopDrawing()}
+                                                onMouseDown={(e) => (mode !== 'pencil') ? handleMouseDown(e) : startDrawing(e)}
+                                                onMouseMove={(e) => (mode !== 'pencil') ? handleMouseMove(e) : draw(e)}
+                                                onMouseLeave={stopDrawing}
+                                                xlinkHref={planImage ? planImage : defaultImage}
+                                            />
+                                            <g data-cell-id="0">
+                                                {temp &&
+                                                    <Rectangle
+                                                        id={0}
+                                                        x={temp.x}
+                                                        y={temp.y}
+                                                        width={temp.width}
+                                                        color={temp?.color}
+                                                        height={temp.height}
+                                                        onChange={updateMarker}
+                                                        onMove={handleSelectionMode}
+                                                        onMouseUp={handleMouseUp}
+                                                        onMouseDown={handleMouseDown}
+                                                        onMouseMove={handleMouseMove}
+                                                        onClick={(e) => setCurrentId(1)}
+                                                        style={modeStyle}
+                                                        rectToCanvasForColor={rectToCanvasForColor}
+                                                    />
+                                                }
+                                                {markers.map((m, i) => (
+                                                    <Fragment key={i}>
+
+                                                        {m.type === 'rectangle' &&
+                                                            <Rectangle
+                                                                id={i + 1}
+                                                                x={m.x}
+                                                                y={m.y}
+                                                                width={m.width}
+                                                                height={m.height}
+                                                                color={m?.color}
+                                                                onChange={updateMarker}
+                                                                onMove={handleSelectionMode}
+                                                                onMouseUp={handleMouseUp}
+                                                                onMouseDown={handleMouseDown}
+                                                                onMouseMove={handleMouseMove}
+                                                                onClick={(e) => setCurrentId(i + 1)}
+                                                                style={modeStyle}
+                                                                rectToCanvasForColor={rectToCanvasForColor}
+                                                            />
+                                                        }
+                                                    </Fragment>
+
+                                                ))}
+                                            </g>
+                                            <g data-cell-id="01">
+
+                                                {markers.map((m, i) => (
+                                                    <Fragment key={i}>
+                                                        {m.type === 'marker' &&
+                                                            <Marker
+                                                                id={i + 1}
+                                                                x={m.x}
+                                                                y={m.y}
+                                                                color={m?.color}
+                                                                label={m?.label}
+                                                                width={m.width}
+                                                                height={m.height}
+                                                                onChange={updateMarker}
+                                                                onMove={handleSelectionMode}
+                                                                onClick={(e) => { setCurrentId(i + 1); setMarkerLabel(m?.label); setSelectedColor(m?.color) }}
+                                                                markerToCanvasForColor={markerToCanvasForColor}
+                                                            />
+                                                        }
+
+                                                    </Fragment>
+
+                                                ))}
+                                            </g>
+                                            <g data-cell-id="02">
+
+                                                {markers.map((m, i) => (
+                                                    <Fragment key={i}>
+                                                        {m.type === 'camera' &&
+                                                            <Camera
+                                                                id={i + 1}
+                                                                x={m.x}
+                                                                y={m.y}
+                                                                width={m.width}
+                                                                height={m.height}
+                                                                onChange={updateMarker}
+                                                                onMove={handleSelectionMode}
+                                                                onClick={(e) => setCurrentId(i + 1)}
+                                                            />
+                                                        }
+
+                                                    </Fragment>
+
+                                                ))}
+                                            </g>
+                                        </g>
+                                        {paths.map((path, index) => (
+                                            <path
+                                                key={index}
+                                                d={path.pathData}
+                                                stroke={path.color}
+                                                strokeWidth={path.thickness}
+                                                fill="transparent"
+                                            />
+                                        ))}
+                                    </svg>
+                                </TransformComponent>
+                            </>
+                        )}
+                    </TransformWrapper>
+                </div>
             </div>
+            <div className='col-md-3'>
+                <ol style={listStyles.list}>
+                    {markers.map((m, i) => {
+                        if (m.type === 'marker') {
+                            return (
+                                <li key={i} style={listStyles.listItem}>
+                                    <i className="fa-solid fa-location-dot fa-lg" style={{ ...listStyles.icon, color: m?.color ? m.color : "#ff2424" }}></i>
+                                    <span style={listStyles.text}>
+                                        {m?.label ? m.label : m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
+                                    </span>
+                                </li>
+                            )
+                        }
+                        else if (m.type === 'rectangle') {
+                            return (
+                                <li key={i} style={listStyles.listItem}>
+                                    <i className="bi bi-bounding-box fs-5" style={listStyles.icon}></i>
+                                    <span style={listStyles.text}>
+                                        {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
+                                    </span>
+                                </li>
+                            )
+                        }
+                        else {
+                            return (
+                                <li key={i} style={listStyles.listItem}>
+                                    <span style={listStyles.text}>
+                                        <i className="bi bi-camera-fill fs-5" style={listStyles.icon}></i>
+                                        {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
+                                    </span>
+                                </li>
+                            )
+                        }
+                    })}
+                </ol>
+                <div className="row mt-2">
+                    <div className="col d-flex justify-content-center">
+                        <button className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success" onClick={convertSVGToBase64}>Save Image</button>
+                    </div>
+                </div>
+            </div>
+            {displayMarkerColorPicker ? (
+                <Modal
+                    size="md"
+                    show={displayMarkerColorPicker}
+                    onHide={() => setDisplayMarkerColorPicker(false)}
+                    aria-labelledby="example-modal-sizes-title-marker-lg"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="example-modal-sizes-title-marker-lg">
+                            {`Marker Menu`}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="container">
+                            <div className="row d-flex justify-content-center">
+                                <div className="col-sm-12 col-md-6">
+                                    <SketchPicker
+                                        color={selectedColor}
+                                        onChangeComplete={handleChangeComplete}
+                                    />
+                                </div>
+                                <div className="col-sm-12 col-md-6 d-flex align-items-center">
+                                    <Form.Group className="position-relative form-group">
+                                        <Form.Label htmlFor="markerLabel" >
+                                            Marker Label
+                                        </Form.Label>
+
+                                        <Form.Control type="text"
+                                            name="markerLabel"
+                                            id="markerLabel"
+                                            placeholder="Marker Label here........"
+                                            value={markerLabel}
+                                            onChange={handleMarkerLabelChange}
+                                        />
+
+                                    </Form.Group>
+                                </div>
+                            </div>
+                            <div className="row mt-2">
+                                <div className="col d-flex justify-content-center">
+                                    <Button
+                                        variant="contained"
+                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-dark btn-md mr-2"
+                                        onClick={handleClose}>
+                                        Close
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                </Modal>
+            ) : null}
+            {
+                displayRectColorPicker ? (
+                    <div style={{ position: 'absolute', zIndex: '2' }}>
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '0',
+                                right: '0',
+                                background: 'white',
+                                border: '1px solid #ccc',
+                                padding: '10px',
+                            }}
+                        >
+                            <SketchPicker
+                                color={selectedRectColor}
+                                onChangeComplete={handleRectChangeComplete}
+                            />
+                            <button onClick={handleRectClose}>Close</button>
+                        </div>
+                    </div>
+                )
+                    :
+                    null
+            }
         </div>
     );
 };
+
+//<img src={`data:image/svg+xml;base64,${base64SVG}`} />

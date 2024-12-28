@@ -20,7 +20,7 @@ const IUIActivityCreate = (props) => {
     const module = setupSchema?.module;
     const dependencyModule = 'workflow';
     const flowchartKey = "dependency-flow";
-    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null };
+    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, dependencyId: null, photoUrl: null };
     // Parameter
     const { id } = useParams();
     // console.log(parentId)
@@ -102,6 +102,7 @@ const IUIActivityCreate = (props) => {
 
     const handleDependencySelection = (event) => {
         setSelectedOption(parseInt(event.target.value));
+        setDependencySelectParams({ ...dependencySelectParams, dependencyId: event.target.value });
     };
 
     const validate = (values, fields) => {
@@ -213,11 +214,19 @@ const IUIActivityCreate = (props) => {
         }
     };
 
-    const prepareActivityCreation = (e) => {
+    const prepareActivityCreation = async (e) => {
         e.preventDefault();
         const selectedDependency = allDependencies?.filter((dependency) => dependency.id === parseInt(selectedOption))[0];
         const dependencyGraph = JSON.parse(selectedDependency?.data);
         const result = bfsTraversal(dependencyGraph?.nodes, dependencyGraph?.edges, 'node_0');
+        const item = (selectedDependency?.flatId !== null) ? await api.getSingleData({ module: 'plan', id: selectedDependency?.flatId }) : await api.getSingleData({ module: 'project', id: selectedDependency?.projectId });
+        setDependencySelectParams({
+            ...dependencySelectParams,
+            towerId: selectedDependency?.towerId,
+            floorId: selectedDependency?.floorId,
+            flatId: selectedDependency?.flatId,
+            photoUrl: item?.data?.blueprint
+        })
         setBfsSequence(result.map(node => node.data.label));
         setIsSetupComplete(true);
     };
@@ -241,7 +250,7 @@ const IUIActivityCreate = (props) => {
                                                 </Col>
                                             </Row>
                                         }
-                                        <Form>
+                                        <div>
                                             <Row>
                                                 <Col>
                                                     {setupSchema?.back &&
@@ -396,13 +405,13 @@ const IUIActivityCreate = (props) => {
                                                     </Row> : null
                                             }
 
-                                            <div className={!isSetupComplete ? "d-none" : "row d-flex justify-content-center"}>
+                                            <div className={!isSetupComplete ? "d-none" : "row d-flex justify-content-center mb-3"}>
                                                 <div className="col-sm-12 col-lg-12">
                                                     <div className="main-card card">
                                                         <div className="card-body">
                                                             {
                                                                 (bfsSequence.length) ? (
-                                                                    <IUIActivityWizard sequence={bfsSequence} schema={creationSchema} />
+                                                                    <IUIActivityWizard sequence={bfsSequence} schema={creationSchema} dependencyData={dependencySelectParams} />
                                                                 ) : null
                                                             }
                                                         </div>
@@ -444,7 +453,7 @@ const IUIActivityCreate = (props) => {
                                                     }
                                                 </Col>
                                             </Row>
-                                        </Form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

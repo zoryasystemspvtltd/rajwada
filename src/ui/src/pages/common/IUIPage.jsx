@@ -13,6 +13,7 @@ const IUIPage = (props) => {
     // Properties
     const schema = props?.schema;
     const module = schema?.module;
+    const [defaultValues, setDefaultValues] = useState({});
     const flowchartKey = "dependency-flow";
     // Parameter
     const { id } = useParams();
@@ -41,6 +42,18 @@ const IUIPage = (props) => {
 
         fetchData();
     }, [id]);
+
+    useEffect(() => {
+        if (props?.defaultValues) {
+            setDefaultValues(props?.defaultValues);
+            const newData = { ...data };
+            schema?.defaultFields?.forEach((fld) => {
+                newData[fld] = (fld !== "photoUrl") ? parseInt(props?.defaultValues[fld]) : props?.defaultValues[fld];
+            })
+            console.log(newData)
+            setData(newData);
+        }
+    }, [props?.defaultValues]);
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
@@ -93,6 +106,11 @@ const IUIPage = (props) => {
             if (item.type === 'radio') {
                 errors = { ...errors, ...validate(values, item.fields) }
             }
+            if (item.type === 'lookup-relation') {
+                if (item?.exclusionCondition && values && values[item?.exclusionCondition?.field] === item?.exclusionCondition?.value && !values[item?.field]) {
+                    errors[item.field] = `Required field.`;
+                }
+            }
         }
         return errors;
     };
@@ -130,6 +148,8 @@ const IUIPage = (props) => {
             setDirty(true);
             const error = validate(data, schema?.fields)
             setErrors(error);
+            console.log(data)
+            console.log(error)
             if (Object.keys(error).length === 0) {
                 if (!data)
                     return
@@ -154,6 +174,10 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
+                        // if (module === 'activity') {
+                        //     console.log(data);
+                        //     return;
+                        // }
                         api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
@@ -288,6 +312,7 @@ const IUIPage = (props) => {
                                                                     readonly={schema.readonly}
                                                                     onChange={handleChange}
                                                                     dirty={dirty}
+                                                                    defaultFields={schema?.defaultFields || []}
                                                                 />
                                                                 {/* <br /> */}
                                                             </>
