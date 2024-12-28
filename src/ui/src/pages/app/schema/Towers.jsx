@@ -15,6 +15,8 @@ export const ListTower = () => {
         editing: true,
         assign: true,
         adding: true,
+        uploading: true,
+        downloading: true,
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
@@ -104,6 +106,8 @@ export const ViewTower = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            uploading: true,
+                            downloading: true,
                             fields: [
                                 { text: 'Floors', field: 'name', type: 'link', sorting: true, searching: true, width: 100, },
                                 { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
