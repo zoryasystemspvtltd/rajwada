@@ -382,12 +382,12 @@ export const AddActivity = () => {
                             adding: true,
                             fields: [
                                 {
-                                    text: 'Item', field: 'itemId', type: 'lookup', required: true,
+                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
                                     schema: { module: 'asset' }
                                 },
-                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', required: true },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
                                 {
-                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, 
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
                                     schema: { module: 'uom' }
                                 },
                             ]

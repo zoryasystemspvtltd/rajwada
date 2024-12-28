@@ -9,7 +9,7 @@ const IUIActivityWizard = (props) => {
     const sequence = props?.sequence;
     const schema = props?.schema;
     const dependencyData = props?.dependencyData
-    console.log(dependencyData);
+    // console.log(dependencyData);
     const [isCreationSuccessful, setIsCreationSuccessful] = useState(true);
     const navigate = useNavigate();
 

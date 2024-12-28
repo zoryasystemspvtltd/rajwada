@@ -7,7 +7,9 @@ namespace RajApi.Data.Models
     public class Activity : LabModel, IActivity
     {
         public string? Description { get; set; }
-        public required string Type { get; set; }       
+        public required string Type { get; set; }
+
+        public string? PhotoUrl { get; set; }
 
         public string? DocumentLinks { get; set; }
 
@@ -22,7 +24,7 @@ namespace RajApi.Data.Models
         /// <summary>
         /// Workflow State 
         /// </summary>
-        public virtual StateType? WorkflowState { get; set; }
+        public virtual string? WorkflowState { get; set; }
 
         /// <summary>
         /// Approval Status
@@ -60,9 +62,13 @@ namespace RajApi.Data.Models
         /// </summary>
         public virtual int Duration { get; set; }
         /// <summary>
-        /// Percentage completionn
+        /// Percentage completion
         /// </summary>
         public virtual int ProgressPercentage { get; set; }
+        /// <summary>
+        /// Items for Activity
+        /// </summary>
+        public string? Items { get; set; }
         #endregion
 
         #region Relations
@@ -91,7 +97,25 @@ namespace RajApi.Data.Models
             }
             private set { /* needed for EF */ }
         }
+        public virtual long? DependencyId { get; set; }
 
+        [JsonIgnore]
+        public virtual Workflow? Dependency { get; set; }
+        public virtual long? TowerId { get; set; }
+
+        [JsonIgnore]
+        public virtual Plan? Tower { get; set; }
+        [ForeignKey("Floor")]
+        public virtual long? FloorId { get; set; }
+
+        [JsonIgnore]
+        public virtual Plan? Floor { get; set; }
+        [ForeignKey("Flat")]
+        public virtual long? FlatId { get; set; }
+
+        [JsonIgnore]
+        public virtual Plan? Flat { get; set; }
+        public virtual long? UserId { get; set; }
         #endregion
     }
 }

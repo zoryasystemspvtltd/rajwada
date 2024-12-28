@@ -18,6 +18,29 @@ const Login = () => {
     const [formErrors, setFormErrors] = useState({});
     const dispatch = useDispatch();
 
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = '/static/theme/light/theme.css'; // Light theme CSS
+        link.id = 'theme-link';
+
+        const existingLink = document.getElementById('theme-link');
+        if (existingLink) {
+            existingLink.parentNode.removeChild(existingLink); // Remove previous theme
+        }
+
+        document.head.appendChild(link); // Append the light theme
+
+        return () => {
+            // Clean up theme on component unmount (when navigating away from login)
+            const existingLink = document.getElementById('theme-link');
+            if (existingLink) {
+                existingLink.parentNode.removeChild(existingLink);
+            }
+        };
+    }, []); // Run only on mount
+
     const handleLogin = async () => {
         dispatch(loginUser({ module: module, data: { email: email, password: password } }));
     };
