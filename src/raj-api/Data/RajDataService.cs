@@ -7,7 +7,7 @@ namespace ILab.Data
 {
     public class RajDataService : ILabDataService
     {
-       
+
         public readonly RajDataHandler dataHandler;
         public RajDataService(RajDataHandler handler
             , ILogger<RajDataService> logger)
@@ -51,6 +51,13 @@ namespace ILab.Data
 
                 var existingData = await Get(model, id);
                 existingData.Member = jsonData.Member;
+                if ((bool)((RajApi.Data.Models.LevelSetupHeader)jsonData)?.IsApproved)
+                {
+                    existingData.Status = jsonData.Status;
+                    existingData.ApprovedBy = jsonData.ApprovedBy;
+                    existingData.ApprovedDate = jsonData.ApprovedDate;
+                    existingData.IsApproved = jsonData.IsApproved;
+                }
 
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.AssignAsync));
                 var generic = method?.MakeGenericMethod(type);

@@ -30,6 +30,7 @@ export const ViewLevelSetup = () => {
         adding: false,
         deleting: true,
         back: true,
+        approver: true,
         readonly: true,
         fields: [
             {
@@ -46,7 +47,7 @@ export const ViewLevelSetup = () => {
                     },
                     { text: 'Vehicle No', field: 'vechileNo', type: 'label', width: 4 },
                     { text: 'Tracking No', field: 'trackingNo', type: 'label', width: 4 },
-                    { text: 'Document Date', field: 'documentDate', type: 'date', width: 4 },
+                    { text: 'Document Date', field: 'documentDate', type: 'label-date', width: 4 },
                     {
                         text: 'Supplier Name', field: 'supplierId', type: 'lookup-link', width: 4,
                         schema: { module: 'supplier', path: 'suppliers' }

@@ -64,7 +64,6 @@ const IUIPageInline = (props) => {
 
             if (id != undefined)
                 try {
-
                     api.addData({ module: module, data: value });
                     dispatch(setSave({ module: module }))
                 } catch (e) {

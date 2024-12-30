@@ -8,6 +8,7 @@ import IUIModuleMessage from './shared/IUIModuleMessage';
 import api from '../../store/api-service'
 import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIAssign from './shared/IUIAssign';
+import IUIApprover from './shared/IUIApprover';
 
 const IUIPage = (props) => {
     // Properties
@@ -27,7 +28,8 @@ const IUIPage = (props) => {
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
     const [disabled, setDisabled] = useState(false)
-
+    const [approvalStatus, setApprovalStatus] = useState({});
+    const [approvedMemeber, setApprovalBy] = useState({});
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -37,6 +39,8 @@ const IUIPage = (props) => {
             if (id) {
                 const item = await api.getSingleData({ module: module, id: id });
                 setData(item.data);
+                setApprovalStatus(item.data.status);
+                setApprovalBy(item.data.member);
             }
         }
 
@@ -122,6 +126,34 @@ const IUIPage = (props) => {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }))
             //navigate(-1);
+
+        } catch (e) {
+            // TODO
+        }
+    }
+
+    const assignApprover = async (e, email) => {
+        e.preventDefault();
+        const action = { module: module, data: { id: id, member: email } }
+        try {
+            await api.editPartialData(action);
+            dispatch(setSave({ module: module }));
+
+        } catch (e) {
+            // TODO
+        }
+    }
+
+    const approvedPageValue = async (e) => {
+        e.preventDefault();
+        const current = new Date();
+        const action = {
+            module: module,
+            data: { id: id, status: 4, approvedBy: approvedMemeber, approvedDate: current, isApproved: true }
+        }
+        try {
+            await api.editPartialData(action);
+            dispatch(setSave({ module: module }));
 
         } catch (e) {
             // TODO
@@ -287,11 +319,20 @@ const IUIPage = (props) => {
                                                             }
                                                         </>
                                                     }
+                                                    {
+                                                        schema?.readonly && privileges?.approve && approvalStatus == '2' &&
+                                                        <Button variant="contained"
+                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
+                                                            onClick={approvedPageValue}> Approved</Button>
+                                                    }
                                                     {schema?.assign &&
                                                         <IUIAssign onClick={assignPageValue} />
                                                         // <Button variant="contained"
                                                         //     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                         //     onClick={assignPageValue}>Assign </Button>
+                                                    }
+                                                    {schema?.approver && privileges?.approve && approvalStatus == '0' &&
+                                                        <IUIApprover onClick={assignApprover} />
                                                     }
                                                     <IUIModuleMessage schema={props.schema} />
                                                 </Col>
@@ -339,11 +380,6 @@ const IUIPage = (props) => {
                                             }
                                             <Row>
                                                 <Col>
-                                                    {/* {schema?.back &&
-                                                        <Button variant="contained"
-                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                            onClick={() => navigate(-1)}> Back</Button>
-                                                    } */}
                                                     {!schema?.readonly &&
                                                         <>
                                                             {(privileges?.add || privileges?.edit) &&
