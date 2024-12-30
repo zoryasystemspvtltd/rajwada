@@ -2,7 +2,7 @@
 
 namespace RajApi.Data.Models;
 
-public class LevelSetupMaster : LabModel, IApproval
+public class LevelSetupHeader : LabModel, IApproval
 {
     public string? InChargeName { get; set; }
     public string? InChargeId { get; set; }
@@ -12,11 +12,9 @@ public class LevelSetupMaster : LabModel, IApproval
     public string? TrackingNo { get; set; }
     public DateTime? DocumentDate { get; set; }
     public string? SupplierId { get; set; }
-    public string? supplierName { get; set; }
+    public string? SupplierName { get; set; }
     public string? Remarks { get; set; }
+    public bool? IsApproved { get; set; }
     public DateTime? ApprovedDate { get; set; }
     public string? ApprovedBy { get; set; }
-    bool? IApproval.IsApproved { get; set; }
-    DateTime? IApproval.ApprovedDate { get; set; }
-    string? IApproval.ApprovedBy { get; set; }
 }

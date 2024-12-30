@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import IUIPageElement from './shared/IUIPageElement';
+import IUIPageInlineElement from './shared/IUIPageInlineElement';
+import { setSave } from '../../store/api-db'
+import api from '../../store/api-service'
+import { useParams } from "react-router-dom";
+import { useDispatch } from 'react-redux'
 
 const IUIPageInline = (props) => {
     // Properties
     const schema = props?.schema;
-
+    const module = schema?.module;
+    const { id } = useParams();
     // Local State
     const [value, setValue] = useState({});
     const [dirty, setDirty] = useState(false)
     const [errors, setErrors] = useState({});
+
+    // Usage
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if (props?.value) {
@@ -16,7 +24,6 @@ const IUIPageInline = (props) => {
             setValue(item);
         }
     }, [props?.value]);
-
 
     const handleChange = (e) => {
         e.preventDefault();
@@ -35,18 +42,6 @@ const IUIPageInline = (props) => {
             if (item.required && values && !values[item?.field]) {
                 errors[item.field] = `Required field.`;
             }
-            if (item.type === 'email' && values && values[item?.field]) {
-                if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
-                    errors[item.field] = 'Invalid email address.'
-                }
-            }
-            if (item.type === 'phone' && values && values[item?.field]) {
-                const regex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
-                //var pattern = new RegExp(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/); // /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
-                if (!regex.test(values[item.field])) {
-                    errors[item.field] = 'Invalid phone number.'
-                }
-            }
         }
         return errors;
     };
@@ -56,18 +51,31 @@ const IUIPageInline = (props) => {
         setDirty(true);
         const error = validate(value, schema?.fields)
         setErrors(error);
+        console.log(value)
         if (Object.keys(error).length === 0) {
             if (!value)
                 return
+
+            setDirty(false);
+            setErrors({});
+            debugger;
+            value.levelSetupMasterId = id;
+            setValue(value);
+
+            if (id != undefined)
+                try {
+
+                    api.addData({ module: module, data: value });
+                    dispatch(setSave({ module: module }))
+                } catch (e) {
+
+                }
 
             const item = { ...value, mode: null, readonly: null }
             const event = { target: { id: props?.id, value: item }, preventDefault: function () { } }
             if (props.onChange) {
                 props.onChange(event);
             }
-
-            setDirty(false);
-            setErrors({});
         }
     };
 
@@ -79,9 +87,9 @@ const IUIPageInline = (props) => {
         }
     }
 
-    const cancelPageValue = (e) =>{
+    const cancelPageValue = (e) => {
         e.preventDefault();
-        const event = { target: { id: props?.id, value: { id: value.id} }, preventDefault: function () { } }
+        const event = { target: { id: props?.id, value: { id: value.id } }, preventDefault: function () { } }
         if (props.onChange) {
             props.onChange(event);
         }
@@ -99,17 +107,15 @@ const IUIPageInline = (props) => {
             }
         }
         setValue(item);
-
     }
 
     return (
         <React.Fragment>
             {schema?.fields?.map((fld, f) => (
                 <React.Fragment key={f}>
-
                     {fld.type !== 'hidden-filter' &&
                         <td >
-                            <IUIPageElement
+                            <IUIPageInlineElement
                                 id={`${value?.id}`}
                                 schema={[fld]}
                                 value={value}
@@ -121,12 +127,10 @@ const IUIPageInline = (props) => {
                             />
                         </td>
                     }
-
                 </React.Fragment>
             ))}
             {<td>
                 {schema?.editing &&
-
                     <div className="input-group">
                         {!value?.mode &&
                             <>
@@ -151,7 +155,7 @@ const IUIPageInline = (props) => {
                     schema?.fields?.map((fld, f) => (
                         <React.Fragment key={f}>
                             {fld.type === 'hidden-filter' &&
-                                <IUIPageElement
+                                <IUIPageInlineElement
                                     id={`${value?.id}`}
                                     schema={[fld]}
                                     value={value}

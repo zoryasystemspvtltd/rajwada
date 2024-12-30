@@ -37,7 +37,7 @@ import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/
 import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/Mouzas";
 import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from "../pages/app/schema/NameMasters";
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
-import { AddLevelSetup, ListLevelSetup } from "../pages/app/schema/LevelSetups";
+import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -435,6 +435,14 @@ const Routes = () => {
                 {
                     path: "/level-setups",
                     element: <ListLevelSetup />
+                },
+                {
+                    path: "/level-setups/:id",
+                    element: <ViewLevelSetup />
+                },
+                {
+                    path: "/level-setups/:id/edit",
+                    element: <EditLevelSetup />
                 },
                 {
                     path: "/level-setups/add",

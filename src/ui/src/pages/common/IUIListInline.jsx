@@ -7,7 +7,6 @@ const IUIListInline = (props) => {
     const schema = props.schema;
     const [value, setValue] = useState([])
 
-
     useEffect(() => {
         if (props?.value) {
             setValue(props?.value);

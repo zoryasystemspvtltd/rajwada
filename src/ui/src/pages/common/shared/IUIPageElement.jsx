@@ -382,13 +382,12 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'lookup' &&
                                     <>
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor={fld.field} >{fld.text}
-                                                {fld.required &&
-                                                    <span className="text-danger">*</span>
-                                                }
-                                            </Form.Label>
-
+                                        <Form.Group className="position-relative form-group">                                            
+                                                <Form.Label htmlFor={fld.field} >{fld.text}
+                                                    {fld.required &&
+                                                        <span className="text-danger">*</span>
+                                                    }
+                                                </Form.Label>                                            
                                             <IUILookUp
                                                 value={fld?.defaultValue || data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
@@ -425,7 +424,7 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                         <p className="text-danger">{errors[fld.field]}</p>
                                     </>
-                                }                                
+                                }
                                 {fld.type === 'lookup-filter' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
@@ -498,6 +497,24 @@ const IUIPageElement = (props) => {
                                         </Form.Label>
 
                                         <IUITableInput
+                                            id={fld.field}
+                                            schema={fld.schema}
+                                            value={data[fld.field]}
+                                            onChange={handleChange}
+                                            readonly={props.readonly || fld.readonly || false}
+                                        />
+                                        <br />
+                                    </>
+                                }
+                                {fld.type === 'list-inline' &&
+                                    <>
+                                        <Form.Label htmlFor={fld.field} className='fw-bold'>{fld.text}
+                                            {fld.required &&
+                                                <span className="text-danger">*</span>
+                                            }
+                                        </Form.Label>
+
+                                        <IUIListInline
                                             id={fld.field}
                                             schema={fld.schema}
                                             value={data[fld.field]}
