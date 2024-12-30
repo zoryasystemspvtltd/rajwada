@@ -2,35 +2,45 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 import Form from 'react-bootstrap/Form';
 import api from '../../../store/api-service'
-const IUILookUpEnum = (props) => {
+const IUILookUpModule = (props) => {
     const schema = props?.schema;
     const [value, setValue] = useState("")
     const [text, setText] = useState("")
-
     const [dataSet, setDataSet] = useState(useSelector((state) => state.api[schema?.module]))
     const dispatch = useDispatch();
 
     useEffect(() => {
-        async function fetchData() {            
-            const response = await api.getEnumData({ module: schema?.module});
-            setDataSet(response?.data)
-        }
+        async function fetchData() {
+            const response = await api.getModules();
+            const items = response?.data
+            const moduleData = [
+                { id: 0, name: '--Select--' },
+            ].concat(items.map((item, index) => {
+                return {
+                    id: index,
+                    name: item.name
+                }
+            }))
 
+            setDataSet(moduleData)
+        }
         if (!schema?.module) {
             setDataSet({ items: schema?.items });
         } else {
             fetchData();
         }
+
     }, [schema?.module]);
 
     useEffect(() => {
+        debugger;
         const newValue = schema?.module
-            ? dataSet?.find(item => item.value === value)?.name
-            : value
+            ? dataSet?.find(p => p.name === value.module)?.name
+            : value.module
         if (newValue) {
             setText(newValue);
         }
-    }, [dataSet, value]);
+    }, [dataSet, value.module]);
 
     useEffect(() => {
         if (props?.value) {
@@ -39,6 +49,7 @@ const IUILookUpEnum = (props) => {
     }, [props?.value]);
 
     const handleChange = (e) => {
+        debugger;
         e.preventDefault();
         if (!props?.readonly) {
             setValue({ ...value, [e.target.id]: e.target.value });
@@ -87,4 +98,4 @@ const IUILookUpEnum = (props) => {
     );
 }
 
-export default IUILookUpEnum
+export default IUILookUpModule

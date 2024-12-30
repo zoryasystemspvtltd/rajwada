@@ -117,7 +117,8 @@ const LeftMenu = (props) => {
                 { name: "activityCreation", text: "Activity Creation", icon: "vector-square", path: "/workitems" },
                 { name: "dependencyWorkflow", text: "Dependency Workflow", icon: "vector-square", path: "/labelsettings" },
                 { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
-                { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/home" }
+                { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/home" },
+                { name: "levelSetup", text: "Level Setup", icon: "vector-square", path: "/level-setups"}
             ],
             report: [
                 { name: "civilReport", text: "Civil Report", icon: "vector-square", path: "/home" }
