@@ -39,11 +39,11 @@ export const FlatDashboard = () => {
         adding: true,
         fields: [
             {
-                text: 'Floor', field: 'parentName', type: 'text', sorting: false, searching: false,width:100,
+                text: 'Floor', field: 'parentName', type: 'text', sorting: false, searching: false, width: 100,
             },
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true, width: 100 },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
-            
+
         ]
     }
 
@@ -132,6 +132,28 @@ export const AddFlat = () => {
                     },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 },
                     { field: 'type', type: 'hidden-filter', value: "flat" }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Rooms', field: 'rooms', width: 12, type: 'table-input', required: true,
+                        schema: {
+                            module: 'unitofwork',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            fields: [
+                                {
+                                    text: 'Room', field: 'name', type: 'lookup', required: true, width: 6,
+                                    schema: { module: 'room' }
+                                },
+                                { text: 'Count', field: 'count', placeholder: 'Room Count', type: 'number', width: 6, required: true }
+                            ]
+                        }
+                    },
                 ]
             },
             {

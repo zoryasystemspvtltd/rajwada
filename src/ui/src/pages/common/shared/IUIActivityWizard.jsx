@@ -12,6 +12,9 @@ const IUIActivityWizard = (props) => {
     // console.log(dependencyData);
     const [isCreationSuccessful, setIsCreationSuccessful] = useState(true);
     const navigate = useNavigate();
+    const tabContentStyle = {
+        overflow: 'auto',
+      };
 
     const customNextStepLogic = () => {
         // Custom logic goes here
@@ -122,7 +125,7 @@ const IUIActivityWizard = (props) => {
                     }
                 </ul>
 
-                <div className="tab-content">
+                <div className="tab-content" style={tabContentStyle}>
                     {
                         sequence?.map((activity, index) => (
                             <div id={`step-${index + 1}`} className="tab-pane" role="tabpanel" aria-labelledby={`step-${index + 1}`} key={`tab-${activity}-${index}`}>
