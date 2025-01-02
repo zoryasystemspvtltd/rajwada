@@ -640,6 +640,8 @@ export const IlabMarkerCanvas = (props) => {
                 preventDefault: function () { }
             };
             props.onChange(modifiedEvent);
+            setMarker([]);
+            setPlanImage(null);
         }
     };
 
@@ -875,274 +877,286 @@ export const IlabMarkerCanvas = (props) => {
     };
 
     return (
-        <div className='row'>
-            <div className='col-md-9'>
-                {
-                    (schema?.upload) && (
-                        <div className="mb-2">
-                            <h6>Image Upload</h6>
-                            <input type="file" accept="image/*" onChange={handlePlanImageChange} />
-                        </div>
-                    )
-                }
-                <div ref={parentRef} style={{ border: '1px solid #CCC' }}>
-                    <TransformWrapper
-                        panning={{ excluded: ['drag-exclude'] }}
-                        pinch={{ excluded: ['drag-exclude'] }}
-                        wheel={{ excluded: ['drag-exclude'] }}
-                        initialScale={1}
-                        minScale={.5}
-                        initialPositionX={0}
-                        initialPositionY={0}
-                        onTransformed={(e) => handleTransform(e)}                >
-                        {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
-                            <>
-                                <Controls onChange={handleSelectionMode} onPencilColorChange={handleColorChange} onPencilThicknessChange={handleThicknessChange} deleteAllMarkers={handleDeleteMarkers} />
-                                <TransformComponent>
-                                    <svg
-                                        id="drawing-svg"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        style={modeStyle}
-                                        xmlnsXlink="http://www.w3.org/1999/xlink"
-                                        version="1.1"
-                                        width={`${pallet.width}px`}
-                                        height={`${pallet.height}px`}
-                                        viewBox={`0 0 ${pallet.width} ${pallet.height}`}
-                                    >
-                                        <defs />
-                                        <rect fill="#ffffff" width="100%" height="100%" x="0" y="0" />
-                                        <g>
-                                            <image x="0" y="0" width="100%" height="100%"
-                                                className={(mode === 'rectangle' || mode === 'pencil') ? 'drag-exclude' : ''}
-                                                onMouseUp={(e) => (mode !== 'pencil') ? handleMouseUp(e) : stopDrawing()}
-                                                onMouseDown={(e) => (mode !== 'pencil') ? handleMouseDown(e) : startDrawing(e)}
-                                                onMouseMove={(e) => (mode !== 'pencil') ? handleMouseMove(e) : draw(e)}
-                                                onMouseLeave={stopDrawing}
-                                                xlinkHref={planImage ? planImage : defaultImage}
-                                            />
-                                            <g data-cell-id="0">
-                                                {temp &&
-                                                    <Rectangle
-                                                        id={0}
-                                                        x={temp.x}
-                                                        y={temp.y}
-                                                        width={temp.width}
-                                                        color={temp?.color}
-                                                        height={temp.height}
-                                                        onChange={updateMarker}
-                                                        onMove={handleSelectionMode}
-                                                        onMouseUp={handleMouseUp}
-                                                        onMouseDown={handleMouseDown}
-                                                        onMouseMove={handleMouseMove}
-                                                        onClick={(e) => setCurrentId(1)}
-                                                        style={modeStyle}
-                                                        rectToCanvasForColor={rectToCanvasForColor}
-                                                    />
-                                                }
-                                                {markers.map((m, i) => (
-                                                    <Fragment key={i}>
-
-                                                        {m.type === 'rectangle' &&
-                                                            <Rectangle
-                                                                id={i + 1}
-                                                                x={m.x}
-                                                                y={m.y}
-                                                                width={m.width}
-                                                                height={m.height}
-                                                                color={m?.color}
-                                                                onChange={updateMarker}
-                                                                onMove={handleSelectionMode}
-                                                                onMouseUp={handleMouseUp}
-                                                                onMouseDown={handleMouseDown}
-                                                                onMouseMove={handleMouseMove}
-                                                                onClick={(e) => setCurrentId(i + 1)}
+        <div className="tab-content">
+            <div className="tabs-animation">
+                <div className="row">
+                    <div className="col-md-12">
+                        <div className="main-card mb-3 card">
+                            <div className="card-body">
+                                <div className='row'>
+                                    <div className='col-md-9'>
+                                        {
+                                            (schema?.upload) && (
+                                                <div className="mb-2">
+                                                    <h6>Image Upload</h6>
+                                                    <input type="file" accept="image/*" onChange={handlePlanImageChange} />
+                                                </div>
+                                            )
+                                        }
+                                        <div ref={parentRef} style={{ border: '1px solid #CCC' }}>
+                                            <TransformWrapper
+                                                panning={{ excluded: ['drag-exclude'] }}
+                                                pinch={{ excluded: ['drag-exclude'] }}
+                                                wheel={{ excluded: ['drag-exclude'] }}
+                                                initialScale={1}
+                                                minScale={.5}
+                                                initialPositionX={0}
+                                                initialPositionY={0}
+                                                onTransformed={(e) => handleTransform(e)}                >
+                                                {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
+                                                    <>
+                                                        <Controls onChange={handleSelectionMode} onPencilColorChange={handleColorChange} onPencilThicknessChange={handleThicknessChange} deleteAllMarkers={handleDeleteMarkers} />
+                                                        <TransformComponent>
+                                                            <svg
+                                                                id="drawing-svg"
+                                                                xmlns="http://www.w3.org/2000/svg"
                                                                 style={modeStyle}
-                                                                rectToCanvasForColor={rectToCanvasForColor}
+                                                                xmlnsXlink="http://www.w3.org/1999/xlink"
+                                                                version="1.1"
+                                                                width={`${pallet.width}px`}
+                                                                height={`${pallet.height}px`}
+                                                                viewBox={`0 0 ${pallet.width} ${pallet.height}`}
+                                                            >
+                                                                <defs />
+                                                                <rect fill="#ffffff" width="100%" height="100%" x="0" y="0" />
+                                                                <g>
+                                                                    <image x="0" y="0" width="100%" height="100%"
+                                                                        className={(mode === 'rectangle' || mode === 'pencil') ? 'drag-exclude' : ''}
+                                                                        onMouseUp={(e) => (mode !== 'pencil') ? handleMouseUp(e) : stopDrawing()}
+                                                                        onMouseDown={(e) => (mode !== 'pencil') ? handleMouseDown(e) : startDrawing(e)}
+                                                                        onMouseMove={(e) => (mode !== 'pencil') ? handleMouseMove(e) : draw(e)}
+                                                                        onMouseLeave={stopDrawing}
+                                                                        xlinkHref={planImage ? planImage : defaultImage}
+                                                                    />
+                                                                    <g data-cell-id="0">
+                                                                        {temp &&
+                                                                            <Rectangle
+                                                                                id={0}
+                                                                                x={temp.x}
+                                                                                y={temp.y}
+                                                                                width={temp.width}
+                                                                                color={temp?.color}
+                                                                                height={temp.height}
+                                                                                onChange={updateMarker}
+                                                                                onMove={handleSelectionMode}
+                                                                                onMouseUp={handleMouseUp}
+                                                                                onMouseDown={handleMouseDown}
+                                                                                onMouseMove={handleMouseMove}
+                                                                                onClick={(e) => setCurrentId(1)}
+                                                                                style={modeStyle}
+                                                                                rectToCanvasForColor={rectToCanvasForColor}
+                                                                            />
+                                                                        }
+                                                                        {markers.map((m, i) => (
+                                                                            <Fragment key={i}>
+
+                                                                                {m.type === 'rectangle' &&
+                                                                                    <Rectangle
+                                                                                        id={i + 1}
+                                                                                        x={m.x}
+                                                                                        y={m.y}
+                                                                                        width={m.width}
+                                                                                        height={m.height}
+                                                                                        color={m?.color}
+                                                                                        onChange={updateMarker}
+                                                                                        onMove={handleSelectionMode}
+                                                                                        onMouseUp={handleMouseUp}
+                                                                                        onMouseDown={handleMouseDown}
+                                                                                        onMouseMove={handleMouseMove}
+                                                                                        onClick={(e) => setCurrentId(i + 1)}
+                                                                                        style={modeStyle}
+                                                                                        rectToCanvasForColor={rectToCanvasForColor}
+                                                                                    />
+                                                                                }
+                                                                            </Fragment>
+
+                                                                        ))}
+                                                                    </g>
+                                                                    <g data-cell-id="01">
+
+                                                                        {markers.map((m, i) => (
+                                                                            <Fragment key={i}>
+                                                                                {m.type === 'marker' &&
+                                                                                    <Marker
+                                                                                        id={i + 1}
+                                                                                        x={m.x}
+                                                                                        y={m.y}
+                                                                                        color={m?.color}
+                                                                                        label={m?.label}
+                                                                                        width={m.width}
+                                                                                        height={m.height}
+                                                                                        onChange={updateMarker}
+                                                                                        onMove={handleSelectionMode}
+                                                                                        onClick={(e) => { setCurrentId(i + 1); setMarkerLabel(m?.label); setSelectedColor(m?.color) }}
+                                                                                        markerToCanvasForColor={markerToCanvasForColor}
+                                                                                    />
+                                                                                }
+
+                                                                            </Fragment>
+
+                                                                        ))}
+                                                                    </g>
+                                                                    <g data-cell-id="02">
+
+                                                                        {markers.map((m, i) => (
+                                                                            <Fragment key={i}>
+                                                                                {m.type === 'camera' &&
+                                                                                    <Camera
+                                                                                        id={i + 1}
+                                                                                        x={m.x}
+                                                                                        y={m.y}
+                                                                                        width={m.width}
+                                                                                        height={m.height}
+                                                                                        onChange={updateMarker}
+                                                                                        onMove={handleSelectionMode}
+                                                                                        onClick={(e) => setCurrentId(i + 1)}
+                                                                                    />
+                                                                                }
+
+                                                                            </Fragment>
+
+                                                                        ))}
+                                                                    </g>
+                                                                </g>
+                                                                {paths.map((path, index) => (
+                                                                    <path
+                                                                        key={index}
+                                                                        d={path.pathData}
+                                                                        stroke={path.color}
+                                                                        strokeWidth={path.thickness}
+                                                                        fill="transparent"
+                                                                    />
+                                                                ))}
+                                                            </svg>
+                                                        </TransformComponent>
+                                                    </>
+                                                )}
+                                            </TransformWrapper>
+                                        </div>
+                                    </div>
+                                    <div className='col-md-3'>
+                                        <ol style={listStyles.list}>
+                                            {markers.map((m, i) => {
+                                                if (m.type === 'marker') {
+                                                    return (
+                                                        <li key={i} style={listStyles.listItem}>
+                                                            <i className="fa-solid fa-location-dot fa-lg" style={{ ...listStyles.icon, color: m?.color ? m.color : "#ff2424" }}></i>
+                                                            <span style={listStyles.text}>
+                                                                {m?.label ? m.label : m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
+                                                            </span>
+                                                        </li>
+                                                    )
+                                                }
+                                                else if (m.type === 'rectangle') {
+                                                    return (
+                                                        <li key={i} style={listStyles.listItem}>
+                                                            <i className="bi bi-bounding-box fs-5" style={listStyles.icon}></i>
+                                                            <span style={listStyles.text}>
+                                                                {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
+                                                            </span>
+                                                        </li>
+                                                    )
+                                                }
+                                                else {
+                                                    return (
+                                                        <li key={i} style={listStyles.listItem}>
+                                                            <span style={listStyles.text}>
+                                                                <i className="bi bi-camera-fill fs-5" style={listStyles.icon}></i>
+                                                                {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
+                                                            </span>
+                                                        </li>
+                                                    )
+                                                }
+                                            })}
+                                        </ol>
+                                        <div className="row mt-2">
+                                            <div className="col d-flex justify-content-center">
+                                                <button className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success" onClick={convertSVGToBase64}>Save Image</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {displayMarkerColorPicker ? (
+                                        <Modal
+                                            size="md"
+                                            show={displayMarkerColorPicker}
+                                            onHide={() => setDisplayMarkerColorPicker(false)}
+                                            aria-labelledby="example-modal-sizes-title-marker-lg"
+                                        >
+                                            <Modal.Header closeButton>
+                                                <Modal.Title id="example-modal-sizes-title-marker-lg">
+                                                    {`Marker Menu`}
+                                                </Modal.Title>
+                                            </Modal.Header>
+                                            <Modal.Body>
+                                                <div className="container">
+                                                    <div className="row d-flex justify-content-center">
+                                                        <div className="col-sm-12 col-md-6">
+                                                            <SketchPicker
+                                                                color={selectedColor}
+                                                                onChangeComplete={handleChangeComplete}
                                                             />
-                                                        }
-                                                    </Fragment>
+                                                        </div>
+                                                        <div className="col-sm-12 col-md-6 d-flex align-items-center">
+                                                            <Form.Group className="position-relative form-group">
+                                                                <Form.Label htmlFor="markerLabel" >
+                                                                    Marker Label
+                                                                </Form.Label>
 
-                                                ))}
-                                            </g>
-                                            <g data-cell-id="01">
+                                                                <Form.Control type="text"
+                                                                    name="markerLabel"
+                                                                    id="markerLabel"
+                                                                    placeholder="Marker Label here........"
+                                                                    value={markerLabel}
+                                                                    onChange={handleMarkerLabelChange}
+                                                                />
 
-                                                {markers.map((m, i) => (
-                                                    <Fragment key={i}>
-                                                        {m.type === 'marker' &&
-                                                            <Marker
-                                                                id={i + 1}
-                                                                x={m.x}
-                                                                y={m.y}
-                                                                color={m?.color}
-                                                                label={m?.label}
-                                                                width={m.width}
-                                                                height={m.height}
-                                                                onChange={updateMarker}
-                                                                onMove={handleSelectionMode}
-                                                                onClick={(e) => { setCurrentId(i + 1); setMarkerLabel(m?.label); setSelectedColor(m?.color) }}
-                                                                markerToCanvasForColor={markerToCanvasForColor}
-                                                            />
-                                                        }
-
-                                                    </Fragment>
-
-                                                ))}
-                                            </g>
-                                            <g data-cell-id="02">
-
-                                                {markers.map((m, i) => (
-                                                    <Fragment key={i}>
-                                                        {m.type === 'camera' &&
-                                                            <Camera
-                                                                id={i + 1}
-                                                                x={m.x}
-                                                                y={m.y}
-                                                                width={m.width}
-                                                                height={m.height}
-                                                                onChange={updateMarker}
-                                                                onMove={handleSelectionMode}
-                                                                onClick={(e) => setCurrentId(i + 1)}
-                                                            />
-                                                        }
-
-                                                    </Fragment>
-
-                                                ))}
-                                            </g>
-                                        </g>
-                                        {paths.map((path, index) => (
-                                            <path
-                                                key={index}
-                                                d={path.pathData}
-                                                stroke={path.color}
-                                                strokeWidth={path.thickness}
-                                                fill="transparent"
-                                            />
-                                        ))}
-                                    </svg>
-                                </TransformComponent>
-                            </>
-                        )}
-                    </TransformWrapper>
-                </div>
-            </div>
-            <div className='col-md-3'>
-                <ol style={listStyles.list}>
-                    {markers.map((m, i) => {
-                        if (m.type === 'marker') {
-                            return (
-                                <li key={i} style={listStyles.listItem}>
-                                    <i className="fa-solid fa-location-dot fa-lg" style={{ ...listStyles.icon, color: m?.color ? m.color : "#ff2424" }}></i>
-                                    <span style={listStyles.text}>
-                                        {m?.label ? m.label : m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
-                                    </span>
-                                </li>
-                            )
-                        }
-                        else if (m.type === 'rectangle') {
-                            return (
-                                <li key={i} style={listStyles.listItem}>
-                                    <i className="bi bi-bounding-box fs-5" style={listStyles.icon}></i>
-                                    <span style={listStyles.text}>
-                                        {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
-                                    </span>
-                                </li>
-                            )
-                        }
-                        else {
-                            return (
-                                <li key={i} style={listStyles.listItem}>
-                                    <span style={listStyles.text}>
-                                        <i className="bi bi-camera-fill fs-5" style={listStyles.icon}></i>
-                                        {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)}
-                                    </span>
-                                </li>
-                            )
-                        }
-                    })}
-                </ol>
-                <div className="row mt-2">
-                    <div className="col d-flex justify-content-center">
-                        <button className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success" onClick={convertSVGToBase64}>Save Image</button>
-                    </div>
-                </div>
-            </div>
-            {displayMarkerColorPicker ? (
-                <Modal
-                    size="md"
-                    show={displayMarkerColorPicker}
-                    onHide={() => setDisplayMarkerColorPicker(false)}
-                    aria-labelledby="example-modal-sizes-title-marker-lg"
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title id="example-modal-sizes-title-marker-lg">
-                            {`Marker Menu`}
-                        </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <div className="container">
-                            <div className="row d-flex justify-content-center">
-                                <div className="col-sm-12 col-md-6">
-                                    <SketchPicker
-                                        color={selectedColor}
-                                        onChangeComplete={handleChangeComplete}
-                                    />
-                                </div>
-                                <div className="col-sm-12 col-md-6 d-flex align-items-center">
-                                    <Form.Group className="position-relative form-group">
-                                        <Form.Label htmlFor="markerLabel" >
-                                            Marker Label
-                                        </Form.Label>
-
-                                        <Form.Control type="text"
-                                            name="markerLabel"
-                                            id="markerLabel"
-                                            placeholder="Marker Label here........"
-                                            value={markerLabel}
-                                            onChange={handleMarkerLabelChange}
-                                        />
-
-                                    </Form.Group>
-                                </div>
-                            </div>
-                            <div className="row mt-2">
-                                <div className="col d-flex justify-content-center">
-                                    <Button
-                                        variant="contained"
-                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-dark btn-md mr-2"
-                                        onClick={handleClose}>
-                                        Close
-                                    </Button>
+                                                            </Form.Group>
+                                                        </div>
+                                                    </div>
+                                                    <div className="row mt-2">
+                                                        <div className="col d-flex justify-content-center">
+                                                            <Button
+                                                                variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-dark btn-md mr-2"
+                                                                onClick={handleClose}>
+                                                                Close
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </Modal.Body>
+                                        </Modal>
+                                    ) : null}
+                                    {
+                                        displayRectColorPicker ? (
+                                            <div style={{ position: 'absolute', zIndex: '2' }}>
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '0',
+                                                        right: '0',
+                                                        background: 'white',
+                                                        border: '1px solid #ccc',
+                                                        padding: '10px',
+                                                    }}
+                                                >
+                                                    <SketchPicker
+                                                        color={selectedRectColor}
+                                                        onChangeComplete={handleRectChangeComplete}
+                                                    />
+                                                    <button onClick={handleRectClose}>Close</button>
+                                                </div>
+                                            </div>
+                                        )
+                                            :
+                                            null
+                                    }
                                 </div>
                             </div>
                         </div>
-                    </Modal.Body>
-                </Modal>
-            ) : null}
-            {
-                displayRectColorPicker ? (
-                    <div style={{ position: 'absolute', zIndex: '2' }}>
-                        <div
-                            style={{
-                                position: 'absolute',
-                                top: '0',
-                                right: '0',
-                                background: 'white',
-                                border: '1px solid #ccc',
-                                padding: '10px',
-                            }}
-                        >
-                            <SketchPicker
-                                color={selectedRectColor}
-                                onChangeComplete={handleRectChangeComplete}
-                            />
-                            <button onClick={handleRectClose}>Close</button>
-                        </div>
                     </div>
-                )
-                    :
-                    null
-            }
+                </div>
+            </div>
         </div>
     );
 };

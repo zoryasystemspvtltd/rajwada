@@ -34,4 +34,12 @@ public enum PriorityStatusType
     High = 2
 }
 
+public enum WOUStatus
+{
+    Initiated = 0,
+    InProgress = 1,
+    // TODO More
+    Completed = 99
+}
+
 

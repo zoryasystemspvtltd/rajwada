@@ -1,25 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Col, Form, InputGroup, Row } from "react-bootstrap";
+import { Form, InputGroup } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import MaskedInput from 'react-text-mask';
-import IUIResetPasswordElement from '../../ResetUserPassword';
-import IUIListRelation from '../IUIListRelation';
 import IUIHiddenState from './IUIHiddenState';
 import IUILookUp from './IUILookUp';
-import IUILookUpEnum from './IUILookUpEnum';
-import IUILookUpFilter from './IUILookUpFilter';
 import IUILookUpLink from './IUILookUpLink';
-import IUIPictureUpload from './IUIPictureUpload';
-import IUIRolePrivilege from './IUIRolePrivilege';
-import IUIUserRoleEdit from './IUIUserRole';
 // import ILab from './IUICanvas';
-import ILab from "../../canvas-helper/Ilab-Canvas";
-import FlowchartInit from '../../flowchart-helper/FlowchartInit';
-import IUILookUpRelation from './IUILookUpRelation';
 
-import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
-import IUITableInput from './IUITableInput';
 
 const IUITableInputElement = (props) => {
     // Properties
@@ -38,6 +26,12 @@ const IUITableInputElement = (props) => {
         if (props?.value)
             setData(props?.value);
     }, [props?.value]);
+
+    useEffect(() => {
+        if (props?.clearFields) {
+            setErrors({})
+        }
+    }, [props?.clearFields]);
 
     useEffect(() => {
         if (props?.dirty)
@@ -94,7 +88,6 @@ const IUITableInputElement = (props) => {
             props.onChange(event);
         }
     };
-
 
     return (
         <>
@@ -356,33 +349,6 @@ const IUITableInputElement = (props) => {
                                         </Form.Group>
                                     </>
                                 }
-                                {fld.type === 'user-roles' &&
-                                    <>
-                                        <Form.Group className="position-relative form-group">
-                                            <IUIUserRoleEdit
-                                                value={data[fld.field] || []}
-                                                id={fld.field}
-                                                text={fld.text}
-                                                onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
-                                            />
-                                        </Form.Group>
-                                        <br />
-                                    </>
-                                }
-                                {fld.type === 'user-privileges' &&
-                                    <>
-                                        <Form.Group className="position-relative form-group">
-                                            <IUIRolePrivilege value={data[fld.field] || []}
-                                                id={fld.field}
-                                                text={fld.text}
-                                                onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
-                                            />
-                                        </Form.Group>
-                                        <br />
-                                    </>
-                                }
                                 {fld.type === 'lookup' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
@@ -400,188 +366,11 @@ const IUITableInputElement = (props) => {
                                                 schema={fld.schema}
                                                 onChange={handleChange}
                                                 readonly={props.readonly || fld.readonly || defaultFields?.includes(fld.field) || false}
+                                                clearFields={props?.clearFields}
                                             />
 
                                         </Form.Group>
                                         <p className="text-danger">{errors[fld.field]}</p>
-                                    </>
-                                }
-                                {fld.type === 'lookup-enum' &&
-                                    <>
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor={fld.field} >{fld.text}
-                                                {fld.required &&
-                                                    <span className="text-danger">*</span>
-                                                }
-                                            </Form.Label>
-
-                                            <IUILookUpEnum
-                                                value={data[fld.field]}
-                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                                id={fld.field}
-                                                nameField={fld.nameField}
-                                                schema={fld.schema}
-                                                onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
-                                            />
-
-                                        </Form.Group>
-                                        <p className="text-danger">{errors[fld.field]}</p>
-                                    </>
-                                }
-                                {fld.type === 'lookup-filter' &&
-                                    <>
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor={fld.field} >{fld.text}
-                                                {fld.required &&
-                                                    <span className="text-danger">*</span>
-                                                }
-                                            </Form.Label>
-
-                                            <IUILookUpFilter
-                                                filter={fld.filter}
-                                                value={data[fld.field]}
-                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                                id={fld.field}
-                                                schema={fld.schema}
-                                                onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
-                                            />
-
-                                        </Form.Group>
-                                        <p className="text-danger">{errors[fld.field]}</p>
-                                    </>
-                                }
-                                {fld.type === 'doc-upload' &&
-                                    <>
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor={fld.field} >{fld.text}
-                                                {fld.required &&
-                                                    <span className="text-danger">*</span>
-                                                }
-                                            </Form.Label>
-                                            <IUIDocUpload value={data[fld.field] || []}
-                                                id={fld.field}
-                                                text={fld.text}
-                                                onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
-                                            />
-                                        </Form.Group>
-                                        <br />
-                                    </>
-                                }
-                                {fld.type === 'picture-upload' &&
-                                    <>
-                                        <Form.Group className="position-relative">
-                                            <IUIPictureUpload value={data[fld.field] || []}
-                                                id={fld.field}
-                                                text={fld.text}
-                                                onChange={handleChange}
-                                                readonly={props.readonly || fld.readonly || false}
-                                                shape={fld.shape || "circle"}
-                                            />
-                                        </Form.Group>
-                                        <br />
-                                    </>
-                                }
-                                {fld.type === 'module-relation' &&
-                                    <>
-                                        <Form.Group className="position-relative mt-2">
-                                            <IUIListRelation schema={fld.schema} parentId={data.id} />
-                                        </Form.Group>
-                                        <br />
-                                    </>
-                                }
-                                {fld.type === 'table-input' &&
-                                    <>
-                                        <Form.Label htmlFor={fld.field} className='fw-bold'>{fld.text}
-                                            {fld.required &&
-                                                <span className="text-danger">*</span>
-                                            }
-                                        </Form.Label>
-
-                                        <IUITableInput
-                                            id={fld.field}
-                                            schema={fld.schema}
-                                            value={data[fld.field]}
-                                            onChange={handleChange}
-                                            readonly={props.readonly || fld.readonly || false}
-                                        />
-                                        <br />
-                                    </>
-                                }
-                                {fld.type === 'lookup-relation' &&
-                                    <>
-                                        {
-                                            (data[fld.parent]) && (
-                                                <Form.Group className="position-relative form-group">
-                                                    <Form.Label htmlFor={fld.field} >{fld.text}
-                                                        {fld.required &&
-                                                            <span className="text-danger">*</span>
-                                                        }
-                                                        {(fld?.exclusionCondition && data[fld?.exclusionCondition?.field] === fld?.exclusionCondition?.value) &&
-                                                            <span className="text-danger">*</span>
-                                                        }
-                                                    </Form.Label>
-
-                                                    <IUILookUpRelation
-                                                        schema={fld.schema}
-                                                        id={fld.field}
-                                                        value={data[fld.field]}
-                                                        className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                                        parentId={parseInt(data[fld.parent])}
-                                                        onChange={handleChange}
-                                                        readonly={props.readonly || fld.readonly || false}
-                                                    />
-                                                </Form.Group>
-                                            )
-                                        }
-                                        <br />
-                                    </>
-                                }
-                                {fld.type === 'reset-password' &&
-                                    <>
-                                        <Form.Group className="position-relative">
-                                            <IUIResetPasswordElement value={data[fld.field] || []}
-                                                id={fld.field}
-                                                text={fld.text}
-                                            />
-                                        </Form.Group>
-                                        <br />
-                                    </>
-                                }
-                                {fld.type === 'ilab-canvas' &&
-                                    <>
-                                        <Form.Label htmlFor={fld.field} className='fw-bold'>{fld.text}
-                                            {fld.required &&
-                                                <span className="text-danger">*</span>
-                                            }
-                                        </Form.Label>
-
-                                        <ILab.MarkerCanvas
-                                            id={fld.field}
-                                            value={data[fld.field] || []}
-                                            schema={fld.schema}
-                                            onChange={handleChange}
-                                            readonly={props.readonly || fld.readonly || false}
-                                        />
-                                        <br />
-                                    </>
-                                }
-                                {fld.type === 'ilab-flowchart' &&
-                                    <>
-                                        <Form.Group className="position-relative form-group">
-                                            {/* <Form.Label htmlFor={fld.field} >{fld.text}
-                                                {fld.required &&
-                                                    <span className="text-danger">*</span>
-                                                }
-                                            </Form.Label> */}
-                                            <FlowchartInit
-                                                readonly={props?.readonly || fld?.readonly || false}
-                                                value={data[fld.field]}
-                                            />
-                                            <br />
-                                        </Form.Group>
                                     </>
                                 }
                             </>

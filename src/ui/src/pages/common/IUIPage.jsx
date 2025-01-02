@@ -228,7 +228,7 @@ const IUIPage = (props) => {
                                         <Form>
                                             <Row>
                                                 <Col>
-                                                    {(schema?.back && module !== 'activity') &&
+                                                    {((module !== 'activity' && schema?.back) || (module === 'activity' && !schema?.adding)) &&
                                                         <Button variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(-1)}> Back</Button>
@@ -248,7 +248,7 @@ const IUIPage = (props) => {
                                                             }
                                                         </>
                                                     } */}
-                                                    {schema?.adding &&
+                                                    {(schema?.adding && module !== 'activity') &&
                                                         <>
                                                             {privileges?.add &&
                                                                 <Button
@@ -296,8 +296,9 @@ const IUIPage = (props) => {
                                                     <IUIModuleMessage schema={props.schema} />                                                   
                                                 </Col>
                                             </Row>
-                                            {(schema?.back || schema?.adding || schema?.editing) && (module !== 'activity') &&
-                                                <hr />
+                                            {
+                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity' && schema?.editing) ?
+                                                    <hr /> : null
                                             }
                                             <Row>
                                                 {schema?.fields?.map((fld, f) => (
@@ -354,7 +355,7 @@ const IUIPage = (props) => {
                                                                         onClick={savePageValue}>Save </Button>
 
                                                                     {
-                                                                        (module !== 'activity') ?
+                                                                        ((module !== 'activity') || (module === 'activity' && schema?.editing)) ?
                                                                             <Button variant="contained"
                                                                                 className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                                                 onClick={() => navigate(-1)}> Cancel</Button>
