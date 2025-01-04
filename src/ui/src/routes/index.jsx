@@ -38,6 +38,8 @@ import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/M
 import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from "../pages/app/schema/NameMasters";
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
 import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
+import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
+import { AddRoomMapping, EditRoomMapping, ViewRoomMapping } from "../pages/app/schema/RoomMappings";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -447,6 +449,18 @@ const Routes = () => {
                 {
                     path: "/level-setups/add",
                     element: <AddLevelSetup />
+                },
+                {
+                    path: "/statusreport",
+                    element: <WorkStatusReport />
+                },
+                {
+                    path: "/flats/:flatId/roommappings/:id/edit",
+                    element: <EditRoomMapping />
+                },
+                {
+                    path: "/flats/:flatId/roommappings/add",
+                    element: <AddRoomMapping />
                 },
             ],
         },

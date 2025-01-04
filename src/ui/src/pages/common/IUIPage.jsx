@@ -22,6 +22,7 @@ const IUIPage = (props) => {
     // console.log(parentId)
     // Global State
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
+    // const selectedDataId = useSelector((state) => state.api[module]?.selectedItemId)
     const [dirty, setDirty] = useState(false)
     // Local State
     const [data, setData] = useState({});
@@ -52,9 +53,8 @@ const IUIPage = (props) => {
             setDefaultValues(props?.defaultValues);
             const newData = { ...data };
             schema?.defaultFields?.forEach((fld) => {
-                newData[fld] = (fld !== "photoUrl") ? parseInt(props?.defaultValues[fld]) : props?.defaultValues[fld];
+                newData[fld.field] = (!["photo", "text"].includes(fld.type)) ? parseInt(props?.defaultValues[fld.field]) : props?.defaultValues[fld.field];
             })
-            console.log(newData)
             setData(newData);
         }
     }, [props?.defaultValues]);
@@ -180,8 +180,6 @@ const IUIPage = (props) => {
             setDirty(true);
             const error = validate(data, schema?.fields)
             setErrors(error);
-            console.log(data)
-            console.log(error)
             if (Object.keys(error).length === 0) {
                 if (!data)
                     return
@@ -206,6 +204,7 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
+                        api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         // if (module === 'activity') {
                         //     console.log(data);
                         //     return;
@@ -266,7 +265,7 @@ const IUIPage = (props) => {
                                         <Form>
                                             <Row>
                                                 <Col>
-                                                    {(schema?.back && module !== 'activity') &&
+                                                    {((module !== 'activity' && schema?.back) || (module === 'activity' && !schema?.adding)) &&
                                                         <Button variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(-1)}> Back</Button>
@@ -286,7 +285,7 @@ const IUIPage = (props) => {
                                                             }
                                                         </>
                                                     } */}
-                                                    {schema?.adding &&
+                                                    {(schema?.adding && module !== 'activity') &&
                                                         <>
                                                             {privileges?.add &&
                                                                 <Button
@@ -343,8 +342,9 @@ const IUIPage = (props) => {
                                                     <IUIModuleMessage schema={props.schema} />                                                   
                                                 </Col>
                                             </Row>
-                                            {(schema?.back || schema?.adding || schema?.editing) && (module !== 'activity') &&
-                                                <hr />
+                                            {
+                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity' && schema?.editing) ?
+                                                    <hr /> : null
                                             }
                                             <Row>
                                                 {schema?.fields?.map((fld, f) => (
@@ -396,7 +396,7 @@ const IUIPage = (props) => {
                                                                         onClick={savePageValue}>Save </Button>
 
                                                                     {
-                                                                        (module !== 'activity') ?
+                                                                        ((module !== 'activity') || (module === 'activity' && schema?.editing)) ?
                                                                             <Button variant="contained"
                                                                                 className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                                                 onClick={() => navigate(-1)}> Cancel</Button>

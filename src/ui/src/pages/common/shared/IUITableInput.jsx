@@ -26,6 +26,7 @@ const IUITableInput = (props) => {
     const [disabled, setDisabled] = useState(false);
     const [dataArray, setDataArray] = useState([]);
     const [editingIndex, setEditingIndex] = useState(null);
+    const [isNewAdd, setIsNewAdd] = useState(true);
 
     useEffect(() => {
         async function fetchData() {
@@ -66,6 +67,7 @@ const IUITableInput = (props) => {
         e.preventDefault();
         const newData = { ...data, ...e.target.value }
         setData(newData);
+        setIsNewAdd(false);
     };
 
     const validate = (values, fields) => {
@@ -127,6 +129,7 @@ const IUITableInput = (props) => {
             setErrors(error);
             //console.log(data)
             //console.log(error)
+            setIsNewAdd(true);
             if (Object.keys(error).length === 0) {
                 if (!data)
                     return
@@ -145,7 +148,8 @@ const IUITableInput = (props) => {
             }
             setData({});
             setErrors({});
-            console.log(dataArray)
+            setIsNewAdd(true);
+            // console.log(dataArray)
         }
     };
 
@@ -180,11 +184,12 @@ const IUITableInput = (props) => {
                                                                     id={schema.module}
                                                                     schema={fld.fields}
                                                                     value={data}
-                                                                    errors={errors}
+                                                                    errors={(isNewAdd && Object.keys(data).length === 0) ? {} : errors}
                                                                     readonly={schema.readonly}
                                                                     onChange={handleChange}
                                                                     dirty={dirty}
                                                                     defaultFields={schema?.defaultFields || []}
+                                                                    clearFields={isNewAdd}
                                                                 />
                                                                 {/* <br /> */}
                                                             </>
@@ -195,9 +200,10 @@ const IUITableInput = (props) => {
                                                                     id={schema.module}
                                                                     schema={[fld]}
                                                                     value={data}
-                                                                    errors={errors}
+                                                                    errors={(isNewAdd && Object.keys(data).length === 0) ? {} : errors}
                                                                     onChange={handleChange}
                                                                     readonly={schema.readonly}
+                                                                    clearFields={isNewAdd}
                                                                 />
                                                                 {/* <br /> */}
                                                             </>
@@ -274,6 +280,7 @@ const IUITableInput = (props) => {
                                                     </Row>
                                                 )
                                             }
+                                            <hr/>
                                             <Row>
                                                 <Col>
                                                     {!schema?.readonly &&

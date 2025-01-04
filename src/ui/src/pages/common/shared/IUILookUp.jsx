@@ -36,6 +36,13 @@ const IUILookUp = (props) => {
     }, [dataSet?.items, value]);
 
     useEffect(() => {
+        if (props?.clearFields) {
+            setValue("");
+            setText("");
+        }
+    }, [props?.clearFields]);
+
+    useEffect(() => {
         if (props?.value) {
             setValue(props?.value);
         }

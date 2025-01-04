@@ -36,9 +36,10 @@ export const ViewActivity = () => {
         module: 'activity',
         title: 'Activity',
         path: 'activities',
+        showBreadcrumbs: true,
         editing: true,
         adding: false,
-        deleting: true,
+        deleting: false,
         back: true,
         readonly: true,
         fields: [
@@ -79,16 +80,16 @@ export const ViewActivity = () => {
                             ]
                         }
                     },
-                    {
-                        text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-link',
-                        schema: { module: 'priorityStatusType' }
-                    },
+                    // {
+                    //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-link',
+                    //     schema: { module: 'priorityStatusType' }
+                    // },
                     { text: 'Duration', field: 'Duration', width: 4, type: 'number' },
                     { text: 'Progress(%)', field: 'progressPercentage', width: 4, type: 'number' },
-                    {
-                        text: 'Approval Status', field: 'approvalStatus', width: 4, type: 'lookup',
-                        schema: { module: 'approvalStatusType' }
-                    },
+                    // {
+                    //     text: 'Approval Status', field: 'approvalStatus', width: 4, type: 'lookup',
+                    //     schema: { module: 'approvalStatusType' }
+                    // },
                     { text: 'Estimate Cost', field: 'costEstimate', width: 4, type: 'number' },
                     { text: 'Actual Cost', field: 'actualCost', width: 4, type: 'number' },
                     // { text: 'Document Links', field: 'documentLinks', width: 4, type: 'text' },
@@ -110,7 +111,7 @@ export const EditActivity = () => {
         module: 'activity',
         title: 'Activity',
         path: 'activities',
-        back: false,
+        back: true,
         fields: [
             {
                 type: "area", width: 12
@@ -293,8 +294,34 @@ export const AddActivity = () => {
         module: 'activity',
         title: 'Activity',
         path: 'activities',
+        adding: true,
         back: true,
-        defaultFields: ["projectId", "dependencyId", "towerId", "floorId", "flatId", "photoUrl"],
+        defaultFields: [
+            {
+                field: "projectId",
+                type: "lookup"
+            },
+            {
+                field: "dependencyId",
+                type: "lookup"
+            },
+            {
+                field: "towerId",
+                type: "lookup"
+            },
+            {
+                field: "floorId",
+                type: "lookup"
+            },
+            {
+                field: "flatId",
+                type: "lookup"
+            },
+            {
+                field: "photoUrl",
+                type: "photo"
+            }
+        ],
         fields: [
             {
                 type: "area", width: 12

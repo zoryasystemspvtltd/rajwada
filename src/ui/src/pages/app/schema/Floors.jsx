@@ -92,6 +92,7 @@ export const ViewFloor = () => {
                             title: 'Flat',
                             module: 'plan',
                             relationKey: "parentId",
+                            title: 'Flat',
                             path: 'flats',
                             paging: true,
                             searching: true,

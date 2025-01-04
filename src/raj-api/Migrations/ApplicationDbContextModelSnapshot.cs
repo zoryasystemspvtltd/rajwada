@@ -229,7 +229,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 1, 4, 16, 55, 32, 725, DateTimeKind.Utc).AddTicks(7693),
+                            Date = new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8353),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -240,7 +240,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 1, 4, 16, 55, 32, 725, DateTimeKind.Utc).AddTicks(7696),
+                            Date = new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8356),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -251,7 +251,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 1, 4, 16, 55, 32, 725, DateTimeKind.Utc).AddTicks(7698),
+                            Date = new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8358),
                             EntityId = 2L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -393,7 +393,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "FA",
-                            Date = new DateTime(2025, 1, 4, 16, 55, 32, 725, DateTimeKind.Utc).AddTicks(7752),
+                            Date = new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8403),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Fixed Asset",
@@ -403,7 +403,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "CB",
-                            Date = new DateTime(2025, 1, 4, 16, 55, 32, 725, DateTimeKind.Utc).AddTicks(7755),
+                            Date = new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8407),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Consumption Base",
@@ -413,7 +413,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             Code = "SA",
-                            Date = new DateTime(2025, 1, 4, 16, 55, 32, 725, DateTimeKind.Utc).AddTicks(7757),
+                            Date = new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8409),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Service Assets",
@@ -536,7 +536,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "RE",
-                            Date = new DateTime(2025, 1, 4, 16, 55, 32, 725, DateTimeKind.Utc).AddTicks(7335),
+                            Date = new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8053),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Rajwara",
@@ -642,7 +642,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "CI",
-                            Date = new DateTime(2025, 1, 4, 16, 55, 32, 725, DateTimeKind.Utc).AddTicks(7615),
+                            Date = new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8284),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Civil",
@@ -652,7 +652,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "LE",
-                            Date = new DateTime(2025, 1, 4, 16, 55, 32, 725, DateTimeKind.Utc).AddTicks(7619),
+                            Date = new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8286),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Legal",
@@ -1176,6 +1176,63 @@ namespace RajApi.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("RajApi.Data.Models.Resource", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ActivityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("AssetId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Key")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Member")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(511)
+                        .HasColumnType("nvarchar(511)");
+
+                    b.Property<long?>("PlanId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long?>("RoomId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId");
+
+                    b.HasIndex("AssetId");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("Resources");
+                });
+
             modelBuilder.Entity("RajApi.Data.Models.Room", b =>
                 {
                     b.Property<long>("Id")
@@ -1554,6 +1611,33 @@ namespace RajApi.Migrations
                     b.Navigation("Company");
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("RajApi.Data.Models.Resource", b =>
+                {
+                    b.HasOne("RajApi.Data.Models.Activity", "Activity")
+                        .WithMany()
+                        .HasForeignKey("ActivityId");
+
+                    b.HasOne("RajApi.Data.Models.Asset", "Asset")
+                        .WithMany()
+                        .HasForeignKey("AssetId");
+
+                    b.HasOne("RajApi.Data.Models.Plan", "Plan")
+                        .WithMany()
+                        .HasForeignKey("PlanId");
+
+                    b.HasOne("RajApi.Data.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId");
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("Plan");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("RajApi.Data.Models.RsDaag", b =>

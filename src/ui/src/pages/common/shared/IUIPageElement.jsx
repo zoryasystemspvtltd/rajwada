@@ -20,11 +20,12 @@ import IUIListInline from '../IUIListInline';
 import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
 import IUITableInput from './IUITableInput';
+import IUIListMapping from '../IUIListMapping';
 
 const IUIPageElement = (props) => {
     // Properties
     const schema = props?.schema;
-    const defaultFields = props?.defaultFields;
+    const defaultFields = props?.defaultFields?.map((fld) => fld?.field);
     const isAliveStatus = [
         { value: "true", label: "Alive" },
         { value: "false", label: "Dead" }
@@ -484,6 +485,14 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative mt-2">
                                             <IUIListRelation schema={fld.schema} parentId={data.id} />
+                                        </Form.Group>
+                                        <br />
+                                    </>
+                                }
+                                {fld.type === 'module-mapping' &&
+                                    <>
+                                        <Form.Group className="position-relative mt-2">
+                                            <IUIListMapping schema={fld.schema} parentId={data.id} />
                                         </Form.Group>
                                         <br />
                                     </>
