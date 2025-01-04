@@ -173,7 +173,7 @@ const IUIPage = (props) => {
             clearTimeout(timeId)
         }
     }
-    const savePageValue = (e) => {
+    const savePageValue = async (e) => {
         e.preventDefault();
 
         if (!props?.readonly) {
@@ -188,7 +188,7 @@ const IUIPage = (props) => {
                 setDisabled(true)
                 if (id != undefined)
                     try {
-                        api.editData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
+                        await api.editData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
 
                         const timeId = setTimeout(() => {
@@ -210,7 +210,7 @@ const IUIPage = (props) => {
                         //     console.log(data);
                         //     return;
                         // }
-                        api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
+                        let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
@@ -219,9 +219,15 @@ const IUIPage = (props) => {
                                 return;
                             }
                             else {
-                                navigate(-1);
-                                localStorage.removeItem(flowchartKey);
+                                if(schema.goNext){
+                                    navigate(`/${schema.path}/${response.data}/edit`);
+                                }else{
+                                    navigate(-1);
+                                    localStorage.removeItem(flowchartKey);
+                               }
                             }
+
+                            
                         }, 1000)
 
                         return () => {

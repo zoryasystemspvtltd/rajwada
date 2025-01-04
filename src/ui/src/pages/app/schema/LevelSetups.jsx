@@ -160,6 +160,7 @@ export const AddLevelSetup = () => {
         title: 'Level Setup',
         path: 'level-setups',
         back: true,
+        goNext:true,
         fields: [
             {
                 type: "area", width: 12
