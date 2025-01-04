@@ -6,140 +6,149 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RajApi.Migrations
 {
     /// <inheritdoc />
-    public partial class t5 : Migration
+    public partial class initials : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_LevelSetupDetails",
+                table: "LevelSetupDetails",
+                column: "Id");
+
             migrationBuilder.UpdateData(
                 table: "ApplicationLogs",
                 keyColumn: "Id",
                 keyValue: 1L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 33, 50, 377, DateTimeKind.Utc).AddTicks(8560));
+                value: new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1295));
 
             migrationBuilder.UpdateData(
                 table: "ApplicationLogs",
                 keyColumn: "Id",
                 keyValue: 2L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 33, 50, 377, DateTimeKind.Utc).AddTicks(8563));
+                value: new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1301));
 
             migrationBuilder.UpdateData(
                 table: "ApplicationLogs",
                 keyColumn: "Id",
                 keyValue: 3L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 33, 50, 377, DateTimeKind.Utc).AddTicks(8565));
+                value: new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1304));
 
             migrationBuilder.UpdateData(
                 table: "AssetTypes",
                 keyColumn: "Id",
                 keyValue: 1L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 33, 50, 377, DateTimeKind.Utc).AddTicks(8599));
+                value: new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1340));
 
             migrationBuilder.UpdateData(
                 table: "AssetTypes",
                 keyColumn: "Id",
                 keyValue: 2L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 33, 50, 377, DateTimeKind.Utc).AddTicks(8601));
+                value: new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1342));
 
             migrationBuilder.UpdateData(
                 table: "AssetTypes",
                 keyColumn: "Id",
                 keyValue: 3L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 33, 50, 377, DateTimeKind.Utc).AddTicks(8603));
+                value: new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1344));
 
             migrationBuilder.UpdateData(
                 table: "Companys",
                 keyColumn: "Id",
                 keyValue: 1L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 33, 50, 377, DateTimeKind.Utc).AddTicks(8304));
+                value: new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1053));
 
             migrationBuilder.UpdateData(
                 table: "Departments",
                 keyColumn: "Id",
                 keyValue: 1L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 33, 50, 377, DateTimeKind.Utc).AddTicks(8516));
+                value: new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1251));
 
             migrationBuilder.UpdateData(
                 table: "Departments",
                 keyColumn: "Id",
                 keyValue: 2L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 33, 50, 377, DateTimeKind.Utc).AddTicks(8518));
+                value: new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1253));
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_LevelSetupDetails",
+                table: "LevelSetupDetails");
+
             migrationBuilder.UpdateData(
                 table: "ApplicationLogs",
                 keyColumn: "Id",
                 keyValue: 1L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 18, 21, 465, DateTimeKind.Utc).AddTicks(9552));
+                value: new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3627));
 
             migrationBuilder.UpdateData(
                 table: "ApplicationLogs",
                 keyColumn: "Id",
                 keyValue: 2L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 18, 21, 465, DateTimeKind.Utc).AddTicks(9557));
+                value: new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3632));
 
             migrationBuilder.UpdateData(
                 table: "ApplicationLogs",
                 keyColumn: "Id",
                 keyValue: 3L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 18, 21, 465, DateTimeKind.Utc).AddTicks(9559));
+                value: new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3635));
 
             migrationBuilder.UpdateData(
                 table: "AssetTypes",
                 keyColumn: "Id",
                 keyValue: 1L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 18, 21, 465, DateTimeKind.Utc).AddTicks(9593));
+                value: new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3690));
 
             migrationBuilder.UpdateData(
                 table: "AssetTypes",
                 keyColumn: "Id",
                 keyValue: 2L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 18, 21, 465, DateTimeKind.Utc).AddTicks(9596));
+                value: new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3694));
 
             migrationBuilder.UpdateData(
                 table: "AssetTypes",
                 keyColumn: "Id",
                 keyValue: 3L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 18, 21, 465, DateTimeKind.Utc).AddTicks(9598));
+                value: new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3697));
 
             migrationBuilder.UpdateData(
                 table: "Companys",
                 keyColumn: "Id",
                 keyValue: 1L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 18, 21, 465, DateTimeKind.Utc).AddTicks(9296));
+                value: new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3040));
 
             migrationBuilder.UpdateData(
                 table: "Departments",
                 keyColumn: "Id",
                 keyValue: 1L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 18, 21, 465, DateTimeKind.Utc).AddTicks(9507));
+                value: new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3376));
 
             migrationBuilder.UpdateData(
                 table: "Departments",
                 keyColumn: "Id",
                 keyValue: 2L,
                 column: "Date",
-                value: new DateTime(2024, 9, 21, 20, 18, 21, 465, DateTimeKind.Utc).AddTicks(9509));
+                value: new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3380));
         }
     }
 }

@@ -229,7 +229,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             ActivityType = 0,
-                            Date = new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3627),
+                            Date = new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1295),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -240,7 +240,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             ActivityType = 0,
-                            Date = new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3632),
+                            Date = new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1301),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -251,7 +251,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             ActivityType = 0,
-                            Date = new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3635),
+                            Date = new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1304),
                             EntityId = 2L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -393,7 +393,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "FA",
-                            Date = new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3690),
+                            Date = new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1340),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Fixed Asset",
@@ -403,7 +403,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "CB",
-                            Date = new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3694),
+                            Date = new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1342),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Consumption Base",
@@ -413,7 +413,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             Code = "SA",
-                            Date = new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3697),
+                            Date = new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1344),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Service Assets",
@@ -536,7 +536,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "RE",
-                            Date = new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3040),
+                            Date = new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1053),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Rajwara",
@@ -642,7 +642,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "CI",
-                            Date = new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3376),
+                            Date = new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1251),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Civil",
@@ -652,7 +652,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "LE",
-                            Date = new DateTime(2024, 12, 30, 11, 42, 24, 936, DateTimeKind.Utc).AddTicks(3380),
+                            Date = new DateTime(2025, 1, 4, 15, 54, 29, 302, DateTimeKind.Utc).AddTicks(1253),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Legal",
@@ -703,65 +703,7 @@ namespace RajApi.Migrations
                     b.ToTable("Dependencies");
                 });
 
-            modelBuilder.Entity("RajApi.Data.Models.LevelSetupDetails", b =>
-                {
-                    b.Property<DateTime?>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("HeaderId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("ItemId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ItemName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Key")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Member")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(511)
-                        .HasColumnType("nvarchar(511)");
-
-                    b.Property<string>("Price")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("QualityRemarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("QualityType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Quatity")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UOMId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UOMName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasIndex("HeaderId");
-
-                    b.ToTable("LevelSetupDetails");
-                });
-
-            modelBuilder.Entity("RajApi.Data.Models.LevelSetupHeader", b =>
+            modelBuilder.Entity("RajApi.Data.Models.LevelSetup", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -829,6 +771,66 @@ namespace RajApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("LevelSetupHeader");
+                });
+
+            modelBuilder.Entity("RajApi.Data.Models.LevelSetupDetails", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("HeaderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ItemId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ItemName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Key")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Member")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(511)
+                        .HasColumnType("nvarchar(511)");
+
+                    b.Property<string>("Price")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QualityRemarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QualityType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Quatity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UOMId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UOMName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HeaderId");
+
+                    b.ToTable("LevelSetupDetails");
                 });
 
             modelBuilder.Entity("RajApi.Data.Models.Mouza", b =>
@@ -1502,7 +1504,7 @@ namespace RajApi.Migrations
 
             modelBuilder.Entity("RajApi.Data.Models.LevelSetupDetails", b =>
                 {
-                    b.HasOne("RajApi.Data.Models.LevelSetupHeader", "LevelSetupHeader")
+                    b.HasOne("RajApi.Data.Models.LevelSetup", "LevelSetupHeader")
                         .WithMany()
                         .HasForeignKey("HeaderId");
 

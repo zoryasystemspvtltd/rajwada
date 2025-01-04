@@ -51,7 +51,7 @@ namespace ILab.Data
 
                 var existingData = await Get(model, id);
                 existingData.Member = jsonData.Member;
-                if ((bool)((RajApi.Data.Models.LevelSetupHeader)jsonData)?.IsApproved)
+                if ((bool)((RajApi.Data.Models.LevelSetup)jsonData)?.IsApproved)
                 {
                     existingData.Status = jsonData.Status;
                     existingData.ApprovedBy = jsonData.ApprovedBy;

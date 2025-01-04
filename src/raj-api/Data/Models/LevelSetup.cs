@@ -2,7 +2,7 @@
 
 namespace RajApi.Data.Models;
 
-public class LevelSetupHeader : LabModel, IApproval
+public class LevelSetup : LabModel, IApproval
 {
     public string? InChargeName { get; set; }
     public string? InChargeId { get; set; }

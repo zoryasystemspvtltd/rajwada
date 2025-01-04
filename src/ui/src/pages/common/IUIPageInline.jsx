@@ -46,7 +46,7 @@ const IUIPageInline = (props) => {
         return errors;
     };
 
-    const savePageValue = (e) => {
+    const savePageValue = async (e) => {
         e.preventDefault();
         setDirty(true);
         const error = validate(value, schema?.fields)
@@ -59,12 +59,12 @@ const IUIPageInline = (props) => {
             setDirty(false);
             setErrors({});
             debugger;
-            value.levelSetupMasterId = id;
+            delete value.id;
+            value.HeaderId = parseInt(id);
             setValue(value);
-
             if (id != undefined)
                 try {
-                    api.addData({ module: module, data: value });
+                    await api.addData({ module: module, data: value });
                     dispatch(setSave({ module: module }))
                 } catch (e) {
 
