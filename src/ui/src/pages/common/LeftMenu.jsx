@@ -118,6 +118,8 @@ const LeftMenu = (props) => {
                 { name: "dependencyWorkflow", text: "Dependency Workflow", icon: "vector-square", path: "/labelsettings" },
                 { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
                 { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/activities" }
+                { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/home" },
+                { name: "levelSetup", text: "Level Setup", icon: "vector-square", path: "/level-setups"}
             ],
             report: [
                 { name: "workStatusReport", text: "Work Status Report", icon: "vector-square", path: "/statusreport" }

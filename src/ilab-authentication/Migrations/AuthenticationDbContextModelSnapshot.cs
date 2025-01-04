@@ -238,7 +238,7 @@ namespace IlabAuthentication.Migrations
                             TwoFactorEnabled = false,
                             UserName = "super@rajwada.com"
                         });
-                });
+                });           
 
             modelBuilder.Entity("IlabAuthentication.Data.Models.Privilege", b =>
                 {
@@ -676,6 +676,7 @@ namespace IlabAuthentication.Migrations
 
                     b.Navigation("Parent");
                 });
+           
 
             modelBuilder.Entity("IlabAuthentication.Data.Models.Privilege", b =>
                 {
