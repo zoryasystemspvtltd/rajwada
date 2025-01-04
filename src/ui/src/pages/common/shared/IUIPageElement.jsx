@@ -16,7 +16,7 @@ import IUIUserRoleEdit from './IUIUserRole';
 import ILab from "../../canvas-helper/Ilab-Canvas";
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
 import IUILookUpRelation from './IUILookUpRelation';
-
+import IUIListInline from '../IUIListInline';
 import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
 import IUITableInput from './IUITableInput';
@@ -112,6 +112,11 @@ const IUIPageElement = (props) => {
                                 {fld.type === 'h2' &&
                                     <>
                                         <h2>{data[fld.field]}</h2>
+                                    </>
+                                }
+                                {fld.type === 'h2l' &&
+                                    <>
+                                        <h2>{fld.field}</h2>
                                     </>
                                 }
                                 {fld.type === 'h3' &&
@@ -377,13 +382,12 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'lookup' &&
                                     <>
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor={fld.field} >{fld.text}
-                                                {fld.required &&
-                                                    <span className="text-danger">*</span>
-                                                }
-                                            </Form.Label>
-
+                                        <Form.Group className="position-relative form-group">                                            
+                                                <Form.Label htmlFor={fld.field} >{fld.text}
+                                                    {fld.required &&
+                                                        <span className="text-danger">*</span>
+                                                    }
+                                                </Form.Label>                                            
                                             <IUILookUp
                                                 value={fld?.defaultValue || data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
@@ -493,6 +497,24 @@ const IUIPageElement = (props) => {
                                         </Form.Label>
 
                                         <IUITableInput
+                                            id={fld.field}
+                                            schema={fld.schema}
+                                            value={data[fld.field]}
+                                            onChange={handleChange}
+                                            readonly={props.readonly || fld.readonly || false}
+                                        />
+                                        <br />
+                                    </>
+                                }
+                                {fld.type === 'list-inline' &&
+                                    <>
+                                        <Form.Label htmlFor={fld.field} className='fw-bold'>{fld.text}
+                                            {fld.required &&
+                                                <span className="text-danger">*</span>
+                                            }
+                                        </Form.Label>
+
+                                        <IUIListInline
                                             id={fld.field}
                                             schema={fld.schema}
                                             value={data[fld.field]}
