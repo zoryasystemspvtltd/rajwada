@@ -36,6 +36,8 @@ import { AddContractor, EditContractor, ListContractor, ViewContractor } from ".
 import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/Mouzas";
 import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from "../pages/app/schema/NameMasters";
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
+import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
+import { AddRoomMapping, EditRoomMapping, ViewRoomMapping } from "../pages/app/schema/RoomMappings";
 
 
 const Routes = () => {
@@ -414,6 +416,18 @@ const Routes = () => {
                 {
                     path: "/contractors/add",
                     element: <AddContractor />
+                },
+                {
+                    path: "/statusreport",
+                    element: <WorkStatusReport />
+                },
+                {
+                    path: "/flats/:flatId/roommappings/:id/edit",
+                    element: <EditRoomMapping />
+                },
+                {
+                    path: "/flats/:flatId/roommappings/add",
+                    element: <AddRoomMapping />
                 },
             ],
         },

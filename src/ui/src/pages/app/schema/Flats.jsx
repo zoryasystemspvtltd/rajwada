@@ -75,9 +75,35 @@ export const ViewFlat = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect' },
+                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect' },
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        type: 'module-mapping',
+                        schema: {
+                            title: 'Room', // title of child
+                            module: 'resource', // module for child
+                            relationKey: "planId", // foreign key field in child schema
+                            parentPath: 'flats', //
+                            childPath: 'roommappings',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            fields: [
+                                {
+                                    text: 'Room', field: 'roomId', type: 'lookup', sorting: true, searching: true, width: 100,
+                                    schema: { module: 'room' }
+                                },
+                                { text: 'Count', field: 'quantity', type: 'text', sorting: false, searching: false },
+                            ]
+                        },
+                    }
+                ]
+            }
         ]
     }
 
@@ -132,28 +158,6 @@ export const AddFlat = () => {
                     },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 },
                     { field: 'type', type: 'hidden-filter', value: "flat" }
-                ]
-            },
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        text: 'Rooms', field: 'rooms', width: 12, type: 'table-input', required: true,
-                        schema: {
-                            module: 'unitofwork',
-                            paging: true,
-                            searching: true,
-                            editing: true,
-                            adding: true,
-                            fields: [
-                                {
-                                    text: 'Room', field: 'name', type: 'lookup', required: true, width: 6,
-                                    schema: { module: 'room' }
-                                },
-                                { text: 'Count', field: 'count', placeholder: 'Room Count', type: 'number', width: 6, required: true }
-                            ]
-                        }
-                    },
                 ]
             },
             {

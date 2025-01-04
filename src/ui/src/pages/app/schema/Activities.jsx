@@ -296,7 +296,32 @@ export const AddActivity = () => {
         path: 'activities',
         adding: true,
         back: true,
-        defaultFields: ["projectId", "dependencyId", "towerId", "floorId", "flatId", "photoUrl"],
+        defaultFields: [
+            {
+                field: "projectId",
+                type: "lookup"
+            },
+            {
+                field: "dependencyId",
+                type: "lookup"
+            },
+            {
+                field: "towerId",
+                type: "lookup"
+            },
+            {
+                field: "floorId",
+                type: "lookup"
+            },
+            {
+                field: "flatId",
+                type: "lookup"
+            },
+            {
+                field: "photoUrl",
+                type: "photo"
+            }
+        ],
         fields: [
             {
                 type: "area", width: 12

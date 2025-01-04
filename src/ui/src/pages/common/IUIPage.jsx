@@ -21,6 +21,7 @@ const IUIPage = (props) => {
     // console.log(parentId)
     // Global State
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
+    // const selectedDataId = useSelector((state) => state.api[module]?.selectedItemId)
     const [dirty, setDirty] = useState(false)
     // Local State
     const [data, setData] = useState({});
@@ -48,9 +49,8 @@ const IUIPage = (props) => {
             setDefaultValues(props?.defaultValues);
             const newData = { ...data };
             schema?.defaultFields?.forEach((fld) => {
-                newData[fld] = (fld !== "photoUrl") ? parseInt(props?.defaultValues[fld]) : props?.defaultValues[fld];
+                newData[fld.field] = (!["photo", "text"].includes(fld.type)) ? parseInt(props?.defaultValues[fld.field]) : props?.defaultValues[fld.field];
             })
-            console.log(newData)
             setData(newData);
         }
     }, [props?.defaultValues]);
@@ -148,8 +148,6 @@ const IUIPage = (props) => {
             setDirty(true);
             const error = validate(data, schema?.fields)
             setErrors(error);
-            console.log(data)
-            console.log(error)
             if (Object.keys(error).length === 0) {
                 if (!data)
                     return
@@ -174,10 +172,6 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
-                        // if (module === 'activity') {
-                        //     console.log(data);
-                        //     return;
-                        // }
                         api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {

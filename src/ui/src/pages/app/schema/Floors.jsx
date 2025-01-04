@@ -89,6 +89,7 @@ export const ViewFloor = () => {
                         schema: {
                             module: 'plan',
                             relationKey: "parentId",
+                            title: 'Flat',
                             path: 'flats',
                             paging: true,
                             searching: true,
