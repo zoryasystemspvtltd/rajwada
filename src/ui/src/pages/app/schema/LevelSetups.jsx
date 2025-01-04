@@ -4,7 +4,7 @@ import IUIPage from "../../common/IUIPage"
 
 export const ListLevelSetup = () => {
     const schema = {
-        module: 'levelSetupHeader',
+        module: 'levelSetup',
         title: 'Level Setup',
         path: 'level-setups',
         paging: true,
@@ -23,7 +23,7 @@ export const ListLevelSetup = () => {
 
 export const ViewLevelSetup = () => {
     const schema = {
-        module: 'levelSetupHeader',
+        module: 'levelSetup',
         title: 'Level Setup',
         path: 'level-setups',
         editing: true,
@@ -86,7 +86,7 @@ export const ViewLevelSetup = () => {
 
 export const EditLevelSetup = () => {
     const schema = {
-        module: 'levelSetupHeader',
+        module: 'levelSetup',
         title: 'Level Setup',
         path: 'level-setups',
         back: false,
@@ -156,7 +156,7 @@ export const EditLevelSetup = () => {
 
 export const AddLevelSetup = () => {
     const schema = {
-        module: 'levelSetupHeader',
+        module: 'levelSetup',
         title: 'Level Setup',
         path: 'level-setups',
         back: true,
