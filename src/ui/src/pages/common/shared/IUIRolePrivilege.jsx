@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux'
-import { Form } from "react-bootstrap";
+import { getData, setModuleDataItem } from '../../../store/api-db';
+import { useDispatch, useSelector } from 'react-redux'
+import { Button, Col, Row, Form, Container } from "react-bootstrap";
 import IUIPrivileges from './IUIPrivileges';
 import api from '../../../store/api-service'
 
@@ -20,6 +21,8 @@ const IUIRolePrivilege = (props) => {
 
     const [modules, setModules] = useState([])
 
+
+
     const [schema, setSchema] = useState([])
     const dispatch = useDispatch();
 
@@ -31,25 +34,20 @@ const IUIRolePrivilege = (props) => {
             const response = await api.getModules();
             const items = response?.data
             const modulePrivileges = [
-                { id: 998, name: 'user', text: "User", items: privileges },
                 { id: 999, name: 'role', text: "Role", items: privileges },
+                { id: 998, name: 'user', text: "User", items: privileges },
             ].concat(items.map((item, index) => {
                 return {
                     id: index,
                     name: item.name.charAt(0).toLowerCase() + item.name.slice(1),
                     text: item.name.replace(/[A-Z]/g, letter => ` ${letter.toUpperCase()}`),
-                    items: ((item.isAssignable || item.isProject || item.isCompany && !item?.isApproval)
+                    items: (item.isAssignable || item.isProject || item.isCompany)
                         ? privileges.concat([
                             { id: 5, name: "assign" }
                         ])
-                        : (item?.isApproval)
-                        ? privileges.concat([
-                            { id: 6, name: "approve" }
-                        ])
                         : privileges
-                    )
                 }
-            }));
+            }))
             setModules(items)
             setSchema(modulePrivileges)
         }

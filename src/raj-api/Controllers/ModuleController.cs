@@ -31,8 +31,7 @@ public class ModuleController : ControllerBase
                 Name = p.Name, 
                 IsAssignable = p.GetInterfaces().Count(a => a == typeof(IAssignable)) > 0 ,
                 IsProject = p.GetInterfaces().Count(a => a == typeof(IProject)) > 0,
-                IsCompany = p.GetInterfaces().Count(a => a == typeof(ICompany)) > 0,
-                IsApproval = p.GetInterfaces().Count(a => a == typeof(IApproval)) > 0,
+                IsCompany = p.GetInterfaces().Count(a => a == typeof(ICompany)) > 0
             })
             .ToList();
 
@@ -46,5 +45,4 @@ public class RajModule
     public bool? IsAssignable { get; set; }
     public bool? IsProject { get; set; }
     public bool? IsCompany { get; set; }
-    public bool? IsApproval { get; set; }
 }

@@ -9,12 +9,6 @@
         long? ParentId { get; set; }
         Plan? Parent { get; set; }
     }
-    public interface IApproval
-    {
-        bool? IsApproved { get; set; }
-        DateTime? ApprovedDate { get; set; }
-        string? ApprovedBy { get; set; }
-    }
     public interface IAssets
     {
     }

@@ -19,8 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "raj-api", "raj-api\raj-api.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "raj-host", "raj-host\raj-host.csproj", "{516D966A-B8E0-4165-8E79-680FE7E6B2B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ilab-extension", "..\..\ilab-api\src\ilab-extension\ilab-extension.csproj", "{E717FFF7-3878-4BE2-8A19-8AFF8919C6D6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,14 +67,6 @@ Global
 		{516D966A-B8E0-4165-8E79-680FE7E6B2B2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{516D966A-B8E0-4165-8E79-680FE7E6B2B2}.Release|x64.ActiveCfg = Release|Any CPU
 		{516D966A-B8E0-4165-8E79-680FE7E6B2B2}.Release|x64.Build.0 = Release|Any CPU
-		{E717FFF7-3878-4BE2-8A19-8AFF8919C6D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E717FFF7-3878-4BE2-8A19-8AFF8919C6D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E717FFF7-3878-4BE2-8A19-8AFF8919C6D6}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E717FFF7-3878-4BE2-8A19-8AFF8919C6D6}.Debug|x64.Build.0 = Debug|Any CPU
-		{E717FFF7-3878-4BE2-8A19-8AFF8919C6D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E717FFF7-3878-4BE2-8A19-8AFF8919C6D6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E717FFF7-3878-4BE2-8A19-8AFF8919C6D6}.Release|x64.ActiveCfg = Release|Any CPU
-		{E717FFF7-3878-4BE2-8A19-8AFF8919C6D6}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

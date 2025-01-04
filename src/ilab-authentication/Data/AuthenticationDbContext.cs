@@ -39,14 +39,14 @@ public class AuthenticationDbContext : IdentityDbContext<ApplicationUser, Applic
                     Member = "root",
                 },
                 new ApplicationRole()
-                {
-                    Id = superRoleId,
-                    Name = "Super Admin",
-                    ConcurrencyStamp = "26E9A03B-E6BB-4567-A36B-E1DE6B6C1227",
-                    NormalizedName = "SUPER",
-                    Key = rootKey,
-                    Member = "root",
-                },
+                 {
+                     Id = superRoleId,
+                     Name = "Super Admin",
+                     ConcurrencyStamp = "26E9A03B-E6BB-4567-A36B-E1DE6B6C1227",
+                     NormalizedName = "SUPER",
+                     Key = rootKey,
+                     Member = "root",
+                 },
                 new ApplicationRole()
                 {
                     Id = adminRoleId,
