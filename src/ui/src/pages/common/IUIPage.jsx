@@ -340,7 +340,7 @@ const IUIPage = (props) => {
                                                     {schema?.approver && privileges?.approve && approvalStatus == '0' &&
                                                         <IUIApprover onClick={assignApprover} />
                                                     }
-                                                    <IUIModuleMessage schema={props.schema} />
+                                                    <IUIModuleMessage schema={props.schema} />                                                   
                                                 </Col>
                                             </Row>
                                             {(schema?.back || schema?.adding || schema?.editing) && (module !== 'activity') &&
