@@ -202,7 +202,7 @@ namespace RajApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LevelSetupHeader",
+                name: "LevelSetup",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -228,7 +228,7 @@ namespace RajApi.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LevelSetupHeader", x => x.Id);
+                    table.PrimaryKey("PK_LevelSetup", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -393,9 +393,9 @@ namespace RajApi.Migrations
                 {
                     table.PrimaryKey("PK_LevelSetupDetails", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_LevelSetupDetails_LevelSetupHeader_HeaderId",
+                        name: "FK_LevelSetupDetails_LevelSetup_HeaderId",
                         column: x => x.HeaderId,
-                        principalTable: "LevelSetupHeader",
+                        principalTable: "LevelSetup",
                         principalColumn: "Id");
                 });
 
@@ -727,9 +727,9 @@ namespace RajApi.Migrations
                 columns: new[] { "Id", "ActivityType", "ContentHistory", "Date", "EntityId", "Key", "Member", "Name", "Status" },
                 values: new object[,]
                 {
-                    { 1L, 0, null, new DateTime(2025, 1, 4, 17, 17, 24, 579, DateTimeKind.Utc).AddTicks(2395), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Company", 0 },
-                    { 2L, 0, null, new DateTime(2025, 1, 4, 17, 17, 24, 579, DateTimeKind.Utc).AddTicks(2399), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 },
-                    { 3L, 0, null, new DateTime(2025, 1, 4, 17, 17, 24, 579, DateTimeKind.Utc).AddTicks(2401), 2L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 }
+                    { 1L, 0, null, new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8353), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Company", 0 },
+                    { 2L, 0, null, new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8356), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 },
+                    { 3L, 0, null, new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8358), 2L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 }
                 });
 
             migrationBuilder.InsertData(
@@ -737,23 +737,23 @@ namespace RajApi.Migrations
                 columns: new[] { "Id", "Code", "Date", "Key", "Member", "Name", "Status" },
                 values: new object[,]
                 {
-                    { 1L, "FA", new DateTime(2025, 1, 4, 17, 17, 24, 579, DateTimeKind.Utc).AddTicks(2445), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Fixed Asset", 0 },
-                    { 2L, "CB", new DateTime(2025, 1, 4, 17, 17, 24, 579, DateTimeKind.Utc).AddTicks(2447), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Consumption Base", 0 },
-                    { 3L, "SA", new DateTime(2025, 1, 4, 17, 17, 24, 579, DateTimeKind.Utc).AddTicks(2449), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Service Assets", 0 }
+                    { 1L, "FA", new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8403), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Fixed Asset", 0 },
+                    { 2L, "CB", new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8407), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Consumption Base", 0 },
+                    { 3L, "SA", new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8409), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Service Assets", 0 }
                 });
 
             migrationBuilder.InsertData(
                 table: "Companys",
                 columns: new[] { "Id", "Address1", "Address2", "Address3", "BelongTo", "City", "Code", "ContactName", "Country", "Currency", "Date", "Email", "GSTNo", "Key", "Latitude", "Logo", "Longitude", "Member", "Name", "PanNo", "ParentId", "PhoneNumber", "PinCode", "QrCode", "State", "Status", "TinNo", "Type", "Website", "Zone" },
-                values: new object[] { 1L, null, null, null, null, null, "RE", null, null, null, new DateTime(2025, 1, 4, 17, 17, 24, 579, DateTimeKind.Utc).AddTicks(2111), null, null, "1536B022-C5C9-4358-BB6A-466F2075B7D4", null, null, null, "super@rajwada.com", "Rajwara", null, null, null, null, null, null, 0, null, "Enterprise", null, null });
+                values: new object[] { 1L, null, null, null, null, null, "RE", null, null, null, new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8053), null, null, "1536B022-C5C9-4358-BB6A-466F2075B7D4", null, null, null, "super@rajwada.com", "Rajwara", null, null, null, null, null, null, 0, null, "Enterprise", null, null });
 
             migrationBuilder.InsertData(
                 table: "Departments",
                 columns: new[] { "Id", "Code", "Date", "Key", "Member", "Name", "Status" },
                 values: new object[,]
                 {
-                    { 1L, "CI", new DateTime(2025, 1, 4, 17, 17, 24, 579, DateTimeKind.Utc).AddTicks(2347), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Civil", 0 },
-                    { 2L, "LE", new DateTime(2025, 1, 4, 17, 17, 24, 579, DateTimeKind.Utc).AddTicks(2350), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Legal", 0 }
+                    { 1L, "CI", new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8284), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Civil", 0 },
+                    { 2L, "LE", new DateTime(2025, 1, 4, 17, 26, 58, 847, DateTimeKind.Utc).AddTicks(8286), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Legal", 0 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -918,7 +918,7 @@ namespace RajApi.Migrations
                 name: "Suppliers");
 
             migrationBuilder.DropTable(
-                name: "LevelSetupHeader");
+                name: "LevelSetup");
 
             migrationBuilder.DropTable(
                 name: "RsDaags");
