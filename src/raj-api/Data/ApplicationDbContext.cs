@@ -142,7 +142,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Room> Rooms { get; set; }
     public virtual DbSet<Contractor> Contractors { get; set; }
     public virtual DbSet<Supplier> Suppliers { get; set; }
-    public virtual DbSet<LevelSetup> LevelSetupHeader { get; set; }
+    public virtual DbSet<LevelSetup> LevelSetup { get; set; }
     public virtual DbSet<LevelSetupDetails> LevelSetupDetails { get; set; }
     #endregion
 
