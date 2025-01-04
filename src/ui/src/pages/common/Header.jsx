@@ -91,7 +91,7 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                 { name: "workItemCreation", text: "Work Item Creation", icon: "vector-square", path: "/workitems" },
                 { name: "dependencyLabelSetting", text: "Dependency Label Setting", icon: "vector-square", path: "/labelsettings" },
                 { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
-                { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/activities" }
+                { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/activities" },
                 { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/home" },
                 { name: "levelSetup", text: "Level Setup", icon: "vector-square", path: "/level-setups"}
             ],
