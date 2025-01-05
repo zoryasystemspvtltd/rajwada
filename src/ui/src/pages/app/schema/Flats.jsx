@@ -77,9 +77,22 @@ export const ViewFlat = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect' },
+                    {
+                        text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        schema: {
+                            upload: false,
+                            save: false,
+                            markers: {
+                                balloon: true,
+                                rectangle: true,
+                                pencil: true,
+                                camera: false
+                            }
+                        }
+                    },
                 ]
             },
+            /*
             {
                 type: "area", width: 12
                 , fields: [
@@ -105,7 +118,7 @@ export const ViewFlat = () => {
                         },
                     }
                 ]
-            }
+            } */
         ]
     }
 
