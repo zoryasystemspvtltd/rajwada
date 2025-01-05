@@ -73,7 +73,7 @@ export const EditSupplier = () => {
                     { text: 'PAN', field: 'panNo', placeholder: 'PAN here...', width: 4, type: 'text', required: false },
                     { text: 'GST', field: 'gstNo', placeholder: 'GST here...', width: 4, type: 'text', required: false },
                     { text: 'Licence No', field: 'licenceNo', placeholder: 'Licence No here...', width: 4, type: 'text', required: false },
-                    { text: 'SPOC', field: 'spoc', placeholder: 'Licence No here...', width: 4, type: 'text', required: false },
+                    { text: 'SPOC', field: 'spoc', placeholder: 'SPOC here...', width: 4, type: 'text', required: false },
                     { text: 'Effective Start Date', field: 'effectiveStartDate', placeholder: 'Effective Start Date here...', width: 4, type: 'date', required: false },
                     { text: 'Effective End Date', field: 'effectiveEndDate', placeholder: 'Effective End Date here...', width: 4, type: 'date', required: false },
 
@@ -102,7 +102,7 @@ export const AddSupplier = () => {
                     { text: 'PAN', field: 'panNo', placeholder: 'PAN here...', width: 4, type: 'text', required: false },
                     { text: 'GST', field: 'gstNo', placeholder: 'GST here...', width: 4, type: 'text', required: false },
                     { text: 'Licence No', field: 'licenceNo', placeholder: 'Licence No here...', width: 4, type: 'text', required: false },
-                    { text: 'SPOC', field: 'spoc', placeholder: 'Licence No here...', width: 4, type: 'text', required: false },
+                    { text: 'SPOC', field: 'spoc', placeholder: 'SPOC here...', width: 4, type: 'text', required: false },
                     { text: 'Effective Start Date', field: 'effectiveStartDate', placeholder: 'Effective Start Date here...', width: 4, type: 'date', required: false },
                     { text: 'Effective End Date', field: 'effectiveEndDate', placeholder: 'Effective End Date here...', width: 4, type: 'date', required: false },
                 ]
