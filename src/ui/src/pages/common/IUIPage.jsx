@@ -218,7 +218,10 @@ const IUIPage = (props) => {
                                 return;
                             }
                             else {
-                                if(schema.goNext){
+                                if(schema.goNextView){
+                                    navigate(`/${schema.path}/${response.data}`);
+                                }
+                                else if(schema.goNextEdit){
                                     navigate(`/${schema.path}/${response.data}/edit`);
                                 }else{
                                     navigate(-1);

@@ -526,7 +526,8 @@ const IUIPageElement = (props) => {
                                         <IUIListInline
                                             id={fld.field}
                                             schema={fld.schema}
-                                            value={data[fld.field]}
+                                            //value={data[fld.field]} //TODO
+                                            parentId={data.id} 
                                             onChange={handleChange}
                                             readonly={props.readonly || fld.readonly || false}
                                         />

@@ -2,11 +2,37 @@ import React, { useState, useEffect } from 'react';
 import Table from 'react-bootstrap/Table';
 import { Col, Row } from "react-bootstrap";
 import IUIPageInline from './IUIPageInline';
+import { getData } from '../../store/api-db';
+import { useDispatch, useSelector } from 'react-redux'
 
 const IUIListInline = (props) => {
     const schema = props.schema;
+    const module = `${schema.module}#${props.parentId}`;
+    const dispatch = useDispatch();
+    const dataSet = useSelector((state) => state.api[module])
     const [value, setValue] = useState([])
+    const [data, setData] = useState([]);
+    const [baseFilter, setBaseFilter] = useState({})
 
+    useEffect(() => {
+            if (props?.parentId) {
+                const newBaseFilter = {
+                    name: schema?.relationKey,
+                    value: props?.parentId,
+                    //operator: 'likelihood' // Default value is equal
+                }
+    
+                setBaseFilter(newBaseFilter)
+    
+                const pageOptions = {
+                    ...dataSet?.options
+                    , recordPerPage: 0
+                    , searchCondition: newBaseFilter
+                }
+                dispatch(getData({ module: module, options: pageOptions }));
+            }
+        }, [props]);
+        
     useEffect(() => {
         if (props?.value) {
             setValue(props?.value);
@@ -93,7 +119,7 @@ const IUIListInline = (props) => {
                         </thead>
                         <tbody>
                             {
-                                value?.map((item, i) => (
+                                dataSet?.items?.map((item, i) => (
                                     <tr key={i}>
                                         <IUIPageInline
                                             id={item?.id}

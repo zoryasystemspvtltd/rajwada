@@ -14,6 +14,7 @@ const IUIPageInline = (props) => {
     const [value, setValue] = useState({});
     const [dirty, setDirty] = useState(false)
     const [errors, setErrors] = useState({});
+  
 
     // Usage
     const dispatch = useDispatch();
@@ -58,13 +59,17 @@ const IUIPageInline = (props) => {
 
             setDirty(false);
             setErrors({});
-            debugger;
-            delete value.id;
+            
             value.HeaderId = parseInt(id);
             setValue(value);
             if (id != undefined)
                 try {
-                    await api.addData({ module: module, data: value });
+                    if(value?.mode === 'add'){
+                        delete value.id;
+                        await api.addData({ module: module, data: value });
+                    }else{
+                        await api.editData({ module: module, data: value });
+                    }
                     dispatch(setSave({ module: module }))
                 } catch (e) {
 
@@ -78,8 +83,9 @@ const IUIPageInline = (props) => {
         }
     };
 
-    const deletePageValue = (e) => {
+    const deletePageValue = async (e) => {
         e.preventDefault();
+        await api.deleteData({ module: module, id: value.id });
         const event = { target: { id: props?.id, value: { id: value.id, deleted: true } }, preventDefault: function () { } }
         if (props.onChange) {
             props.onChange(event);

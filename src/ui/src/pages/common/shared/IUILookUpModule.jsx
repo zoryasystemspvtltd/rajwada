@@ -33,7 +33,6 @@ const IUILookUpModule = (props) => {
     }, [schema?.module]);
 
     useEffect(() => {
-        debugger;
         const newValue = schema?.module
             ? dataSet?.find(p => p.name === value.module)?.name
             : value.module
@@ -49,7 +48,6 @@ const IUILookUpModule = (props) => {
     }, [props?.value]);
 
     const handleChange = (e) => {
-        debugger;
         e.preventDefault();
         if (!props?.readonly) {
             setValue({ ...value, [e.target.id]: e.target.value });

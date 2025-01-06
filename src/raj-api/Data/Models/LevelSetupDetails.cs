@@ -8,8 +8,7 @@ namespace RajApi.Data.Models;
 public class LevelSetupDetails : LabModel
 {
     public string? ItemId { get; set; }
-    public string? ItemName { get; set; }
-    public string? Quatity { get; set; }
+    public string? Quantity { get; set; }
     public string? Price { get; set; }
     public string? UOMId { get; set; }
     public string? UOMName { get; set; }
