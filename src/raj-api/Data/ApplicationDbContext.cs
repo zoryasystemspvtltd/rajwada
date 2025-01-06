@@ -145,6 +145,9 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Supplier> Suppliers { get; set; }
     public virtual DbSet<LevelSetup> LevelSetup { get; set; }
     public virtual DbSet<LevelSetupDetails> LevelSetupDetails { get; set; }
+    public virtual DbSet<BulkDataUpload> BulkDataUploads { get; set; }
+    public virtual DbSet<UnitOfWork> UnitOfWorks { get; set; }
+    
     #endregion
 
 }

@@ -6,23 +6,7 @@ namespace RajApi.Data.Models;
 
 public class UnitOfWork : LabModel
 {
-    public string? Code { get; set; }
-    public string? Description { get; set; }
-    public long? Count { get; set; }
-
-    #region Workflow
-    /// <summary>
-    /// Module Status 
-    /// </summary>
-    public override StatusType? Status { get => base.Status; set => base.Status = value; }
-
-    /// <summary>
-    /// Workflow State 
-    /// </summary>
-    public virtual StateType? State { get; set; }
-
-    public virtual string? Type { get; set; }
-    #endregion
+    public string? MarkerJson { get; set; }
 
     #region Relations
     /// <summary>
