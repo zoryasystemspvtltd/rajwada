@@ -25,7 +25,7 @@ const IUILookUpEnum = (props) => {
 
     useEffect(() => {
         const newValue = schema?.module
-            ? dataSet?.find(item => item.value === value)?.name
+            ? dataSet?.find(item => item.value === parseInt(value))?.name
             : value
         if (newValue) {
             setText(newValue);

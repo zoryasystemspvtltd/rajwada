@@ -62,12 +62,16 @@ export const ViewLevelSetup = () => {
                         type: 'list-inline',
                         field: 'items',
                         schema: {
+                            path: 'levelSetupDetails',//TODO
+                            module: 'levelSetupDetails',
+                            title: 'Level Setup Items',
+                            relationKey: "headerId", //TODO
                             title: 'Level Setup Items',
                             fields: [
                                 {
                                     field: 'levelSetupMasterId', type: 'hidden-filter', schema: { module: 'levelSetupMaster' }
                                 },
-                                { text: 'Item', field: 'itemName', type: 'label', labelvisible: false },
+                                { text: 'Item', field: 'name', type: 'label', labelvisible: false },
                                 { text: 'Quantity', field: 'quantity', type: 'label', width: 12, labelvisible: false },
                                 { text: 'Price', field: 'price', type: 'label', width: 12, labelvisible: false },
                                 { text: 'UOM', field: 'uomName', type: 'label', width: 12, labelvisible: false },
@@ -120,8 +124,10 @@ export const EditLevelSetup = () => {
                         type: 'list-inline',
                         field: 'items',
                         schema: {
+                            path: 'levelSetupDetails',//TODO
                             module: 'levelSetupDetails',
                             title: 'Level Setup Items',
+                            relationKey: "headerId", //TODO
                             editing: true,
                             adding: true,
                             fields: [
@@ -129,7 +135,7 @@ export const EditLevelSetup = () => {
                                     field: 'id', type: 'hidden-filter'
                                 },
                                 {
-                                    text: 'Item', field: 'itemId', nameField: 'itemName', type: 'lookup', labelvisible: false,
+                                    text: 'Item', field: 'itemId', nameField: 'name', type: 'lookup', labelvisible: false, // TODO
                                     required: true, width: 12, schema: { module: 'asset' }
                                 },
                                 { text: 'Quantity', field: 'quantity', type: 'text', required: true, width: 12, labelvisible: false },
@@ -160,7 +166,7 @@ export const AddLevelSetup = () => {
         title: 'Level Setup',
         path: 'level-setups',
         back: true,
-        goNext:true,
+        goNextEdit:true,
         fields: [
             {
                 type: "area", width: 12
