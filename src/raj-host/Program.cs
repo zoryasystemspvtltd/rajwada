@@ -149,11 +149,11 @@ app.UseCors(builder => builder
     .AllowAnyHeader());
 
 //Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
 {
     //app.UseSwagger();
     app.UseSwagger(c => c.RouteTemplate = Helper.GetSwaggerDoc());
-app.UseSwaggerUI();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
