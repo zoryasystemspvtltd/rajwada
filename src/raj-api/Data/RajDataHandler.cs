@@ -67,11 +67,17 @@ public class RajDataHandler : LabDataHandler
                 assignableItem.ProjectId = getProjectId(item);
             }
         }
+        try
+        {
+            var id = await base.AddAsync(item, cancellationToken);
+            await LogLabModelLog(item, StatusType.Draft, cancellationToken);
 
-        var id = await base.AddAsync(item, cancellationToken);
-        await LogLabModelLog(item, StatusType.Draft, cancellationToken);
-
-        return id;
+            return id;
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     public override async Task<long> EditAsync<T>(T item, CancellationToken cancellationToken)
@@ -90,12 +96,18 @@ public class RajDataHandler : LabDataHandler
             }
         }
 
+        try
+        {
+            var id = await base.EditAsync(item, cancellationToken);
 
-        var id = await base.EditAsync(item, cancellationToken);
+            await LogLabModelLog(item, StatusType.Modified, cancellationToken);
 
-        await LogLabModelLog(item, StatusType.Modified, cancellationToken);
-
-        return id;
+            return id;
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     private long? getProjectId<T>(T item)
@@ -137,11 +149,18 @@ public class RajDataHandler : LabDataHandler
         item.Date = DateTime.UtcNow;
         //item.Key = Identity.Key; Not changing key anymore
 
-        var id = await base.EditAsync(item, cancellationToken);
+        try
+        {
+            var id = await base.EditAsync(item, cancellationToken);
 
-        await LogLabModelLog(item, StatusType.ModuleDeleted, cancellationToken);
+            await LogLabModelLog(item, StatusType.ModuleDeleted, cancellationToken);
 
-        return id;
+            return id;
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     public async Task<long> AssignAsync<T>(T item, CancellationToken cancellationToken)
@@ -152,11 +171,18 @@ public class RajDataHandler : LabDataHandler
         item.Date = DateTime.UtcNow;
         //item.Key = Identity.Key; Not changing key anymore
 
-        var id = await base.EditAsync(item, cancellationToken);
+        try
+        {
+            var id = await base.EditAsync(item, cancellationToken);
 
-        await LogLabModelLog(item, StatusType.Assigne, cancellationToken);
+            await LogLabModelLog(item, StatusType.Assigne, cancellationToken);
 
-        return id;
+            return id;
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     private async Task<long> LogLabModelLog<T>(T item, StatusType activityType, CancellationToken cancellationToken)
@@ -183,9 +209,15 @@ public class RajDataHandler : LabDataHandler
             Key = item.Key,
             ContentHistory = jitem
         };
-
-        dbContext.Set<ApplicationLog>().Add(log);
-        return await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            dbContext.Set<ApplicationLog>().Add(log);
+            return await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 }
 
