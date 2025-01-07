@@ -5,6 +5,7 @@ using IlabAuthentication;
 using IlabAuthentication.Data;
 using IlabAuthentication.Data.Models;
 using Microsoft.AspNetCore.Identity;
+using RajApi.Data;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
@@ -31,7 +32,7 @@ public class Helper
     }
     private static string GenerateDynamicPath()
     {
-        var asm = typeof(LabModel).Assembly;
+        var asm = typeof(RajDataHandler).Assembly;
         StringBuilder sb = new StringBuilder();
 
         string template = "\"/api/@@MODULE_NAME@@\"" +
@@ -115,7 +116,7 @@ public class Helper
     }
     private static string GenerateDynamicComponent()
     {
-        var asm = typeof(LabModel).Assembly;
+        var asm = typeof(RajDataHandler).Assembly;
 
         StringBuilder sb = new StringBuilder();
 
@@ -282,7 +283,7 @@ public class ModuleIdentityMiddleware : IMiddleware
         if (user.Identity.IsAuthenticated)
         {
             var loggedInUser = await _userManager.GetUserAsync(user);
-            var identity = new ModuleIdentity(loggedInUser.Email, loggedInUser.Key);
+            var identity = new RajApi.Data.ModuleIdentity(loggedInUser.Email, loggedInUser.Key);
 
             var privilegeClaims= new List<Claim>();
             privilegeClaims.Add(new Claim("activity-member", $"{identity.Member}"));
