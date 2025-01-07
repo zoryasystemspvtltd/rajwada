@@ -204,7 +204,7 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
-                        api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
+                        //api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         // if (module === 'activity') {
                         //     console.log(data);
                         //     return;
