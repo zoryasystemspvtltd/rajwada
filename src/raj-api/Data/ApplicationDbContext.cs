@@ -1,6 +1,7 @@
 ﻿using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using RajApi.Data.Models;
+using System.Reflection.Emit;
 
 namespace RajApi.Data;
 
@@ -14,7 +15,15 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        builder.Entity<Project>()
+            .Property(p => p.BudgetAllocationAmount).HasDefaultValue(0.0);       
+        builder.Entity<Project>()
+           .Property(p => p.TotalCost).HasDefaultValue(0.0);
 
+        builder.Entity<Plan>()
+          .Property(p => p.BudgetAllocationAmount).HasDefaultValue(0.0);
+        builder.Entity<Plan>()
+           .Property(p => p.TotalCost).HasDefaultValue(0.0);
         SeedData(builder);
     }
     private void SeedData(ModelBuilder builder)
