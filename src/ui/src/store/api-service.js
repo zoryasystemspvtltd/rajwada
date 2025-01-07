@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiBaseUrl = process.env.REACT_APP_API_URL || "https://localhost:7018/api"; 
+const apiBaseUrl = process.env.REACT_APP_API_URL || "https://localhost:7018/api";
 console.log(`Server is running on port ${apiBaseUrl}.`)
 const api = axios.create({ baseURL: apiBaseUrl });
 
@@ -94,6 +94,11 @@ api.forgotPassword = async (action) => {
 
 api.registerUser = async (action) => {
     const response = await api.post(`/identity/register`, action.data);
+    return response;
+}
+
+api.saveData = async (action) => {
+    const response = await api.post(`/bulkdataupload`, action.data);
     return response;
 }
 
