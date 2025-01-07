@@ -8,6 +8,7 @@ import IUIModuleMessage from './shared/IUIModuleMessage';
 import api from '../../store/api-service'
 import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIAssign from './shared/IUIAssign';
+import IUIApprover from './shared/IUIApprover';
 
 const IUIPage = (props) => {
     // Properties
@@ -21,13 +22,15 @@ const IUIPage = (props) => {
     // console.log(parentId)
     // Global State
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
+    // const selectedDataId = useSelector((state) => state.api[module]?.selectedItemId)
     const [dirty, setDirty] = useState(false)
     // Local State
     const [data, setData] = useState({});
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
     const [disabled, setDisabled] = useState(false)
-
+    const [approvalStatus, setApprovalStatus] = useState({});
+    const [approvedMemeber, setApprovalBy] = useState({});
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -37,6 +40,8 @@ const IUIPage = (props) => {
             if (id) {
                 const item = await api.getSingleData({ module: module, id: id });
                 setData(item.data);
+                setApprovalStatus(item.data.status);
+                setApprovalBy(item.data.member);
             }
         }
 
@@ -48,9 +53,8 @@ const IUIPage = (props) => {
             setDefaultValues(props?.defaultValues);
             const newData = { ...data };
             schema?.defaultFields?.forEach((fld) => {
-                newData[fld] = (fld !== "photoUrl") ? parseInt(props?.defaultValues[fld]) : props?.defaultValues[fld];
+                newData[fld.field] = (!["photo", "text"].includes(fld.type)) ? parseInt(props?.defaultValues[fld.field]) : props?.defaultValues[fld.field];
             })
-            console.log(newData)
             setData(newData);
         }
     }, [props?.defaultValues]);
@@ -127,6 +131,34 @@ const IUIPage = (props) => {
             // TODO
         }
     }
+
+    const assignApprover = async (e, email) => {
+        e.preventDefault();
+        const action = { module: module, data: { id: id, member: email } }
+        try {
+            await api.editPartialData(action);
+            dispatch(setSave({ module: module }));
+
+        } catch (e) {
+            // TODO
+        }
+    }
+
+    const approvedPageValue = async (e) => {
+        e.preventDefault();
+        const current = new Date();
+        const action = {
+            module: module,
+            data: { id: id, status: 4, approvedBy: approvedMemeber, approvedDate: current, isApproved: true }
+        }
+        try {
+            await api.editPartialData(action);
+            dispatch(setSave({ module: module }));
+
+        } catch (e) {
+            // TODO
+        }
+    }
     const deletePageValue = (e) => {
         e.preventDefault();
         api.deleteData({ module: module, id: id });
@@ -141,22 +173,20 @@ const IUIPage = (props) => {
             clearTimeout(timeId)
         }
     }
-    const savePageValue = (e) => {
+    const savePageValue = async (e) => {
         e.preventDefault();
 
         if (!props?.readonly) {
             setDirty(true);
             const error = validate(data, schema?.fields)
             setErrors(error);
-            console.log(data)
-            console.log(error)
             if (Object.keys(error).length === 0) {
                 if (!data)
                     return
                 setDisabled(true)
                 if (id != undefined)
                     try {
-                        api.editData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
+                        await api.editData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
 
                         const timeId = setTimeout(() => {
@@ -174,11 +204,12 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
+                        api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         // if (module === 'activity') {
                         //     console.log(data);
                         //     return;
                         // }
-                        api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
+                        let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
@@ -187,9 +218,18 @@ const IUIPage = (props) => {
                                 return;
                             }
                             else {
-                                navigate(-1);
-                                localStorage.removeItem(flowchartKey);
+                                if(schema.goNextView){
+                                    navigate(`/${schema.path}/${response.data}`);
+                                }
+                                else if(schema.goNextEdit){
+                                    navigate(`/${schema.path}/${response.data}/edit`);
+                                }else{
+                                    navigate(-1);
+                                    localStorage.removeItem(flowchartKey);
+                               }
                             }
+
+                            
                         }, 1000)
 
                         return () => {
@@ -228,7 +268,7 @@ const IUIPage = (props) => {
                                         <Form>
                                             <Row>
                                                 <Col>
-                                                    {(schema?.back && module !== 'activity') &&
+                                                    {((module !== 'activity' && schema?.back) || (module === 'activity' && !schema?.adding)) &&
                                                         <Button variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(-1)}> Back</Button>
@@ -248,7 +288,7 @@ const IUIPage = (props) => {
                                                             }
                                                         </>
                                                     } */}
-                                                    {schema?.adding &&
+                                                    {(schema?.adding && module !== 'activity') &&
                                                         <>
                                                             {privileges?.add &&
                                                                 <Button
@@ -287,17 +327,27 @@ const IUIPage = (props) => {
                                                             }
                                                         </>
                                                     }
+                                                    {
+                                                        schema?.readonly && privileges?.approve && approvalStatus == '2' &&
+                                                        <Button variant="contained"
+                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
+                                                            onClick={approvedPageValue}> Approved</Button>
+                                                    }
                                                     {schema?.assign &&
                                                         <IUIAssign onClick={assignPageValue} />
                                                         // <Button variant="contained"
                                                         //     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                         //     onClick={assignPageValue}>Assign </Button>
                                                     }
+                                                    {schema?.approver && privileges?.approve && approvalStatus == '0' &&
+                                                        <IUIApprover onClick={assignApprover} />
+                                                    }
                                                     <IUIModuleMessage schema={props.schema} />                                                   
                                                 </Col>
                                             </Row>
-                                            {(schema?.back || schema?.adding || schema?.editing) && (module !== 'activity') &&
-                                                <hr />
+                                            {
+                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity' && schema?.editing) ?
+                                                    <hr /> : null
                                             }
                                             <Row>
                                                 {schema?.fields?.map((fld, f) => (
@@ -339,11 +389,6 @@ const IUIPage = (props) => {
                                             }
                                             <Row>
                                                 <Col>
-                                                    {/* {schema?.back &&
-                                                        <Button variant="contained"
-                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                            onClick={() => navigate(-1)}> Back</Button>
-                                                    } */}
                                                     {!schema?.readonly &&
                                                         <>
                                                             {(privileges?.add || privileges?.edit) &&
@@ -354,7 +399,7 @@ const IUIPage = (props) => {
                                                                         onClick={savePageValue}>Save </Button>
 
                                                                     {
-                                                                        (module !== 'activity') ?
+                                                                        ((module !== 'activity') || (module === 'activity' && schema?.editing)) ?
                                                                             <Button variant="contained"
                                                                                 className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                                                 onClick={() => navigate(-1)}> Cancel</Button>

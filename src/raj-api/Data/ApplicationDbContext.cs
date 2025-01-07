@@ -130,6 +130,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<AssetGroup> AssetGroups { get; set; }
     public virtual DbSet<Asset> Assets { get; set; }
     public virtual DbSet<AssetType> AssetTypes { get; set; }
+    public virtual DbSet<Resource> Resources { get; set; }
 
     #region Masters
     public virtual DbSet<Department> Departments { get; set; }
@@ -140,8 +141,10 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<RsDaag> RsDaags { get; set; }
     public virtual DbSet<NameMaster> NameMasters { get; set; }
     public virtual DbSet<Room> Rooms { get; set; }
-
     public virtual DbSet<Contractor> Contractors { get; set; }
+    public virtual DbSet<Supplier> Suppliers { get; set; }
+    public virtual DbSet<LevelSetup> LevelSetup { get; set; }
+    public virtual DbSet<LevelSetupDetails> LevelSetupDetails { get; set; }
     #endregion
 
 }

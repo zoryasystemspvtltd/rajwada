@@ -1,46 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Col, Row, Container } from "react-bootstrap";
 import { useDispatch, useSelector } from 'react-redux'
 import Form from 'react-bootstrap/Form';
 import api from '../../../store/api-service'
-import { Link } from 'react-router-dom';
-const IUILookUp = (props) => {
+const IUILookUpModule = (props) => {
     const schema = props?.schema;
     const [value, setValue] = useState("")
     const [text, setText] = useState("")
-
     const [dataSet, setDataSet] = useState(useSelector((state) => state.api[schema?.module]))
     const dispatch = useDispatch();
 
     useEffect(() => {
         async function fetchData() {
-            const pageOptions = { recordPerPage: 0 }
-            const response = await api.getData({ module: schema?.module, options: pageOptions });
-            setDataSet(response?.data)
-        }
+            const response = await api.getModules();
+            const items = response?.data
+            const moduleData = [
+                { id: 0, name: '--Select--' },
+            ].concat(items.map((item, index) => {
+                return {
+                    id: index,
+                    name: item.name
+                }
+            }))
 
+            setDataSet(moduleData)
+        }
         if (!schema?.module) {
             setDataSet({ items: schema?.items });
         } else {
             fetchData();
         }
+
     }, [schema?.module]);
 
     useEffect(() => {
         const newValue = schema?.module
-            ? dataSet?.items?.find(item => item.id === parseInt(value))?.name
-            : value
+            ? dataSet?.find(p => p.name === value.module)?.name
+            : value.module
         if (newValue) {
             setText(newValue);
         }
-    }, [dataSet?.items, value]);
-
-    useEffect(() => {
-        if (props?.clearFields) {
-            setValue("");
-            setText("");
-        }
-    }, [props?.clearFields]);
+    }, [dataSet, value.module]);
 
     useEffect(() => {
         if (props?.value) {
@@ -71,19 +70,12 @@ const IUILookUp = (props) => {
                     }
                     {props?.textonly &&
                         <>
-                            {schema?.path &&
-                                <Link to={`/${schema.path}/${value}`}>{text}</Link>
-                            }
-                            {!schema?.path &&
-                                <>
-                                    {text}
-                                </>
-                            }
+                            {text}
                         </>
                     }
                 </>
             }
-            {!props?.readonly && schema?.dynamic &&
+            {!props?.readonly &&
                 <select
                     aria-label={props.placeholder}
                     id={props.id}
@@ -94,25 +86,8 @@ const IUILookUp = (props) => {
                     disabled={props.readonly || false}
                     onChange={(e) => handleChange(e)}>
                     <option>--Select--</option>
-                    {dataSet?.items?.map((item, i) => (
-                        <option key={i} value={item.id || item[props.nameField]}>{item[props.nameField]}</option>
-                    ))}
-
-                </select>
-            }
-            {!props?.readonly && !schema?.dynamic &&
-                <select
-                    aria-label={props.placeholder}
-                    id={props.id}
-                    value={value}
-                    data-name={props.nameField}
-                    name='select'
-                    className={`fs-6 form-control ${props.className}`}
-                    disabled={props.readonly || false}
-                    onChange={(e) => handleChange(e)}>
-                    <option>--Select--</option>
-                    {dataSet?.items?.map((item, i) => (
-                        <option key={i} value={item.id || item.name}>{item.name}</option>
+                    {dataSet?.map((item, i) => (
+                        <option key={i} value={item.value || item.name}>{item.name}</option>
                     ))}
 
                 </select>
@@ -121,4 +96,4 @@ const IUILookUp = (props) => {
     );
 }
 
-export default IUILookUp
+export default IUILookUpModule

@@ -33,10 +33,13 @@ import { useAuth } from "../provider/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
+import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
 import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/Mouzas";
 import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from "../pages/app/schema/NameMasters";
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
-
+import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
+import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
+import { AddRoomMapping, EditRoomMapping, ViewRoomMapping } from "../pages/app/schema/RoomMappings";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -414,6 +417,50 @@ const Routes = () => {
                 {
                     path: "/contractors/add",
                     element: <AddContractor />
+                },
+                {
+                    path: "/suppliers",
+                    element: <ListSupplier />
+                },
+                {
+                    path: "/suppliers/:id",
+                    element: <ViewSupplier />
+                },
+                {
+                    path: "/suppliers/:id/edit",
+                    element: <EditSupplier />
+                },
+                {
+                    path: "/suppliers/add",
+                    element: <AddSupplier />
+                },
+                {
+                    path: "/level-setups",
+                    element: <ListLevelSetup />
+                },
+                {
+                    path: "/level-setups/:id",
+                    element: <ViewLevelSetup />
+                },
+                {
+                    path: "/level-setups/:id/edit",
+                    element: <EditLevelSetup />
+                },
+                {
+                    path: "/level-setups/add",
+                    element: <AddLevelSetup />
+                },
+                {
+                    path: "/statusreport",
+                    element: <WorkStatusReport />
+                },
+                {
+                    path: "/flats/:flatId/roommappings/:id/edit",
+                    element: <EditRoomMapping />
+                },
+                {
+                    path: "/flats/:flatId/roommappings/add",
+                    element: <AddRoomMapping />
                 },
             ],
         },

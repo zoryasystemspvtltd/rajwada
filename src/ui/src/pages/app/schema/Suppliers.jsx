@@ -1,12 +1,12 @@
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage"
 
-export const ListContractor = () => {
+export const ListSupplier = () => {
 
     const schema = {
-        module: 'contractor',
-        title: 'Contractor Master',
-        path: 'contractors',
+        module: 'supplier',
+        title: 'Supplier Master',
+        path: 'suppliers',
         paging: true,
         searching: true,
         editing: true,
@@ -22,11 +22,11 @@ export const ListContractor = () => {
     return (<IUIList schema={schema} />)
 }
 
-export const ViewContractor = () => {
+export const ViewSupplier = () => {
     const schema = {
-        module: 'contractor',
-        title: 'Contractor Master',
-        path: 'contractors',
+        module: 'supplier',
+        title: 'Supplier Master',
+        path: 'suppliers',
         showBreadcrumbs: true,
         editing: true,
         adding: false,
@@ -56,11 +56,11 @@ export const ViewContractor = () => {
     return (<IUIPage schema={schema} />)
 }
 
-export const EditContractor = () => {
+export const EditSupplier = () => {
     const schema = {
-        module: 'contractor',
-        title: 'Contractor Master',
-        path: 'contractors',
+        module: 'supplier',
+        title: 'Supplier Master',
+        path: 'suppliers',
         back: false,
         fields: [
             {
@@ -85,11 +85,11 @@ export const EditContractor = () => {
     return (<IUIPage schema={schema} />)
 }
 
-export const AddContractor = () => {
+export const AddSupplier = () => {
     const schema = {
-        module: 'contractor',
-        title: 'Contractor Master',
-        path: 'contractors',
+        module: 'supplier',
+        title: 'Supplier Master',
+        path: 'suppliers',
         back: true,
         fields: [
             {

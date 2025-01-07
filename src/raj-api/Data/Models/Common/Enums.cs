@@ -33,5 +33,19 @@ public enum PriorityStatusType
     Medium = 1,
     High = 2
 }
+public enum QualityType
+{
+    Rejected = 0,
+    Hold = 1,
+    Approved = 2
+}
+
+public enum WOUStatus
+{
+    Initiated = 0,
+    InProgress = 1,
+    // TODO More
+    Completed = 99
+}
 
 

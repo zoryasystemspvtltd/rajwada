@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSelector } from 'react-redux';
 import IUIMenuItem from "./shared/IUIMenuItem";
-import clientLogo from "../../assets/images/logo-inverse.png";
+import softwareLogo from "../../assets/images/Rajwada-ERP-Logo-Modified.png";
 
 const LeftMenu = (props) => {
     const privileges = useSelector((state) => state.api.loggedInUser?.privileges);
@@ -117,10 +117,12 @@ const LeftMenu = (props) => {
                 { name: "activityCreation", text: "Activity Creation", icon: "vector-square", path: "/workitems" },
                 { name: "dependencyWorkflow", text: "Dependency Workflow", icon: "vector-square", path: "/labelsettings" },
                 { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
-                { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/home" }
+                { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/activities" },
+                { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/home" },
+                { name: "levelSetup", text: "Level Setup", icon: "vector-square", path: "/level-setups"}
             ],
             report: [
-                { name: "civilReport", text: "Civil Report", icon: "vector-square", path: "/home" }
+                { name: "workStatusReport", text: "Work Status Report", icon: "vector-square", path: "/statusreport" }
             ]
         },
         legal: {
@@ -205,8 +207,8 @@ const LeftMenu = (props) => {
                     <ul className="vertical-nav-menu">
                         {/* <li className="app-sidebar__heading">Project Management</li> */}
                         <li>
-                            <div className="app-header-center my-2 p-2" style={{ backgroundColor: "white" }}>
-                                <div className="logo-center"><img src={clientLogo} alt="Rajwada" /></div>
+                            <div className="app-header-center my-2" style={{ backgroundColor: "white" }}>
+                                <div className="logo-center"><img src={softwareLogo} width="100%" height="10%" alt="Rajwada" /></div>
                             </div>
                         </li>
                         <li className="app-sidebar__heading">{menuRole ? `${menuRole} Transactions` : `Admin Transactions`}</li>
