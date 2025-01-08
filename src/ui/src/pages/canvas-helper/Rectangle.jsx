@@ -6,7 +6,10 @@ export const Rectangle = (props) => {
         y: props?.y,
         width: props?.width,
         height: props?.height,
-        type: 'rectangle'
+        type: 'rectangle',
+        color: props?.color,
+        label: props?.label,
+        room: props?.room
     })
     useEffect(() => {
         setPoint({
@@ -16,15 +19,17 @@ export const Rectangle = (props) => {
             width: props?.width,
             height: props?.height,
             type: 'rectangle',
-            color: props?.color
+            color: props?.color,
+            label: props?.label,
+            room: props?.room
         })
     }, [props]);
 
     const modalSchema = {
         title: 'Rectangle',
         fields: [
-            { field: 'color', type: 'color', text: 'Pick a Color', required: true },
-            { field: 'label', type: 'text', text: 'Enter Text', placeholder: 'Unit of Work Label', required: true },
+            { field: 'color', type: 'color', text: 'Rectangle Color', required: true },
+            { field: 'label', type: 'text', text: 'Unit Of Work Label', placeholder: 'Unit of Work Label', required: true },
             {
                 field: 'room', text: 'Room Type', type: 'lookup', required: true,
                 schema: { module: 'room' }
@@ -34,8 +39,7 @@ export const Rectangle = (props) => {
 
     const selectMarkar = (e) => {
         e.preventDefault();
-        // alert(`Marker Selected ${props?.id}`);
-        props?.openModal(modalSchema);
+        props?.openModal(modalSchema, props?.id, (props?.color && props?.label) ? { color: props?.color, label: props?.label, room: props?.room } : null);
     }
 
 
@@ -86,6 +90,7 @@ export const Rectangle = (props) => {
                             }
                         }
                     />
+                    <title>{point?.label}</title>
                 </g>
             </a>
         </g>

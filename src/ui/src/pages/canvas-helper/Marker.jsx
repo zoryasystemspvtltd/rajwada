@@ -17,8 +17,8 @@ export const Marker = (props) => {
     const modalSchema = {
         title: 'Marker',
         fields: [
-            { field: 'color', type: 'color', text: 'Pick a Color', required: true },
-            { field: 'label', type: 'text', text: 'Enter Text', placeholder: 'Unit Label', required: true },
+            { field: 'color', type: 'color', text: 'Marker Color', required: true },
+            { field: 'label', type: 'text', text: 'Unit Of Work Label', placeholder: 'Unit Label', required: true },
         ]
     }
 
@@ -45,7 +45,7 @@ export const Marker = (props) => {
     const selectMarker = (e) => {
         e.preventDefault();
         if (!isMove) {
-            props?.openModal(modalSchema);  // Notify parent (if needed) for color picker display
+            props?.openModal(modalSchema, props?.id, (props?.color && props?.label) ? {color: props?.color, label: props?.label} : null);  // Notify parent (if needed) for color picker display
         }
         setIsMove(false);  // Reset move flag on click
     };

@@ -43,15 +43,15 @@ export const Controls = (props) => {
 
     return (
         <div className="tools" style={{ backgroundColor: '#CCC' }}>
-            <a onClick={() => zoomIn()} title="Zoom +" className="btn">
+            <button onClick={() => zoomIn()} title="Zoom +" className="btn">
                 <i className="bi bi-zoom-in fs-5"></i>
-            </a>
-            <a onClick={() => zoomOut()} title="Zoom -" className="btn">
+            </button>
+            <button onClick={() => zoomOut()} title="Zoom -" className="btn">
                 <i className="bi bi-zoom-out fs-5"></i>
-            </a>
-            <a onClick={() => resetTransform()} title="Reset" className="btn">
+            </button>
+            <button onClick={() => resetTransform()} title="Reset" className="btn">
                 <i className="bi bi-reply fs-5"></i>
-            </a>
+            </button>
             <a title="Point Marker" className="btn"
                 href="./#" onClick={(e) => markerStatus?.balloon ? selectMode(e, 'marker') : e.preventDefault()}
 
@@ -93,9 +93,9 @@ export const Controls = (props) => {
                     />
                 </label>
             </div>
-            <a onClick={deleteAllMarkers} title="Delete All" className="btn">
+            <button onClick={deleteAllMarkers} title="Delete All" className="btn">
                 <i className="bi bi-trash fs-5"></i>
-            </a>
+            </button>
         </div>
     );
 };

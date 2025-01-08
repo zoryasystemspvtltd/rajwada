@@ -1,23 +1,34 @@
 // components/MyModal.js
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import IUILookUp from '../common/shared/IUILookUp';
+import IUILookUp from "../common/shared/IUILookUp";
 
-const ModalComponent = ({ title, show, handleClose, formFields, handleSubmit }) => {
+const ModalComponent = ({ title, show, handleClose, formFields, value, handleSubmit }) => {
     const [formData, setFormData] = useState({ color: '#000000' });
     const [errors, setErrors] = useState({});
     const [dirty, setDirty] = useState(false);
+    const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+
+    useEffect(() => {
+        if (value) {
+            setFormData(value);
+            setIsFormSubmitted(true);
+        }
+    }, [value]);
 
     useEffect(() => {
         if (dirty) {
             const error = validate(formData, formFields)
             setErrors(error);
         }
+        else {
+            setIsFormSubmitted(false);
+        }
     }, [formData, dirty, formFields]);
 
     const handleInputChange = (e) => {
         const { id, value } = e.target;
-        setDirty((prev) => ({ ...prev, [id]: true }));
+        setDirty(true);
         setFormData((prev) => ({ ...prev, [id]: value }));
     };
 
@@ -42,13 +53,23 @@ const ModalComponent = ({ title, show, handleClose, formFields, handleSubmit }) 
         setErrors(error);
         if (Object.keys(error).length === 0) {
             handleSubmit(formData);
-            setFormData({});
+            setIsFormSubmitted(true);
+            setFormData({ color: '#000000' });
+            setErrors({});
+            setDirty(false);
             handleClose();
         }
     };
 
+    const handleModalClose = () => {
+        if (!isFormSubmitted && !value) {
+            return;
+        }
+        handleClose();
+    };
+
     return (
-        <Modal size="md" show={show} onHide={handleClose}>
+        <Modal size="md" show={show} onHide={handleModalClose}>
             <Modal.Header closeButton>
                 <Modal.Title>{title}</Modal.Title>
             </Modal.Header>
@@ -121,10 +142,19 @@ const ModalComponent = ({ title, show, handleClose, formFields, handleSubmit }) 
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={() => { setErrors({}); setFormData({ color: '#000000' }); setDirty({}); handleClose() }}>
+                <Button
+                    variant="contained"
+                    className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary'
+                    onClick={() => { setErrors({}); setFormData({ color: '#000000' }); setDirty(false); handleModalClose(); }}
+                    disabled={!isFormSubmitted && value === null}
+                >
                     Close
                 </Button>
-                <Button variant="primary" onClick={onSave}>
+                <Button
+                    variant="contained"
+                    className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
+                    onClick={onSave}
+                >
                     Save
                 </Button>
             </Modal.Footer>

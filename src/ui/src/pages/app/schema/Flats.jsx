@@ -81,7 +81,7 @@ export const ViewFlat = () => {
                         text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
                             upload: false,
-                            save: false,
+                            save: true,
                             markers: {
                                 balloon: true,
                                 rectangle: true,
