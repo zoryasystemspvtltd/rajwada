@@ -10,7 +10,7 @@ using ILab.Extensionss.Common;
 namespace RajApi.Controllers;
 
 [ApiController]
-[Route("/api/")]
+[Route("/api/bulkdataupload/")]
 [Authorize]
 public class BulkUploadController : ControllerBase
 {
@@ -22,35 +22,33 @@ public class BulkUploadController : ControllerBase
         this.dataService = dataService;
     }
 
-
-    [HasPrivileges("add")]
-    [HttpPost()]
-    public async Task<long> PostAsync(string module, string data, CancellationToken token)
+    [HttpPost]
+    public async Task<long> PostAsync([FromBody] BulkDataUpload dataUpload)
     {
         //long response = 0;
         //dataService.Identity = new ModuleIdentity(member, key);
         //await dataService.AddAsync(module, data, token);
         //response = await ProcessData(module, data, token);
-        await ProcessJsondata(module, data, token);
+        await ProcessJsondata(dataUpload);
         return -1L;
         //return response;
     }
 
-    private async Task ProcessJsondata(string module, string data, CancellationToken token)
-    {
-        switch (module.ToUpper())
+    private async Task ProcessJsondata(BulkDataUpload dataUpload)
+    {       
+        switch (dataUpload.DataModel.ToUpper())
         {
             case "TOWER":
-                List<Tower> towerlist = ReadFromJsonString<Tower>(data);
-                await SaveTowerData(towerlist, token);
+                List<Tower> towerlist = ReadFromJsonString<Tower>(dataUpload.RawData);
+                await SaveTowerData(towerlist);
                 break;
             case "FLOOR":
-                List<Floor> floorlist = ReadFromJsonString<Floor>(data);
-                await SaveFloorData(floorlist, token);
+                List<Floor> floorlist = ReadFromJsonString<Floor>(dataUpload.RawData);
+                await SaveFloorData(floorlist);
                 break;
             case "FLAT":
-                List<Flat> flatlist = ReadFromJsonString<Flat>(data);
-                await SaveFlatData(flatlist, token);
+                List<Flat> flatlist = ReadFromJsonString<Flat>(dataUpload.RawData);
+                await SaveFlatData(flatlist);
                 break;
         }
 
@@ -154,7 +152,7 @@ public class BulkUploadController : ControllerBase
     //        logger.LogError("Error to save data:" + ex.Message);
     //    }
     //}
-    private async Task SaveTowerData(List<Tower> towerlist, CancellationToken token)
+    private async Task SaveTowerData(List<Tower> towerlist)
     {
         try
         {
@@ -175,7 +173,7 @@ public class BulkUploadController : ControllerBase
                     Description = item.Description,
                     ProjectId = project.Id,
                 };
-
+                CancellationToken token= new CancellationToken();
                 await dataService.AddAsync("plan", obj, token);
             }
 
@@ -186,7 +184,7 @@ public class BulkUploadController : ControllerBase
         }
     }
 
-    private async Task SaveFloorData(List<Floor> floorlist, CancellationToken token)
+    private async Task SaveFloorData(List<Floor> floorlist)
     {
         try
         {
@@ -207,6 +205,7 @@ public class BulkUploadController : ControllerBase
                     ProjectId = tower.ProjectId,
                     ParentId = tower.Id
                 };
+                CancellationToken token = new CancellationToken();
                 await dataService.AddAsync("plan", obj, token);
             }
 
@@ -216,7 +215,7 @@ public class BulkUploadController : ControllerBase
             logger.LogError("Error in Floor data save :" + ex.Message);
         }
     }
-    private async Task SaveFlatData(List<Flat> flatlist, CancellationToken token)
+    private async Task SaveFlatData(List<Flat> flatlist)
     {
         try
         {
@@ -237,6 +236,7 @@ public class BulkUploadController : ControllerBase
                     ProjectId = floor.ProjectId,
                     ParentId = floor.Id
                 };
+                CancellationToken token = new CancellationToken();
                 await dataService.AddAsync("plan", obj, token);
             }
 

@@ -19,6 +19,7 @@ using JavaScriptEngineSwitcher.ChakraCore;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using JavaScriptEngineSwitcher.Core;
+using Serilog;
 
 IConfigurationRoot configuration = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -26,6 +27,9 @@ IConfigurationRoot configuration = new ConfigurationBuilder()
             .Build();
 
 var builder = WebApplication.CreateBuilder(args);
+// Add serilog services to the container and read config from appsettings
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
 builder.Services.AddCors();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -135,6 +139,9 @@ app.UseReact(config =>
 });
 //JsEngineSwitcher.Current.DefaultEngineName = V8JsEngine.EngineName;
 //JsEngineSwitcher.Current.EngineFactories.AddV8();
+
+// Configure Serilog for logging
+app.UseSerilogRequestLogging();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

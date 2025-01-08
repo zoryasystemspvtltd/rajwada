@@ -1,0 +1,81 @@
+2025-01-07 21:11:19.261 +05:30 [INF] HTTP OPTIONS /api/identity/refresh responded 204 in 8.8276 ms
+2025-01-07 21:11:25.843 +05:30 [INF] HTTP POST /api/identity/refresh responded 200 in 6231.8675 ms
+2025-01-07 21:11:25.916 +05:30 [INF] HTTP OPTIONS /api/identity/GetUserPrivileges responded 204 in 0.5172 ms
+2025-01-07 21:11:26.463 +05:30 [INF] HTTP GET /api/identity/GetUserPrivileges responded 200 in 535.8325 ms
+2025-01-07 21:11:26.807 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.6710 ms
+2025-01-07 21:11:26.808 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.0671 ms
+2025-01-07 21:11:26.809 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.0776 ms
+2025-01-07 21:11:26.810 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.1083 ms
+2025-01-07 21:11:28.523 +05:30 [WRN] No store type was specified for the decimal property 'ActualCost' on entity type 'Activity'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.529 +05:30 [WRN] No store type was specified for the decimal property 'CostEstimate' on entity type 'Activity'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.532 +05:30 [WRN] No store type was specified for the decimal property 'Quantity' on entity type 'ActivityResource'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.540 +05:30 [WRN] No store type was specified for the decimal property 'TotalCost' on entity type 'ActivityResource'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.542 +05:30 [WRN] No store type was specified for the decimal property 'UnitCost' on entity type 'ActivityResource'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.545 +05:30 [WRN] No store type was specified for the decimal property 'BudgetAllocationAmount' on entity type 'Plan'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.548 +05:30 [WRN] No store type was specified for the decimal property 'BudgetAmount' on entity type 'Plan'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.551 +05:30 [WRN] No store type was specified for the decimal property 'Cost' on entity type 'Plan'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.556 +05:30 [WRN] No store type was specified for the decimal property 'TotalCost' on entity type 'Plan'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.560 +05:30 [WRN] No store type was specified for the decimal property 'BudgetAllocationAmount' on entity type 'Project'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.563 +05:30 [WRN] No store type was specified for the decimal property 'BudgetAmount' on entity type 'Project'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.567 +05:30 [WRN] No store type was specified for the decimal property 'TotalCost' on entity type 'Project'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:28.570 +05:30 [WRN] No store type was specified for the decimal property 'Quantity' on entity type 'Resource'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-01-07 21:11:29.321 +05:30 [INF] HTTP GET /api/plan responded 200 in 2489.4293 ms
+2025-01-07 21:11:29.362 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.0753 ms
+2025-01-07 21:11:29.362 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.0677 ms
+2025-01-07 21:11:29.363 +05:30 [INF] HTTP OPTIONS /api/project responded 204 in 0.0770 ms
+2025-01-07 21:11:29.376 +05:30 [INF] HTTP OPTIONS /api/project responded 204 in 0.0713 ms
+2025-01-07 21:11:29.467 +05:30 [INF] HTTP GET /api/plan responded 200 in 180.0793 ms
+2025-01-07 21:11:29.523 +05:30 [INF] HTTP GET /api/plan responded 200 in 76.7041 ms
+2025-01-07 21:11:29.603 +05:30 [INF] HTTP GET /api/plan responded 200 in 80.6140 ms
+2025-01-07 21:11:29.742 +05:30 [INF] HTTP GET /api/plan responded 200 in 131.4737 ms
+2025-01-07 21:11:29.966 +05:30 [INF] HTTP GET /api/plan responded 200 in 226.0290 ms
+2025-01-07 21:11:29.986 +05:30 [INF] HTTP GET /api/project responded 200 in 573.9661 ms
+2025-01-07 21:11:31.354 +05:30 [INF] HTTP GET /api/plan responded 200 in 481.5698 ms
+2025-01-07 21:11:31.373 +05:30 [INF] HTTP GET /api/project responded 200 in 500.7982 ms
+2025-01-07 21:11:31.424 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.2848 ms
+2025-01-07 21:11:31.496 +05:30 [INF] HTTP GET /api/plan responded 200 in 153.7743 ms
+2025-01-07 21:11:31.534 +05:30 [INF] HTTP GET /api/project responded 200 in 198.4836 ms
+2025-01-07 21:11:31.579 +05:30 [INF] HTTP GET /api/plan responded 200 in 70.9021 ms
+2025-01-07 21:11:31.735 +05:30 [INF] HTTP GET /api/plan responded 200 in 157.0452 ms
+2025-01-07 21:11:31.887 +05:30 [INF] HTTP GET /api/plan responded 200 in 154.8791 ms
+2025-01-07 21:11:32.023 +05:30 [INF] HTTP GET /api/plan responded 200 in 123.5834 ms
+2025-01-07 21:11:32.141 +05:30 [INF] HTTP GET /api/plan responded 200 in 114.2349 ms
+2025-01-07 21:11:32.353 +05:30 [INF] HTTP GET /api/plan responded 200 in 170.3313 ms
+2025-01-07 21:11:32.609 +05:30 [INF] HTTP GET /api/plan responded 200 in 221.5363 ms
+2025-01-07 21:11:32.706 +05:30 [INF] HTTP GET /api/plan responded 200 in 83.2230 ms
+2025-01-07 21:11:32.945 +05:30 [INF] HTTP GET /api/plan responded 200 in 162.4326 ms
+2025-01-07 21:11:32.961 +05:30 [INF] HTTP GET /api/plan responded 200 in 246.2795 ms
+2025-01-07 21:11:33.092 +05:30 [INF] HTTP GET /api/plan responded 200 in 274.0690 ms
+2025-01-07 21:11:33.146 +05:30 [INF] HTTP GET /api/plan responded 200 in 213.1982 ms
+2025-01-07 21:11:33.157 +05:30 [INF] HTTP GET /api/plan responded 200 in 443.0220 ms
+2025-01-07 21:11:33.185 +05:30 [INF] HTTP GET /api/plan responded 200 in 431.3012 ms
+2025-01-07 21:11:33.364 +05:30 [INF] HTTP GET /api/plan responded 200 in 642.6742 ms
+2025-01-07 21:11:33.415 +05:30 [INF] HTTP GET /api/plan responded 200 in 647.2139 ms
+2025-01-07 21:11:33.455 +05:30 [INF] HTTP GET /api/plan responded 200 in 659.9483 ms
+2025-01-07 21:11:33.492 +05:30 [INF] HTTP GET /api/plan responded 200 in 698.1277 ms
+2025-01-07 21:11:33.508 +05:30 [INF] HTTP GET /api/plan responded 200 in 704.8800 ms
+2025-01-07 21:11:33.554 +05:30 [INF] HTTP GET /api/plan responded 200 in 770.8904 ms
+2025-01-07 21:11:33.565 +05:30 [INF] HTTP GET /api/plan responded 200 in 837.7278 ms
+2025-01-07 21:11:33.596 +05:30 [INF] HTTP GET /api/plan responded 200 in 785.2334 ms
+2025-01-07 21:11:33.603 +05:30 [INF] HTTP GET /api/plan responded 200 in 784.2067 ms
+2025-01-07 21:11:33.616 +05:30 [INF] HTTP GET /api/plan responded 200 in 791.2122 ms
+2025-01-07 21:11:33.620 +05:30 [INF] HTTP GET /api/plan responded 200 in 817.0404 ms
+2025-01-07 21:11:33.632 +05:30 [INF] HTTP GET /api/plan responded 200 in 820.8825 ms
+2025-01-07 21:11:33.639 +05:30 [INF] HTTP GET /api/plan responded 200 in 214.8661 ms
+2025-01-07 21:11:33.740 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.1705 ms
+2025-01-07 21:11:33.800 +05:30 [INF] HTTP GET /api/plan responded 200 in 158.0158 ms
+2025-01-07 21:11:33.857 +05:30 [INF] HTTP GET /api/plan responded 200 in 53.0734 ms
+2025-01-07 21:11:33.911 +05:30 [INF] HTTP GET /api/plan responded 200 in 51.2992 ms
+2025-01-07 21:11:33.995 +05:30 [INF] HTTP GET /api/plan responded 200 in 69.0470 ms
+2025-01-07 21:11:34.058 +05:30 [INF] HTTP GET /api/plan responded 200 in 58.9087 ms
+2025-01-07 21:11:34.142 +05:30 [INF] HTTP GET /api/plan responded 200 in 76.6887 ms
+2025-01-07 21:11:34.190 +05:30 [INF] HTTP GET /api/plan responded 200 in 43.9920 ms
+2025-01-07 21:11:34.302 +05:30 [INF] HTTP GET /api/plan responded 200 in 91.3131 ms
+2025-01-07 21:11:34.971 +05:30 [INF] HTTP GET /api/plan responded 200 in 603.4279 ms
+2025-01-07 21:11:38.073 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.0767 ms
+2025-01-07 21:11:38.266 +05:30 [INF] HTTP GET /api/plan responded 200 in 182.5501 ms
+2025-01-07 21:11:57.617 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.1026 ms
+2025-01-07 21:11:57.712 +05:30 [INF] data save :plan
+2025-01-07 21:11:58.364 +05:30 [INF] HTTP POST /api/plan responded 200 in 740.6617 ms
+2025-01-07 21:11:59.453 +05:30 [INF] HTTP OPTIONS /api/plan responded 204 in 0.0911 ms
+2025-01-07 21:11:59.540 +05:30 [INF] HTTP GET /api/plan responded 200 in 25.6055 ms

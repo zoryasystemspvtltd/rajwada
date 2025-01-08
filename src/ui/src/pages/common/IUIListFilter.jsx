@@ -12,6 +12,8 @@ import IUILookUp from './shared/IUILookUp';
 import { HiOutlineUpload } from 'react-icons/hi';
 import { RiDownload2Fill } from 'react-icons/ri';
 import * as XLSX from 'xlsx';
+import api from '../../store/api-service'
+import { setSave } from '../../store/api-db'
 
 const IUIListFilter = (props) => {
     const schema = props.schema;
@@ -42,6 +44,11 @@ const IUIListFilter = (props) => {
                 setMessage("File successfully uploaded!");
             };
             reader.readAsArrayBuffer(file);
+            var dataUpload = { dataModel: "", rawData: "" };
+            dataUpload.dataModel = module;
+            dataUpload.rawData = data;
+            api.saveData(dataUpload);
+            dispatch(setSave({ module: module }))
         } else {
             setMessage("Error: Invalid file type. Please upload an Excel file (.xlsx, .xls).");
         }
@@ -160,7 +167,7 @@ const IUIListFilter = (props) => {
                                                 document.body.removeChild(link);
                                             }}
                                         >
-                                            <RiDownload2Fill className="inline-block mr-2"/>
+                                            <RiDownload2Fill className="inline-block mr-2" />
                                             Download
                                         </Button>
                                     }
@@ -170,7 +177,7 @@ const IUIListFilter = (props) => {
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
                                             onClick={handleButtonClick}
                                         >
-                                            <HiOutlineUpload className="inline-block mr-2"/>
+                                            <HiOutlineUpload className="inline-block mr-2" />
                                             <input
                                                 type='file'
                                                 accept='.xlsx'
