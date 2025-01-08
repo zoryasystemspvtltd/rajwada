@@ -119,6 +119,13 @@ export const forgotPassword = createAsyncThunk("identity/forgotPassword", async 
     return await api.forgotPassword(action);
 })
 
+export const saveData = createAsyncThunk("bulkdataupload", async (action, store) => {
+    if (!action) {
+        return null;
+    }
+    return await api.saveData(action);
+})
+
 export const apiSlice = createSlice({
     name: 'ilab-api',
     initialState,
@@ -381,6 +388,16 @@ export const apiSlice = createSlice({
                 state["any"].saved = "saved"
             })
             .addCase(registerUser.rejected, (state, action) => {
+                state["any"].status = "error"
+                state["any"].message = action.error.message
+            })
+            .addCase(saveData.pending, (state, action) => {
+                state["any"].status = "loading"
+            })
+            .addCase(saveData.fulfilled, (state, action) => {
+                state["any"].saved = "saved"
+            })
+            .addCase(saveData.rejected, (state, action) => {
                 state["any"].status = "error"
                 state["any"].message = action.error.message
             })

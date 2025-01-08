@@ -255,6 +255,9 @@ export const IlabMarkerCanvas = (props) => {
             setTemp(null);
             handleOpenModal(rectangleModalSchema, markers.length + 1, null);
         }
+        if (mode === 'pencil') {
+            stopDrawing();
+        }
 
         if (mode === 'pencil') {
             stopDrawing();
@@ -291,10 +294,10 @@ export const IlabMarkerCanvas = (props) => {
 
         }
 
-        if (mode === 'pencil') {
+        if(mode === 'pencil'){
             setTemp({
                 id: markers.length + 1,
-                x: e.nativeEvent.offsetX,
+                x: e.nativeEvent.offsetX ,
                 y: e.nativeEvent.offsetY,
                 width: 0,
                 height: 0,
@@ -435,7 +438,7 @@ export const IlabMarkerCanvas = (props) => {
                                                                 <g>
                                                                     <image x="0" y="0" width="100%" height="100%"
                                                                         className={(mode === 'rectangle' || mode === 'pencil') ? 'drag-exclude' : ''}
-                                                                        onMouseUp={(e) => handleMouseUp(e)}
+                                                                        onMouseUp={(e) => handleMouseUp(e) }
                                                                         onMouseDown={(e) => handleMouseDown(e)}
                                                                         onMouseMove={(e) => handleMouseMove(e)}
                                                                         xlinkHref={planImage ? planImage : defaultImage}

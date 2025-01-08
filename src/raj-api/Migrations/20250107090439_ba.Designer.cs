@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RajApi.Data;
 
@@ -11,9 +12,11 @@ using RajApi.Data;
 namespace RajApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250107090439_ba")]
+    partial class ba
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -229,7 +232,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 1, 7, 9, 13, 45, 358, DateTimeKind.Utc).AddTicks(7856),
+                            Date = new DateTime(2025, 1, 7, 9, 4, 36, 920, DateTimeKind.Utc).AddTicks(8747),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -240,7 +243,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 1, 7, 9, 13, 45, 358, DateTimeKind.Utc).AddTicks(7860),
+                            Date = new DateTime(2025, 1, 7, 9, 4, 36, 920, DateTimeKind.Utc).AddTicks(8750),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -251,7 +254,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 1, 7, 9, 13, 45, 358, DateTimeKind.Utc).AddTicks(7864),
+                            Date = new DateTime(2025, 1, 7, 9, 4, 36, 920, DateTimeKind.Utc).AddTicks(8753),
                             EntityId = 2L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -393,7 +396,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "FA",
-                            Date = new DateTime(2025, 1, 7, 9, 13, 45, 358, DateTimeKind.Utc).AddTicks(7932),
+                            Date = new DateTime(2025, 1, 7, 9, 4, 36, 920, DateTimeKind.Utc).AddTicks(8792),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Fixed Asset",
@@ -403,7 +406,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "CB",
-                            Date = new DateTime(2025, 1, 7, 9, 13, 45, 358, DateTimeKind.Utc).AddTicks(7936),
+                            Date = new DateTime(2025, 1, 7, 9, 4, 36, 920, DateTimeKind.Utc).AddTicks(8794),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Consumption Base",
@@ -413,7 +416,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             Code = "SA",
-                            Date = new DateTime(2025, 1, 7, 9, 13, 45, 358, DateTimeKind.Utc).AddTicks(7938),
+                            Date = new DateTime(2025, 1, 7, 9, 4, 36, 920, DateTimeKind.Utc).AddTicks(8797),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Service Assets",
@@ -573,7 +576,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "RE",
-                            Date = new DateTime(2025, 1, 7, 9, 13, 45, 358, DateTimeKind.Utc).AddTicks(7306),
+                            Date = new DateTime(2025, 1, 7, 9, 4, 36, 920, DateTimeKind.Utc).AddTicks(8439),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Rajwara",
@@ -679,7 +682,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "CI",
-                            Date = new DateTime(2025, 1, 7, 9, 13, 45, 358, DateTimeKind.Utc).AddTicks(7769),
+                            Date = new DateTime(2025, 1, 7, 9, 4, 36, 920, DateTimeKind.Utc).AddTicks(8703),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Civil",
@@ -689,7 +692,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "LE",
-                            Date = new DateTime(2025, 1, 7, 9, 13, 45, 358, DateTimeKind.Utc).AddTicks(7775),
+                            Date = new DateTime(2025, 1, 7, 9, 4, 36, 920, DateTimeKind.Utc).AddTicks(8706),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Legal",
@@ -1075,8 +1078,7 @@ namespace RajApi.Migrations
 
                     b.Property<decimal>("TotalCost")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0m);
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
@@ -1201,8 +1203,7 @@ namespace RajApi.Migrations
 
                     b.Property<decimal>("TotalCost")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0m);
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("WorkflowState")
                         .HasColumnType("int");

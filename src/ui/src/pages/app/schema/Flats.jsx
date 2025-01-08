@@ -186,3 +186,22 @@ export const AddFlat = () => {
 
     return (<IUIPage schema={schema} />)
 }
+
+export const TestCanvas = () => {
+    const schema = {
+        module: 'plan',
+        title: 'Test',
+        path: 'flats',
+        readonly: true,
+        fields: [
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect' },
+                ]
+            },
+        ]
+    }
+
+    return (<IUIPage schema={schema} />)
+}
