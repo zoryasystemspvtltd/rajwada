@@ -1,6 +1,6 @@
 import { Col, Row } from "react-bootstrap";
 import { useSelector } from 'react-redux';
-import { FlatDashboard } from "./schema/Flats";
+import { FlatDashboard, TestCanvas } from "./schema/Flats";
 import { FloorDashboard } from "./schema/Floors";
 import { TowerDashboard } from "./schema/Towers";
 import { PlanCreate } from "./schema/Plan";
@@ -24,6 +24,8 @@ const Dashboard = () => {
                     <FloorDashboard />
                     <hr />
                     <FlatDashboard />
+                    <hr />
+                    <TestCanvas />
                 </Col>
             </Row>
         </div>

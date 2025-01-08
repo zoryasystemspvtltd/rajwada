@@ -564,15 +564,16 @@ export const IlabMarkerCanvas = (props) => {
     };
 
     // Draw on mouse move
-    const draw = (e) => {
+    const draw = () => {
+
         if (!isDrawing) return;
 
-        const { offsetX, offsetY } = e.nativeEvent;
+        //const { offsetX, offsetY } = e.nativeEvent;
 
         // If the last position exists, we can create a smooth curve
         if (lastPos) {
-            const cx = (lastPos.x + offsetX) / 2;  // Control point x
-            const cy = (lastPos.y + offsetY) / 2;  // Control point y
+            const cx = (lastPos.x + temp.x) / 2;  // Control point x
+            const cy = (lastPos.y + temp.y) / 2;  // Control point y
 
             // Update the last path with a cubic Bezier curve (C)
             setPaths((prevPaths) => {
@@ -580,7 +581,7 @@ export const IlabMarkerCanvas = (props) => {
                 const lastPath = updatedPaths[updatedPaths.length - 1];
 
                 // Add a cubic Bezier curve command: C x1 y1 x2 y2 x y
-                lastPath.pathData += ` C${cx} ${cy} ${cx} ${cy} ${offsetX} ${offsetY}`;
+                lastPath.pathData += ` C${cx} ${cy} ${cx} ${cy} ${temp.x} ${temp.y}`;
 
                 // Return the updated array with all paths
                 return updatedPaths;
@@ -588,7 +589,7 @@ export const IlabMarkerCanvas = (props) => {
         }
 
         // Update the last position for the next movement
-        setLastPos({ x: offsetX, y: offsetY });
+        setLastPos({ x: temp.x, y: temp.y });
     };
     // Stop drawing on mouse up or mouse leave
     const stopDrawing = () => {
@@ -663,6 +664,10 @@ export const IlabMarkerCanvas = (props) => {
     const handleMouseDown = (e) => {
         e.preventDefault();
         setStart({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY })
+
+        if(mode === 'pencil'){
+            startDrawing(e)
+        }
     }
 
     const handleMouseUp = (e) => {
@@ -697,6 +702,9 @@ export const IlabMarkerCanvas = (props) => {
             setStart(null)
             setTemp(null)
         }
+        if (mode === 'pencil') {
+            stopDrawing();
+        }
 
         if (mode === 'camera') {
 
@@ -711,9 +719,11 @@ export const IlabMarkerCanvas = (props) => {
             setMode('');
             setModeStyle({})
         }
+        setStart({})
     }
 
     const handleMouseMove = (e) => {
+        e.preventDefault();
         if (mode === 'rectangle' && start) {
 
             setTemp({
@@ -724,6 +734,20 @@ export const IlabMarkerCanvas = (props) => {
                 height: (e.nativeEvent.offsetY + start.y) - 1 > 0 ? (e.nativeEvent.offsetY - start.y - 1) : 0,
                 type: mode
             })
+
+        }
+
+        if(mode === 'pencil'){
+            setTemp({
+                id: markers.length + 1,
+                x: e.nativeEvent.offsetX ,
+                y: e.nativeEvent.offsetY,
+                width: 0,
+                height: 0,
+                type: mode
+            })
+
+            draw();
         }
     }
 
@@ -738,7 +762,7 @@ export const IlabMarkerCanvas = (props) => {
                 break;
             case 'rectangle': setModeStyle({ cursor: `crosshair` })
                 break;
-            case 'pencil': setModeStyle({ cursor: `url(${pencilMarkerIcon}) 30 49,auto` })
+            case 'pencil': setModeStyle({ cursor: `url(${pencilMarkerIcon}) 0 49,auto` })
                 break;
             case 'move':
                 setModeStyle({ cursor: `move` })
@@ -922,10 +946,9 @@ export const IlabMarkerCanvas = (props) => {
                                                                 <g>
                                                                     <image x="0" y="0" width="100%" height="100%"
                                                                         className={(mode === 'rectangle' || mode === 'pencil') ? 'drag-exclude' : ''}
-                                                                        onMouseUp={(e) => (mode !== 'pencil') ? handleMouseUp(e) : stopDrawing()}
-                                                                        onMouseDown={(e) => (mode !== 'pencil') ? handleMouseDown(e) : startDrawing(e)}
-                                                                        onMouseMove={(e) => (mode !== 'pencil') ? handleMouseMove(e) : draw(e)}
-                                                                        onMouseLeave={stopDrawing}
+                                                                        onMouseUp={(e) => handleMouseUp(e) }
+                                                                        onMouseDown={(e) => handleMouseDown(e)}
+                                                                        onMouseMove={(e) => handleMouseMove(e)}
                                                                         xlinkHref={planImage ? planImage : defaultImage}
                                                                     />
                                                                     <g data-cell-id="0">
