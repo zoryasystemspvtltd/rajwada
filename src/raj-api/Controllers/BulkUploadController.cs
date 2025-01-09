@@ -180,7 +180,7 @@ public class BulkUploadController : ControllerBase
         }
         catch (Exception ex)
         {
-            logger.LogError("Error in Tower data save :" + ex.Message);
+            logger.LogError("Error in SaveTowerData and details :" + ex.Message);
         }
     }
 
@@ -212,7 +212,7 @@ public class BulkUploadController : ControllerBase
         }
         catch (Exception ex)
         {
-            logger.LogError("Error in Floor data save :" + ex.Message);
+            logger.LogError("Error in SaveFloorData and details :" + ex.Message);
         }
     }
     private async Task SaveFlatData(List<Flat> flatlist)
@@ -243,7 +243,7 @@ public class BulkUploadController : ControllerBase
         }
         catch (Exception ex)
         {
-            logger.LogError("Error in Flat data save :" + ex.Message);
+            logger.LogError("Error in SaveFlatData and details :" + ex.Message);
         }
     }
 
