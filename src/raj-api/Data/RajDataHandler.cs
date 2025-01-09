@@ -76,6 +76,7 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
+            logger.LogError("Exception in AddAsync method and details: " + ex.Message);
             throw;
         }
     }
@@ -106,6 +107,7 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
+            logger.LogError("Exception in EditAsync method and details: " + ex.Message);
             throw;
         }
     }
@@ -159,6 +161,7 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
+            logger.LogError("Exception in DeleteAsync method and details: " + ex.Message);
             throw;
         }
     }
@@ -181,6 +184,7 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
+            logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
             throw;
         }
     }
@@ -216,6 +220,7 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
+            logger.LogError("Exception in LogLabModelLog method and details: " + ex.Message);
             throw;
         }
     }
