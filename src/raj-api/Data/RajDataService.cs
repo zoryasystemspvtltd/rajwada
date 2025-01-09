@@ -70,7 +70,7 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, ex.Message);
+                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
                 return 0;
             }
         }
