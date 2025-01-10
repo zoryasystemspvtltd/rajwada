@@ -22,6 +22,14 @@ const markerModalSchema = {
     ]
 };
 
+const pencilModalSchema = {
+    title: 'Pencil',
+    fields: [
+        { field: 'color', type: 'color', text: 'Marker Color', required: true },
+        { field: 'label', type: 'text', text: 'Unit Of Work Label', placeholder: 'Unit Label', required: true },
+    ]
+};
+
 const rectangleModalSchema = {
     title: 'Rectangle',
     fields: [
@@ -52,7 +60,6 @@ export const IlabMarkerCanvas = (props) => {
     const parentRef = useRef(null)
     // Pencil Properties
     const [isDrawing, setIsDrawing] = useState(false);
-    const [paths, setPaths] = useState([]);
     const [color, setColor] = useState('#000000'); // Initial color
     const [thickness, setThickness] = useState(2); // Initial thickness
     const [lastPos, setLastPos] = useState(null);  // To track last position
@@ -77,11 +84,17 @@ export const IlabMarkerCanvas = (props) => {
 
         if (index >= 0) {
             let newMarker = marker[0];
-            newMarker.color = data?.color;
+            if (marker?.type !== "pencil") {
+                newMarker.color = data?.color;
+            }
+            if (marker?.type === "pencil") {
+                newMarker.pathData = marker[0]?.pathData;
+            }
             newMarker.label = data?.label;
             if (data?.room) {
                 newMarker.room = data?.room;
             }
+
             const newMarkers = [
                 ...markers?.slice(0, index), // everything before array
                 newMarker,
@@ -89,6 +102,7 @@ export const IlabMarkerCanvas = (props) => {
             ]
             setMarker(newMarkers);
         }
+        // console.log(markers);
     };
 
     useEffect(() => {
@@ -105,13 +119,15 @@ export const IlabMarkerCanvas = (props) => {
 
         // Create a new path for the current drawing
         const newPath = {
+            id: markers.length + 1,
             color,
             thickness,
             pathData: `M${offsetX} ${offsetY}`,  // Start the path at the mouse position
+            label: null,
+            type: "pencil"
         };
-
-        // Add the new path to the existing paths
-        setPaths((prevPaths) => [...prevPaths, newPath]);
+        setCurrentId(markers.length + 1);
+        setMarker((prevMarkers) => [...prevMarkers, newPath]);
     };
 
     // Draw on mouse move
@@ -127,16 +143,21 @@ export const IlabMarkerCanvas = (props) => {
             const cy = (lastPos.y + temp.y) / 2;  // Control point y
 
             // Update the last path with a cubic Bezier curve (C)
-            setPaths((prevPaths) => {
-                const updatedPaths = [...prevPaths];
-                const lastPath = updatedPaths[updatedPaths.length - 1];
+            const marker = markers?.filter(item => `${item.id}` === `${currentId}`);
+            const index = markers?.findIndex(item => `${item.id}` === `${currentId}`);
 
-                // Add a cubic Bezier curve command: C x1 y1 x2 y2 x y
-                lastPath.pathData += ` C${cx} ${cy} ${cx} ${cy} ${temp.x} ${temp.y}`;
-
-                // Return the updated array with all paths
-                return updatedPaths;
-            });
+            if (index >= 0) {
+                let newMarker = marker[0];
+                newMarker.pathData += ` C${cx} ${cy} ${cx} ${cy} ${temp.x} ${temp.y}`;
+                newMarker.color = color;
+                newMarker.type = "pencil";
+                const newMarkers = [
+                    ...markers?.slice(0, index), // everything before array
+                    newMarker,
+                    ...markers?.slice(index + 1), // everything after array
+                ]
+                setMarker(newMarkers);
+            }
         }
 
         // Update the last position for the next movement
@@ -163,7 +184,6 @@ export const IlabMarkerCanvas = (props) => {
     const handleDeleteMarkers = (flag) => {
         if (flag) {
             setMarker([]);
-            setPaths([]);
         }
     };
 
@@ -253,6 +273,7 @@ export const IlabMarkerCanvas = (props) => {
             setModeStyle({})
             setStart(null)
             setTemp(null);
+            stopDrawing();
             handleOpenModal(rectangleModalSchema, markers.length + 1, null);
         }
         if (mode === 'pencil') {
@@ -261,6 +282,7 @@ export const IlabMarkerCanvas = (props) => {
 
         if (mode === 'pencil') {
             stopDrawing();
+            handleOpenModal(pencilModalSchema, markers.length, markers?.find(item => `${item.id}` === `${markers.length}`));
         }
 
         if (mode === 'camera') {
@@ -294,10 +316,10 @@ export const IlabMarkerCanvas = (props) => {
 
         }
 
-        if(mode === 'pencil'){
+        if (mode === 'pencil') {
             setTemp({
                 id: markers.length + 1,
-                x: e.nativeEvent.offsetX ,
+                x: e.nativeEvent.offsetX,
                 y: e.nativeEvent.offsetY,
                 width: 0,
                 height: 0,
@@ -361,10 +383,13 @@ export const IlabMarkerCanvas = (props) => {
                 height: (m.type === 'marker' || m.type === 'camera') ? (size.height / newScale) : m.height,
                 type: m.type,
                 color: m?.color,
-                label: m?.label
+                label: m?.label,
+                pathData: m?.pathData ? m?.pathData : null,
+                room: m?.room ? m?.room : null,
+                thickness: m?.thickness ? m?.thickness : null
             }
         })
-        setMarker(newMarkers)
+        setMarker(newMarkers);
     }
 
     const listStyles = {
@@ -438,7 +463,7 @@ export const IlabMarkerCanvas = (props) => {
                                                                 <g>
                                                                     <image x="0" y="0" width="100%" height="100%"
                                                                         className={(mode === 'rectangle' || mode === 'pencil') ? 'drag-exclude' : ''}
-                                                                        onMouseUp={(e) => handleMouseUp(e) }
+                                                                        onMouseUp={(e) => handleMouseUp(e)}
                                                                         onMouseDown={(e) => handleMouseDown(e)}
                                                                         onMouseMove={(e) => handleMouseMove(e)}
                                                                         xlinkHref={planImage ? planImage : defaultImage}
@@ -536,16 +561,27 @@ export const IlabMarkerCanvas = (props) => {
 
                                                                         ))}
                                                                     </g>
+                                                                    <g data-cell-id="03">
+
+                                                                        {markers.map((path, index) => (
+                                                                            <Fragment key={index}>
+                                                                                {path.type === 'pencil' &&
+                                                                                    <path
+                                                                                        key={index + 1}
+                                                                                        d={path.pathData}
+                                                                                        stroke={path.color}
+                                                                                        strokeWidth={path.thickness}
+                                                                                        fill="transparent"
+                                                                                        onClick={(e) => { setCurrentId(index + 1); handleOpenModal(pencilModalSchema, index + 1, path) }}
+                                                                                        cursor="pointer"
+                                                                                    />
+                                                                                }
+
+                                                                            </Fragment>
+
+                                                                        ))}
+                                                                    </g>
                                                                 </g>
-                                                                {paths.map((path, index) => (
-                                                                    <path
-                                                                        key={index}
-                                                                        d={path.pathData}
-                                                                        stroke={path.color}
-                                                                        strokeWidth={path.thickness}
-                                                                        fill="transparent"
-                                                                    />
-                                                                ))}
                                                             </svg>
                                                         </TransformComponent>
                                                     </>
@@ -578,7 +614,7 @@ export const IlabMarkerCanvas = (props) => {
                                                         </li>
                                                     )
                                                 }
-                                                else {
+                                                else if (m.type === 'camera') {
                                                     return (
                                                         <li key={i} style={listStyles.listItem}>
                                                             <span style={listStyles.text}>
@@ -586,6 +622,16 @@ export const IlabMarkerCanvas = (props) => {
                                                                 {/* {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)} */}
                                                                 {m.type}
                                                             </span>
+                                                        </li>
+                                                    )
+                                                }
+                                                else {
+                                                    return (
+                                                        <li key={i} style={listStyles.listItem}>
+                                                            <div style={{ display: "flex", alignItems: "center" }}>
+                                                                <div style={{ width: "20px", height: `${m?.thickness}px`, backgroundColor: m?.color }}></div>
+                                                                <div style={{ fontSize: "16px", marginLeft: "10px" }}>{m?.label ? m.label : m.type}</div>
+                                                            </div>
                                                         </li>
                                                     )
                                                 }
