@@ -71,16 +71,34 @@ export const ViewFloor = () => {
                 , fields: [
                     {
                         text: 'Tower', field: 'parentId', type: 'lookup-link', required: false, width: 12,
-                        schema: { module: 'plan', filter: 'type', value: 'tower', path:'towers' }
+                        schema: { module: 'plan', filter: 'type', value: 'tower', path: 'towers' }
                     },
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'h5', required: true, width: 12 },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'p', required: true, width: 12 }
                 ]
             },
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect' },
+            //     ]
+            // },
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect' },
+                    {
+                        text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        schema: {
+                            upload: false,
+                            save: true,
+                            markers: {
+                                balloon: true,
+                                rectangle: true,
+                                pencil: true,
+                                camera: false
+                            }
+                        }
+                    },
                 ]
             },
             {

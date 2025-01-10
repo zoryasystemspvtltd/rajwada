@@ -18,7 +18,7 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const [profilePicture, setProfilePicture] = useState([]);
     // Get the theme from localStorage or set the default to 'theme1'
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme') || 'red';
     const [theme, setTheme] = useState(savedTheme);
 
     const menuToHeader = (roleName) => {

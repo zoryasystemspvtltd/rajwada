@@ -21,7 +21,7 @@ export const ListActivity = () => {
                 schema: { module: 'project' }
             },
             {
-                text: 'Dependency', field: 'dependencyId', type: 'lookup-link', sorting: false, searching: false,
+                text: 'Dependency', field: 'dependencyId', type: 'lookup', sorting: false, searching: false,
                 schema: { module: 'workflow' }
             }
         ]
@@ -366,7 +366,7 @@ export const AddActivity = () => {
                     { text: 'Actual Start Date', field: 'actualStartDate', placeholder: 'Actual Start Date here...', width: 4, type: 'date', required: false },
                     { text: 'Actual End Date', field: 'actualEndDate', placeholder: 'Actual End Date here...', width: 4, type: 'date', required: false },
                     {
-                        text: 'Status', field: 'workflowState', width: 4, type: 'lookup-enum', required: false,
+                        text: 'Status', field: 'workflowState', width: 4, type: 'lookup', required: false,
                         // schema: { module: 'stateType' }
                         schema: {
                             items: [ // or use items for fixed value
