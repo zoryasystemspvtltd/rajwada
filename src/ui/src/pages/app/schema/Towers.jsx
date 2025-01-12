@@ -195,7 +195,15 @@ export const AddTower = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true,
+                        parent: 'projectId',
+                        schema: {
+                            type: "lookup",
+                            module: 'project',
+                            relationKey: "blueprint",
+                        },
+                    },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "tower" }

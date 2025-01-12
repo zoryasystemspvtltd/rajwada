@@ -178,7 +178,17 @@ export const AddFlat = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect', required: true,
+                        parent: 'parentId',
+                        schema: {
+                            type: "lookup-filter",
+                            module: 'plan',
+                            relationKey: "blueprint",
+                            filter: 'type',
+                            value: 'floor'
+                        },
+                    },
                 ]
             },
         ]

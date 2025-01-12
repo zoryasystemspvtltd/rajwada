@@ -383,12 +383,12 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'lookup' &&
                                     <>
-                                        <Form.Group className="position-relative form-group">                                            
-                                                <Form.Label htmlFor={fld.field} >{fld.text}
-                                                    {fld.required &&
-                                                        <span className="text-danger">*</span>
-                                                    }
-                                                </Form.Label>                                            
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
                                             <IUILookUp
                                                 value={fld?.defaultValue || data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
@@ -469,10 +469,18 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'picture-upload' &&
                                     <>
-                                        <Form.Group className="position-relative">
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
                                             <IUIPictureUpload value={data[fld.field] || []}
+                                                parentId={data[fld?.parent]}
+                                                schema={fld?.schema}
                                                 id={fld.field}
                                                 text={fld.text}
+                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                 onChange={handleChange}
                                                 readonly={props.readonly || fld.readonly || false}
                                                 shape={fld.shape || "circle"}
@@ -527,7 +535,7 @@ const IUIPageElement = (props) => {
                                             id={fld.field}
                                             schema={fld.schema}
                                             //value={data[fld.field]} //TODO
-                                            parentId={data.id} 
+                                            parentId={data.id}
                                             onChange={handleChange}
                                             readonly={props.readonly || fld.readonly || false}
                                         />

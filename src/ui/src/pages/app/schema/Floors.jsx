@@ -110,7 +110,6 @@ export const ViewFloor = () => {
                             title: 'Flat',
                             module: 'plan',
                             relationKey: "parentId",
-                            title: 'Flat',
                             path: 'flats',
                             paging: true,
                             searching: true,
@@ -185,7 +184,17 @@ export const AddFloor = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true,
+                        parent: 'parentId',
+                        schema: {
+                            type: "lookup-filter",
+                            module: 'plan',
+                            relationKey: "blueprint",
+                            filter: 'type',
+                            value: 'tower'
+                        },
+                    },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "floor" }

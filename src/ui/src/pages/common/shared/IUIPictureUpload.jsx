@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import api from '../../../store/api-service'
 import Form from 'react-bootstrap/Form';
 
 const IUIPictureUpload = (props) => {
+    const schema = props?.schema;
     const shape = props?.shape;
     const [file, setFile] = useState([]);
+    const [baseFilter, setBaseFilter] = useState({});
     const fileRef = React.createRef()
     const cardBodyStyle = {
         display: 'flex',
@@ -15,6 +18,53 @@ const IUIPictureUpload = (props) => {
         overflow: 'hidden',
         position: 'relative'
     };
+
+    useEffect(() => {
+        async function fetchPictureData() {
+            try {
+                if (file.length > 0) return;
+
+                // Prepare the filter object based on schema
+                const newBaseFilter = {
+                    name: schema?.filter,
+                    value: schema?.value,
+                    // operator: 'likelihood' // Default value is equal
+                };
+
+                setBaseFilter(newBaseFilter);  // Update the base filter state
+
+                // Define pageOptions based on schema type
+                let pageOptions = { recordPerPage: 0 };
+                if (schema?.type === "lookup-filter") {
+                    pageOptions = {
+                        ...pageOptions,
+                        searchCondition: newBaseFilter,
+                    };
+                }
+
+                // API call
+                const response = await api.getData({ module: schema?.module, options: pageOptions });
+                const parent = response?.data?.items?.find(data => data?.id === parseInt(props?.parentId));
+
+                if (parent) {
+                    setFile(parent[schema?.relationKey]);
+                    props.onChange({
+                        target: {
+                            id: props?.id,
+                            value: parent[schema?.relationKey],
+                        },
+                        preventDefault: () => { },
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching picture data:", error);
+            }
+        }
+
+        if (schema && props?.parentId && file.length === 0) {
+            fetchPictureData();
+        }
+    }, [schema?.parentId, file, schema?.filter, schema?.value, schema?.module]);
 
     useEffect(() => {
         if (props?.value)
@@ -57,11 +107,11 @@ const IUIPictureUpload = (props) => {
             {
                 (shape === "circle") && (
                     <div className="card position-relative" style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }}>
-                        <div className="card-body" style={cardBodyStyle}>
+                        <div className={`card-body form-control ${props.className}`} style={cardBodyStyle}>
                             <button className="btn top-0 end-0" onClick={triggerClick}>
                                 {/* <i className="metismenu-icon fa-solid fa-cogs"></i> */}
                                 {
-                                    (file.length > 0) && <img src={file} style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }} title='Profile Picture' alt='Profile Picture' />
+                                    (file.length > 0) && <img src={file} style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }} title={props?.placeholder} alt={props?.placeholder} />
                                 }
                                 {
                                     (file.length === 0) && <span className="profile-pic-upload-text">
@@ -87,11 +137,11 @@ const IUIPictureUpload = (props) => {
             {
                 (shape === "rect") && (
                     <div className="card position-relative" style={{ width: "50rem", height: "30rem", margin: "auto" }}>
-                        <div className="card-body" style={cardBodyStyle}>
+                        <div className={`card-body form-control ${props.className}`} style={cardBodyStyle}>
                             <button className="btn top-0 end-0 btn-info" onClick={triggerClick}>
                                 {/* <i className="metismenu-icon fa-solid fa-cogs"></i> */}
                                 {
-                                    (file.length > 0) && <img src={file} style={{ width: "50rem", height: "30rem", margin: "auto" }} title='Profile Picture' alt='Profile Picture' />
+                                    (file.length > 0) && <img src={file} style={{ width: "50rem", height: "30rem", margin: "auto" }} title={props?.placeholder} alt={props?.placeholder} />
                                 }
                                 {
                                     (file.length === 0) && <span className="profile-pic-upload-text">
