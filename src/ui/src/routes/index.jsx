@@ -23,7 +23,7 @@ import ChangePasswordSuccess from "../pages/app/ChangePasswordSuccess";
 import Dashboard from "../pages/app/Dashboard";
 import { EditProfile, ViewProfile } from "../pages/app/Profile";
 import { AddActivity, EditActivity, ListActivity, ViewActivity } from "../pages/app/schema/Activities";
-import { EditReport, ListReport, ViewReport } from "../pages/app/schema/Report";
+import { EditReport, ListReport, ViewReport, ListReportTrack } from "../pages/app/schema/Report";
 import { AddDepartment, EditDepartment, ListDepartment, ViewDepartment } from "../pages/app/schema/Departments";
 import { AddWorkItem, EditWorkItem, ListWorkItem, ViewWorkItem } from "../pages/app/schema/Dependencies";
 import { AddItemType, EditItemType, ListItemType, ViewItemType } from "../pages/app/schema/ItemType";
