@@ -7,6 +7,7 @@ const IUIPictureUpload = (props) => {
     const shape = props?.shape;
     const [file, setFile] = useState([]);
     const [baseFilter, setBaseFilter] = useState({});
+    const [parentData, setParentData] = useState([]);
     const fileRef = React.createRef()
     const cardBodyStyle = {
         display: 'flex',
@@ -20,31 +21,38 @@ const IUIPictureUpload = (props) => {
     };
 
     useEffect(() => {
+        async function fetchData() {
+            // Prepare the filter object based on schema
+            const newBaseFilter = {
+                name: schema?.filter,
+                value: schema?.value,
+                // operator: 'likelihood' // Default value is equal
+            };
+
+            setBaseFilter(newBaseFilter);  // Update the base filter state
+
+            // Define pageOptions based on schema type
+            let pageOptions = { recordPerPage: 0 };
+            if (schema?.type === "lookup-filter") {
+                pageOptions = {
+                    ...pageOptions,
+                    searchCondition: newBaseFilter,
+                };
+            }
+
+            const response = await api.getData({ module: schema?.module, options: pageOptions });
+            setParentData(response?.data?.items);
+        }
+
+        fetchData();
+    }, [schema?.filter, schema?.value, schema?.module, schema?.type]);
+
+    useEffect(() => {
         async function fetchPictureData() {
             try {
-                if (file.length > 0) return;
+                // if (file.length > 0) return;
 
-                // Prepare the filter object based on schema
-                const newBaseFilter = {
-                    name: schema?.filter,
-                    value: schema?.value,
-                    // operator: 'likelihood' // Default value is equal
-                };
-
-                setBaseFilter(newBaseFilter);  // Update the base filter state
-
-                // Define pageOptions based on schema type
-                let pageOptions = { recordPerPage: 0 };
-                if (schema?.type === "lookup-filter") {
-                    pageOptions = {
-                        ...pageOptions,
-                        searchCondition: newBaseFilter,
-                    };
-                }
-
-                // API call
-                const response = await api.getData({ module: schema?.module, options: pageOptions });
-                const parent = response?.data?.items?.find(data => data?.id === parseInt(props?.parentId));
+                const parent = parentData?.find(data => data?.id === parseInt(props?.parentId));
 
                 if (parent) {
                     setFile(parent[schema?.relationKey]);
@@ -61,10 +69,10 @@ const IUIPictureUpload = (props) => {
             }
         }
 
-        if (schema && props?.parentId && file.length === 0) {
+        if (schema && props?.parentId) {
             fetchPictureData();
         }
-    }, [schema?.parentId, file, schema?.filter, schema?.value, schema?.module]);
+    }, [props?.parentId, file]);
 
     useEffect(() => {
         if (props?.value)
