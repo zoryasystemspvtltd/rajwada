@@ -73,6 +73,6 @@ namespace ILab.Data
                 logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
                 return 0;
             }
-        }
+        }        
     }
 }
