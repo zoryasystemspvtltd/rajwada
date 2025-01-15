@@ -1509,9 +1509,6 @@
 "BulkDataUpload": {
 "type": "object",
 "properties": {
-"DataModel": {
-"type": "string",
-},
 "File": {
 "type": "string",
 },

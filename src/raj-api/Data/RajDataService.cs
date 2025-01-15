@@ -73,11 +73,6 @@ namespace ILab.Data
                 logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
                 return 0;
             }
-        }
-
-        internal async Task AddAsync(string v, dynamic data, object value)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 }

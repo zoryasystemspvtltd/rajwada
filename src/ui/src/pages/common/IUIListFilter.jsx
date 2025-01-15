@@ -12,6 +12,7 @@ import IUILookUp from './shared/IUILookUp';
 import { HiOutlineUpload } from 'react-icons/hi';
 import { RiDownload2Fill } from 'react-icons/ri';
 import * as XLSX from 'xlsx';
+import api from '../../store/api-service';
 
 const IUIListFilter = (props) => {
     const schema = props.schema;
@@ -46,20 +47,26 @@ const IUIListFilter = (props) => {
         //     setMessage("Error: Invalid file type. Please upload an Excel file (.xlsx, .xls).");
         // }
         const file = event.target.files[0];
-
         if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const arrayBuffer = e.target.result;
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const sheetName = workbook.SheetNames[0]; // Assuming the first sheet is needed
-                const sheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(sheet);
-                console.log(jsonData);
-                setData(jsonData);
-                setMessage("File successfully uploaded!");
-            };
-            reader.readAsArrayBuffer(file);
+            const formData = new FormData();
+            formData.append('file', file); // Attach the file with the key 'file'
+            
+            api.uploadExcelFile({ module:module, data: formData })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json(); // Assuming the backend returns a JSON response
+                } else {
+                    throw new Error('Failed to upload file');
+                }
+            })
+            .then((data) => {//handle modal next.
+                console.log('File uploaded successfully:', data);
+                setMessage('File successfully uploaded!');
+            })
+            .catch((error) => {
+                console.error('Error uploading file:', error);
+                setMessage('Error uploading file. Please try again.');
+            });
         } else {
             setMessage('Error: Invalid file type. Please upload an Excel file (.xlsx, .xls).');
         }
@@ -113,7 +120,7 @@ const IUIListFilter = (props) => {
 
     const handleSearch = async (e) => {
         e.preventDefault();
-        if (search) {
+        if (search) {            
             const searchFields = schema.fields
                 .filter(fld => fld.searching)
                 .map(fld => ({ name: fld.field, value: search, operator: 'likelihood' }));
@@ -179,7 +186,7 @@ const IUIListFilter = (props) => {
                                                 document.body.removeChild(link);
                                             }}
                                         >
-                                            <RiDownload2Fill className="inline-block mr-2" />
+                                            <RiDownload2Fill className="inline-block mr-2"/>
                                             Download
                                         </Button>
                                     }
@@ -189,7 +196,7 @@ const IUIListFilter = (props) => {
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
                                             onClick={handleButtonClick}
                                         >
-                                            <HiOutlineUpload className="inline-block mr-2" />
+                                            <HiOutlineUpload className="inline-block mr-2"/>
                                             <input
                                                 type='file'
                                                 accept='.xlsx'

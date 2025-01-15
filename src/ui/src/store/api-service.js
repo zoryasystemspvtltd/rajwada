@@ -97,11 +97,6 @@ api.registerUser = async (action) => {
     return response;
 }
 
-api.saveData = async (action) => {
-    const response = await api.post(`/bulkdataupload`, action.data);
-    return response;
-}
-
 api.deleteData = async (action) => {
     const url = `${action.module}/${action.id}`;
     return await api.delete(url);
@@ -145,8 +140,8 @@ api.getModules = async () => {
 }
 
 api.uploadExcelFile = async (action) => {
-    const url = `file/upload?module=${action.module}`;
-    return await api.post(url, action.data);
+    const response = await api.post(`/bulkdataupload`, action.data);
+    return response;
 }
 
 export default api;
