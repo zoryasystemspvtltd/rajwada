@@ -12,8 +12,6 @@ import IUILookUp from './shared/IUILookUp';
 import { HiOutlineUpload } from 'react-icons/hi';
 import { RiDownload2Fill } from 'react-icons/ri';
 import * as XLSX from 'xlsx';
-import api from '../../store/api-service'
-import { setSave } from '../../store/api-db'
 
 const IUIListFilter = (props) => {
     const schema = props.schema;
@@ -29,6 +27,24 @@ const IUIListFilter = (props) => {
     const [data, setData] = useState([]);
 
     const handleFileUpload = (event) => {
+        // const file = event.target.files[0];
+
+        // if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+        //     const reader = new FileReader();
+        //     reader.onload = (e) => {
+        //         const arrayBuffer = e.target.result;
+        //         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        //         const sheetName = workbook.SheetNames[0]; // Assuming the first sheet is needed
+        //         const sheet = workbook.Sheets[sheetName];
+        //         const jsonData = XLSX.utils.sheet_to_json(sheet);
+        //         console.log(jsonData);
+        //         setData(jsonData);
+        //         setMessage("File successfully uploaded!");
+        //     };
+        //     reader.readAsArrayBuffer(file);
+        // } else {
+        //     setMessage("Error: Invalid file type. Please upload an Excel file (.xlsx, .xls).");
+        // }
         const file = event.target.files[0];
 
         if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
@@ -44,14 +60,10 @@ const IUIListFilter = (props) => {
                 setMessage("File successfully uploaded!");
             };
             reader.readAsArrayBuffer(file);
-            var dataUpload = { dataModel: "", rawData: "" };
-            dataUpload.dataModel = module;
-            dataUpload.rawData = data;
-            api.saveData(dataUpload);
-            dispatch(setSave({ module: module }))
         } else {
-            setMessage("Error: Invalid file type. Please upload an Excel file (.xlsx, .xls).");
+            setMessage('Error: Invalid file type. Please upload an Excel file (.xlsx, .xls).');
         }
+        
     }
 
     const handleButtonClick = () => {

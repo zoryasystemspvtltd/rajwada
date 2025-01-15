@@ -144,4 +144,10 @@ api.getModules = async () => {
     return await api.get(url);
 }
 
+api.uploadExcelFile = async (action) => {
+    const url = `file/upload?module=${action.module}`;
+    return await api.post(url, action.data);
+}
+
 export default api;
+
