@@ -99,11 +99,11 @@ export const ViewTower = () => {
                         text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
                             upload: false,
-                            save: true,
+                            save: false,
                             markers: {
-                                balloon: true,
-                                rectangle: true,
-                                pencil: true,
+                                balloon: false,
+                                rectangle: false,
+                                pencil: false,
                                 camera: false
                             }
                         }
@@ -161,10 +161,28 @@ export const EditTower = () => {
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
             },
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+            //     ]
+            // },
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        schema: {
+                            upload: true,
+                            save: true,
+                            markers: {
+                                balloon: true,
+                                rectangle: true,
+                                pencil: true,
+                                camera: false
+                            }
+                        }
+                    },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "tower" }

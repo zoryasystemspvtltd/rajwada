@@ -90,11 +90,11 @@ export const ViewFloor = () => {
                         text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
                             upload: false,
-                            save: true,
+                            save: false,
                             markers: {
-                                balloon: true,
-                                rectangle: true,
-                                pencil: true,
+                                balloon: false,
+                                rectangle: false,
+                                pencil: false,
                                 camera: false
                             }
                         }
@@ -153,7 +153,19 @@ export const EditFloor = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        schema: {
+                            upload: true,
+                            save: true,
+                            markers: {
+                                balloon: true,
+                                rectangle: true,
+                                pencil: true,
+                                camera: false
+                            }
+                        }
+                    },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "floor" }

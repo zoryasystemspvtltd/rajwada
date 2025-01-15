@@ -423,7 +423,7 @@ export const IlabMarkerCanvas = (props) => {
                                         {
                                             (schema?.upload) && (
                                                 <div className="mb-2">
-                                                    <h6>Image Upload</h6>
+                                                    {/* <h6>Image Upload</h6> */}
                                                     <input type="file" accept="image/*" onChange={handlePlanImageChange} />
                                                 </div>
                                             )

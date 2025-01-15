@@ -81,18 +81,18 @@ export const ViewFlat = () => {
                         text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
                             upload: false,
-                            save: true,
+                            save: false,
                             markers: {
-                                balloon: true,
-                                rectangle: true,
-                                pencil: true,
+                                balloon: false,
+                                rectangle: false,
+                                pencil: false,
                                 camera: false
                             }
                         }
                     },
                 ]
             },
-            /*
+
             {
                 type: "area", width: 12
                 , fields: [
@@ -118,7 +118,7 @@ export const ViewFlat = () => {
                         },
                     }
                 ]
-            } */
+            }
         ]
     }
 
@@ -146,7 +146,19 @@ export const EditFlat = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        schema: {
+                            upload: true,
+                            save: true,
+                            markers: {
+                                balloon: true,
+                                rectangle: true,
+                                pencil: true,
+                                camera: false
+                            }
+                        }
+                    },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "flat" }
