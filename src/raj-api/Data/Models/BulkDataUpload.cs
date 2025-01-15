@@ -5,7 +5,7 @@ namespace RajApi.Data.Models
     public class BulkDataUpload : LabModel
     {
         public string? DataModel { get; set; }
-        public string? RawData { get; set; }
+        public required IFormFile File { get; set; }
     }
 
     public class Tower

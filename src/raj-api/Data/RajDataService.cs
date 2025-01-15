@@ -74,5 +74,10 @@ namespace ILab.Data
                 return 0;
             }
         }
+
+        internal async Task AddAsync(string v, dynamic data, object value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
