@@ -73,6 +73,29 @@ namespace ILab.Data
                 logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
                 return 0;
             }
-        }        
+        }
+
+        public virtual async Task<long> UploadDataAsync(string model, dynamic data, CancellationToken token)
+        {
+            try
+            {
+                var type = GetType(model);
+                if (type == null) { return -1; }               
+
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.AddAsync));
+                var generic = method?.MakeGenericMethod(type);
+                object[] parameters = { data, token };
+                var task = (Task<long>)generic.Invoke(handler, parameters);
+
+                var result = await task;
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+                return 0;
+            }
+        }
     }
 }

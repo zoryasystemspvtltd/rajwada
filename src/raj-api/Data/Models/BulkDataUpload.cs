@@ -3,7 +3,7 @@
 namespace RajApi.Data.Models
 {
     public class BulkDataUpload : LabModel
-    {
+    {       
         public required IFormFile File { get; set; }
     }
 

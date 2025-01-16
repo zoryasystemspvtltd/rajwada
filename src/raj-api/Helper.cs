@@ -23,7 +23,7 @@ public class HasPrivilegesAttribute : TypeFilterAttribute
 public class HasPrivilegesFilter : IAuthorizationFilter
 {
     readonly PrivilegeDetails _privilege;
-    
+
 
     public HasPrivilegesFilter(PrivilegeDetails privilege)
     {
@@ -34,8 +34,15 @@ public class HasPrivilegesFilter : IAuthorizationFilter
     {
 
         string[] publicModules = ["department"];
+        string module;
         // White listing
-        var module = context.HttpContext.Request.RouteValues.GetValueOrDefault("module");
+        var controller = context.HttpContext.Request.RouteValues.GetValueOrDefault("controller").ToString().ToLower();
+        if (controller == "bulkdataupload")
+        {
+            module = context.HttpContext.Request.QueryString.Value.Split('=')[1].ToString();
+        }
+        else
+            module = context.HttpContext.Request.RouteValues.GetValueOrDefault("module").ToString();
         if (!publicModules.Contains(module))
         {
             if (module == null)

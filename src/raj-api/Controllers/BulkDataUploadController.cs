@@ -8,7 +8,6 @@ using ILab.Extensionss.Common;
 using System.Data;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using Azure;
 
 namespace RajApi.Controllers;
 
@@ -25,7 +24,7 @@ public class BulkDataUploadController : ControllerBase
         this.dataService = dataService;
     }
 
-    //[HasPrivileges("add")]
+    [HasPrivileges("add")]
     [HttpPost]
     public async Task<dynamic> PostAsync([FromForm] BulkDataUpload model, CancellationToken token)
     {
@@ -44,6 +43,10 @@ public class BulkDataUploadController : ControllerBase
                 Directory.CreateDirectory(folderPath);
             }
             string fileName = model.File.FileName.Split('.')[0];
+            string module = HttpContext.Request.QueryString.Value.Split('=')[1].ToString();
+            //bool flag = CheckedTemplateAccordingtoModule(fileName, module);
+            //if (flag)
+            //{
             string uniquefilename = string.Concat(fileName, DateTime.Now.ToString("ddMMyyyymmss"), ".xlsx");
             string filepath = Path.Combine(folderPath, uniquefilename);
             //save uploaded file
@@ -51,7 +54,10 @@ public class BulkDataUploadController : ControllerBase
             {
                 await model.File.CopyToAsync(fileStream);
             }
-            response = await ProcessExcelData(fileName, filepath, token, response);
+            response = await ProcessExcelData(fileName, filepath, response, token);
+            //}
+            //else
+            //    response.FailureData.Add("Uploaded a wrong template file!");
 
         }
         catch (Exception ex)
@@ -63,7 +69,8 @@ public class BulkDataUploadController : ControllerBase
         return response;
     }
 
-    private async Task<BulkResponse> ProcessExcelData(string dataModel, string filePath, CancellationToken token, BulkResponse response)
+
+    private async Task<BulkResponse> ProcessExcelData(string dataModel, string filePath, BulkResponse response, CancellationToken token)
     {
         try
         {
@@ -97,7 +104,7 @@ public class BulkDataUploadController : ControllerBase
 
             // Save DataTable to database
             if (dt.Rows.Count > 0)
-                response = await SaveToDatabase(dataModel, dt, token, response);
+                response = await SaveToDatabase(dataModel, dt, response, token);
             else
                 response.FailureData?.Add("No data in excelsheet");
         }
@@ -109,21 +116,8 @@ public class BulkDataUploadController : ControllerBase
         return response;
 
     }
-    public static string GetCellValue(SpreadsheetDocument document, Cell cell)
-    {
-        SharedStringTablePart stringTablePart = document.WorkbookPart.SharedStringTablePart;
-        string value = cell.CellValue.InnerXml;
 
-        if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
-        {
-            return stringTablePart.SharedStringTable.ChildElements[Int32.Parse(value)].InnerText;
-        }
-        else
-        {
-            return value;
-        }
-    }
-    private async Task<BulkResponse> SaveToDatabase(string dataModel, DataTable dataTable, CancellationToken token, BulkResponse response)
+    private async Task<BulkResponse> SaveToDatabase(string dataModel, DataTable dataTable, BulkResponse response, CancellationToken token)
     {
         try
         {
@@ -149,7 +143,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 if (data != null)
-                    await dataService.AddAsync("Plan", data, token);
+                    await dataService.UploadDataAsync("Plan", data, token);
             }
         }
         catch (Exception ex)
@@ -162,11 +156,11 @@ public class BulkDataUploadController : ControllerBase
     private (dynamic?, BulkResponse) CreateFloorDataModel(DataRow dataRow, string member, string key, BulkResponse response)
     {
         //Get Tower details
-        var tower = GetModuleDetails("Tower", "Name", dataRow[2].ToString(), member, key);
+        var tower = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "tower", member, key);
         if (tower != null)
         {
             //Duplicate checking
-            var floor = GetModuleDetails("Floor", "Name", dataRow[0].ToString(), member, key);
+            var floor = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "floor", member, key);
             if (floor == null)
             {
                 response.SuccessData.Add(dataRow[0].ToString());
@@ -199,11 +193,11 @@ public class BulkDataUploadController : ControllerBase
     private (dynamic?, BulkResponse) CreateFlatDataModel(DataRow dataRow, string member, string key, BulkResponse response)
     {
         //Get Floor details
-        var floor = GetModuleDetails("Floor", "Name", dataRow[2].ToString(), member, key);
+        var floor = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "floor", member, key);
         if (floor != null)
         {
             //Duplicate checking
-            var flat = GetModuleDetails("Flat", "Name", dataRow[0].ToString(), member, key);
+            var flat = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "flat", member, key);
             if (floor == null)
             {
                 response.SuccessData.Add(dataRow[0].ToString());
@@ -236,11 +230,11 @@ public class BulkDataUploadController : ControllerBase
     private (dynamic?, BulkResponse) CreateTowerDataModel(DataRow dataRow, string member, string key, BulkResponse response)
     {
         //Get Project details
-        var project = GetModuleDetails("Project", "Name", dataRow[2].ToString(), member, key);
+        var project = GetModuleDetails("Project", "Name", dataRow[2].ToString(), null, member, key);
         if (project != null)
         {
             //Duplicate checking
-            var tower = GetModuleDetails("Tower", "Name", dataRow[0].ToString(), member, key);
+            var tower = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "tower", member, key);
             if (tower == null)
             {
                 response.SuccessData.Add(dataRow[0].ToString());
@@ -269,7 +263,7 @@ public class BulkDataUploadController : ControllerBase
         }
     }
 
-    private dynamic? GetModuleDetails(string model, string name, string? value, string member, string key)
+    private dynamic? GetModuleDetails(string model, string name, string? value, string? type, string member, string key)
     {
         dataService.Identity = new ModuleIdentity(member, key);
         ListOptions option = new();
@@ -279,10 +273,21 @@ public class BulkDataUploadController : ControllerBase
             Name = name,
             Value = value
         };
+        if (type != null)
+        {
+            var typecon = new Condition()
+            {
+                Name = "Type",
+                Value = type,
+                Operator = OperatorType.Likelihood
+            };
+            con.And = typecon;
+        }
+
         option.SearchCondition = con;
         var data = dataService.Get(model, option);
 
-        if (data != null)
+        if (data.Items.Count > 0)
         {
             return data.Items[0];
         }
@@ -291,6 +296,46 @@ public class BulkDataUploadController : ControllerBase
             logger.LogError("No data retrive from backend for " + model + "  name:" + value);
             return null;
         }
+    }
+
+    public static string GetCellValue(SpreadsheetDocument document, Cell cell)
+    {
+        SharedStringTablePart stringTablePart = document.WorkbookPart.SharedStringTablePart;
+        string value = cell.CellValue.InnerXml;
+
+        if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
+        {
+            return stringTablePart.SharedStringTable.ChildElements[Int32.Parse(value)].InnerText;
+        }
+        else
+        {
+            return value;
+        }
+    }
+
+    private static bool CheckedTemplateAccordingtoModule(string fileName, string module)
+    {
+        bool flag = false;
+        if (fileName.Equals("TOWERDETAILS", StringComparison.CurrentCultureIgnoreCase) && module.Equals("TOWER", StringComparison.CurrentCultureIgnoreCase))
+        {
+            flag = true;
+        }
+        else
+            flag = false;
+        if (fileName.Equals("FLOORDETAILS", StringComparison.CurrentCultureIgnoreCase) && module.Equals("FLOOR", StringComparison.CurrentCultureIgnoreCase))
+        {
+            flag = true;
+        }
+        else
+            flag = false;
+        if (fileName.Equals("FLATDETAILS", StringComparison.CurrentCultureIgnoreCase) && module.Equals("FLAT", StringComparison.CurrentCultureIgnoreCase))
+        {
+            flag = true;
+        }
+        else
+            flag = false;
+
+        return flag;
     }
 }
 
