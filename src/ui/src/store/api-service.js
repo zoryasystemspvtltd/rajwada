@@ -140,7 +140,8 @@ api.getModules = async () => {
 }
 
 api.uploadExcelFile = async (action) => {
-    const response = await api.post(`/bulkdataupload`, action.data);
+    const url = `/bulkdataupload?module=${action.module}`;
+    const response = await api.post(url, action.data);
     return response;
 }
 

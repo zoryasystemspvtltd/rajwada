@@ -4,9 +4,19 @@ namespace RajApi.Data.Models
 {
     public class BulkDataUpload : LabModel
     {
-       public required IFormFile File { get; set; }
+        public required IFormFile File { get; set; }
     }
 
+    public class BulkResponse
+    {
+        public BulkResponse()
+        {
+            SuccessData = [];
+            FailureData = [];
+        }
+        public List<string> SuccessData { get; set; }
+        public List<string> FailureData { get; set; }
+    }
     public class Tower
     {
         public required string Name { get; set; }
