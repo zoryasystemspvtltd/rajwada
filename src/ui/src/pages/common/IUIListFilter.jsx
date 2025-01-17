@@ -11,9 +11,7 @@ import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from './shared/IUILookUp';
 import { HiOutlineUpload } from 'react-icons/hi';
 import { RiDownload2Fill } from 'react-icons/ri';
-import * as XLSX from 'xlsx';
-import api from '../../store/api-service'
-import { setSave } from '../../store/api-db'
+import api from '../../store/api-service';
 
 const IUIListFilter = (props) => {
     const schema = props.schema;
@@ -26,32 +24,33 @@ const IUIListFilter = (props) => {
     const navigate = useNavigate();
     const [message, setMessage] = useState("");
     const fileInputRef = useRef(null);
-    const [data, setData] = useState([]);
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
-
         if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const arrayBuffer = e.target.result;
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const sheetName = workbook.SheetNames[0]; // Assuming the first sheet is needed
-                const sheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(sheet);
-                console.log(jsonData);
-                setData(jsonData);
-                setMessage("File successfully uploaded!");
-            };
-            reader.readAsArrayBuffer(file);
-            var dataUpload = { dataModel: "", rawData: "" };
-            dataUpload.dataModel = module;
-            dataUpload.rawData = data;
-            api.saveData(dataUpload);
-            dispatch(setSave({ module: module }))
+            const formData = new FormData();
+            formData.append('file', file); // Attach the file with the key 'file'
+
+            api.uploadExcelFile({ module: schema?.module, data: formData })
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json(); // Assuming the backend returns a JSON response
+                    } else {
+                        throw new Error('Failed to upload file');
+                    }
+                })
+                .then((data) => {//handle modal next.
+                    console.log('File uploaded successfully:', data);
+                    setMessage('File successfully uploaded!');
+                })
+                .catch((error) => {
+                    console.error('Error uploading file:', error);
+                    setMessage('Error uploading file. Please try again.');
+                });
         } else {
-            setMessage("Error: Invalid file type. Please upload an Excel file (.xlsx, .xls).");
+            setMessage('Error: Invalid file type. Please upload an Excel file (.xlsx, .xls).');
         }
+
     }
 
     const handleButtonClick = () => {

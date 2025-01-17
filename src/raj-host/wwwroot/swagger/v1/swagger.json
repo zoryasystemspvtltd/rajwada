@@ -1509,10 +1509,7 @@
 "BulkDataUpload": {
 "type": "object",
 "properties": {
-"DataModel": {
-"type": "string",
-},
-"RawData": {
+"File": {
 "type": "string",
 },
 "Id": {
