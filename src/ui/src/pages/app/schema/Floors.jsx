@@ -1,4 +1,4 @@
-import IUIList from "../../common/IUIList";
+import { useParams } from "react-router-dom";
 import IUIListFilter from "../../common/IUIListFilter";
 import IUIPage from "../../common/IUIPage"
 
@@ -54,6 +54,8 @@ export const FloorDashboard = () => {
 }
 
 export const ViewFloor = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'plan',
         title: 'Floor',
@@ -91,12 +93,20 @@ export const ViewFloor = () => {
                         schema: {
                             upload: false,
                             save: false,
-                            markers: {
+                            parentId: id,
+                            parent: {
+                                module: 'plan',
+                                filter: 'planId',
+                            },
+                            controls: {
                                 balloon: false,
                                 rectangle: false,
                                 pencil: false,
-                                camera: false
-                            }
+                                camera: false,
+                                delete: false,
+                                reset: false
+                            },
+                            module: 'unitOfWork'
                         }
                     },
                 ]
@@ -133,6 +143,8 @@ export const ViewFloor = () => {
 }
 
 export const EditFloor = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'plan',
         title: 'Floor',
@@ -156,14 +168,23 @@ export const EditFloor = () => {
                     {
                         text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
-                            upload: true,
+                            upload: false,
                             save: true,
-                            markers: {
+                            parentId: id,
+                            parent: {
+                                module: 'plan',
+                                filter: 'planId',
+                                path: 'floors'
+                            },
+                            controls: {
                                 balloon: true,
                                 rectangle: true,
                                 pencil: true,
-                                camera: false
-                            }
+                                camera: false,
+                                delete: true,
+                                reset: true
+                            },
+                            module: 'unitOfWork'
                         }
                     },
                 ]

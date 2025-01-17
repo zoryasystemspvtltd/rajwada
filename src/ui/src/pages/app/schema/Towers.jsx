@@ -1,4 +1,4 @@
-import IUIList from "../../common/IUIList";
+import { useParams } from "react-router-dom";
 import IUIListFilter from "../../common/IUIListFilter";
 import IUIListRelation from "../../common/IUIListRelation";
 import IUIPage from "../../common/IUIPage"
@@ -60,6 +60,8 @@ export const TowerDashboard = () => {
 
 
 export const ViewTower = () => {
+    const { id } = useParams();
+    
     const schema = {
         module: 'plan',
         title: 'Tower',
@@ -100,12 +102,20 @@ export const ViewTower = () => {
                         schema: {
                             upload: false,
                             save: false,
-                            markers: {
+                            parentId: id,
+                            parent: {
+                                module: 'plan',
+                                filter: 'planId',
+                            },
+                            controls: {
                                 balloon: false,
                                 rectangle: false,
                                 pencil: false,
-                                camera: false
-                            }
+                                camera: false,
+                                delete: false,
+                                reset: false
+                            },
+                            module: 'unitOfWork'
                         }
                     },
                 ]
@@ -142,6 +152,8 @@ export const ViewTower = () => {
 }
 
 export const EditTower = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'plan',
         title: 'Tower',
@@ -173,14 +185,23 @@ export const EditTower = () => {
                     {
                         text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
-                            upload: true,
+                            upload: false,
                             save: true,
-                            markers: {
+                            parentId: id,
+                            parent: {
+                                module: 'plan',
+                                filter: 'planId',
+                                path: 'towers'
+                            },
+                            controls: {
                                 balloon: true,
                                 rectangle: true,
                                 pencil: true,
-                                camera: false
-                            }
+                                camera: false,
+                                delete: true,
+                                reset: true
+                            },
+                            module: 'unitOfWork'
                         }
                     },
                 ]
