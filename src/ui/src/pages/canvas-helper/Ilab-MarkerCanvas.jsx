@@ -3,15 +3,18 @@ import cameraMarker from "./assets/camera-marker.png";
 import markerIcon from "./assets/marker-icon.png";
 import pencilMarkerIcon from "./assets/pencil.png";
 import defaultImage from "./assets/sample-floor-map.jpg";
-import { Controls } from "./Controls";
 import { Camera } from "./Camera";
+import { Controls } from "./Controls";
 import { Marker } from "./Marker";
 import { Rectangle } from "./Rectangle";
 
+import { useNavigate } from "react-router-dom";
 import {
     TransformComponent,
     TransformWrapper
 } from "react-zoom-pan-pinch";
+import api from '../../store/api-service';
+import { toast, Bounce } from "react-toastify";
 import ModalComponent from "./Ilab-UnitOfWork";
 
 const markerModalSchema = {
@@ -50,7 +53,10 @@ export const IlabMarkerCanvas = (props) => {
     const [modeStyle, setModeStyle] = useState({})
     const [scale, setScale] = useState(1)
     const size = { height: 49, width: 30 }
-    const [markers, setMarker] = useState([])
+    const [markers, setMarker] = useState([]);
+    const [unitOfWorks, setUnitOfWorks] = useState([]);
+    const [deletedMarkers, setDeletedMarkers] = useState([])
+    const [existingParentMarkers, setExistingParentMarkers] = useState([]);
     const [start, setStart] = useState()
     const [temp, setTemp] = useState()
     const [pallet, setPallet] = useState({ height: 600, width: 800 })
@@ -63,10 +69,41 @@ export const IlabMarkerCanvas = (props) => {
     const [color, setColor] = useState('#000000'); // Initial color
     const [thickness, setThickness] = useState(2); // Initial thickness
     const [lastPos, setLastPos] = useState(null);  // To track last position
-    const [base64SVG, setBase64SVG] = useState(""); // Variable to store the Base64 SVG
+    // const [base64SVG, setBase64SVG] = useState(""); // Variable to store the Base64 SVG
     const [showModal, setShowModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [formFields, setFormFields] = useState([]);
+    const [baseFilter, setBaseFilter] = useState({});
+    const [parent, setParent] = useState({});
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        async function fetchParentData() {
+            const item = await api.getSingleData({ module: schema?.parent?.module, id: parseInt(schema?.parentId) });
+            setParent(item.data);
+        }
+
+        fetchParentData();
+    }, [schema?.parent?.module, schema?.parentId]);
+
+    useEffect(() => {
+        async function fetchExistingMarkerData() {
+            // Define pageOptions based on schema type
+            let pageOptions = {
+                recordPerPage: 0,
+            };
+
+            const response = await api.getData({ module: schema?.module, options: pageOptions });
+
+            const markerInfo = response?.data?.items?.filter(item => item?.planId === parseInt(schema?.parentId))?.map(item => JSON.parse(item?.markerJson));
+            // console.log(markerInfo)
+            setUnitOfWorks(response?.data?.items?.filter(item => item?.planId === parseInt(schema?.parentId)));
+            setMarker(markerInfo);
+            setExistingParentMarkers(markerInfo);
+        }
+
+        fetchExistingMarkerData();
+    }, [schema?.filter, schema?.parentId, schema?.module]);
 
     const handleOpenModal = (schema, markerId, markerData) => {
         setFormFields(schema?.fields); // Receive form fields from child
@@ -181,41 +218,109 @@ export const IlabMarkerCanvas = (props) => {
         setThickness(thickness);
     };
 
-    const handleDeleteMarkers = (flag) => {
+    const handleDeleteAllMarkers = (flag) => {
         if (flag) {
             setMarker([]);
         }
     };
 
+    const resetToOriginal = (flag) => {
+        if (flag) {
+            setMarker(existingParentMarkers);
+        }
+    };
+
     // Convert the SVG to Base64 and store it in a variable
-    const convertSVGToBase64 = (e) => {
+    const convertSVGToBase64 = async (e) => {
         e.preventDefault();
-        const svgElement = document.getElementById("drawing-svg");
+        // const svgElement = document.getElementById("drawing-svg");
 
         // Serialize the SVG to a string
-        const svgString = new XMLSerializer().serializeToString(svgElement);
+        // const svgString = new XMLSerializer().serializeToString(svgElement);
 
         // Encode the SVG string to Base64
-        const base64Encoded = btoa(unescape(encodeURIComponent(svgString)));
+        // const base64Encoded = btoa(unescape(encodeURIComponent(svgString)));
 
         // Store the Base64 string in the state
-        setBase64SVG(base64Encoded);
+        // setBase64SVG(base64Encoded);
 
         // Optionally, log the Base64 string for debugging
         // console.log(base64Encoded);
+        await savePageValue();
+        toast.success('Units of Work Creation Successful!', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+        });
+        navigate(`/${schema?.parent?.path}/${schema?.parentId}`);
         if (!props?.readonly) {
             const modifiedEvent = {
                 target: {
                     id: props?.id,
-                    value: `data:image/svg+xml;base64,${base64Encoded}`
+                    // modifiedImage: `data:image/svg+xml;base64,${base64Encoded}`,
+                    value: planImage
                 },
                 preventDefault: function () { }
             };
             props.onChange(modifiedEvent);
-            setMarker([]);
-            setPlanImage(null);
         }
     };
+
+    const deleteUnitOfWork = async (unitOfWorkId) => {
+        const response = await api.deleteData({ module: schema?.module, id: unitOfWorkId });
+        return response.data;
+    }
+
+    const addUnitOfWork = async (markerJson) => {
+        const response = await api.addData({ module: schema?.module, data: { planId: parseInt(schema?.parentId), markerJson: JSON.stringify(markerJson), name: markerJson?.label } });
+        return response.data;
+    }
+
+    const savePageValue = async () => {
+        // Find existing markers for the selected plan
+        // if no markers exist no problem
+        // if editing then delete existing markers in both Unit Of Work and Plan
+        // after that save markers in Unit of Work and Plan
+        try {
+            if (JSON.stringify(existingParentMarkers) === JSON.stringify(markers)) {
+                return;
+            }
+            else {
+                if (unitOfWorks.length > 0) {
+                    const deletePromises = unitOfWorks.map(unit => deleteUnitOfWork(unit.id));
+                    await Promise.all(deletePromises);
+                }
+                // Create fresh entries in Unit Of Work
+                const addPromises = markers.map(marker => addUnitOfWork(marker));
+                await Promise.all(addPromises);
+
+                // Update Parent
+                let parentPayload = { ...parent, markerJson: JSON.stringify(markers) };
+                let response = await api.editData({ module: schema?.parent?.module, data: parentPayload });
+                return response.data;
+            }
+        }
+        catch (e) {
+            toast.error('Units of Work Creation Failed!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+            });
+            // console.log(e);
+        }
+    }
 
     // useEffect(() => {
     //     if (parentRef.current) {
@@ -423,7 +528,7 @@ export const IlabMarkerCanvas = (props) => {
                                         {
                                             (schema?.upload) && (
                                                 <div className="mb-2">
-                                                    <h6>Image Upload</h6>
+                                                    {/* <h6>Image Upload</h6> */}
                                                     <input type="file" accept="image/*" onChange={handlePlanImageChange} />
                                                 </div>
                                             )
@@ -444,8 +549,9 @@ export const IlabMarkerCanvas = (props) => {
                                                             onChange={handleSelectionMode}
                                                             onPencilColorChange={handleColorChange}
                                                             onPencilThicknessChange={handleThicknessChange}
-                                                            deleteAllMarkers={handleDeleteMarkers}
-                                                            markerStatus={schema?.markers}
+                                                            deleteAllMarkers={handleDeleteAllMarkers}
+                                                            resetToOriginal={resetToOriginal}
+                                                            markerStatus={schema?.controls}
                                                         />
                                                         <TransformComponent>
                                                             <svg

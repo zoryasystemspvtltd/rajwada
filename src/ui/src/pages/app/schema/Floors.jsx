@@ -1,4 +1,4 @@
-import IUIList from "../../common/IUIList";
+import { useParams } from "react-router-dom";
 import IUIListFilter from "../../common/IUIListFilter";
 import IUIPage from "../../common/IUIPage"
 
@@ -54,6 +54,8 @@ export const FloorDashboard = () => {
 }
 
 export const ViewFloor = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'plan',
         title: 'Floor',
@@ -90,13 +92,21 @@ export const ViewFloor = () => {
                         text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
                             upload: false,
-                            save: true,
-                            markers: {
-                                balloon: true,
-                                rectangle: true,
-                                pencil: true,
-                                camera: false
-                            }
+                            save: false,
+                            parentId: id,
+                            parent: {
+                                module: 'plan',
+                                filter: 'planId',
+                            },
+                            controls: {
+                                balloon: false,
+                                rectangle: false,
+                                pencil: false,
+                                camera: false,
+                                delete: false,
+                                reset: false
+                            },
+                            module: 'unitOfWork'
                         }
                     },
                 ]
@@ -110,7 +120,6 @@ export const ViewFloor = () => {
                             title: 'Flat',
                             module: 'plan',
                             relationKey: "parentId",
-                            title: 'Flat',
                             path: 'flats',
                             paging: true,
                             searching: true,
@@ -134,6 +143,8 @@ export const ViewFloor = () => {
 }
 
 export const EditFloor = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'plan',
         title: 'Floor',
@@ -154,7 +165,28 @@ export const EditFloor = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        schema: {
+                            upload: false,
+                            save: true,
+                            parentId: id,
+                            parent: {
+                                module: 'plan',
+                                filter: 'planId',
+                                path: 'floors'
+                            },
+                            controls: {
+                                balloon: true,
+                                rectangle: true,
+                                pencil: true,
+                                camera: false,
+                                delete: true,
+                                reset: true
+                            },
+                            module: 'unitOfWork'
+                        }
+                    },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "floor" }
@@ -185,7 +217,17 @@ export const AddFloor = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true,
+                        parent: 'parentId',
+                        schema: {
+                            type: "lookup-filter",
+                            module: 'plan',
+                            relationKey: "blueprint",
+                            filter: 'type',
+                            value: 'tower'
+                        },
+                    },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "floor" }

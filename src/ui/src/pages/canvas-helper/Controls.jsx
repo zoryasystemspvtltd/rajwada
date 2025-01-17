@@ -23,6 +23,13 @@ export const Controls = (props) => {
         }
     }
 
+    const resetToOriginal = (e) => {
+        e.preventDefault();
+        if (props?.resetToOriginal) {
+            props.resetToOriginal(true);
+        }
+    }
+
     // Handle color change
     const handleColorChange = (e) => {
         e.preventDefault();
@@ -93,8 +100,11 @@ export const Controls = (props) => {
                     />
                 </label>
             </div>
-            <button onClick={deleteAllMarkers} title="Delete All" className="btn">
+            <button onClick={(e) => markerStatus?.delete ? deleteAllMarkers(e) : e.preventDefault()} title="Delete All" className="btn">
                 <i className="bi bi-trash fs-5"></i>
+            </button>
+            <button onClick={(e) => markerStatus?.reset ? resetToOriginal(e) : e.preventDefault()} title="Reset To Original" className="btn">
+                <i className="bi bi-arrow-clockwise fs-5"></i>
             </button>
         </div>
     );

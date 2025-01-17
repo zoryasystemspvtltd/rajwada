@@ -1,4 +1,4 @@
-import IUIList from "../../common/IUIList";
+import { useParams } from "react-router-dom";
 import IUIListFilter from "../../common/IUIListFilter";
 import IUIPage from "../../common/IUIPage"
 
@@ -54,6 +54,8 @@ export const FlatDashboard = () => {
 }
 
 export const ViewFlat = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'plan',
         title: 'Flat',
@@ -81,44 +83,51 @@ export const ViewFlat = () => {
                         text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
                             upload: false,
-                            save: true,
-                            markers: {
-                                balloon: true,
-                                rectangle: true,
-                                pencil: true,
-                                camera: false
-                            }
+                            save: false,
+                            parentId: id,
+                            parent: {
+                                module: 'plan',
+                                filter: 'planId',
+                            },
+                            controls: {
+                                balloon: false,
+                                rectangle: false,
+                                pencil: false,
+                                camera: false,
+                                delete: false,
+                                reset: false
+                            },
+                            module: 'unitOfWork'
                         }
                     },
                 ]
             },
-            /*
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        type: 'module-mapping',
-                        schema: {
-                            title: 'Room', // title of child
-                            module: 'resource', // module for child
-                            relationKey: "planId", // foreign key field in child schema
-                            parentPath: 'flats', //
-                            childPath: 'roommappings',
-                            paging: true,
-                            searching: true,
-                            editing: true,
-                            adding: true,
-                            fields: [
-                                {
-                                    text: 'Room', field: 'roomId', type: 'lookup', sorting: true, searching: true, width: 100,
-                                    schema: { module: 'room' }
-                                },
-                                { text: 'Count', field: 'quantity', type: 'text', sorting: false, searching: false },
-                            ]
-                        },
-                    }
-                ]
-            } */
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         {
+            //             type: 'module-mapping',
+            //             schema: {
+            //                 title: 'Room', // title of child
+            //                 module: 'resource', // module for child
+            //                 relationKey: "planId", // foreign key field in child schema
+            //                 parentPath: 'flats', //
+            //                 childPath: 'roommappings',
+            //                 paging: true,
+            //                 searching: true,
+            //                 editing: true,
+            //                 adding: true,
+            //                 fields: [
+            //                     {
+            //                         text: 'Room', field: 'roomId', type: 'lookup', sorting: true, searching: true, width: 100,
+            //                         schema: { module: 'room' }
+            //                     },
+            //                     { text: 'Count', field: 'quantity', type: 'text', sorting: false, searching: false },
+            //                 ]
+            //             },
+            //         }
+            //     ]
+            // }
         ]
     }
 
@@ -126,6 +135,8 @@ export const ViewFlat = () => {
 }
 
 export const EditFlat = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'plan',
         title: 'Flat',
@@ -146,7 +157,28 @@ export const EditFlat = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        schema: {
+                            upload: false,
+                            save: true,
+                            parentId: id,
+                            parent: {
+                                module: 'plan',
+                                filter: 'planId',
+                                path: 'flats'
+                            },
+                            controls: {
+                                balloon: true,
+                                rectangle: true,
+                                pencil: true,
+                                camera: false,
+                                delete: true,
+                                reset: true
+                            },
+                            module: 'unitOfWork'
+                        }
+                    },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "flat" }
@@ -178,7 +210,17 @@ export const AddFlat = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect', required: true,
+                        parent: 'parentId',
+                        schema: {
+                            type: "lookup-filter",
+                            module: 'plan',
+                            relationKey: "blueprint",
+                            filter: 'type',
+                            value: 'floor'
+                        },
+                    },
                 ]
             },
         ]

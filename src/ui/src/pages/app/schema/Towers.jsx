@@ -1,4 +1,4 @@
-import IUIList from "../../common/IUIList";
+import { useParams } from "react-router-dom";
 import IUIListFilter from "../../common/IUIListFilter";
 import IUIListRelation from "../../common/IUIListRelation";
 import IUIPage from "../../common/IUIPage"
@@ -60,6 +60,8 @@ export const TowerDashboard = () => {
 
 
 export const ViewTower = () => {
+    const { id } = useParams();
+    
     const schema = {
         module: 'plan',
         title: 'Tower',
@@ -99,13 +101,21 @@ export const ViewTower = () => {
                         text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
                             upload: false,
-                            save: true,
-                            markers: {
-                                balloon: true,
-                                rectangle: true,
-                                pencil: true,
-                                camera: false
-                            }
+                            save: false,
+                            parentId: id,
+                            parent: {
+                                module: 'plan',
+                                filter: 'planId',
+                            },
+                            controls: {
+                                balloon: false,
+                                rectangle: false,
+                                pencil: false,
+                                camera: false,
+                                delete: false,
+                                reset: false
+                            },
+                            module: 'unitOfWork'
                         }
                     },
                 ]
@@ -142,6 +152,8 @@ export const ViewTower = () => {
 }
 
 export const EditTower = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'plan',
         title: 'Tower',
@@ -161,10 +173,37 @@ export const EditTower = () => {
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
             },
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+            //     ]
+            // },
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        schema: {
+                            upload: false,
+                            save: true,
+                            parentId: id,
+                            parent: {
+                                module: 'plan',
+                                filter: 'planId',
+                                path: 'towers'
+                            },
+                            controls: {
+                                balloon: true,
+                                rectangle: true,
+                                pencil: true,
+                                camera: false,
+                                delete: true,
+                                reset: true
+                            },
+                            module: 'unitOfWork'
+                        }
+                    },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "tower" }
@@ -195,7 +234,15 @@ export const AddTower = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    {
+                        text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true,
+                        parent: 'projectId',
+                        schema: {
+                            type: "lookup",
+                            module: 'project',
+                            relationKey: "blueprint",
+                        },
+                    },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "tower" }
