@@ -143,7 +143,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 if (data != null)
-                    await dataService.UploadDataAsync("Plan", data, token);
+                    await dataService.SaveDataAsync("Plan", data, token);
             }
         }
         catch (Exception ex)
@@ -269,7 +269,7 @@ public class BulkDataUploadController : ControllerBase
         ListOptions option = new();
         Condition con = new()
         {
-            Operator = OperatorType.Likelihood,
+            //Operator baln mean Equality
             Name = name,
             Value = value
         };
@@ -279,7 +279,6 @@ public class BulkDataUploadController : ControllerBase
             {
                 Name = "Type",
                 Value = type,
-                Operator = OperatorType.Likelihood
             };
             con.And = typecon;
         }

@@ -1,9 +1,7 @@
-﻿using RajApi;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RajApi.Helpers;
 using ILab.Data;
-using ILab.Extensionss.Data;
 using RajApi.Data;
 
 namespace RajApi.Controllers;
@@ -49,7 +47,14 @@ public class LabModelController : ControllerBase
         var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
         var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
         dataService.Identity = new ModuleIdentity(member, key);
-        return await dataService.AddAsync(module, data, token);
+        var activityId = await dataService.AddAsync(module, data, token);
+        if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
+        {
+            dataService.SaveSubTaskAsync(module, activityId, token);
+        }
+
+        return activityId;
+
     }
 
     [HasPrivileges("edit")]
@@ -59,7 +64,7 @@ public class LabModelController : ControllerBase
         var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
         var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
         dataService.Identity = new ModuleIdentity(member, key);
-        return await dataService.EditAsync(module, id, data, token);
+        return await dataService.EditAsync(module, id, data, token);  
     }
 
     [HasPrivileges("edit")]
