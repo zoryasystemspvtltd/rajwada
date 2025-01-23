@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux'
 import { Form } from "react-bootstrap";
 import IUIPrivileges from './IUIPrivileges';
 import api from '../../../store/api-service'
-import { Type } from 'react-bootstrap-icons';
 
 const IUIRolePrivilege = (props) => {
 
@@ -30,31 +29,15 @@ const IUIRolePrivilege = (props) => {
         //dispatch(getData({ module: module, options: pageOptions }));
         async function fetchData() {
             const response = await api.getModules();
-            let items = response?.data
-
-            // Replacing hardcoded plan type with Tower Floor Flat
-            const planIndex = items?.findIndex(item => `${item.name}` === `Plan`)
-            const planItems = [
-                {name:"plan", type:"tower",isApproval:items[planIndex].isApproval,isAssignable:items[planIndex].isAssignable,isCompany:items[planIndex].isCompany,isProject:items[planIndex].isProject},
-                {name:"plan", type:"floor",isApproval:items[planIndex].isApproval,isAssignable:items[planIndex].isAssignable,isCompany:items[planIndex].isCompany,isProject:items[planIndex].isProject},
-                {name:"plan", type:"flat",isApproval:items[planIndex].isApproval,isAssignable:items[planIndex].isAssignable,isCompany:items[planIndex].isCompany,isProject:items[planIndex].isProject}
-            ]
-
-            items = [
-                ...items?.slice(0, planIndex), // everything before array
-                ...items?.slice(planIndex + 1), // everything after array
-                ...planItems
-            ]
-            
-            let modulePrivileges = [
-                { id: 998, name: 'user',type:'user', text: "User", items: privileges },
-                { id: 999, name: 'role',type:'role', text: "Role", items: privileges },
+            const items = response?.data
+            const modulePrivileges = [
+                { id: 998, name: 'user', text: "User", items: privileges },
+                { id: 999, name: 'role', text: "Role", items: privileges },
             ].concat(items.map((item, index) => {
                 return {
                     id: index,
                     name: item.name.charAt(0).toLowerCase() + item.name.slice(1),
-                    type: item.type ? item.type:item.name.charAt(0).toLowerCase() + item.name.slice(1),
-                    text: item.type ? item.type.replace(/[A-Z]/g, letter => ` ${letter.toUpperCase()}`):item.name.replace(/[A-Z]/g, letter => ` ${letter.toUpperCase()}`),
+                    text: item.name.replace(/[A-Z]/g, letter => ` ${letter.toUpperCase()}`),
                     items: ((item.isAssignable || item.isProject || item.isCompany && !item?.isApproval)
                         ? privileges.concat([
                             { id: 5, name: "assign" }
@@ -67,7 +50,6 @@ const IUIRolePrivilege = (props) => {
                     )
                 }
             }));
-            
             setModules(items)
             setSchema(modulePrivileges)
         }
@@ -103,7 +85,7 @@ const IUIRolePrivilege = (props) => {
             const newValue = [...e?.target?.value]
 
             const distinctValue = newValue.reduce((acc, item) => {
-                if (!acc.some(i => i.module === item.module && i.name === item.name && i.type === item.type)) {
+                if (!acc.some(i => i.module === item.module && i.name === item.name)) {
                     acc.push(item);
                 }
                 return acc;
@@ -127,7 +109,7 @@ const IUIRolePrivilege = (props) => {
                         {schema?.map((item, i) => (
                             <IUIPrivileges
                                 key={i}
-                                id={`${item.type}`}
+                                id={`${item.name}`}
                                 schema={item}
                                 value={value}
                                 readonly={props.readonly}

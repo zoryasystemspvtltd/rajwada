@@ -20,12 +20,12 @@ const IUIPrivileges = (props) => {
 
     const handleChange = (e) => {
         e.preventDefault();
+
         if (e.target.checked) { // Add to value
             const newValue = [...value, ...[{
                 id: 0
                 , name: e.target.dataset.name
                 , module: e.target.dataset.module
-                , type: e.target.dataset.type
             }]]
 
             if (!props.readonly) {
@@ -35,7 +35,7 @@ const IUIPrivileges = (props) => {
             }
         }
         else { // Remove from value
-            const index = value.findIndex(v => v.module === e.target.dataset.module && v.name === e.target.dataset.name && v.type === e.target.dataset.type)
+            const index = value.findIndex(v => v.module === e.target.dataset.module && v.name === e.target.dataset.name)
             const newValue = [
                 ...value?.slice(0, index), // everything before array
                 ...value?.slice(index + 1), // everything after array
@@ -51,12 +51,12 @@ const IUIPrivileges = (props) => {
 
     const handleRowChange = (e, row) => {
         e.preventDefault();
+
         if (e.target.checked) {
             const newValue = [...value, ...row?.items?.map((item) => ({
                 id: 0
                 , name: item?.name
                 , module: row?.name
-                , type: row?.type
             }))];
 
             if (!props.readonly) {
@@ -67,7 +67,7 @@ const IUIPrivileges = (props) => {
         }
         else {
             const newValue = [
-                ...value?.filter((v) => (v.type !== row.type)), // everything except current row
+                ...value?.filter((v) => v.module !== row.name), // everything except current row
             ]
 
             if (!props.readonly) {
@@ -87,7 +87,7 @@ const IUIPrivileges = (props) => {
                         disabled={props.readonly}
                         id={`${props.id}_${schema?.text}`}
                         label={schema?.text}
-                        checked={(value?.filter((v) => v.type ? v.type === schema.type && v.module === schema.name : v.module === schema.name)?.length === schema?.items?.length) || false}
+                        checked={(value?.filter((v) => v.module === schema.name)?.length === schema?.items?.length) || false}
                         onChange={(e) => handleRowChange(e, schema)}
                     />
                     {/* <Form.Label><span className="fw-bold text-capitalize"> {schema?.text} : </span></Form.Label> */}
@@ -102,9 +102,8 @@ const IUIPrivileges = (props) => {
                                     data-pid={item.id}
                                     data-module={schema.name}
                                     data-name={item.name}
-                                    data-type={schema.type}
                                     label={item.name || ""}
-                                    checked={value.findIndex(v => v.type ? v.module === schema.name && v.name === item.name && v.type === schema.type : v.module === schema.name && v.name === item.name) >= 0 || false}
+                                    checked={value.findIndex(v => v.module === schema.name && v.name === item.name) >= 0 || false}
                                     onChange={(e) => handleChange(e)}
                                     disabled={props.readonly}
                                 />
