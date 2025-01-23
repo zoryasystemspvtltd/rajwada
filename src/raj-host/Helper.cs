@@ -248,13 +248,13 @@ public class PrivilegeMiddleware : IMiddleware
                      (u, r) => new { u.UserId, r.Privileges })
                  .Where(u => u.UserId == loggedInUser.Id)
                  .SelectMany(p => p.Privileges)
-                 .Select(p => new PrivilegeDetails() { Module = p.Module, Name = p.Name,Type=p.Type })
+                 .Select(p => new PrivilegeDetails() { Module = p.Module, Name = p.Name })
                  .Distinct()
                  .OrderBy(o => o.Module)
                  .ThenBy(o => o.Name)
                  .ToList();
 
-            var privilegeClaims = privileges?.Select(p => new Claim("privileges", $"{p.Module}_{p.Type}:{p.Name}")).ToList();
+            var privilegeClaims = privileges?.Select(p => new Claim("privileges", $"{p.Module}:{p.Name}")).ToList();
             var appIdentity = new ClaimsIdentity(privilegeClaims);
             context.User.Identities.First().AddClaims(privilegeClaims);
 
