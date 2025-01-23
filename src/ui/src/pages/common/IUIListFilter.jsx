@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import Pagination from 'react-bootstrap/Pagination';
 import * as Icon from 'react-bootstrap-icons';
 import Table from 'react-bootstrap/Table';
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Col, Row, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from './shared/IUILookUp';
@@ -24,6 +24,10 @@ const IUIListFilter = (props) => {
     const navigate = useNavigate();
     const [message, setMessage] = useState("");
     const fileInputRef = useRef(null);
+    const [showUploadStatus, setShowUploadStatus] = useState(false);
+    const [bulkUploadResponse, setBulkUploadResponse] = useState(null);
+
+    const handleClose = () => setShowUploadStatus(false);
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
@@ -33,15 +37,17 @@ const IUIListFilter = (props) => {
 
             api.uploadExcelFile({ module: schema?.module, data: formData })
                 .then((response) => {
-                    if (response.ok) {
-                        return response.json(); // Assuming the backend returns a JSON response
-                    } else {
-                        throw new Error('Failed to upload file');
-                    }
+                    return response;
                 })
                 .then((data) => {//handle modal next.
+                    console.log(data?.data);
+                    setBulkUploadResponse(data?.data);
+                    // setShowUploadStatus(true);
                     console.log('File uploaded successfully:', data);
                     setMessage('File successfully uploaded!');
+                })
+                .then(() => {
+                    setShowUploadStatus(true);
                 })
                 .catch((error) => {
                     console.error('Error uploading file:', error);
@@ -75,6 +81,25 @@ const IUIListFilter = (props) => {
             dispatch(getData({ module: module, options: pageOptions }));
         }
     }, [props]);
+
+    useEffect(() => {
+        if (props?.filter && showUploadStatus) {
+            const newBaseFilter = {
+                name: schema?.relationKey,
+                value: props?.filter,
+                //operator: 'likelihood' // Default value is equal
+            }
+
+            setBaseFilter(newBaseFilter)
+
+            const pageOptions = {
+                ...dataSet?.options
+                , recordPerPage: pageLength
+                , searchCondition: newBaseFilter
+            }
+            dispatch(getData({ module: module, options: pageOptions }));
+        }
+    }, [props, showUploadStatus]);
 
 
     const pageChanges = async (e) => {
@@ -157,7 +182,7 @@ const IUIListFilter = (props) => {
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
                                             onClick={() => {
                                                 const excelFileUrl = `/templates/${schema?.title}Details.xlsx`;
-                                                console.log(excelFileUrl);
+                                                // console.log(excelFileUrl);
                                                 const link = document.createElement("a");
                                                 link.href = excelFileUrl;
                                                 link.download = `${schema?.title}Details.xlsx`;
@@ -308,6 +333,65 @@ const IUIListFilter = (props) => {
                     </div>
                 </div>
             </div>
+            <Modal show={showUploadStatus} onHide={handleClose} size='lg'>
+                <Modal.Header>
+                    <Modal.Title>{`${schema?.title} Bulk Upload Status`}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <h5>Success Status</h5>
+                    <Table striped bordered hover responsive>
+                        <thead>
+                            <tr>
+                                <th>Item ID</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                (bulkUploadResponse) && (
+                                    bulkUploadResponse?.successData?.map((data, index) => (
+                                        <tr key={`Success-${index}`}>
+                                            <td>{index}</td>
+                                            <td>{data}</td>
+                                        </tr>
+                                    ))
+                                )
+                            }
+                        </tbody>
+                    </Table>
+
+                    <h5>Failure Status</h5>
+                    <Table striped bordered hover responsive>
+                        <thead>
+                            <tr>
+                                <th>Item ID</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                (bulkUploadResponse) && (
+                                    bulkUploadResponse?.failureData?.map((data, index) => (
+                                        <tr key={`Failure-${index}`}>
+                                            <td>{index}</td>
+                                            <td>{data}</td>
+                                        </tr>
+                                    ))
+                                )
+                            }
+                        </tbody>
+                    </Table>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button
+                        variant="contained"
+                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
+                        onClick={handleClose}
+                    >
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     )
 }

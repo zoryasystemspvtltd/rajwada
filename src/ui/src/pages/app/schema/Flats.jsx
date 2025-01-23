@@ -82,6 +82,7 @@ export const ViewFlat = () => {
                     {
                         text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
+                            readonly: true,
                             upload: false,
                             save: false,
                             parentId: id,
@@ -102,32 +103,32 @@ export const ViewFlat = () => {
                     },
                 ]
             },
-            // {
-            //     type: "area", width: 12
-            //     , fields: [
-            //         {
-            //             type: 'module-mapping',
-            //             schema: {
-            //                 title: 'Room', // title of child
-            //                 module: 'resource', // module for child
-            //                 relationKey: "planId", // foreign key field in child schema
-            //                 parentPath: 'flats', //
-            //                 childPath: 'roommappings',
-            //                 paging: true,
-            //                 searching: true,
-            //                 editing: true,
-            //                 adding: true,
-            //                 fields: [
-            //                     {
-            //                         text: 'Room', field: 'roomId', type: 'lookup', sorting: true, searching: true, width: 100,
-            //                         schema: { module: 'room' }
-            //                     },
-            //                     { text: 'Count', field: 'quantity', type: 'text', sorting: false, searching: false },
-            //                 ]
-            //             },
-            //         }
-            //     ]
-            // }
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        type: 'module-mapping',
+                        schema: {
+                            title: 'Room', // title of child
+                            module: 'resource', // module for child
+                            relationKey: "planId", // foreign key field in child schema
+                            parentPath: 'flats', //
+                            childPath: 'roommappings',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            fields: [
+                                {
+                                    text: 'Room', field: 'roomId', type: 'lookup', sorting: true, searching: true, width: 100,
+                                    schema: { module: 'room' }
+                                },
+                                { text: 'Count', field: 'quantity', type: 'text', sorting: false, searching: false },
+                            ]
+                        },
+                    }
+                ]
+            }
         ]
     }
 
@@ -160,6 +161,7 @@ export const EditFlat = () => {
                     {
                         text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
+                            readonly: false,
                             upload: false,
                             save: true,
                             parentId: id,

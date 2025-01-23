@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import IUILookUp from "../common/shared/IUILookUp";
 
-const ModalComponent = ({ title, show, handleClose, formFields, value, handleSubmit }) => {
+const ModalComponent = ({ title, show, handleClose, formFields, value, handleSubmit, handleDelete }) => {
     const [formData, setFormData] = useState({ color: '#000000' });
     const [errors, setErrors] = useState({});
     const [dirty, setDirty] = useState(false);
@@ -141,22 +141,34 @@ const ModalComponent = ({ title, show, handleClose, formFields, value, handleSub
                     })}
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
-                <Button
-                    variant="contained"
-                    className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary'
-                    onClick={() => { setErrors({}); setFormData({ color: '#000000' }); setDirty(false); handleModalClose(); }}
-                    disabled={!isFormSubmitted && value === null}
-                >
-                    Close
-                </Button>
-                <Button
-                    variant="contained"
-                    className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
-                    onClick={onSave}
-                >
-                    Save
-                </Button>
+            <Modal.Footer className="d-flex justify-content-between w-100">
+                <div className="">
+                    <Button
+                        variant="contained"
+                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-warning'
+                        onClick={() => { setErrors({}); setFormData({ color: '#000000' }); setDirty(false); handleDelete(formData); handleModalClose(); }}
+                        disabled={!isFormSubmitted && value === null}
+                    >
+                        Delete
+                    </Button>
+                </div>
+                <div className="">
+                    <Button
+                        variant="contained"
+                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
+                        onClick={() => { setErrors({}); setFormData({ color: '#000000' }); setDirty(false); handleModalClose(); }}
+                        disabled={!isFormSubmitted && value === null}
+                    >
+                        Close
+                    </Button>
+                    <Button
+                        variant="contained"
+                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
+                        onClick={onSave}
+                    >
+                        Save
+                    </Button>
+                </div>
             </Modal.Footer>
         </Modal>
     );
