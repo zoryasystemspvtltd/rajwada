@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
 import api from '../../../store/api-service';
+import { toast, Bounce } from "react-toastify";
 import IUILookUp from '../../common/shared/IUILookUp';
 import IUITableInputElement from './IUITableInputElement';
 
@@ -54,6 +55,12 @@ const IUITableInput = (props) => {
             setErrors(error);
         }
     }, [data, dirty]);
+
+    useEffect(() => {
+        if (props?.value) {
+            setDataArray(JSON.parse(props?.value));
+        }
+    }, [props?.value]);
 
     useEffect(() => {
         if (dataArray.length > 0) {
@@ -163,6 +170,17 @@ const IUITableInput = (props) => {
             preventDefault: function () { }
         };
         props.onChange(modifiedEvent);
+        toast.success('Items Updation Successful!', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+        });
     }
 
     return (
@@ -171,58 +189,63 @@ const IUITableInput = (props) => {
                 <div className="tabs-animation">
                     <div className="row">
                         <div className="col-md-12">
-                            <div className="main-card mb-3 card">
+                            <div className={schema?.readonly ? "main-card card" : "main-card mb-3 card"}>
                                 <div className="card-body">
                                     <div>
                                         <Form>
-                                            <Row>
-                                                {schema?.fields?.map((fld, f) => (
-                                                    <Col md={fld.width || 6} key={f}>
-                                                        {fld.type === 'area' &&
-                                                            <>
-                                                                <IUITableInputElement
-                                                                    id={schema.module}
-                                                                    schema={fld.fields}
-                                                                    value={data}
-                                                                    errors={(isNewAdd && Object.keys(data).length === 0) ? {} : errors}
-                                                                    readonly={schema.readonly}
-                                                                    onChange={handleChange}
-                                                                    dirty={dirty}
-                                                                    defaultFields={schema?.defaultFields || []}
-                                                                    clearFields={isNewAdd}
-                                                                />
-                                                                {/* <br /> */}
-                                                            </>
-                                                        }
-                                                        {fld.type !== 'area' &&
-                                                            <>
-                                                                <IUITableInputElement
-                                                                    id={schema.module}
-                                                                    schema={[fld]}
-                                                                    value={data}
-                                                                    errors={(isNewAdd && Object.keys(data).length === 0) ? {} : errors}
-                                                                    onChange={handleChange}
-                                                                    readonly={schema.readonly}
-                                                                    clearFields={isNewAdd}
-                                                                />
-                                                                {/* <br /> */}
-                                                            </>
-                                                        }
-                                                    </Col>
-                                                ))}
-                                                <Col>
-                                                    <button
-                                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success btn-sm'
-                                                        onClick={handleSubmit}
-                                                    >
-                                                        {editingIndex !== null ? 'Update' : 'Add'}
-                                                    </button>
-                                                </Col>
-                                            </Row>
+                                            {
+                                                (!schema?.readonly) && (
+                                                    <Row>
+                                                        {schema?.fields?.map((fld, f) => (
+                                                            <Col md={fld.width || 6} key={f}>
+                                                                {fld.type === 'area' &&
+                                                                    <>
+                                                                        <IUITableInputElement
+                                                                            id={schema.module}
+                                                                            schema={fld.fields}
+                                                                            value={data}
+                                                                            errors={(isNewAdd && Object.keys(data).length === 0) ? {} : errors}
+                                                                            readonly={schema.readonly}
+                                                                            onChange={handleChange}
+                                                                            dirty={dirty}
+                                                                            defaultFields={schema?.defaultFields || []}
+                                                                            clearFields={isNewAdd}
+                                                                        />
+                                                                        {/* <br /> */}
+                                                                    </>
+                                                                }
+                                                                {fld.type !== 'area' &&
+                                                                    <>
+                                                                        <IUITableInputElement
+                                                                            id={schema.module}
+                                                                            schema={[fld]}
+                                                                            value={data}
+                                                                            errors={(isNewAdd && Object.keys(data).length === 0) ? {} : errors}
+                                                                            onChange={handleChange}
+                                                                            readonly={schema.readonly}
+                                                                            clearFields={isNewAdd}
+                                                                        />
+                                                                        {/* <br /> */}
+                                                                    </>
+                                                                }
+                                                            </Col>
+                                                        ))}
+                                                        <Col>
+                                                            <button
+                                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success btn-sm'
+                                                                onClick={handleSubmit}
+                                                            >
+                                                                {editingIndex !== null ? 'Update' : 'Add'}
+                                                            </button>
+                                                        </Col>
+                                                    </Row>
+                                                )
+                                            }
 
                                             {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
                                                 <hr />
                                             }
+
                                             {
                                                 (dataArray.length > 0) && (
                                                     <Row>
@@ -239,9 +262,13 @@ const IUITableInput = (props) => {
                                                                             </button>
                                                                         </th>
                                                                     ))}
-                                                                    <th>
-                                                                        Actions
-                                                                    </th>
+                                                                    {
+                                                                        (!schema?.readonly) && (
+                                                                            <th>
+                                                                                Actions
+                                                                            </th>
+                                                                        )
+                                                                    }
                                                                 </tr>
                                                             </thead>
                                                             {
@@ -267,10 +294,12 @@ const IUITableInput = (props) => {
                                                                                         }
                                                                                     </td>
                                                                                 ))}
-                                                                                <td>
-                                                                                    <button className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-warning btn-s mr-2' onClick={(e) => handleEdit(e, i)}>Edit</button>
-                                                                                    <button className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm' onClick={(e) => handleDelete(e, i)}>Delete</button>
-                                                                                </td>
+                                                                                {
+                                                                                    (!schema?.readonly) && (<td>
+                                                                                        <button className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-warning btn-s mr-2' onClick={(e) => handleEdit(e, i)}>Edit</button>
+                                                                                        <button className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm' onClick={(e) => handleDelete(e, i)}>Delete</button>
+                                                                                    </td>)
+                                                                                }
                                                                             </tr>
                                                                         ))
                                                                     }
@@ -280,7 +309,9 @@ const IUITableInput = (props) => {
                                                     </Row>
                                                 )
                                             }
-                                            <hr/>
+                                            {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
+                                                <hr />
+                                            }
                                             <Row>
                                                 <Col>
                                                     {!schema?.readonly &&

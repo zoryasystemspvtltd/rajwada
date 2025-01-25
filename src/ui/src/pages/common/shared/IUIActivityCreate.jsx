@@ -37,6 +37,33 @@ const IUIActivityCreate = (props) => {
     const [selectedOption, setSelectedOption] = useState(0);
     const [bfsSequence, setBfsSequence] = useState([]);
     const [disabled, setDisabled] = useState(false);
+    const [imageField, setImageField] = useState({
+        type: "area", width: 12
+        , fields: [
+            {
+                text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true,
+                schema: {
+                    readonly: true,
+                    upload: false,
+                    parentId: -1,
+                    save: false,
+                    parent: {
+                        module: 'plan',
+                        filter: 'planId',
+                    },
+                    controls: {
+                        balloon: false,
+                        rectangle: false,
+                        pencil: false,
+                        camera: false,
+                        delete: false,
+                        reset: false
+                    },
+                    module: 'unitOfWork'
+                }
+            }
+        ]
+    });
 
     const filteredDependencies = allDependencies.filter(item => {
         // Apply filter only if the corresponding filter value is not null or undefined
@@ -226,7 +253,23 @@ const IUIActivityCreate = (props) => {
             floorId: selectedDependency?.floorId,
             flatId: selectedDependency?.flatId,
             photoUrl: item?.data?.blueprint
-        })
+        });
+        let activityParentId = -1;
+        if (selectedDependency?.flatId !== null) {
+            activityParentId = selectedDependency?.flatId;
+        }
+        else if (selectedDependency?.floorId !== null) {
+            activityParentId = selectedDependency?.floorId;
+        }
+        else if (selectedDependency?.towerId !== null) {
+            activityParentId = selectedDependency?.towerId;
+        }
+        else {
+            activityParentId = selectedDependency?.projectId;
+        }
+        let tempImage = {...imageField};
+        tempImage.fields[0].schema.parentId = activityParentId;
+        setImageField(tempImage);
         setBfsSequence(result.map(node => node.data.label));
         setIsSetupComplete(true);
     };
@@ -411,7 +454,11 @@ const IUIActivityCreate = (props) => {
                                                         <div className="card-body">
                                                             {
                                                                 (bfsSequence.length) ? (
-                                                                    <IUIActivityWizard sequence={bfsSequence} schema={creationSchema} dependencyData={dependencySelectParams} />
+                                                                    <IUIActivityWizard
+                                                                        sequence={bfsSequence}
+                                                                        schema={{ ...creationSchema, fields: [...creationSchema?.fields, imageField] }}
+                                                                        dependencyData={dependencySelectParams}
+                                                                    />
                                                                 ) : null
                                                             }
                                                         </div>

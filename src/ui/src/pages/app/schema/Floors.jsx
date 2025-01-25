@@ -91,6 +91,7 @@ export const ViewFloor = () => {
                     {
                         text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
+                            readonly: true,
                             upload: false,
                             save: false,
                             parentId: id,
@@ -168,6 +169,7 @@ export const EditFloor = () => {
                     {
                         text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
+                            readonly: false,
                             upload: false,
                             save: true,
                             parentId: id,
