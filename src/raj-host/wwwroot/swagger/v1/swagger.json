@@ -2293,6 +2293,9 @@
 "Blueprint": {
 "type": "string",
 },
+"MarkerJson": {
+"type": "string",
+},
 "status": {
 "$ref": "#/components/schemas/StatusType"
 },

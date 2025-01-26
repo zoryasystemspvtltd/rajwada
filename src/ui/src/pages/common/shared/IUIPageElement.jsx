@@ -419,6 +419,7 @@ const IUIPageElement = (props) => {
                                                 nameField={fld.nameField}
                                                 schema={fld.schema}
                                                 onChange={handleChange}
+                                                textonly={fld.textonly}
                                                 readonly={props.readonly || fld.readonly || false}
                                             />
 

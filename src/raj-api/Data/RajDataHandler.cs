@@ -76,7 +76,7 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
-            logger.LogError("Exception in AddAsync method and details: " + ex.Message);
+            logger.LogError(ex,$"Exception in AddAsync method and details: '{ex.Message}'");
             throw;
         }
     }
@@ -107,7 +107,7 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
-            logger.LogError("Exception in EditAsync method and details: " + ex.Message);
+            logger.LogError(ex, $"Exception in EditAsync method and details: '{ex.Message}'");
             throw;
         }
     }
@@ -161,15 +161,14 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
-            logger.LogError("Exception in DeleteAsync method and details: " + ex.Message);
+            logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
             throw;
         }
     }
 
-    public async Task<long> AssignAsync<T>(T item, CancellationToken cancellationToken)
+    public async Task<long> EditPartialAsync<T>(T item, CancellationToken cancellationToken)
         where T : LabModel
     {
-        item.Status = StatusType.Assigne;
         item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
         item.Date = DateTime.UtcNow;
         //item.Key = Identity.Key; Not changing key anymore
@@ -178,13 +177,13 @@ public class RajDataHandler : LabDataHandler
         {
             var id = await base.EditAsync(item, cancellationToken);
 
-            await LogLabModelLog(item, StatusType.Assigne, cancellationToken);
+            await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);
 
             return id;
         }
         catch (Exception ex)
         {
-            logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+            logger.LogError(ex, $"Exception in AssignAsync method and details: '{ex.Message}'");
             throw;
         }
     }
@@ -220,7 +219,7 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
-            logger.LogError("Exception in LogLabModelLog method and details: " + ex.Message);
+            logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
             throw;
         }
     }
