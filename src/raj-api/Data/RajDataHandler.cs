@@ -166,10 +166,9 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public async Task<long> AssignAsync<T>(T item, CancellationToken cancellationToken)
+    public async Task<long> EditPartialAsync<T>(T item, CancellationToken cancellationToken)
         where T : LabModel
     {
-        item.Status = StatusType.Assigne;
         item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
         item.Date = DateTime.UtcNow;
         //item.Key = Identity.Key; Not changing key anymore
@@ -178,7 +177,7 @@ public class RajDataHandler : LabDataHandler
         {
             var id = await base.EditAsync(item, cancellationToken);
 
-            await LogLabModelLog(item, StatusType.Assigne, cancellationToken);
+            await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);
 
             return id;
         }

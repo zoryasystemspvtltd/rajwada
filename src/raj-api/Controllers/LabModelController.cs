@@ -103,7 +103,7 @@ public class LabModelController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-            return await dataService.AssignAsync(module, id, data, token);
+            return await dataService.EditPartialAsync(module, id, data, token);
         }
         catch (Exception ex)
         {
