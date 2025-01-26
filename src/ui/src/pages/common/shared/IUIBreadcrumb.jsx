@@ -22,7 +22,7 @@ const IUIBreadcrumb = (props) => {
             fetchData();
         }
 
-    }, [type, module]);
+    }, [type, module, pathnames]);
 
     return (
         <nav aria-label="Breadcrumb">

@@ -100,6 +100,33 @@ export const ViewActivity = () => {
                     { text: 'Notes', field: 'notes', width: 4, type: 'text' }
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', readonly: true,
+                        schema: {
+                            readonly: true,
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            fields: [
+                                {
+                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
+                            ]
+                        }
+                    },
+                ]
+            }
         ]
     }
 
@@ -170,6 +197,33 @@ export const EditActivity = () => {
                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false }
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input',
+                        schema: {
+                            readonly: false,
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            fields: [
+                                {
+                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
+                            ]
+                        }
+                    },
+                ]
+            }
         ]
     }
 
@@ -422,17 +476,32 @@ export const AddActivity = () => {
                     },
                 ]
             },
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true,
-                        schema: {
-                            upload: false
-                        }
-                    }
-                ]
-            }
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         {
+            //             text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true,
+            //             schema: {
+            //                 readonly: true,
+            //                 upload: false,
+            //                 save: false,
+            //                 parent: {
+            //                     module: 'plan',
+            //                     filter: 'planId',
+            //                 },
+            //                 controls: {
+            //                     balloon: false,
+            //                     rectangle: false,
+            //                     pencil: false,
+            //                     camera: false,
+            //                     delete: false,
+            //                     reset: false
+            //                 },
+            //                 module: 'unitOfWork'
+            //             }
+            //         }
+            //     ]
+            // }
         ]
     }
 

@@ -100,6 +100,7 @@ export const ViewTower = () => {
                     {
                         text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
+                            readonly: true,
                             upload: false,
                             save: false,
                             parentId: id,
@@ -185,6 +186,7 @@ export const EditTower = () => {
                     {
                         text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
+                            readonly: false,
                             upload: false,
                             save: true,
                             parentId: id,

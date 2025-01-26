@@ -311,14 +311,14 @@ const Routes = () => {
                     path: "/reporting",
                     element: <ListReport />
                 },
-                {
-                    path: "/reporting/:id",
-                    element: <ViewReport />
-                },
-                {
-                    path: "/reporting/:id/edit",
-                    element: <EditReport />
-                },
+                // {
+                //     path: "/reporting/:id",
+                //     element: <ViewReport />
+                // },
+                // {
+                //     path: "/reporting/:id/edit",
+                //     element: <EditReport />
+                // },
                 {
                     path: "/workitems",
                     element: <ListWorkItem />

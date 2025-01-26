@@ -7,6 +7,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url(./assets/css/calender.css);
 
 .Wrapper {
     margin-bottom: 2rem;

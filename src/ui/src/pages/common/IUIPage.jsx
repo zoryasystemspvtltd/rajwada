@@ -339,7 +339,8 @@ const IUIPage = (props) => {
                                                         //     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                         //     onClick={assignPageValue}>Assign </Button>
                                                     }
-                                                    {schema?.approver && privileges?.approve && approvalStatus == '0' &&
+                                                    {/* Condition modified by Adrish */}
+                                                    {schema?.approver && privileges?.approve &&
                                                         <IUIApprover onClick={assignApprover} />
                                                     }
                                                     <IUIModuleMessage schema={props.schema} />                                                   

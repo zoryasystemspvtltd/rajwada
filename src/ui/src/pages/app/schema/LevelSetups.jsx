@@ -14,7 +14,7 @@ export const ListLevelSetup = () => {
         fields: [
             { text: 'Project', field: 'projectName', type: 'link', sorting: true, searching: true },
             { text: 'Tracking No', field: 'trackingNo', type: 'text', sorting: true, searching: true },
-            { text: 'VechileNo', field: 'vechileNo', type: 'text', sorting: true, searching: true },
+            { text: 'VehicleNo', field: 'vechileNo', type: 'text', sorting: true, searching: true },
             { text: 'Supplier Name', field: 'supplierName', type: 'text', sorting: true, searching: true }
         ]
     }
@@ -182,7 +182,7 @@ export const AddLevelSetup = () => {
                     },
                     { text: 'Vehicle No', field: 'vechileNo', placeholder: 'Vehicle No here...', type: 'text', required: false, width: 4 },
                     { text: 'Tracking No', field: 'trackingNo', placeholder: 'Tracking No here...', type: 'text', required: false, width: 4 },
-                    { text: 'Document Date', field: 'documentDate', placeholder: 'Document Date here...', type: 'date', required: false, width: 4 },
+                    { text: 'Document Date', field: 'documentDate', placeholder: 'Document Date here...', type: 'date', required: true, width: 4 },
                     {
                         text: 'Supplier Name', field: 'supplierId', nameField: 'supplierName', type: 'lookup', required: true, width: 4,
                         schema: { module: 'supplier' }

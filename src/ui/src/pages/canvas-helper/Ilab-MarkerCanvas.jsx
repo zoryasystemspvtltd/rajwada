@@ -105,9 +105,12 @@ export const IlabMarkerCanvas = (props) => {
         fetchExistingMarkerData();
     }, [schema?.filter, schema?.parentId, schema?.module]);
 
-    const handleOpenModal = (schema, markerId, markerData) => {
-        setFormFields(schema?.fields); // Receive form fields from child
-        setModalTitle(`${schema?.title}-${markerId}`);
+    const handleOpenModal = (markerSchema, markerId, markerData) => {
+        if (schema?.readonly) {
+            return;
+        }
+        setFormFields(markerSchema?.fields); // Receive form fields from child
+        setModalTitle(`${markerSchema?.title}-${markerId}`);
         setShowModal(true);
         setCurrentId(markerId);
         setCurrentMarkerData(markerData);
@@ -118,7 +121,7 @@ export const IlabMarkerCanvas = (props) => {
     const handleSaveData = (data) => {
         const marker = markers?.filter(item => `${item.id}` === `${currentId}`);
         const index = markers?.findIndex(item => `${item.id}` === `${currentId}`);
-
+       
         if (index >= 0) {
             let newMarker = marker[0];
             if (marker?.type !== "pencil") {
@@ -136,11 +139,16 @@ export const IlabMarkerCanvas = (props) => {
                 ...markers?.slice(0, index), // everything before array
                 newMarker,
                 ...markers?.slice(index + 1), // everything after array
-            ]
+            ];
             setMarker(newMarkers);
         }
         // console.log(markers);
     };
+
+    const handleDelete = (data) => {
+        const newMarkers = markers?.filter(marker => marker?.label !== data?.label)
+        setMarker(newMarkers);
+    }
 
     useEffect(() => {
         if (props?.value)
@@ -258,7 +266,7 @@ export const IlabMarkerCanvas = (props) => {
             theme: "light",
             transition: Bounce,
         });
-        navigate(`/${schema?.parent?.path}/${schema?.parentId}`);
+        navigate(`/${schema?.parent?.path}`);
         if (!props?.readonly) {
             const modifiedEvent = {
                 target: {
@@ -387,7 +395,7 @@ export const IlabMarkerCanvas = (props) => {
 
         if (mode === 'pencil') {
             stopDrawing();
-            handleOpenModal(pencilModalSchema, markers.length, markers?.find(item => `${item.id}` === `${markers.length}`));
+            handleOpenModal(pencilModalSchema, markers.length, null);
         }
 
         if (mode === 'camera') {
@@ -600,7 +608,7 @@ export const IlabMarkerCanvas = (props) => {
 
                                                                                 {m.type === 'rectangle' &&
                                                                                     <Rectangle
-                                                                                        id={i + 1}
+                                                                                        id={m?.id ? m?.id : i + 1}
                                                                                         x={m.x}
                                                                                         y={m.y}
                                                                                         width={m.width}
@@ -613,7 +621,7 @@ export const IlabMarkerCanvas = (props) => {
                                                                                         onMouseUp={handleMouseUp}
                                                                                         onMouseDown={handleMouseDown}
                                                                                         onMouseMove={handleMouseMove}
-                                                                                        onClick={(e) => setCurrentId(i + 1)}
+                                                                                        onClick={(e) => m?.id ? setCurrentId(m?.id) : setCurrentId(i + 1)}
                                                                                         style={modeStyle}
                                                                                         openModal={handleOpenModal}
                                                                                     />
@@ -628,7 +636,7 @@ export const IlabMarkerCanvas = (props) => {
                                                                             <Fragment key={i}>
                                                                                 {m.type === 'marker' &&
                                                                                     <Marker
-                                                                                        id={i + 1}
+                                                                                        id={m?.id ? m?.id : i + 1}
                                                                                         x={m.x}
                                                                                         y={m.y}
                                                                                         color={m?.color}
@@ -637,7 +645,7 @@ export const IlabMarkerCanvas = (props) => {
                                                                                         height={m.height}
                                                                                         onChange={updateMarker}
                                                                                         onMove={handleSelectionMode}
-                                                                                        onClick={(e) => { setCurrentId(i + 1); }}
+                                                                                        onClick={(e) => m?.id ? setCurrentId(m?.id) : setCurrentId(i + 1)}
                                                                                         openModal={handleOpenModal}
                                                                                     />
                                                                                 }
@@ -659,7 +667,7 @@ export const IlabMarkerCanvas = (props) => {
                                                                                         height={m.height}
                                                                                         onChange={updateMarker}
                                                                                         onMove={handleSelectionMode}
-                                                                                        onClick={(e) => setCurrentId(i + 1)}
+                                                                                        onClick={(e) => m?.id ? setCurrentId(m?.id) : setCurrentId(i + 1)}
                                                                                     />
                                                                                 }
 
@@ -673,12 +681,12 @@ export const IlabMarkerCanvas = (props) => {
                                                                             <Fragment key={index}>
                                                                                 {path.type === 'pencil' &&
                                                                                     <path
-                                                                                        key={index + 1}
+                                                                                        key={path?.id ? path?.id : index + 1}
                                                                                         d={path.pathData}
                                                                                         stroke={path.color}
                                                                                         strokeWidth={path.thickness}
                                                                                         fill="transparent"
-                                                                                        onClick={(e) => { setCurrentId(index + 1); handleOpenModal(pencilModalSchema, index + 1, path) }}
+                                                                                        onClick={(e) => { path?.id ? setCurrentId(path?.id) : setCurrentId(index + 1); handleOpenModal(pencilModalSchema, path?.id ? path?.id : index + 1, path) }}
                                                                                         cursor="pointer"
                                                                                     />
                                                                                 }
@@ -764,6 +772,7 @@ export const IlabMarkerCanvas = (props) => {
                                         formFields={formFields}
                                         value={currentMarkerData}
                                         handleSubmit={handleSaveData}
+                                        handleDelete={handleDelete}
                                     />
                                 </div>
                             </div>
