@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ILab.Extensionss.Data.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RajApi.Data.Models;
 
@@ -26,6 +27,9 @@ public class EnumController : ControllerBase
         Type type = null;
         switch (module)
         {
+            case "statusType":
+                type = typeof(StatusType);
+                break;
             case "stateType":
                 type = typeof(StateType);
                 break;

@@ -30,7 +30,7 @@ export const ViewLevelSetup = () => {
         adding: false,
         deleting: true,
         back: true,
-        approver: true,
+        approving: true,
         readonly: true,
         fields: [
             {
@@ -51,6 +51,16 @@ export const ViewLevelSetup = () => {
                     {
                         text: 'Supplier Name', field: 'supplierId', type: 'lookup-link', width: 4,
                         schema: { module: 'supplier', path: 'suppliers' }
+                    },
+                    {
+                        text: 'Assigned To', field: 'member', type: 'label', width: 4,
+                    },
+                    {
+                        text: 'Status', field: 'status', type: 'lookup-enum', width: 4, textonly: true,
+                        schema: { module: 'statusType' }
+                    },
+                    {
+                        text: 'Approved / Rejected By', field: 'approvedBy', type: 'label', width: 4,
                     },
                     { text: 'Remarks', field: 'remarks', type: 'label', width: 12 },
                 ]
@@ -93,6 +103,7 @@ export const EditLevelSetup = () => {
         module: 'levelSetup',
         title: 'Level Setup',
         path: 'level-setups',
+        goNextView: true,
         back: false,
         goNextList: true,
         fields: [
@@ -167,7 +178,7 @@ export const AddLevelSetup = () => {
         title: 'Level Setup',
         path: 'level-setups',
         back: true,
-        goNextEdit:true,
+        goNextEdit: true,
         fields: [
             {
                 type: "area", width: 12

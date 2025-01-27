@@ -16,6 +16,9 @@ public class Privilege
     [StringLength(50)]
     public string? Module { get; set; }
 
+    [StringLength(50)]
+    public string? Type { get; set; }
+
     [ForeignKey("Role")]
     public long? RoleId { get; set; }
     

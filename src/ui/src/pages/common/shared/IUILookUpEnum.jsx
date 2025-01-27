@@ -61,7 +61,7 @@ const IUILookUpEnum = (props) => {
                     }
                     {props?.textonly &&
                         <>
-                            {text}
+                           <b> :</b> <span>{text}</span>
                         </>
                     }
                 </>
