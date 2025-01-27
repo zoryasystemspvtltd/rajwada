@@ -6,6 +6,7 @@ const IUIBreadcrumb = (props) => {
     const schema = props?.schema;
     const type = schema?.type;
     const module = schema?.module;
+    const displayText = schema?.displayText;
     const location = useLocation();
     const [item, setItem] = useState(null);
     const pathnames = location.pathname.split('/').filter(x => x);
@@ -37,7 +38,7 @@ const IUIBreadcrumb = (props) => {
                     if (last && type === 'view') {
                         return (
                             <li key={href} className={`${last ? 'active' : 'breadcrumbTxt'}`}>
-                                <span>{item ? item?.name : pathname}</span>
+                                <Link to={""}>{item ? item?.name : pathname}</Link>
                             </li>
                         );
                     }
@@ -45,7 +46,7 @@ const IUIBreadcrumb = (props) => {
 
                         return (
                             <li key={href} className={`${last ? 'active' : 'breadcrumbTxt'}`}>
-                                <Link to={href}>{pathname}</Link>
+                                <Link to={href}>{displayText}</Link>
                             </li>
                         );
                     }

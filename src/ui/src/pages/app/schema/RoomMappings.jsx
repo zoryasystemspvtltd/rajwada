@@ -7,7 +7,7 @@ export const EditRoomMapping = () => {
         module: 'resource',
         title: 'Room',
         path: 'roommappings',
-        back: false,
+        back: true,
         defaultFields: [
             {
                 field: "planId",

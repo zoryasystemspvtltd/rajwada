@@ -92,8 +92,8 @@ const IUIList = (props) => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading"> {schema?.title}</div>
-
+                {/* <div className="page-title-heading"> {schema?.title}</div> */}
+                <IUIBreadcrumb schema={{type: 'list', module: module, displayText: schema?.title}} />
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -101,11 +101,11 @@ const IUIList = (props) => {
                         <div className="col-md-12">
                             <div className="main-card mb-3 card">
                                 <div className="card-body">
-                                    <Row>
+                                    {/* <Row>
                                         <Col md={12} className='mb-3'>
-                                            <IUIBreadcrumb schema={{type: 'list', module: module}} />
+                                            <IUIBreadcrumb schema={{type: 'list', module: module, displayText: schema?.title}} />
                                         </Col>
-                                    </Row>
+                                    </Row> */}
                                     <Row>
                                         <Col md={8} className='mb-3'>
                                             {schema.adding &&

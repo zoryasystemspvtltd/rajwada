@@ -14,6 +14,7 @@ const IUIActivityWizard = (props) => {
     const navigate = useNavigate();
     const tabContentStyle = {
         overflow: 'auto',
+        overflowX: 'hidden'
       };
 
     const customNextStepLogic = () => {
@@ -66,7 +67,7 @@ const IUIActivityWizard = (props) => {
 
             $("#smartwizard").on("leaveStep", handleStepChanging);
 
-            $(".sw-btn-next").addClass("btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success").removeClass("sw-btn");
+            $(".sw-btn-next").addClass("btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary").removeClass("sw-btn");
 
             if (!isCreationSuccessful) {
                 $(".sw-btn-next").prop('disabled', true);

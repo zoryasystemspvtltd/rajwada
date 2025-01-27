@@ -232,10 +232,10 @@ const IUITableInput = (props) => {
                                                         ))}
                                                         <Col>
                                                             <button
-                                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success btn-sm'
+                                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md'
                                                                 onClick={handleSubmit}
                                                             >
-                                                                {editingIndex !== null ? 'Update' : 'Add'}
+                                                                {editingIndex !== null ? `Update ${schema?.title}` : `Add ${schema?.title}`}
                                                             </button>
                                                         </Col>
                                                     </Row>

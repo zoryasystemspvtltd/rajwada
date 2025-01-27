@@ -191,7 +191,12 @@ const IUIPage = (props) => {
 
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
-                            navigate(-1);
+                            if (schema?.goNextList) {
+                                navigate(`/${schema.path}`);
+                            }
+                            else {
+                                navigate(-1);
+                            }
                         }, 1000)
 
                         return () => {
@@ -218,18 +223,18 @@ const IUIPage = (props) => {
                                 return;
                             }
                             else {
-                                if(schema.goNextView){
+                                if (schema.goNextView) {
                                     navigate(`/${schema.path}/${response.data}`);
                                 }
-                                else if(schema.goNextEdit){
+                                else if (schema.goNextEdit) {
                                     navigate(`/${schema.path}/${response.data}/edit`);
-                                }else{
+                                } else {
                                     navigate(-1);
                                     localStorage.removeItem(flowchartKey);
-                               }
+                                }
                             }
 
-                            
+
                         }, 1000)
 
                         return () => {
@@ -249,7 +254,15 @@ const IUIPage = (props) => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading"> {(module !== 'activity') ? schema?.title : ''}</div>
+                {
+                    schema?.showBreadcrumbs ?
+                        <Row>
+                            <Col md={12}>
+                                <IUIBreadcrumb schema={{ type: 'view', module: module, displayText: schema?.title }} />
+                            </Col>
+                        </Row> :
+                        <div className="page-title-heading"> {(module !== 'activity') ? schema?.title : ''}</div>
+                }
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -258,17 +271,17 @@ const IUIPage = (props) => {
                             <div className="main-card mb-3 card">
                                 <div className="card-body">
                                     <div>
-                                        {
+                                        {/* {
                                             schema?.showBreadcrumbs && <Row>
                                                 <Col md={12} className='mb-3'>
-                                                    <IUIBreadcrumb schema={{ type: 'view', module: module }} />
+                                                    <IUIBreadcrumb schema={{ type: 'view', module: module, displayText: schema?.title }} />
                                                 </Col>
                                             </Row>
-                                        }
+                                        } */}
                                         <Form>
                                             <Row>
                                                 <Col>
-                                                    {((module !== 'activity' && schema?.back) || (module === 'activity' && !schema?.adding)) &&
+                                                    {((module !== 'activity' && schema?.back) || (module === 'activity' && !schema?.adding && schema?.back)) &&
                                                         <Button variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(-1)}> Back</Button>
@@ -343,7 +356,7 @@ const IUIPage = (props) => {
                                                     {schema?.approver && privileges?.approve &&
                                                         <IUIApprover onClick={assignApprover} />
                                                     }
-                                                    <IUIModuleMessage schema={props.schema} />                                                   
+                                                    <IUIModuleMessage schema={props.schema} />
                                                 </Col>
                                             </Row>
                                             {
@@ -397,14 +410,17 @@ const IUIPage = (props) => {
                                                                     <Button variant="contained"
                                                                         disabled={disabled}
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
-                                                                        onClick={savePageValue}>Save </Button>
+                                                                        onClick={savePageValue}>Save
+                                                                    </Button>
+
 
                                                                     {
-                                                                        ((module !== 'activity') || (module === 'activity' && schema?.editing)) ?
+                                                                        (module !== 'activity') || (module === 'activity' && !schema?.adding) && (
                                                                             <Button variant="contained"
                                                                                 className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                                                onClick={() => navigate(-1)}> Cancel</Button>
-                                                                            : null
+                                                                                onClick={() => navigate(-1)}> Cancel
+                                                                            </Button>
+                                                                        )
                                                                     }
                                                                 </>
                                                             }

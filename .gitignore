@@ -9,3 +9,6 @@
 **/ui/build/**
 **/publish/**
 src/ui/.env
+/src/raj-host/logs
+/src/raj-host/BulkDataUploads
+/db

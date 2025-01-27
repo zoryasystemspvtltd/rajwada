@@ -35,7 +35,7 @@ const IUIApprover = (props) => {
     return (
         <>
             <Dropdown className='float-right'>
-                <Dropdown.Toggle variant="success" id="dropdown-users" className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2'>
+                <Dropdown.Toggle variant="contained" id="dropdown-users" className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2'>
                     Assign for Approval...
                 </Dropdown.Toggle>
 

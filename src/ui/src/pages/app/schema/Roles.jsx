@@ -56,9 +56,9 @@ export const AddRole = () => {
         module: 'role',
         title: 'Role',
         path: 'roles',
-        back: false,
+        back: true,
         fields: [
-            { text: 'Role Name', field: 'name', fieldIcon: 'circle-user', placeholder: 'Role Name here...', type: 'text', required: true, width: 12 },
+            { text: 'Role Name', field: 'name', fieldIcon: 'circle-user', placeholder: 'Role Name here...', type: 'text', required: true, width: 6 },
             { text: 'Privileges', field: 'privileges', type: 'user-privileges', width: 12 },
         ]
     }
