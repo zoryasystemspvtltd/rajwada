@@ -36,7 +36,8 @@ public class HasPrivilegesFilter : IAuthorizationFilter
          .Where(c => c.Type == "privileges")
          .Select(p => new PrivilegeDetails()
          {
-             Module = p.Value?.Substring(0, p.Value.IndexOf(':')),
+             Module = p.Value?.Substring(0, p.Value.IndexOf('_')),
+             Type = p.Value?.Substring(p.Value.IndexOf('_') + 1, p.Value.IndexOf(':') - p.Value.IndexOf('_') - 1),
              Name = p.Value?.Substring(p.Value.IndexOf(':') + 1, p.Value.Length - p.Value.IndexOf(':') - 1)
          })
          .ToList();
@@ -70,6 +71,7 @@ public class PrivilegeDetails
 {
     public string? Module { get; set; }
     public string? Name { get; set; }
+    public string? Type { get; set; }
 }
 
 public class SmtpSettings

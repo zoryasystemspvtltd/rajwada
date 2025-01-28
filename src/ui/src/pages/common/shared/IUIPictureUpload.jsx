@@ -40,8 +40,10 @@ const IUIPictureUpload = (props) => {
                 };
             }
 
-            const response = await api.getData({ module: schema?.module, options: pageOptions });
-            setParentData(response?.data?.items);
+            if(schema){
+                const response = await api.getData({ module: schema?.module, options: pageOptions });
+                setParentData(response?.data?.items);
+            }
         }
 
         fetchData();

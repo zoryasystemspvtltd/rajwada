@@ -36,11 +36,19 @@ public class LabModelController : ControllerBase
     [HttpGet("{module}/{id}")]
     public async Task<dynamic> Get(string module, long id)
     {
-        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-        dataService.Identity = new ModuleIdentity(member, key);
-        var item = await dataService.Get(module, id);
-        return item;
+        try
+        {
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+            var item = await dataService.Get(module, id);
+            return item;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in Get module: '{module}' id: '{id}' message:'{ex.Message}'");
+            throw;
+        }
     }
 
     [HasPrivileges("add")]
@@ -74,10 +82,18 @@ public class LabModelController : ControllerBase
     [HttpPatch("{module}/{id}")]
     public async Task<long> PatchAsync(string module, long id, dynamic data, CancellationToken token)
     {
-        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-        dataService.Identity = new ModuleIdentity(member, key);
-        return await dataService.AssignAsync(module, id, data, token);
+        try
+        {
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+            return await dataService.EditPartialAsync(module, id, data, token);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in PatchAsync module: '{module}' message:'{ex.Message}'");
+            throw;
+        }
     }
 
 
