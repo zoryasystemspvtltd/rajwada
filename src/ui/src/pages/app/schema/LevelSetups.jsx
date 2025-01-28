@@ -36,7 +36,7 @@ export const ViewLevelSetup = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Entry Level', field: 'Entry Level', type: 'h2l', required: false, width: 12, },
+                    { text: 'Entry Level', field: 'Entry Level', type: 'h21', required: false, width: 12, },
                     {
                         text: 'Quality In Charge Name', field: 'inChargeId', type: 'lookup-link',
                         width: 4, schema: { module: 'user', path: 'users' }
@@ -107,11 +107,12 @@ export const EditLevelSetup = () => {
         path: 'level-setups',
         goNextView: true,
         back: false,
+        goNextList: true,
         fields: [
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Entry Level', field: 'Entry Level', type: 'h2l', required: false, width: 12, },
+                    { text: 'Entry Level', field: 'Entry Level', type: 'h21', required: false, width: 12, },
                     {
                         text: 'Quality In Charge Name', field: 'inChargeId', nameField: 'inChargeName', type: 'lookup',
                         required: true, width: 4, schema: { module: 'user' }
@@ -189,7 +190,7 @@ export const AddLevelSetup = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Entry Level', field: 'Entry Level', type: 'h2l', required: false, width: 12, },
+                    { text: 'Entry Level', field: 'Entry Level', type: 'h21', required: false, width: 12, },
                     {
                         text: 'Quality In Charge Name', field: 'inChargeId', nameField: 'inChargeName', type: 'lookup',
                         required: true, width: 4, schema: { module: 'user' }

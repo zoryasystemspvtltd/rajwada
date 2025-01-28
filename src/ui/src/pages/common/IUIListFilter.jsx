@@ -9,6 +9,7 @@ import { Button, Col, Row, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from './shared/IUILookUp';
+import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import { HiOutlineUpload } from 'react-icons/hi';
 import { RiDownload2Fill } from 'react-icons/ri';
 import api from '../../store/api-service';
@@ -159,12 +160,18 @@ const IUIListFilter = (props) => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading"> {schema?.title}</div>
+                {/* <div className="page-title-heading"> {schema?.title}</div> */}
+                <IUIBreadcrumb schema={{ type: 'list', module: module, displayText: schema?.title }} />
             </div>
             <div className="row ">
                 <div className="col-md-12">
                     <div className="main-card mb-3 card">
                         <div className="card-body">
+                            {/* <Row>
+                                <Col md={12} className='mb-3'>
+                                    <IUIBreadcrumb schema={{ type: 'list', module: module, displayText: schema?.title }} />
+                                </Col>
+                            </Row> */}
                             <Row>
                                 <Col md={8} className='mb-3'>
                                     {schema.adding &&
@@ -245,7 +252,7 @@ const IUIListFilter = (props) => {
                                             <tr>
                                                 {schema?.editing &&
                                                     <th>
-                                                        <button type="submit" className="btn btn-link text-white">#</button>
+                                                        <button type="submit" className="btn btn-link text-white p-0">#</button>
 
                                                     </th>
                                                 }
@@ -254,7 +261,7 @@ const IUIListFilter = (props) => {
                                                         {fld.sorting &&
                                                             <button
                                                                 type="submit"
-                                                                className="btn btn-link text-white"
+                                                                className="btn btn-link text-white p-0"
                                                                 onClick={(e) => sortData(e, fld.field)}
                                                             >
                                                                 {dataSet?.options && fld.field === dataSet?.options.sortColumnName && dataSet?.options?.sortDirection ? <Icon.SortUp /> : <Icon.SortDown />} {dataSet?.options?.sortDirection}
@@ -264,7 +271,7 @@ const IUIListFilter = (props) => {
                                                         {!fld.sorting &&
                                                             <button
                                                                 type="submit"
-                                                                className="btn btn-link text-white"
+                                                                className="btn btn-link text-white p-0"
                                                             >
                                                                 {fld.text}
                                                             </button>}

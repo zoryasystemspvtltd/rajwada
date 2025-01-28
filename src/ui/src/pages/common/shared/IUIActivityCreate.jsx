@@ -289,7 +289,7 @@ const IUIActivityCreate = (props) => {
                                         {
                                             setupSchema?.showBreadcrumbs && <Row>
                                                 <Col md={12} className='mb-3'>
-                                                    <IUIBreadcrumb schema={{ type: 'view', module: module }} />
+                                                    <IUIBreadcrumb schema={{ type: 'view', module: module, displayText: setupSchema?.title }} />
                                                 </Col>
                                             </Row>
                                         }
@@ -487,7 +487,7 @@ const IUIActivityCreate = (props) => {
                                                                     {
                                                                         (selectedOption && !isSetupComplete) ? <Button variant="contained"
                                                                             disabled={disabled}
-                                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success btn-md mr-2"
+                                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                             onClick={prepareActivityCreation}>Proceed</Button> : null
                                                                     }
 

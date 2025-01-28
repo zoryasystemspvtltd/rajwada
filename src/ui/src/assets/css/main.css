@@ -1,4 +1,6 @@
-body{margin: 0; padding: 0; overflow-x: hidden; font-size: .8rem; font-weight: 400;  line-height: 1.5; text-align: left;}
+/*Custome Font*/
+@import url(../fonts/OpenSans/OpenSans.css);
+body{margin: 0; padding: 0; overflow-x: hidden; font-size: .8rem; font-weight: 400;  line-height: 1.5; text-align: left; font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .text-lowercase { text-transform:lowercase!important }
 .text-uppercase { text-transform:uppercase!important }
 .text-capitalize { text-transform:capitalize!important }
@@ -23,6 +25,8 @@ a:hover { text-decoration: underline; }
 button.close { padding: 0; background-color: transparent; border: 0; appearance: none;}
 .close { float: right; font-size: 1.5rem; font-weight: 700; line-height: 1; opacity: .5;}
 select { padding-right: 30px !important; -moz-appearance: none;  -webkit-appearance: none;  appearance: none; background-repeat: no-repeat, repeat; background-position: right .4em top 50%, 0 0; background-size: .55em auto, 100%; }
+
+.btn-transition.btn-outline-link:hover {text-decoration: none;}
 
 .breadcrumb { padding: 0; margin: 4px 0; list-style: none;border-radius: 4px;}
 .breadcrumb>li { display: inline-block;}
@@ -375,6 +379,8 @@ table.fancytree-ext-table.fancytree-treefocus tbody tr.fancytree-active {outline
     .fixed-sidebar.closed-sidebar-mobile.closed-sidebar.fixed-header .app-header > .app-header__logo {display: inline;}
     .fixed-sidebar.closed-sidebar > .app-header .app-header__content > .app-header-center {display:none !important;}
 }
+
+.app-header-center {border-radius: 10px;}
 
 .header-dots { margin-left:auto; display:flex }
 .header-dots>.dropdown { display:flex; align-content:center }

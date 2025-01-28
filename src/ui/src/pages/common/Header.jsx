@@ -186,8 +186,11 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                                 className="form-control mt-2"
                                 onChange={handleThemeChange}
                             >
-                                <option value="light">Light</option>
                                 <option value="red">Red</option>
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="blue">Blue</option>
+                                <option value="purple">Purple</option>
                                 {/* Add more themes as needed */}
                             </select>
                         </div>

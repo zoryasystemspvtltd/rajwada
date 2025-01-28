@@ -8,6 +8,7 @@
 @tailwind components;
 @tailwind utilities;
 @import url(./assets/css/calender.css);
+@import url(./assets/fonts/OpenSans/OpenSans.css);
 
 .Wrapper {
     margin-bottom: 2rem;

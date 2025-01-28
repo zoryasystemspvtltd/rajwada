@@ -9,8 +9,6 @@
 **/ui/build/**
 **/publish/**
 src/ui/.env
-/src/raj-host/logs/log20250117.txt
-/src/raj-host/logs/log20250122.txt
-/src/raj-host/logs/log20250126.txt
-/src/raj-host/BulkDataUploads
 /src/raj-host/logs
+/src/raj-host/BulkDataUploads
+/db
