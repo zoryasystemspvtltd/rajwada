@@ -136,7 +136,7 @@ public class LabModelController : ControllerBase
         }
         catch (Exception ex)
         {
-            logger.LogError("Exception in SaveSubTaskAsync method and details: " + ex.Message);
+            logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
             throw;
         }
     }
