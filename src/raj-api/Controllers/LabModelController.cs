@@ -1,10 +1,9 @@
-﻿using RajApi;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RajApi.Helpers;
 using ILab.Data;
-using ILab.Extensionss.Data;
 using RajApi.Data;
+using RajApi.Data.Models;
 
 namespace RajApi.Controllers;
 
@@ -25,18 +24,10 @@ public class LabModelController : ControllerBase
     [HttpGet("{module}")]
     public dynamic Get(string module)
     {
-        try
-        {
-            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-            dataService.Identity = new ModuleIdentity(member, key);
-            return dataService.Get(module, this.GetApiOption());
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in Get module: '{module}' message:'{ex.Message}'");
-            throw;
-        }
+        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+        dataService.Identity = new ModuleIdentity(member, key);
+        return dataService.Get(module, this.GetApiOption());
     }
 
     [HasPrivileges("view")]
@@ -62,36 +53,25 @@ public class LabModelController : ControllerBase
     [HttpPost("{module}")]
     public async Task<long> PostAsync(string module, dynamic data, CancellationToken token)
     {
-        try
+        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+        dataService.Identity = new ModuleIdentity(member, key);
+        var activityId = await dataService.AddAsync(module, data, token);
+        if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
         {
-            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-            dataService.Identity = new ModuleIdentity(member, key);
-            return await dataService.AddAsync(module, data, token);
+            await SaveSubTaskAsync(module, activityId, token);
         }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in PostAsync module: '{module}' message:'{ex.Message}'");
-            throw;
-        }
+        return activityId;
     }
 
     [HasPrivileges("edit")]
     [HttpPut("{module}/{id}")]
     public async Task<long> PutAsync(string module, long id, dynamic data, CancellationToken token)
     {
-        try
-        {
-            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-            dataService.Identity = new ModuleIdentity(member, key);
-            return await dataService.EditAsync(module, id, data, token);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in PutAsync module: '{module}' message:'{ex.Message}'");
-            throw;
-        }
+        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+        dataService.Identity = new ModuleIdentity(member, key);
+        return await dataService.EditAsync(module, id, data, token);        
     }
 
     [HasPrivileges("edit")]
@@ -103,7 +83,7 @@ public class LabModelController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-            return await dataService.EditPartialAsync(module, id, data, token);
+            return await dataService.EditPartialAsync(module, id, data, token);            
         }
         catch (Exception ex)
         {
@@ -128,6 +108,101 @@ public class LabModelController : ControllerBase
         {
             logger.LogError(ex, $"Exception in DeleteAsync module: '{module}' message:'{ex.Message}'");
             throw;
+        }
+    }
+    private async Task SaveSubTaskAsync(string model, long activityId, CancellationToken token)
+    {
+        try
+        {
+            var subact = await Get(model, activityId);
+            if (subact != null)
+            {
+                if (subact.FlatId != null)
+                {
+                    var flats = GetResourceDetails("Resource", subact.FlatId, token);
+                    await SavaDataIntoDataBase(flats, model, subact, token);
+                }
+                else if (subact.FloorId != null)
+                {
+                    var floors = GetResourceDetails("Resource", subact.FloorId, token);
+                    await SavaDataIntoDataBase(floors, model, subact, token);
+                }
+                else if (subact.TowerId != null)
+                {
+                    var towers = GetResourceDetails("Resource", subact.TowerId, token);
+                    await SavaDataIntoDataBase(towers, model, subact, token);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
+            throw;
+        }
+    }
+
+    private async Task SavaDataIntoDataBase(dynamic lists, string model, Activity main, CancellationToken token)
+    {
+        try
+        {
+            if (lists != null)
+            {
+                foreach (var item in lists)
+                {
+                    int quantity = (int)item.Quantity;
+                    for (int i = 0; i < quantity; i++)
+                    {
+                        var desc = string.Concat(item.Name, "-", i + 1);
+                        Activity activity = new()
+                        {
+                            Type = "Sub Task",
+                            ParentId = main.Id,
+                            ProjectId = main.ProjectId,
+                            DependencyId = main.DependencyId,
+                            UserId = main.UserId,
+                            Name = string.Concat(main.Name, "-", desc),
+                            Description = string.Concat(main.Description, "-", desc)
+                        };
+                        if (main.FlatId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                            activity.FloorId = main.FloorId;
+                            activity.FlatId = main.FlatId;
+                        }
+                        else if (main.FloorId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                            activity.FloorId = main.FloorId;
+                        }
+                        else if (main.TowerId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                        }
+                       
+                        await dataService.SaveDataAsync(model, activity, token);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+            throw;
+        }
+    }
+
+    private dynamic GetResourceDetails(string model, long id, CancellationToken token)
+    {        
+        var data = dataService.GetDetails(id, token);
+
+        if (data != null)
+        {
+            return data.Result;
+        }
+        else
+        {
+            logger.LogError("No data retrive from backend for " + model + "  name:" + id);
+            return null;
         }
     }
 }

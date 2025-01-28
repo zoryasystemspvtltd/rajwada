@@ -62,6 +62,7 @@ namespace ILab.Data
                         existingData.ApprovedBy = jsonData.ApprovedBy;
                         existingData.ApprovedDate = jsonData.ApprovedDate;
                         existingData.IsApproved = jsonData.IsApproved;
+                        existingData.ApprovedRemarks = jsonData.ApprovedRemarks;
                     }
                 }
                 
@@ -82,7 +83,7 @@ namespace ILab.Data
             }
         }
 
-        public virtual async Task<long> UploadDataAsync(string model, dynamic data, CancellationToken token)
+        public virtual async Task<long> SaveDataAsync(string model, dynamic data, CancellationToken token)
         {
             try
             {
@@ -97,6 +98,21 @@ namespace ILab.Data
                 var result = await task;
 
                 return result;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+                return 0;
+            }
+        }
+
+        public virtual dynamic GetDetails(long planId, CancellationToken token)
+        {
+            try
+            {                
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetResourceDetails));               
+                object[] parameters = [planId];
+                return method?.Invoke(handler, parameters);
             }
             catch (Exception ex)
             {
