@@ -52,6 +52,25 @@ public class RajDataHandler : LabDataHandler
             .AsQueryable();
     }
 
+    public async Task<dynamic> GetResourceDetails(long planId)
+    {
+        var rooms = dbContext.Set<Room>()
+                 .ToList();
+        var res = dbContext.Set<Resource>()
+            .Where(l => l.PlanId == planId)
+            .ToList();
+
+        var final = res.Join(rooms,
+                r => r.RoomId,
+                rm => rm.Id,
+                (r, rm) => new 
+                {
+                    r.Quantity,
+                    rm.Name
+                });
+
+        return final;
+    }
     public override async Task<long> AddAsync<T>(T item, CancellationToken cancellationToken)
     {
         item.Status = StatusType.Draft;
@@ -76,7 +95,7 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
-            logger.LogError(ex,$"Exception in AddAsync method and details: '{ex.Message}'");
+            logger.LogError(ex, $"Exception in AddAsync method and details: '{ex.Message}'");
             throw;
         }
     }

@@ -105,5 +105,20 @@ namespace ILab.Data
                 return 0;
             }
         }
+
+        public virtual dynamic GetDetails(long planId, CancellationToken token)
+        {
+            try
+            {                
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetResourceDetails));               
+                object[] parameters = [planId];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+                return 0;
+            }
+        }
     }
 }

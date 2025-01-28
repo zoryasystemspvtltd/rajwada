@@ -4,8 +4,6 @@ using RajApi.Helpers;
 using ILab.Data;
 using RajApi.Data;
 using RajApi.Data.Models;
-using ILab.Extensionss.Data;
-using ILab.Extensionss.Common;
 
 namespace RajApi.Controllers;
 
@@ -61,11 +59,9 @@ public class LabModelController : ControllerBase
         var activityId = await dataService.AddAsync(module, data, token);
         if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
         {
-            SaveSubTaskAsync(module, activityId, token);
+            await SaveSubTaskAsync(module, activityId, token);
         }
-
         return activityId;
-
     }
 
     [HasPrivileges("edit")]
@@ -75,7 +71,7 @@ public class LabModelController : ControllerBase
         var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
         var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
         dataService.Identity = new ModuleIdentity(member, key);
-        return await dataService.EditAsync(module, id, data, token);  
+        return await dataService.EditAsync(module, id, data, token);        
     }
 
     [HasPrivileges("edit")]
@@ -87,7 +83,7 @@ public class LabModelController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-            return await dataService.EditPartialAsync(module, id, data, token);
+            return await dataService.EditPartialAsync(module, id, data, token);            
         }
         catch (Exception ex)
         {
@@ -123,17 +119,17 @@ public class LabModelController : ControllerBase
             {
                 if (subact.FlatId != null)
                 {
-                    var flats = GetUnitofWorkDetails("UnitOfWork", subact.FlatId);
+                    var flats = GetResourceDetails("Resource", subact.FlatId, token);
                     await SavaDataIntoDataBase(flats, model, subact, token);
                 }
                 else if (subact.FloorId != null)
                 {
-                    var floors = GetUnitofWorkDetails("UnitOfWork", subact.FloorId);
+                    var floors = GetResourceDetails("Resource", subact.FloorId, token);
                     await SavaDataIntoDataBase(floors, model, subact, token);
                 }
                 else if (subact.TowerId != null)
                 {
-                    var towers = GetUnitofWorkDetails("UnitOfWork", subact.TowerId);
+                    var towers = GetResourceDetails("Resource", subact.TowerId, token);
                     await SavaDataIntoDataBase(towers, model, subact, token);
                 }
             }
@@ -151,36 +147,40 @@ public class LabModelController : ControllerBase
         {
             if (lists != null)
             {
-                foreach (var item in lists.Items)
+                foreach (var item in lists)
                 {
-                    var desc = item.Name;
-                    Activity activity = new()
+                    int quantity = (int)item.Quantity;
+                    for (int i = 0; i < quantity; i++)
                     {
-                        Type = "Sub Task",
-                        ParentId = main.Id,
-                        ProjectId = main.ProjectId,
-                        DependencyId = main.DependencyId,
-                        UserId = main.UserId,
-                        Name = string.Concat(main.Name, "-", desc),
-                        Description = string.Concat(main.Description, "-", desc)
-                    };
-                    if (main.FlatId != null)
-                    {
-                        activity.TowerId = main.TowerId;
-                        activity.FloorId = main.FloorId;
-                        activity.FlatId = main.FlatId;
+                        var desc = string.Concat(item.Name, "-", i + 1);
+                        Activity activity = new()
+                        {
+                            Type = "Sub Task",
+                            ParentId = main.Id,
+                            ProjectId = main.ProjectId,
+                            DependencyId = main.DependencyId,
+                            UserId = main.UserId,
+                            Name = string.Concat(main.Name, "-", desc),
+                            Description = string.Concat(main.Description, "-", desc)
+                        };
+                        if (main.FlatId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                            activity.FloorId = main.FloorId;
+                            activity.FlatId = main.FlatId;
+                        }
+                        else if (main.FloorId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                            activity.FloorId = main.FloorId;
+                        }
+                        else if (main.TowerId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                        }
+                       
+                        await dataService.SaveDataAsync(model, activity, token);
                     }
-                    else if (main.FloorId != null)
-                    {
-                        activity.TowerId = main.TowerId;
-                        activity.FloorId = main.FloorId;
-                    }
-                    else if (main.TowerId != null)
-                    {
-                        activity.TowerId = main.TowerId;
-                    }
-
-                    await dataService.SaveDataAsync(model, activity, token);
                 }
             }
         }
@@ -191,20 +191,13 @@ public class LabModelController : ControllerBase
         }
     }
 
-    private dynamic GetUnitofWorkDetails(string model, long id)
-    {
-        ListOptions option = new();
-        Condition con = new()
-        {
-            Name = "PlanId",
-            Value = id
-        };
-        option.SearchCondition = con;
-        var data = dataService.Get(model, option);
+    private dynamic GetResourceDetails(string model, long id, CancellationToken token)
+    {        
+        var data = dataService.GetDetails(id, token);
 
         if (data != null)
         {
-            return data;
+            return data.Result;
         }
         else
         {
