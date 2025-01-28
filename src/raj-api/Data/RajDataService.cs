@@ -1,5 +1,4 @@
-﻿using ILab.Extensionss.Common;
-using ILab.Extensionss.Data;
+﻿using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
@@ -63,6 +62,7 @@ namespace ILab.Data
                         existingData.ApprovedBy = jsonData.ApprovedBy;
                         existingData.ApprovedDate = jsonData.ApprovedDate;
                         existingData.IsApproved = jsonData.IsApproved;
+                        existingData.ApprovedRemarks = jsonData.ApprovedRemarks;
                     }
                 }
                 

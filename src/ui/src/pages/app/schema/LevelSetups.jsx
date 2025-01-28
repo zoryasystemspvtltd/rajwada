@@ -38,7 +38,7 @@ export const ViewLevelSetup = () => {
                 , fields: [
                     { text: 'Entry Level', field: 'Entry Level', type: 'h2l', required: false, width: 12, },
                     {
-                        text: 'Quantity In Charge Name', field: 'inChargeId', type: 'lookup-link',
+                        text: 'Quality In Charge Name', field: 'inChargeId', type: 'lookup-link',
                         width: 4, schema: { module: 'user', path: 'users' }
                     },
                     {
@@ -85,8 +85,10 @@ export const ViewLevelSetup = () => {
                                 { text: 'Quantity', field: 'quantity', type: 'label', width: 12, labelvisible: false },
                                 { text: 'Price', field: 'price', type: 'label', width: 12, labelvisible: false },
                                 { text: 'UOM', field: 'uomName', type: 'label', width: 12, labelvisible: false },
-                                { text: 'Quality Type', field: 'qualityType', type: 'label', width: 12, labelvisible: false },
-                                { text: 'Quality Remarks', field: 'qualityRemarks', type: 'label', labelvisible: false, width: 12 }
+                                { text: 'Quality Status', field: 'qualityStatus', type: 'label', width: 12, labelvisible: false },
+                                { text: 'Quality Remarks', field: 'qualityRemarks', type: 'label', labelvisible: false, width: 12 },
+                                { text: 'Receiver Status', field: 'receiverStatus', type: 'label', width: 12, labelvisible: false },
+                                { text: 'Receiver Remarks', field: 'receiverRemarks', type: 'label', labelvisible: false, width: 12 }
                             ]
                         },
                     }
@@ -111,7 +113,7 @@ export const EditLevelSetup = () => {
                 , fields: [
                     { text: 'Entry Level', field: 'Entry Level', type: 'h2l', required: false, width: 12, },
                     {
-                        text: 'Quantity In Charge Name', field: 'inChargeId', nameField: 'inChargeName', type: 'lookup',
+                        text: 'Quality In Charge Name', field: 'inChargeId', nameField: 'inChargeName', type: 'lookup',
                         required: true, width: 4, schema: { module: 'user' }
                     },
                     {
@@ -156,10 +158,15 @@ export const EditLevelSetup = () => {
                                     labelvisible: false, schema: { module: 'uom' }
                                 },
                                 {
-                                    text: 'Quality Type', field: 'qualityType', type: 'lookup-enum', required: true, width: 12,
-                                    labelvisible: false, schema: { module: 'qualityType' }
+                                    text: 'Quality Status', field: 'qualityStatus', type: 'lookup-enum', required: true, width: 12,
+                                    labelvisible: false, schema: { module: 'qualityStatus' }
                                 },
-                                { text: 'Quality Remarks', field: 'qualityRemarks', type: 'text', required: false, labelvisible: false, width: 12 }
+                                { text: 'Quality Remarks', field: 'qualityRemarks', type: 'text', required: false, labelvisible: false, width: 12 },
+                                {
+                                    text: 'Receiver Status', field: 'receiverStatus', type: 'lookup-enum', required: true, width: 12,
+                                    labelvisible: false, schema: { module: 'qualityStatus' }
+                                },
+                                { text: 'Receiver Remarks', field: 'receiverRemarks', type: 'text', required: false, labelvisible: false, width: 12 }
                             ]
                         },
                     }
@@ -184,7 +191,7 @@ export const AddLevelSetup = () => {
                 , fields: [
                     { text: 'Entry Level', field: 'Entry Level', type: 'h2l', required: false, width: 12, },
                     {
-                        text: 'Quantity In Charge Name', field: 'inChargeId', nameField: 'inChargeName', type: 'lookup',
+                        text: 'Quality In Charge Name', field: 'inChargeId', nameField: 'inChargeName', type: 'lookup',
                         required: true, width: 4, schema: { module: 'user' }
                     },
                     {

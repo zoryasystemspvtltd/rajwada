@@ -33,7 +33,7 @@ public enum PriorityStatusType
     Medium = 1,
     High = 2
 }
-public enum QualityType
+public enum QualityStatus
 {
     Rejected = 0,
     Hold = 1,

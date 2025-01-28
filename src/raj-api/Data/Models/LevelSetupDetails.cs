@@ -1,5 +1,4 @@
 ﻿using ILab.Extensionss.Data.Models;
-using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -12,9 +11,11 @@ public class LevelSetupDetails : LabModel
     public string? Price { get; set; }
     public string? UOMId { get; set; }
     public string? UOMName { get; set; }
-    public string? QualityType { get; set; }
+    public string? QualityStatus { get; set; }
     public string? QualityRemarks { get; set; }
-       
+    public string? ReceiverStatus { get; set; }
+    public string? ReceiverRemarks { get; set; }
+
     [ForeignKey("LevelSetupHeader")]
     public virtual long? HeaderId { get; set; }
     [JsonIgnore]

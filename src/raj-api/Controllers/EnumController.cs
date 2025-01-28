@@ -39,8 +39,8 @@ public class EnumController : ControllerBase
             case "priorityStatusType":
                 type = typeof(PriorityStatusType);
                 break;
-            case "qualityType":
-                type = typeof(QualityType);
+            case "qualityStatus":
+                type = typeof(QualityStatus);
                 break;
         }
 
