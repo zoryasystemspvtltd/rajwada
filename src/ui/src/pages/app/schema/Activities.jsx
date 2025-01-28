@@ -84,22 +84,49 @@ export const ViewActivity = () => {
                     //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-link',
                     //     schema: { module: 'priorityStatusType' }
                     // },
-                    { text: 'Duration', field: 'Duration', width: 4, type: 'number' },
-                    { text: 'Progress(%)', field: 'progressPercentage', width: 4, type: 'number' },
+                    { text: 'Duration', field: 'Duration', width: 4, type: 'label' },
+                    { text: 'Progress(%)', field: 'progressPercentage', width: 4, type: 'label' },
                     // {
                     //     text: 'Approval Status', field: 'approvalStatus', width: 4, type: 'lookup',
                     //     schema: { module: 'approvalStatusType' }
                     // },
-                    { text: 'Estimate Cost', field: 'costEstimate', width: 4, type: 'number' },
-                    { text: 'Actual Cost', field: 'actualCost', width: 4, type: 'number' },
+                    { text: 'Estimate Cost', field: 'costEstimate', width: 4, type: 'label' },
+                    { text: 'Actual Cost', field: 'actualCost', width: 4, type: 'label' },
                     // { text: 'Document Links', field: 'documentLinks', width: 4, type: 'text' },
                     {
-                        text: 'Assigned To', field: 'userId', width: 4, type: 'lookup',
+                        text: 'Assigned To', field: 'userId', width: 4, type: 'lookup-link',
                         schema: { module: 'user', path: 'users' }
                     },
-                    { text: 'Notes', field: 'notes', width: 4, type: 'text' }
+                    { text: 'Notes', field: 'notes', width: 4, type: 'label' }
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', readonly: true,
+                        schema: {
+                            readonly: true,
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            fields: [
+                                {
+                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
+                            ]
+                        }
+                    },
+                ]
+            }
         ]
     }
 
@@ -111,7 +138,7 @@ export const EditActivity = () => {
         module: 'activity',
         title: 'Activity',
         path: 'activities',
-        back: true,
+        back: false,
         fields: [
             {
                 type: "area", width: 12
@@ -170,70 +197,39 @@ export const EditActivity = () => {
                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false }
                 ]
             },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input',
+                        schema: {
+                            title: 'Item',
+                            readonly: false,
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            fields: [
+                                {
+                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
+                            ]
+                        }
+                    },
+                ]
+            }
         ]
     }
 
     return (<IUIPage schema={schema} />)
 }
-
-// export const AddActivity = () => {
-//     const schema = {
-//         module: 'activity',
-//         title: 'Activity',
-//         path: 'activities',
-//         back: true,
-//         fields: [
-//             {
-//                 type: "area", width: 12
-//                 , fields: [
-//                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', width: 4, type: 'text', required: true },
-//                     { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: true },
-//                     {
-//                         text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
-//                         schema: {
-//                             items: [ // or use items for fixed value
-//                                 { name: 'Main Task' },
-//                                 { name: 'Sub Task' }
-//                             ]
-//                         }
-//                     },
-//                     {
-//                         text: 'Project', field: 'projectId', width: 4, type: 'lookup', required: false,
-//                         schema: { module: 'Project' }
-//                     },
-//                     {
-//                         text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false,
-//                         schema: { module: 'Activity' }
-//                     },
-//                     { text: 'Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: false },
-//                     { text: 'End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: false },
-//                     { text: 'Actual Start Date', field: 'actualStartDate', placeholder: 'Actual Start Date here...', width: 4, type: 'date', required: false },
-//                     { text: 'Actual End Date', field: 'actualEndDate', placeholder: 'Actual End Date here...', width: 4, type: 'date', required: false },
-//                     {
-//                         text: 'Status', field: 'workflowState', width: 4, type: 'lookup-enum', required: false,
-//                         schema: { module: 'stateType' }
-//                     },
-//                     /*{
-//                         text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-enum', required: false,
-//                         schema: { module: 'priorityStatusType' }
-//                     },
-//                     { text: 'Duration', field: 'Duration', placeholder: 'Duration here...', width: 4, type: 'number', required: false },
-//                     { text: 'Progress(%)', field: 'progressPercentage', placeholder: 'Progress(%) here...', width: 4, type: 'number', required: false },
-//                     {
-//                         text: 'Approval Status', field: 'approvalStatus', width: 4, type: 'lookup-enum', required: false,
-//                         schema: { module: 'approvalStatusType' }
-//                     },*/
-//                     { text: 'Estimate Cost', field: 'costEstimate', placeholder: 'Estimate Cost here...', width: 4, type: 'number', required: false },
-//                     { text: 'Actual Cost', field: 'actualCost', placeholder: 'Actual Cost here...', width: 4, type: 'number', required: false },
-//                     { text: 'Document Links', field: 'documentLinks', placeholder: 'Document Links here...', width: 4, type: 'text', required: false },
-//                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false }
-//                 ]
-//             },
-//         ]
-//     }
-
-//     return (<IUIPage schema={schema} />)
-// }
 
 export const AddActivity = () => {
     const setupSchema = {
@@ -363,8 +359,23 @@ export const AddActivity = () => {
                     },
                     { text: 'Planned Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: false },
                     { text: 'Planned End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: false },
-                    { text: 'Actual Start Date', field: 'actualStartDate', placeholder: 'Actual Start Date here...', width: 4, type: 'date', required: false },
-                    { text: 'Actual End Date', field: 'actualEndDate', placeholder: 'Actual End Date here...', width: 4, type: 'date', required: false },
+                    // {
+                    //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-enum', required: false,
+                    //     schema: { module: 'priorityStatusType' }
+                    // },
+                    // { text: 'Duration', field: 'Duration', placeholder: 'Duration here...', width: 4, type: 'number', required: false },
+                    // { text: 'Progress(%)', field: 'progressPercentage', placeholder: 'Progress(%) here...', width: 4, type: 'number', required: false },
+                    // {
+                    //     text: 'Approval Status', field: 'approvalStatus', width: 4, type: 'lookup-enum', required: false,
+                    //     schema: { module: 'approvalStatusType' }
+                    // },
+                    // { text: 'Document Links', field: 'documentLinks', placeholder: 'Document Links here...', width: 4, type: 'text', required: false },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Estimate Cost', field: 'costEstimate', placeholder: 'Estimate Cost here...', width: 4, type: 'number', required: false },
                     {
                         text: 'Status', field: 'workflowState', width: 4, type: 'lookup', required: false,
                         // schema: { module: 'stateType' }
@@ -376,24 +387,16 @@ export const AddActivity = () => {
                             ]
                         }
                     },
-                    /*{
-                        text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-enum', required: false,
-                        schema: { module: 'priorityStatusType' }
-                    },
-                    { text: 'Duration', field: 'Duration', placeholder: 'Duration here...', width: 4, type: 'number', required: false },
-                    { text: 'Progress(%)', field: 'progressPercentage', placeholder: 'Progress(%) here...', width: 4, type: 'number', required: false },
-                    {
-                        text: 'Approval Status', field: 'approvalStatus', width: 4, type: 'lookup-enum', required: false,
-                        schema: { module: 'approvalStatusType' }
-                    },*/
-                    { text: 'Estimate Cost', field: 'costEstimate', placeholder: 'Estimate Cost here...', width: 4, type: 'number', required: false },
-                    { text: 'Actual Cost', field: 'actualCost', placeholder: 'Actual Cost here...', width: 4, type: 'number', required: false },
-                    // { text: 'Document Links', field: 'documentLinks', placeholder: 'Document Links here...', width: 4, type: 'text', required: false },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
                     {
                         text: 'Assign To', field: 'userId', width: 4, type: 'lookup', required: true,
                         schema: { module: 'user', path: 'users' }
                     },
-                    { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false }
+                    { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false },
                 ]
             },
             {
@@ -402,6 +405,7 @@ export const AddActivity = () => {
                     {
                         text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
                         schema: {
+                            title: 'Item',
                             module: 'activity',
                             paging: true,
                             searching: true,
@@ -422,17 +426,32 @@ export const AddActivity = () => {
                     },
                 ]
             },
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true,
-                        schema: {
-                            upload: false
-                        }
-                    }
-                ]
-            }
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         {
+            //             text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true,
+            //             schema: {
+            //                 readonly: true,
+            //                 upload: false,
+            //                 save: false,
+            //                 parent: {
+            //                     module: 'plan',
+            //                     filter: 'planId',
+            //                 },
+            //                 controls: {
+            //                     balloon: false,
+            //                     rectangle: false,
+            //                     pencil: false,
+            //                     camera: false,
+            //                     delete: false,
+            //                     reset: false
+            //                 },
+            //                 module: 'unitOfWork'
+            //             }
+            //         }
+            //     ]
+            // }
         ]
     }
 

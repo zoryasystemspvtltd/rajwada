@@ -59,18 +59,26 @@ public class IdentityController : ControllerBase
             .Select(p => p.Name)
             .ToList();
 
-        userDetails.Privileges = User
+        var tempPrivileges = User
             .Claims
             .Where(c => c.Type == "privileges")
             .Select(p => new PrivilegeDetails()
             {
-                Module = p.Value?.Substring(0, p.Value.IndexOf(':')),
+                Module = p.Value?.Substring(0, p.Value.IndexOf('_')),
+                Type = p.Value?.Substring(p.Value.IndexOf('_') + 1, p.Value.IndexOf(':') - p.Value.IndexOf('_') - 1),
                 Name = p.Value?.Substring(p.Value.IndexOf(':') + 1, p.Value.Length - p.Value.IndexOf(':') - 1)
             })
             .ToList();
 
 
-
+        userDetails.Privileges = tempPrivileges
+            .Select(p => new PrivilegeDetails()
+            {
+                Module = p.Module,
+                Name = p.Name,
+                Type = string.IsNullOrEmpty(p.Type) ? p.Module : p.Type
+            })
+            .ToList();
         return userDetails;
     }
 
@@ -100,8 +108,8 @@ public class IdentityController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var user = _dbContext.Users.First(u=> u.Email == resetPassword.Email);
- 
+        var user = _dbContext.Users.First(u => u.Email == resetPassword.Email);
+
         string token = await _userManager.GeneratePasswordResetTokenAsync(user);
         await _userManager.ResetPasswordAsync(user, token, "Admin@123");
 

@@ -2,6 +2,7 @@
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
+using RajApi.Data.Models;
 
 namespace ILab.Data
 {
@@ -39,7 +40,7 @@ namespace ILab.Data
             return type;
         }
 
-        public virtual async Task<long> AssignAsync(string model, long id, dynamic data, CancellationToken token)
+        public override async Task<long> EditPartialAsync(string model, long id, dynamic data, CancellationToken token)
         {
             try
             {
@@ -51,15 +52,22 @@ namespace ILab.Data
 
                 var existingData = await Get(model, id);
                 existingData.Member = jsonData.Member;
-                if ((bool)((RajApi.Data.Models.LevelSetup)jsonData)?.IsApproved)
+                existingData.Status = StatusType.Assigne;
+                if (type == typeof(LevelSetup))
                 {
-                    existingData.Status = jsonData.Status;
-                    existingData.ApprovedBy = jsonData.ApprovedBy;
-                    existingData.ApprovedDate = jsonData.ApprovedDate;
-                    existingData.IsApproved = jsonData.IsApproved;
+                    if (jsonData != null 
+                        && jsonData?.IsApproved != null)
+                    {
+                        existingData.Status = jsonData.Status;
+                        existingData.ApprovedBy = jsonData.ApprovedBy;
+                        existingData.ApprovedDate = jsonData.ApprovedDate;
+                        existingData.IsApproved = jsonData.IsApproved;
+                        existingData.ApprovedRemarks = jsonData.ApprovedRemarks;
+                    }
                 }
+                
 
-                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.AssignAsync));
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.EditPartialAsync));
                 var generic = method?.MakeGenericMethod(type);
                 object[] parameters = { existingData, token };
                 var task = (Task<long>)generic.Invoke(handler, parameters);
@@ -75,12 +83,12 @@ namespace ILab.Data
             }
         }
 
-        public virtual async Task<long> UploadDataAsync(string model, dynamic data, CancellationToken token)
+        public virtual async Task<long> SaveDataAsync(string model, dynamic data, CancellationToken token)
         {
             try
             {
                 var type = GetType(model);
-                if (type == null) { return -1; }               
+                if (type == null) { return -1; }
 
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.AddAsync));
                 var generic = method?.MakeGenericMethod(type);
@@ -90,6 +98,21 @@ namespace ILab.Data
                 var result = await task;
 
                 return result;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+                return 0;
+            }
+        }
+
+        public virtual dynamic GetDetails(long planId, CancellationToken token)
+        {
+            try
+            {                
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetResourceDetails));               
+                object[] parameters = [planId];
+                return method?.Invoke(handler, parameters);
             }
             catch (Exception ex)
             {

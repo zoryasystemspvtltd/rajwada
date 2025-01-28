@@ -115,9 +115,9 @@ const IUIPageElement = (props) => {
                                         <h2>{data[fld.field]}</h2>
                                     </>
                                 }
-                                {fld.type === 'h2l' &&
+                                {fld.type === 'h21' &&
                                     <>
-                                        <h2>{fld.field}</h2>
+                                        <h4 className='mb-3'>{fld.field}</h4>
                                     </>
                                 }
                                 {fld.type === 'h3' &&
@@ -419,6 +419,7 @@ const IUIPageElement = (props) => {
                                                 nameField={fld.nameField}
                                                 schema={fld.schema}
                                                 onChange={handleChange}
+                                                textonly={fld.textonly}
                                                 readonly={props.readonly || fld.readonly || false}
                                             />
 

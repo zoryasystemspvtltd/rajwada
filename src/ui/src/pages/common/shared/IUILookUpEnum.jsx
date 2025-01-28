@@ -61,7 +61,7 @@ const IUILookUpEnum = (props) => {
                     }
                     {props?.textonly &&
                         <>
-                            {text}
+                           <b> :</b> <span>{text}</span>
                         </>
                     }
                 </>
@@ -73,7 +73,7 @@ const IUILookUpEnum = (props) => {
                     value={value}
                     data-name={props.nameField}
                     name='select'
-                    className={`fs-6 form-control ${props.className}`}
+                    className={`form-control ${props.className}`}
                     disabled={props.readonly || false}
                     onChange={(e) => handleChange(e)}>
                     <option>--Select--</option>

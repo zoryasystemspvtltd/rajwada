@@ -139,21 +139,39 @@ const IUIPage = (props) => {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
 
+            const timeId = setTimeout(() => {
+                // After 3 seconds set the show value to false
+                navigate(0);
+            }, 1000)
+
+            return () => {
+                clearTimeout(timeId)
+            }
+
         } catch (e) {
             // TODO
         }
     }
 
-    const approvedPageValue = async (e) => {
+    const approvedPageValue = async (e,isApproved) => {
         e.preventDefault();
         const current = new Date();
         const action = {
             module: module,
-            data: { id: id, status: 4, approvedBy: approvedMemeber, approvedDate: current, isApproved: true }
+            data: { id: id, status: isApproved? 3: 5, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved }
         }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
+
+            const timeId = setTimeout(() => {
+                // After 3 seconds set the show value to false
+                navigate(0);
+            }, 1000)
+
+            return () => {
+                clearTimeout(timeId)
+            }
 
         } catch (e) {
             // TODO
@@ -191,7 +209,12 @@ const IUIPage = (props) => {
 
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
-                            navigate(-1);
+                            if (schema?.goNextList) {
+                                navigate(`/${schema.path}`);
+                            }
+                            else {
+                                navigate(-1);
+                            }
                         }, 1000)
 
                         return () => {
@@ -218,18 +241,18 @@ const IUIPage = (props) => {
                                 return;
                             }
                             else {
-                                if(schema.goNextView){
+                                if (schema.goNextView) {
                                     navigate(`/${schema.path}/${response.data}`);
                                 }
-                                else if(schema.goNextEdit){
+                                else if (schema.goNextEdit) {
                                     navigate(`/${schema.path}/${response.data}/edit`);
-                                }else{
+                                } else {
                                     navigate(-1);
                                     localStorage.removeItem(flowchartKey);
-                               }
+                                }
                             }
 
-                            
+
                         }, 1000)
 
                         return () => {
@@ -249,7 +272,15 @@ const IUIPage = (props) => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading"> {(module !== 'activity') ? schema?.title : ''}</div>
+                {
+                    schema?.showBreadcrumbs ?
+                        <Row>
+                            <Col md={12}>
+                                <IUIBreadcrumb schema={{ type: 'view', module: module, displayText: schema?.title }} />
+                            </Col>
+                        </Row> :
+                        <div className="page-title-heading"> {(module !== 'activity') ? schema?.title : ''}</div>
+                }
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -258,17 +289,17 @@ const IUIPage = (props) => {
                             <div className="main-card mb-3 card">
                                 <div className="card-body">
                                     <div>
-                                        {
+                                        {/* {
                                             schema?.showBreadcrumbs && <Row>
                                                 <Col md={12} className='mb-3'>
-                                                    <IUIBreadcrumb schema={{ type: 'view', module: module }} />
+                                                    <IUIBreadcrumb schema={{ type: 'view', module: module, displayText: schema?.title }} />
                                                 </Col>
                                             </Row>
-                                        }
+                                        } */}
                                         <Form>
                                             <Row>
                                                 <Col>
-                                                    {((module !== 'activity' && schema?.back) || (module === 'activity' && !schema?.adding)) &&
+                                                    {((module !== 'activity' && schema?.back) || (module === 'activity' && !schema?.adding && schema?.back)) &&
                                                         <Button variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(-1)}> Back</Button>
@@ -301,48 +332,62 @@ const IUIPage = (props) => {
                                                             }
                                                         </>
                                                     }
-                                                    {schema?.editing &&
+                                                    {
+                                                        approvalStatus < 2 &&
                                                         <>
-                                                            {privileges?.edit &&
-                                                                <Button
-                                                                    variant="contained"
-                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={() => navigate(`/${schema.path}/${id}/edit`)}
-                                                                >
-                                                                    Edit
-                                                                </Button>
-                                                            }
-                                                        </>
-                                                    }
-                                                    {schema?.deleting &&
-                                                        <>
-                                                            {privileges?.delete &&
-                                                                <Button
-                                                                    variant="contained"
-                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={deletePageValue}
-                                                                >
-                                                                    Delete
-                                                                </Button>
-                                                            }
+                                                        {schema?.editing &&
+                                                            <>
+                                                                {privileges?.edit &&
+                                                                    <Button
+                                                                        variant="contained"
+                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                        onClick={() => navigate(`/${schema.path}/${id}/edit`)}
+                                                                    >
+                                                                        Edit
+                                                                    </Button>
+                                                                }
+                                                            </>
+                                                        }
+                                                        {schema?.deleting &&
+                                                            <>
+                                                                {privileges?.delete &&
+                                                                    <Button
+                                                                        variant="contained"
+                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                        onClick={deletePageValue}
+                                                                    >
+                                                                        Delete
+                                                                    </Button>
+                                                                }
+                                                            </>
+                                                        }
                                                         </>
                                                     }
                                                     {
-                                                        schema?.readonly && privileges?.approve && approvalStatus == '2' &&
-                                                        <Button variant="contained"
-                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                            onClick={approvedPageValue}> Approved</Button>
+                                                        approvalStatus === 2 && loggedInUser?.email === data.member && 
+                                                        <>
+                                                        {
+                                                            schema?.readonly && privileges?.approve && 
+                                                            <Button variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                onClick={e=> approvedPageValue(e,true)}> Approve</Button>
+                                                        }
+                                                        {
+                                                            schema?.readonly && privileges?.approve &&
+                                                            <Button variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
+                                                                onClick={e=> approvedPageValue(e,false)}> Reject</Button>
+                                                        } 
+                                                        </>
                                                     }
                                                     {schema?.assign &&
                                                         <IUIAssign onClick={assignPageValue} />
-                                                        // <Button variant="contained"
-                                                        //     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
-                                                        //     onClick={assignPageValue}>Assign </Button>
                                                     }
-                                                    {schema?.approver && privileges?.approve && approvalStatus == '0' &&
+                                                    {/* Condition modified by Adrish */}
+                                                    {schema?.approving && privileges?.approve && approvalStatus < 3 &&
                                                         <IUIApprover onClick={assignApprover} />
                                                     }
-                                                    <IUIModuleMessage schema={props.schema} />                                                   
+                                                    <IUIModuleMessage schema={props.schema} />
                                                 </Col>
                                             </Row>
                                             {
@@ -396,14 +441,17 @@ const IUIPage = (props) => {
                                                                     <Button variant="contained"
                                                                         disabled={disabled}
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
-                                                                        onClick={savePageValue}>Save </Button>
+                                                                        onClick={savePageValue}>Save
+                                                                    </Button>
+
 
                                                                     {
-                                                                        ((module !== 'activity') || (module === 'activity' && schema?.editing)) ?
+                                                                        (module !== 'activity') || (module === 'activity' && !schema?.adding) && (
                                                                             <Button variant="contained"
                                                                                 className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                                                onClick={() => navigate(-1)}> Cancel</Button>
-                                                                            : null
+                                                                                onClick={() => navigate(-1)}> Cancel
+                                                                            </Button>
+                                                                        )
                                                                     }
                                                                 </>
                                                             }

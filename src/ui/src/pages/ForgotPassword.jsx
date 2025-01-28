@@ -17,7 +17,7 @@ const ForgotPassword = () => {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.type = 'text/css';
-        link.href = '/static/theme/light/theme.css'; // Light theme CSS
+        link.href = '/static/theme/red/theme.css'; // Red theme CSS
         link.id = 'theme-link';
 
         const existingLink = document.getElementById('theme-link');

@@ -22,6 +22,8 @@ const IUIListMapping = (props) => {
     const [message, setMessage] = useState("");
     const fileInputRef = useRef(null);
     const [data, setData] = useState([]);
+    const loggedInUser = useSelector((state) => state.api.loggedInUser);
+    const [privileges, setPrivileges] = useState({});
 
     const handleButtonClick = () => {
         fileInputRef.current.click(); // Trigger the file input click
@@ -46,6 +48,14 @@ const IUIListMapping = (props) => {
         }
     }, [props]);
 
+    useEffect(() => {
+        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === schema.module)?.map(p => p.name);
+        let access = {};
+        modulePrivileges.forEach(p => {
+            access = { ...access, ...{ [p]: true } }
+        })
+        setPrivileges(access)
+    }, [loggedInUser, module]);
 
     const pageChanges = async (e) => {
         e.preventDefault();
@@ -54,6 +64,7 @@ const IUIListMapping = (props) => {
         }
         dispatch(getData({ module: module, options: pageOptions }));
     };
+
     const sortData = async (e, field) => {
         e.preventDefault();
         const sortOptions = {
@@ -110,14 +121,18 @@ const IUIListMapping = (props) => {
                                     <div className="app-page-title">
                                         <div className="page-title-heading"> {schema?.title}</div>
                                     </div>
-                                    {schema.adding &&
-                                        <Button
-                                            variant="contained"
-                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
-                                            onClick={() => navigate(`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/add/`)}
-                                        >
-                                            Add New {schema?.title}
-                                        </Button>
+                                    {(schema?.adding) &&
+                                        <>
+                                            {privileges?.add &&
+                                                <Button
+                                                    variant="contained"
+                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                                    onClick={() => navigate(`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/add/`)}
+                                                >
+                                                    Add New {schema?.title}
+                                                </Button>
+                                            }
+                                        </>
                                     }
                                     <IUIModuleMessage schema={props.schema} />
                                 </Col>
@@ -151,7 +166,7 @@ const IUIListMapping = (props) => {
                                             <tr>
                                                 {schema?.editing &&
                                                     <th>
-                                                        <button type="submit" className="btn btn-link text-white">#</button>
+                                                        <button type="submit" className="btn btn-link text-white p-0">#</button>
 
                                                     </th>
                                                 }
@@ -160,7 +175,7 @@ const IUIListMapping = (props) => {
                                                         {fld.sorting &&
                                                             <button
                                                                 type="submit"
-                                                                className="btn btn-link text-white"
+                                                                className="btn btn-link text-white p-0"
                                                                 onClick={(e) => sortData(e, fld.field)}
                                                             >
                                                                 {dataSet?.options && fld.field === dataSet?.options.sortColumnName && dataSet?.options?.sortDirection ? <Icon.SortUp /> : <Icon.SortDown />} {dataSet?.options?.sortDirection}
@@ -170,7 +185,7 @@ const IUIListMapping = (props) => {
                                                         {!fld.sorting &&
                                                             <button
                                                                 type="submit"
-                                                                className="btn btn-link text-white"
+                                                                className="btn btn-link text-white p-0"
                                                             >
                                                                 {fld.text}
                                                             </button>}
@@ -185,9 +200,13 @@ const IUIListMapping = (props) => {
                                                     dataSet?.items?.map((item, i) => (
                                                         <tr key={i} >
                                                             {schema?.editing &&
-                                                                <td width={10}>
-                                                                    <Link to={`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/${item?.id}/edit`}><i className="fa-solid fa-pencil"></i></Link>
-                                                                </td>
+                                                                <>
+                                                                    <td width={10}>
+                                                                        {privileges.edit &&
+                                                                            <Link to={`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/${item?.id}/edit`}><i className="fa-solid fa-pencil"></i></Link>
+                                                                        }
+                                                                    </td>
+                                                                </>
                                                             }
                                                             {schema?.fields?.map((fld, f) => (
                                                                 <td key={f} width={fld.width}>

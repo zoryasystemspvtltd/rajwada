@@ -86,7 +86,7 @@ const IUILookUpFilter = (props) => {
                     id={props.id}
                     value={value}
                     name='select'
-                    className={`fs-6 form-control ${props.className}`}
+                    className={`form-control ${props.className}`}
                     disabled={props.readonly || false}
                     onChange={(e) => handleChange(e)}>
                     <option>--Select--</option>

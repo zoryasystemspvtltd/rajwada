@@ -153,7 +153,7 @@ const IUIWorkflow = (props) => {
                                         {
                                             schema?.showBreadcrumbs && <Row>
                                                 <Col md={12} className='mb-3'>
-                                                    <IUIBreadcrumb schema={{ type: 'view', module: module }} />
+                                                    <IUIBreadcrumb schema={{ type: 'view', module: module, displayText: schema?.title }} />
                                                 </Col>
                                             </Row>
                                         }

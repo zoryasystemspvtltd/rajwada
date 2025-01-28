@@ -229,7 +229,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 1, 17, 17, 15, 17, 945, DateTimeKind.Utc).AddTicks(9467),
+                            Date = new DateTime(2025, 1, 28, 1, 44, 13, 986, DateTimeKind.Utc).AddTicks(3991),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -240,7 +240,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 1, 17, 17, 15, 17, 945, DateTimeKind.Utc).AddTicks(9471),
+                            Date = new DateTime(2025, 1, 28, 1, 44, 13, 986, DateTimeKind.Utc).AddTicks(3995),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -251,7 +251,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 1, 17, 17, 15, 17, 945, DateTimeKind.Utc).AddTicks(9473),
+                            Date = new DateTime(2025, 1, 28, 1, 44, 13, 986, DateTimeKind.Utc).AddTicks(3997),
                             EntityId = 2L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -393,7 +393,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "FA",
-                            Date = new DateTime(2025, 1, 17, 17, 15, 17, 945, DateTimeKind.Utc).AddTicks(9493),
+                            Date = new DateTime(2025, 1, 28, 1, 44, 13, 986, DateTimeKind.Utc).AddTicks(4038),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Fixed Asset",
@@ -403,7 +403,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "CB",
-                            Date = new DateTime(2025, 1, 17, 17, 15, 17, 945, DateTimeKind.Utc).AddTicks(9495),
+                            Date = new DateTime(2025, 1, 28, 1, 44, 13, 986, DateTimeKind.Utc).AddTicks(4040),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Consumption Base",
@@ -413,7 +413,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             Code = "SA",
-                            Date = new DateTime(2025, 1, 17, 17, 15, 17, 945, DateTimeKind.Utc).AddTicks(9497),
+                            Date = new DateTime(2025, 1, 28, 1, 44, 13, 986, DateTimeKind.Utc).AddTicks(4043),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Service Assets",
@@ -536,7 +536,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "RE",
-                            Date = new DateTime(2025, 1, 17, 17, 15, 17, 945, DateTimeKind.Utc).AddTicks(9283),
+                            Date = new DateTime(2025, 1, 28, 1, 44, 13, 986, DateTimeKind.Utc).AddTicks(3620),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Rajwara",
@@ -642,7 +642,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "CI",
-                            Date = new DateTime(2025, 1, 17, 17, 15, 17, 945, DateTimeKind.Utc).AddTicks(9441),
+                            Date = new DateTime(2025, 1, 28, 1, 44, 13, 986, DateTimeKind.Utc).AddTicks(3935),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Civil",
@@ -652,7 +652,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "LE",
-                            Date = new DateTime(2025, 1, 17, 17, 15, 17, 945, DateTimeKind.Utc).AddTicks(9444),
+                            Date = new DateTime(2025, 1, 28, 1, 44, 13, 986, DateTimeKind.Utc).AddTicks(3939),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Legal",
@@ -716,6 +716,9 @@ namespace RajApi.Migrations
 
                     b.Property<DateTime?>("ApprovedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("ApprovedRemarks")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Date")
                         .HasColumnType("datetime2");
@@ -808,10 +811,16 @@ namespace RajApi.Migrations
                     b.Property<string>("QualityRemarks")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("QualityType")
+                    b.Property<string>("QualityStatus")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Quantity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceiverRemarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceiverStatus")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Status")

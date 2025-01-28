@@ -90,15 +90,22 @@ export const EditUser = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload' },
-                    // { text: 'Email', field: 'email', type: 'link', to: 'mailto://' },
                 ]
             },
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Email', field: 'email', fieldIcon: 'envelope', placeholder: 'Email here...', type: 'email', readonly: true, width: 6 },
+                    { text: 'First Name', field: 'firstName', fieldIcon: 'user', placeholder: 'First Name here...', type: 'text', required: true, width: 4 },
+                    { text: 'Last Name', field: 'lastName', fieldIcon: 'user', placeholder: 'Last Name here...', type: 'text', required: true, width: 4 },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Email', field: 'email', fieldIcon: 'envelope', placeholder: 'Email here...', type: 'email', required: true, width: 4 },
+                    { text: 'Phone Number', field: 'phoneNumber', fieldIcon: 'phone', placeholder: 'Phone Number here...', type: 'phone', required: false, width: 4 },
                     {
-                        text: 'Department', field: 'department', fieldIcon: 'building', placeholder: 'Department here...', type: 'lookup', required: true, width: 6,
+                        text: 'Department', field: 'department', fieldIcon: 'building', placeholder: 'Department here...', type: 'lookup', required: true, width: 4,
                         schema: {
                             module: 'department'
                             // items: [ // or use items for fixed value
@@ -106,12 +113,14 @@ export const EditUser = () => {
                             //     { name: 'Legal' }
                             // ]
                         }
-                    },
-                    { text: 'First Name', field: 'firstName', fieldIcon: 'user', placeholder: 'First Name here...', type: 'text', required: true, width: 6 },
-                    { text: 'Last Name', field: 'lastName', fieldIcon: 'user', placeholder: 'Last Name here...', type: 'text', required: true, width: 6 },
-                    { text: 'Phone Number', field: 'phoneNumber', fieldIcon: 'phone', placeholder: 'Phone Number here...', type: 'phone', required: false, width: 6 },
-                    { text: 'Disable', field: 'disable', fieldIcon: 'user-slash', placeholder: 'Check to disable user...', type: 'check', required: false, width: 6 },
-                    { text: 'Address', field: 'address', fieldIcon: 'location-dot', placeholder: 'Address here...', type: 'textarea', required: false, width: 12 },
+                    }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Address', field: 'address', fieldIcon: 'location-dot', placeholder: 'Address here...', type: 'textarea', required: false, width: 8 },
+                    { text: 'Disable', field: 'disable', fieldIcon: 'user-slash', placeholder: 'Check to disable user...', type: 'check', required: false, width: 4 },
                 ]
             },
             {
@@ -143,9 +152,17 @@ export const AddUser = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Email', field: 'email', fieldIcon: 'envelope', placeholder: 'Email here...', type: 'email', required: true, width: 6 },
+                    { text: 'First Name', field: 'firstName', fieldIcon: 'user', placeholder: 'First Name here...', type: 'text', required: true, width: 4 },
+                    { text: 'Last Name', field: 'lastName', fieldIcon: 'user', placeholder: 'Last Name here...', type: 'text', required: true, width: 4 },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Email', field: 'email', fieldIcon: 'envelope', placeholder: 'Email here...', type: 'email', required: true, width: 4 },
+                    { text: 'Phone Number', field: 'phoneNumber', fieldIcon: 'phone', placeholder: 'Phone Number here...', type: 'phone', required: false, width: 4 },
                     {
-                        text: 'Department', field: 'department', fieldIcon: 'building', placeholder: 'Department here...', type: 'lookup', required: true, width: 6,
+                        text: 'Department', field: 'department', fieldIcon: 'building', placeholder: 'Department here...', type: 'lookup', required: true, width: 4,
                         schema: {
                             module: 'department'
                             // items: [ // or use items for fixed value
@@ -153,12 +170,14 @@ export const AddUser = () => {
                             //     { name: 'Legal' }
                             // ]
                         }
-                    },
-                    { text: 'First Name', field: 'firstName', fieldIcon: 'user', placeholder: 'First Name here...', type: 'text', required: true, width: 6 },
-                    { text: 'Last Name', field: 'lastName', fieldIcon: 'user', placeholder: 'Last Name here...', type: 'text', required: true, width: 6 },
-                    { text: 'Phone Number', field: 'phoneNumber', fieldIcon: 'phone', placeholder: 'Phone Number here...', type: 'phone', required: false, width: 6 },
-                    { text: 'Disable', field: 'disable', fieldIcon: 'user-slash', placeholder: 'Check to disable user...', type: 'check', required: false, width: 6 },
-                    { text: 'Address', field: 'address', fieldIcon: 'location-dot', placeholder: 'Address here...', type: 'textarea', required: false, width: 12 },
+                    }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Address', field: 'address', fieldIcon: 'location-dot', placeholder: 'Address here...', type: 'textarea', required: false, width: 8 },
+                    { text: 'Disable', field: 'disable', fieldIcon: 'user-slash', placeholder: 'Check to disable user...', type: 'check', required: false, width: 4 },
                 ]
             },
             {

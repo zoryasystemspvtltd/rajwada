@@ -1989,6 +1989,9 @@
 "ApprovedBy": {
 "type": "string",
 },
+"ApprovedRemarks": {
+"type": "string",
+},
 "Id": {
 "type": "string",
 },
@@ -2053,10 +2056,16 @@
 "UOMName": {
 "type": "string",
 },
-"QualityType": {
+"QualityStatus": {
 "type": "string",
 },
 "QualityRemarks": {
+"type": "string",
+},
+"ReceiverStatus": {
+"type": "string",
+},
+"ReceiverRemarks": {
 "type": "string",
 },
 "HeaderId": {
@@ -2291,6 +2300,9 @@
 "type": "string",
 },
 "Blueprint": {
+"type": "string",
+},
+"MarkerJson": {
 "type": "string",
 },
 "status": {
