@@ -143,7 +143,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 if (data != null)
-                    await dataService.UploadDataAsync("Plan", data, token);
+                    await dataService.SaveDataAsync("Plan", data, token);
             }
         }
         catch (Exception ex)
@@ -156,11 +156,11 @@ public class BulkDataUploadController : ControllerBase
     private (dynamic?, BulkResponse) CreateFloorDataModel(DataRow dataRow, string member, string key, BulkResponse response)
     {
         //Get Tower details
-        var tower = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "tower", member, key);
+        var tower = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "tower", 0, member, key);
         if (tower != null)
         {
             //Duplicate checking
-            var floor = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "floor", member, key);
+            var floor = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "floor", 0, member, key);
             if (floor == null)
             {
                 response.SuccessData.Add(dataRow[0].ToString());
@@ -185,56 +185,67 @@ public class BulkDataUploadController : ControllerBase
         }
         else
         {
-            response.FailureData.Add(dataRow[0].ToString());
+            response.FailureData.Add(dataRow[0].ToString() + ": Tower Name not exist");
             return (null, response);
         }
 
     }
     private (dynamic?, BulkResponse) CreateFlatDataModel(DataRow dataRow, string member, string key, BulkResponse response)
     {
-        //Get Floor details
-        var floor = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "floor", member, key);
-        if (floor != null)
+        //Get Tower details
+        var tower = GetModuleDetails("Plan", "Name", dataRow[3].ToString(), "tower",0, member, key);
+        if (tower != null)
         {
-            //Duplicate checking
-            var flat = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "flat", member, key);
-            if (floor == null)
+            //Get Floor details
+            var floor = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "floor", (long)tower.Id, member, key);
+            if (floor != null)
             {
-                response.SuccessData.Add(dataRow[0].ToString());
-                Plan obj = new()
+                //Duplicate checking
+                var flat = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "flat", 0, member, key);
+                if (flat == null)
                 {
-                    Date = DateTime.Now,
-                    Member = member,
-                    Key = key,
-                    Type = "floor",
-                    Name = dataRow[0].ToString(),
-                    Description = dataRow[1].ToString(),
-                    ProjectId = floor.ProjectId,
-                    ParentId = floor.Id
-                };
-                return (obj, response);
+                    response.SuccessData.Add(dataRow[0].ToString());
+                    Plan obj = new()
+                    {
+                        Date = DateTime.Now,
+                        Member = member,
+                        Key = key,
+                        Type = "flat",
+                        Name = dataRow[0].ToString(),
+                        Description = dataRow[1].ToString(),
+                        ProjectId = floor.ProjectId,
+                        ParentId = floor.Id
+                    };
+                    return (obj, response);
+                }
+                else
+                {
+                    response.FailureData.Add(dataRow[0].ToString() + ": Already Exist");
+                    return (null, response);
+                }
             }
             else
             {
-                response.FailureData.Add(dataRow[0].ToString() + ": Already Exist");
+                response.FailureData.Add(dataRow[0].ToString() + ": Floor Name not exist");
                 return (null, response);
             }
         }
         else
         {
-            response.FailureData.Add(dataRow[0].ToString());
+            response.FailureData.Add(dataRow[0].ToString() + ": Tower Name not exist");
             return (null, response);
         }
+
     }
 
     private (dynamic?, BulkResponse) CreateTowerDataModel(DataRow dataRow, string member, string key, BulkResponse response)
     {
         //Get Project details
-        var project = GetModuleDetails("Project", "Name", dataRow[2].ToString(), null, member, key);
+        var project = GetModuleDetails("Project", "Name", dataRow[2].ToString(), null, 0, member, key);
         if (project != null)
         {
             //Duplicate checking
-            var tower = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "tower", member, key);
+            var tower = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "tower", 0, member, key);
             if (tower == null)
             {
                 response.SuccessData.Add(dataRow[0].ToString());
@@ -258,18 +269,18 @@ public class BulkDataUploadController : ControllerBase
         }
         else
         {
-            response.FailureData.Add(dataRow[0].ToString());
+            response.FailureData.Add(dataRow[0].ToString() + ": Project Name not exist");
             return (null, response);
         }
     }
 
-    private dynamic? GetModuleDetails(string model, string name, string? value, string? type, string member, string key)
+    private dynamic? GetModuleDetails(string model, string name, string? value, string? type, long id, string member, string key)
     {
         dataService.Identity = new ModuleIdentity(member, key);
         ListOptions option = new();
         Condition con = new()
         {
-            Operator = OperatorType.Likelihood,
+            //Operator baln mean Equality
             Name = name,
             Value = value
         };
@@ -279,7 +290,15 @@ public class BulkDataUploadController : ControllerBase
             {
                 Name = "Type",
                 Value = type,
-                Operator = OperatorType.Likelihood
+            };
+            con.And = typecon;
+        }
+        if (id >0)
+        {
+            var typecon = new Condition()
+            {
+                Name = "ParentId",
+                Value = id,
             };
             con.And = typecon;
         }

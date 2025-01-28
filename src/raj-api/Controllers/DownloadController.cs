@@ -1,7 +1,14 @@
-﻿using ILab.Data;
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using ILab.Data;
+using ILab.Extensionss.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RajApi.Data;
+using System.Data;
 
 namespace RajApi.Controllers;
 
@@ -43,6 +50,116 @@ public class DownloadController : ControllerBase
         {
             return BadRequest(new { message = "An error occurred while processing the file.", error = ex.Message });
         }
+    }
+
+    [HasPrivileges("view")]
+    [HttpGet("{module}")]
+    public IActionResult Get(string module)
+    {
+        try
+        {
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+
+            var data = GetTemplate(module);
+            string base64String;
+            using (var wb = new XLWorkbook())
+            {
+                var sheet = wb.AddWorksheet(data, "Employee Records");
+
+                // Apply font color to columns 1 to 5
+                sheet.Columns(1, 5).Style.Font.FontColor = XLColor.Black;
+
+                using (var ms = new MemoryStream())
+                {
+                    wb.SaveAs(ms);
+
+                    // Convert the Excel workbook to a base64-encoded string
+                    base64String = Convert.ToBase64String(ms.ToArray());
+                }
+            }
+
+            // Return a CreatedResult with the base64-encoded Excel data
+            return new CreatedResult(string.Empty, new
+            {
+                Code = 200,
+                Status = true,
+                Message = "",
+                Data = base64String
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = "An error occurred while processing the file.", error = ex.Message });
+        }
+    }
+    private dynamic? GetModuleDetails(string model)
+    { 
+        ListOptions option = new();
+        var data = dataService.Get(model, option);
+
+        if (data.Items.Count > 0)
+        {
+            return data;
+        }
+        else
+        {
+            logger.LogError("No data retrive from backend for " + model);
+            return null;
+        }
+    }
+
+    private DataTable GetTemplate(string module)
+    {
+        DataTable dt =new();
+        switch (module.ToUpper())
+        {
+            case "FLAT":
+                var room = GetModuleDetails(module);
+                dt = CreateFlatTemplate(room);
+                break;
+            case "TOWER":
+                dt = CreateTowerTemplate();
+                break;
+            case "FLOOR":
+                dt = CreateFloorTemplate();
+                break;           
+
+        }
+        return dt;
+    }
+
+    private static DataTable CreateFloorTemplate()
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Description");
+        dt.Columns.Add("Tower");
+        return dt;
+    }
+
+    private static DataTable CreateTowerTemplate()
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Description");
+        dt.Columns.Add("Project");
+        return dt;
+    }
+
+    private static DataTable CreateFlatTemplate(dynamic room)
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Description");
+        dt.Columns.Add("Floor");
+        dt.Columns.Add("Tower");
+        foreach (string item in room) {
+            var name = string.Concat(item, "Count");
+            dt.Columns.Add(name);
+        }
+        return dt;
     }
 
     private async Task<dynamic> GetFile(string module, long id, string columnName)
