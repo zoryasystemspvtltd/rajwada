@@ -198,7 +198,7 @@ public class BulkDataUploadController : ControllerBase
         {
             //Duplicate checking
             var flat = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "flat", member, key);
-            if (floor == null)
+            if (flat == null)
             {
                 response.SuccessData.Add(dataRow[0].ToString());
                 Plan obj = new()
@@ -206,7 +206,7 @@ public class BulkDataUploadController : ControllerBase
                     Date = DateTime.Now,
                     Member = member,
                     Key = key,
-                    Type = "floor",
+                    Type = "flat",
                     Name = dataRow[0].ToString(),
                     Description = dataRow[1].ToString(),
                     ProjectId = floor.ProjectId,
