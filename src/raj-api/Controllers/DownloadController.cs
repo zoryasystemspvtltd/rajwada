@@ -1,12 +1,8 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using ILab.Data;
 using ILab.Extensionss.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RajApi.Data;
 using System.Data;
 
@@ -34,7 +30,7 @@ public class DownloadController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-           
+
             var Base64String = GetFile(module, id, columnName);
             // Convert base64 string to byte array
             byte[] fileBytes = Convert.FromBase64String(Base64String.ToString());
@@ -52,7 +48,7 @@ public class DownloadController : ControllerBase
         }
     }
 
-    [HasPrivileges("view")]
+    //[HasPrivileges("view")]
     [HttpGet("{module}")]
     public IActionResult Get(string module)
     {
@@ -66,7 +62,7 @@ public class DownloadController : ControllerBase
             string base64String;
             using (var wb = new XLWorkbook())
             {
-                var sheet = wb.AddWorksheet(data, "Employee Records");
+                var sheet = wb.AddWorksheet(data, string.Concat(module, "Details"));
 
                 // Apply font color to columns 1 to 5
                 sheet.Columns(1, 5).Style.Font.FontColor = XLColor.Black;
@@ -85,38 +81,38 @@ public class DownloadController : ControllerBase
             {
                 Code = 200,
                 Status = true,
-                Message = "",
+                Message = "Template generated successfully",
                 Data = base64String
             });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = "An error occurred while processing the file.", error = ex.Message });
+            return BadRequest(new { message = "An error occurred while generating the template.", error = ex.Message });
         }
     }
-    private dynamic? GetModuleDetails(string model)
-    { 
-        ListOptions option = new();
-        var data = dataService.Get(model, option);
+    private dynamic? GetModuleDetails()
+    {        
+        ListOptions option = new();        
+        var data = dataService.Get("room", option);
 
-        if (data.Items.Count > 0)
+        if (data != null)
         {
-            return data;
+            return data.Items;
         }
         else
         {
-            logger.LogError("No data retrive from backend for " + model);
+            logger.LogError("No data retrive from backend for room");
             return null;
         }
     }
 
     private DataTable GetTemplate(string module)
     {
-        DataTable dt =new();
+        DataTable dt = new();
         switch (module.ToUpper())
         {
             case "FLAT":
-                var room = GetModuleDetails(module);
+                var room = GetModuleDetails();
                 dt = CreateFlatTemplate(room);
                 break;
             case "TOWER":
@@ -124,7 +120,7 @@ public class DownloadController : ControllerBase
                 break;
             case "FLOOR":
                 dt = CreateFloorTemplate();
-                break;           
+                break;
 
         }
         return dt;
@@ -155,9 +151,13 @@ public class DownloadController : ControllerBase
         dt.Columns.Add("Description");
         dt.Columns.Add("Floor");
         dt.Columns.Add("Tower");
-        foreach (string item in room) {
-            var name = string.Concat(item, "Count");
-            dt.Columns.Add(name);
+        if (room != null)
+        {
+            foreach (var item in room)
+            {
+                var name = string.Concat(item.Name, "Count");
+                dt.Columns.Add(name);
+            }
         }
         return dt;
     }

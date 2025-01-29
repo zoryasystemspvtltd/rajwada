@@ -63,6 +63,12 @@ const IUIListFilter = (props) => {
     const handleButtonClick = () => {
         fileInputRef.current.click(); // Trigger the file input click
     };
+    const handleDownloadClick = () => {
+        api.downloadTemplate({ module: schema?.title }).then((response) => {
+            return response;
+        });
+    };
+
 
     useEffect(() => {
         if (props?.filter) {

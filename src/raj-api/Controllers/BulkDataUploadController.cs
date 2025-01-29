@@ -8,6 +8,7 @@ using ILab.Extensionss.Common;
 using System.Data;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Org.BouncyCastle.Asn1.Cms;
 
 namespace RajApi.Controllers;
 
@@ -156,11 +157,11 @@ public class BulkDataUploadController : ControllerBase
     private (dynamic?, BulkResponse) CreateFloorDataModel(DataRow dataRow, string member, string key, BulkResponse response)
     {
         //Get Tower details
-        var tower = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "tower", 0, member, key);
+        var tower = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "tower", 0);
         if (tower != null)
         {
             //Duplicate checking
-            var floor = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "floor", 0, member, key);
+            var floor = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "floor", 0);
             if (floor == null)
             {
                 response.SuccessData.Add(dataRow[0].ToString());
@@ -193,15 +194,15 @@ public class BulkDataUploadController : ControllerBase
     private (dynamic?, BulkResponse) CreateFlatDataModel(DataRow dataRow, string member, string key, BulkResponse response)
     {
         //Get Tower details
-        var tower = GetModuleDetails("Plan", "Name", dataRow[3].ToString(), "tower",0, member, key);
+        var tower = GetModuleDetails("Plan", "Name", dataRow[3].ToString(), "tower", 0);
         if (tower != null)
         {
             //Get Floor details
-            var floor = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "floor", (long)tower.Id, member, key);
+            var floor = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "floor", (long)tower.Id);
             if (floor != null)
             {
                 //Duplicate checking
-                var flat = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "flat", 0, member, key);
+                var flat = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "flat", 0);
                 if (flat == null)
                 {
                     response.SuccessData.Add(dataRow[0].ToString());
@@ -241,11 +242,11 @@ public class BulkDataUploadController : ControllerBase
     private (dynamic?, BulkResponse) CreateTowerDataModel(DataRow dataRow, string member, string key, BulkResponse response)
     {
         //Get Project details
-        var project = GetModuleDetails("Project", "Name", dataRow[2].ToString(), null, 0, member, key);
+        var project = GetModuleDetails("Project", "Name", dataRow[2].ToString(), null, 0);
         if (project != null)
         {
             //Duplicate checking
-            var tower = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "tower", 0, member, key);
+            var tower = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "tower", 0);
             if (tower == null)
             {
                 response.SuccessData.Add(dataRow[0].ToString());
@@ -274,13 +275,12 @@ public class BulkDataUploadController : ControllerBase
         }
     }
 
-    private dynamic? GetModuleDetails(string model, string name, string? value, string? type, long id, string member, string key)
-    {
-        dataService.Identity = new ModuleIdentity(member, key);
+    private dynamic? GetModuleDetails(string model, string name, string? value, string? type, long id)
+    {       
         ListOptions option = new();
         Condition con = new()
         {
-            //Operator baln mean Equality
+            //Operator blank mean Equality
             Name = name,
             Value = value
         };
@@ -293,7 +293,7 @@ public class BulkDataUploadController : ControllerBase
             };
             con.And = typecon;
         }
-        if (id >0)
+        if (id > 0)
         {
             var typecon = new Condition()
             {
@@ -306,7 +306,7 @@ public class BulkDataUploadController : ControllerBase
         option.SearchCondition = con;
         var data = dataService.Get(model, option);
 
-        if (data.Items.Count > 0)
+        if (data != null && data?.Items.Count > 0)
         {
             return data.Items[0];
         }
