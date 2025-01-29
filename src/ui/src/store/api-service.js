@@ -144,6 +144,11 @@ api.uploadExcelFile = async (action) => {
     const response = await api.post(url, action.data);
     return response;
 }
+api.downloadTemplate = async (action) => {
+    const url = `/download/${action.module}`;
+    const response = await api.get(url);
+    return response;
+}
 
 export default api;
 

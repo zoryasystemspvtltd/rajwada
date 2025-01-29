@@ -52,7 +52,7 @@ public class DownloadController : ControllerBase
         }
     }
 
-    [HasPrivileges("view")]
+    //[HasPrivileges("view")]
     [HttpGet("{module}")]
     public IActionResult Get(string module)
     {
@@ -66,7 +66,7 @@ public class DownloadController : ControllerBase
             string base64String;
             using (var wb = new XLWorkbook())
             {
-                var sheet = wb.AddWorksheet(data, "Employee Records");
+                var sheet = wb.AddWorksheet(data, string.Concat(module, "Details"));
 
                 // Apply font color to columns 1 to 5
                 sheet.Columns(1, 5).Style.Font.FontColor = XLColor.Black;
@@ -85,13 +85,13 @@ public class DownloadController : ControllerBase
             {
                 Code = 200,
                 Status = true,
-                Message = "",
+                Message = "Template generated successfully",
                 Data = base64String
             });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = "An error occurred while processing the file.", error = ex.Message });
+            return BadRequest(new { message = "An error occurred while generating the template.", error = ex.Message });
         }
     }
     private dynamic? GetModuleDetails(string model)
