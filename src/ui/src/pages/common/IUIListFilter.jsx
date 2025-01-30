@@ -12,7 +12,9 @@ import IUILookUp from './shared/IUILookUp';
 import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import { HiOutlineUpload } from 'react-icons/hi';
 import { RiDownload2Fill } from 'react-icons/ri';
+import { saveAs } from 'file-saver';
 import api from '../../store/api-service';
+import { notify } from "../../store/notification";
 
 const IUIListFilter = (props) => {
     const schema = props.schema;
@@ -23,8 +25,6 @@ const IUIListFilter = (props) => {
     const [search, setSearch] = useState(useSelector((state) => state.api[module])?.options?.search);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [message, setMessage] = useState("");
-    const fileInputRef = useRef(null);
     const [showUploadStatus, setShowUploadStatus] = useState(false);
     const [bulkUploadResponse, setBulkUploadResponse] = useState(null);
 
@@ -41,32 +41,50 @@ const IUIListFilter = (props) => {
                     return response;
                 })
                 .then((data) => {//handle modal next.
-                    console.log(data?.data);
                     setBulkUploadResponse(data?.data);
                     // setShowUploadStatus(true);
-                    console.log('File uploaded successfully:', data);
-                    setMessage('File successfully uploaded!');
+                    notify("success", 'File upload successful!');
                 })
                 .then(() => {
                     setShowUploadStatus(true);
                 })
                 .catch((error) => {
-                    console.error('Error uploading file:', error);
-                    setMessage('Error uploading file. Please try again.');
+                    notify("error", `Failed to upload file!`);
                 });
         } else {
-            setMessage('Error: Invalid file type. Please upload an Excel file (.xlsx, .xls).');
+            notify("error", `Invalid file type! Please upload an Excel file (.xlsx, .xls).`);
         }
-
+        event.target.value = null;
     }
 
-    const handleButtonClick = () => {
-        fileInputRef.current.click(); // Trigger the file input click
-    };
-    const handleDownloadClick = () => {
-        api.downloadTemplate({ module: schema?.title }).then((response) => {
-            return response;
-        });
+    const handleDownloadClick = async () => {
+        try {
+            const response = await api.downloadTemplate({ module: schema?.title });
+
+            if (response) {
+                // Decode the base64 string to binary data
+                const byteCharacters = atob(response.data.data); // Base64 decode
+                const byteArrays = [];
+
+                // Convert the decoded string into a byte array
+                for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                    const slice = byteCharacters.slice(offset, offset + 512);
+                    const byteNumbers = new Array(slice.length);
+                    for (let i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    byteArrays.push(new Uint8Array(byteNumbers));
+                }
+
+                // Create a Blob object from the byte arrays
+                const blob = new Blob(byteArrays, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+                // Use FileSaver to trigger the download
+                saveAs(blob, `${schema?.title}-Details.xlsx`);
+            }
+        } catch (error) {
+            notify("error", `Failed to download ${schema?.title} template!`);
+        }
     };
 
 
@@ -193,16 +211,7 @@ const IUIListFilter = (props) => {
                                         <Button
                                             variant="contained"
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
-                                            onClick={() => {
-                                                const excelFileUrl = `/templates/${schema?.title}Details.xlsx`;
-                                                // console.log(excelFileUrl);
-                                                const link = document.createElement("a");
-                                                link.href = excelFileUrl;
-                                                link.download = `${schema?.title}Details.xlsx`;
-                                                document.body.appendChild(link);
-                                                link.click();
-                                                document.body.removeChild(link);
-                                            }}
+                                            onClick={handleDownloadClick}
                                         >
                                             <RiDownload2Fill className="inline-block mr-2" />
                                             Download
@@ -212,13 +221,13 @@ const IUIListFilter = (props) => {
                                         <Button
                                             variant="contained"
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
-                                            onClick={handleButtonClick}
+                                            onClick={() => document.getElementById('upload-btn').click()}
                                         >
                                             <HiOutlineUpload className="inline-block mr-2" />
                                             <input
                                                 type='file'
                                                 accept='.xlsx'
-                                                ref={fileInputRef}
+                                                id='upload-btn'
                                                 onChange={handleFileUpload}
                                                 style={{ display: 'none' }}
                                             />

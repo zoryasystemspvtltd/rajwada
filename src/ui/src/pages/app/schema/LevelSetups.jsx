@@ -108,6 +108,8 @@ export const EditLevelSetup = () => {
         goNextView: true,
         back: false,
         goNextList: true,
+        assignNext: true,
+        assignField: "inChargeId",
         fields: [
             {
                 type: "area", width: 12
@@ -128,7 +130,7 @@ export const EditLevelSetup = () => {
                         text: 'Supplier Name', field: 'supplierId', nameField: 'supplierName', type: 'lookup', required: true, width: 4,
                         schema: { module: 'supplier' }
                     },
-                    { text: 'Remarks', field: 'remarks', placeholder: 'Remarks here...', type: 'text', required: false, width: 12 },
+                    // { text: 'Remarks', field: 'remarks', placeholder: 'Remarks here...', type: 'text', required: false, width: 12 },
                 ]
             },
             {
@@ -159,7 +161,7 @@ export const EditLevelSetup = () => {
                                     labelvisible: false, schema: { module: 'uom' }
                                 },
                                 {
-                                    text: 'Quality Status', field: 'qualityStatus', type: 'lookup-enum', required: true, width: 12,
+                                    text: 'Quality Status', field: 'qualityStatus', type: 'lookup-enum', required: false, width: 12,
                                     labelvisible: false, schema: { module: 'qualityStatus' }
                                 },
                                 { text: 'Quality Remarks', field: 'qualityRemarks', type: 'text', required: false, labelvisible: false, width: 12 },
@@ -206,7 +208,7 @@ export const AddLevelSetup = () => {
                         text: 'Supplier Name', field: 'supplierId', nameField: 'supplierName', type: 'lookup', required: true, width: 4,
                         schema: { module: 'supplier' }
                     },
-                    { text: 'Remarks', field: 'remarks', placeholder: 'Remarks here...', type: 'text', required: false, width: 12 },
+                    // { text: 'Remarks', field: 'remarks', placeholder: 'Remarks here...', type: 'text', required: false, width: 12 },
                 ]
             }
         ]
