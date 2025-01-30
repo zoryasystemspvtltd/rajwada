@@ -8,7 +8,6 @@ using ILab.Extensionss.Common;
 using System.Data;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using Org.BouncyCastle.Asn1.Cms;
 
 namespace RajApi.Controllers;
 
@@ -69,7 +68,6 @@ public class BulkDataUploadController : ControllerBase
 
         return response;
     }
-
 
     private async Task<BulkResponse> ProcessExcelData(string dataModel, string filePath, BulkResponse response, CancellationToken token)
     {
@@ -144,7 +142,20 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 if (data != null)
-                    await dataService.SaveDataAsync("Plan", data, token);
+                {
+                    long planId = await dataService.SaveDataAsync("Plan", data, token);
+                    if (planId > 0 && dataModel.ToUpper().Equals("FLATDETAILS"))
+                    {
+                        (data, response) = CreateResourceDataModel(dataRow, planId, member, key, response);
+                        if (data != null)
+                        {
+                            foreach (Resource item in data)
+                            {
+                                await dataService.SaveDataAsync("Resource", item, token);
+                            }
+                        }
+                    }
+                }
             }
         }
         catch (Exception ex)
@@ -154,6 +165,65 @@ public class BulkDataUploadController : ControllerBase
         }
         return response;
     }
+
+    private (dynamic data, BulkResponse response) CreateResourceDataModel(DataRow dataRow, long planId, string member, string key, BulkResponse response)
+    {
+        List<Resource> listResources = [];
+        if (dataRow.Table.Columns.Count > 4)
+        {
+            for (int i = 4; i < dataRow.Table.Columns.Count; i++)
+            {
+                if (dataRow[i] != null && Convert.ToDecimal(dataRow[i]) > 0)
+                {
+                    string rommName = dataRow.Table.Columns[i].ToString().Split(' ')[0];
+                    //Get Room details
+                    var room = GetModuleDetails("Room", "Name", rommName, null, 0);
+                    if (room != null)
+                    {
+                        //Duplicate checking
+                        var resource = GetModuleDetails("Resource", "RoomId", room.Id.ToString(), "room", planId);
+                        if (resource == null)
+                        {
+                            response.SuccessData.Add(rommName + ", quantity:" + dataRow[i] + " resource added!");
+                            Resource rec = new()
+                            {
+                                Date = DateTime.Now,
+                                Member = member,
+                                Key = key,
+                                Type = "room",
+                                RoomId = room.Id,
+                                Quantity = Convert.ToDecimal(dataRow[i]),
+                                PlanId = planId
+                            };
+                            listResources.Add(rec);
+                        }
+                        else
+                        {
+                            response.FailureData.Add(room.Name + ": Resource already exist!");
+                            return (null, response);
+                        }
+                    }
+                    else
+                    {
+                        response.FailureData.Add(rommName + ": Room name not exist!");
+                        return (null, response);
+                    }
+                }
+                else
+                {
+                    response.FailureData.Add(dataRow.Table.Columns[i].ToString() + ": value is missing!");
+                    return (null, response);
+                }
+            }
+            return (listResources, response);
+        }
+        else
+        {
+            response.FailureData.Add("No Rooms exist in the excelsheet!");
+            return (null, response);
+        }
+    }
+
     private (dynamic?, BulkResponse) CreateFloorDataModel(DataRow dataRow, string member, string key, BulkResponse response)
     {
         //Get Tower details
@@ -164,7 +234,7 @@ public class BulkDataUploadController : ControllerBase
             var floor = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "floor", 0);
             if (floor == null)
             {
-                response.SuccessData.Add(dataRow[0].ToString());
+                response.SuccessData.Add(dataRow[0].ToString() + " added!");
                 Plan obj = new()
                 {
                     Date = DateTime.Now,
@@ -180,13 +250,13 @@ public class BulkDataUploadController : ControllerBase
             }
             else
             {
-                response.FailureData.Add(dataRow[0].ToString() + ": Already Exist");
+                response.FailureData.Add(dataRow[0].ToString() + ": Already exist!");
                 return (null, response);
             }
         }
         else
         {
-            response.FailureData.Add(dataRow[0].ToString() + ": Tower Name not exist");
+            response.FailureData.Add(dataRow[0].ToString() + ": Tower name not exist!");
             return (null, response);
         }
 
@@ -205,7 +275,7 @@ public class BulkDataUploadController : ControllerBase
                 var flat = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "flat", 0);
                 if (flat == null)
                 {
-                    response.SuccessData.Add(dataRow[0].ToString());
+                    response.SuccessData.Add(dataRow[0].ToString() + " added!");
                     Plan obj = new()
                     {
                         Date = DateTime.Now,
@@ -217,26 +287,26 @@ public class BulkDataUploadController : ControllerBase
                         ProjectId = floor.ProjectId,
                         ParentId = floor.Id
                     };
+
                     return (obj, response);
                 }
                 else
                 {
-                    response.FailureData.Add(dataRow[0].ToString() + ": Already Exist");
+                    response.FailureData.Add(dataRow[0].ToString() + ": Already exist!");
                     return (null, response);
                 }
             }
             else
             {
-                response.FailureData.Add(dataRow[0].ToString() + ": Floor Name not exist");
+                response.FailureData.Add(dataRow[0].ToString() + ": Floor name not exist!");
                 return (null, response);
             }
         }
         else
         {
-            response.FailureData.Add(dataRow[0].ToString() + ": Tower Name not exist");
+            response.FailureData.Add(dataRow[0].ToString() + ": Tower name not exist!");
             return (null, response);
         }
-
     }
 
     private (dynamic?, BulkResponse) CreateTowerDataModel(DataRow dataRow, string member, string key, BulkResponse response)
@@ -249,7 +319,7 @@ public class BulkDataUploadController : ControllerBase
             var tower = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "tower", 0);
             if (tower == null)
             {
-                response.SuccessData.Add(dataRow[0].ToString());
+                response.SuccessData.Add(dataRow[0].ToString() + " added!");
                 Plan obj = new()
                 {
                     Date = DateTime.Now,
@@ -264,19 +334,19 @@ public class BulkDataUploadController : ControllerBase
             }
             else
             {
-                response.FailureData.Add(dataRow[0].ToString() + ": Already Exist");
+                response.FailureData.Add(dataRow[0].ToString() + ": Already exist!");
                 return (null, response);
             }
         }
         else
         {
-            response.FailureData.Add(dataRow[0].ToString() + ": Project Name not exist");
+            response.FailureData.Add(dataRow[0].ToString() + ": Project name not exist!");
             return (null, response);
         }
     }
 
     private dynamic? GetModuleDetails(string model, string name, string? value, string? type, long id)
-    {       
+    {
         ListOptions option = new();
         Condition con = new()
         {
@@ -292,16 +362,17 @@ public class BulkDataUploadController : ControllerBase
                 Value = type,
             };
             con.And = typecon;
-        }
-        if (id > 0)
-        {
-            var typecon = new Condition()
+            if (id > 0)
             {
-                Name = "ParentId",
-                Value = id,
-            };
-            con.And = typecon;
+                var newcon = new Condition()
+                {
+                    Name = type == "room" ? "PlanId" : "ParentId",
+                    Value = id,
+                };
+                typecon.And = newcon;
+            }
         }
+
 
         option.SearchCondition = con;
         var data = dataService.Get(model, option);
@@ -317,7 +388,7 @@ public class BulkDataUploadController : ControllerBase
         }
     }
 
-    public static string GetCellValue(SpreadsheetDocument document, Cell cell)
+    private static string GetCellValue(SpreadsheetDocument document, Cell cell)
     {
         SharedStringTablePart stringTablePart = document.WorkbookPart.SharedStringTablePart;
         string value = cell.CellValue.InnerXml;
@@ -357,5 +428,3 @@ public class BulkDataUploadController : ControllerBase
         return flag;
     }
 }
-
-
