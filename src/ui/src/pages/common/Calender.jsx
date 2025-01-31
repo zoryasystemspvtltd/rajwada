@@ -1,7 +1,11 @@
 import { format, isSameDay, startOfToday } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import { Form } from 'react-bootstrap';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
 import api from '../../store/api-service';
+// import './Calendar.css'; // Assuming you have a CSS file for styling
 
 const Calendar = () => {
   const [date, setDate] = useState(new Date());
@@ -15,300 +19,242 @@ const Calendar = () => {
     hold: false,
     change: false,
     eng: false,
-    curing: false
+    curing: false,
   });
-  const [progress, setProgress] = useState("");
+  const [progress, setProgress] = useState('');
   const [actualCost, setActualCost] = useState(0);
-
-
-
+  // const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i);
 
+  // Fetch tasks from the API
   async function fetchData() {
-    const pageOptions = {
-      recordPerPage: 0
+    // setLoading(true);
+    // setError(null);
+    try {
+      const pageOptions = {
+        recordPerPage: 0,
+      };
+
+      const response = await api.getData({ module: 'activity', options: pageOptions });
+      setTasks(response.data.items);
+    } catch (error) {
+      setError('Failed to fetch tasks');
+    } finally {
+      // setLoading(false);
     }
-
-    const response = await api.getData({ module: "activity", options: pageOptions });
-
-    setTasks(response.data.items);
-
   }
 
   useEffect(() => {
-    // async function fetchData() {
-    //   const pageOptions = {
-    //     recordPerPage: 0
-    //   }
-
-    //   const response = await api.getData({ module: "activity", options: pageOptions });
-
-    //   setTasks(response.data.items);
-
-    // }
-
     fetchData();
-  }, [module]);
+  }, []);
 
-  const handleMonthChange = (event) => {
-    const newDate = new Date(date);
-    newDate.setMonth(event.target.value);
-    setDate(newDate);
-  };
+  // Handle date clicks in FullCalendar
+  const handleDateClick = (info) => {
+    const clickedDate = new Date(info.date);
+    setSelectedDate(clickedDate);
 
-  const handleYearChange = (event) => {
-    const newDate = new Date(date);
-    newDate.setFullYear(event.target.value);
-    setDate(newDate);
-  };
-
-  const handlePrevMonth = () => {
-    const newDate = new Date(date);
-    newDate.setMonth(date.getMonth() - 1);
-    setDate(newDate);
-  };
-
-  const handleNextMonth = () => {
-    const newDate = new Date(date);
-    newDate.setMonth(date.getMonth() + 1);
-    setDate(newDate);
-  };
-
-  const handleToday = () => {
-    setDate(new Date());
-  };
-
-  const handleDateClick = (day) => {
-    setSelectedDate(day);
-    console.log(day);
-    const filteredTasks = tasks.filter(task => {
+    // Filter tasks for the clicked date
+    const filteredTasks = tasks.filter((task) => {
       const taskStartDate = new Date(task.startDate);
       const taskEndDate = new Date(task.endDate);
-      const selectedDateObj = new Date(date.getFullYear(), date.getMonth(), day);
-      return selectedDateObj >= taskStartDate && selectedDateObj <= taskEndDate;
+      return clickedDate >= taskStartDate && clickedDate <= taskEndDate;
     });
+
     setSelectedTasks(filteredTasks);
-    setModalOpen(true);
+    setModalOpen(true); // Open the modal for the date
   };
 
+  // Handle task clicks in the date modal
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setProgress(parseFloat(task.progressPercentage));
+    setActualCost(parseFloat(task.actualCost));
+    setTaskModalOpen(true); // Open the modal for the task
+  };
+
+  // Close the date modal
   const closeModal = () => {
     setModalOpen(false);
   };
 
-  const handleTaskClick = (task) => {
-    // navigate(`/activities/${task.id}/edit`);
-    setSelectedTask(task);
-    setProgress(parseFloat(task.progressPercentage));
-    setActualCost(parseFloat(task.actualCost));
-    setTaskModalOpen(true);
-  };
-
+  // Close the task modal
   const closeTaskModal = () => {
     setTaskModalOpen(false);
   };
 
+  // Save task changes
   const handleSave = async () => {
     const updatedData = {
       ...selectedTask,
-      // checkboxes,
       progressPercentage: progress,
-      actualCost: parseFloat(actualCost)
+      actualCost: parseFloat(actualCost),
     };
 
     try {
-      const response = api.editData({ module: 'activity', data: updatedData });
+      const response = await api.editData({ module: 'activity', data: updatedData });
       if (response.status === 200) {
         console.log('Data saved successfully!');
-        closeTaskModal();
-
-
       } else {
         console.log('Failed to save data.');
       }
     } catch (error) {
       console.error('Error saving data:', error);
-      console.log('An error occurred while saving data.');
     } finally {
-      setProgress("");
-      setActualCost("");
+      setProgress('');
+      setActualCost(0);
       setCheckboxes({
         hold: false,
         change: false,
         eng: false,
-        curing: false
+        curing: false,
       });
       closeTaskModal();
       closeModal();
-      await fetchData();    
+      await fetchData();
     }
-};
+  };
 
-const renderCalendar = () => {
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const lastDate = new Date(year, month + 1, 0).getDate();
-  const lastDay = new Date(year, month, lastDate).getDay();
-  const todayDate = startOfToday();
-
-  const days = [];
-  for (let i = 0; i < firstDay; i++) {
-    days.push(null);
-  }
-  for (let day = 1; day <= lastDate; day++) {
-    days.push(day);
-  }
-  for (let i = 0; i < 6 - lastDay; i++) {
-    days.push(null);
-  }
-
-  return days.map((day, index) => {
-    const isToday = day === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear();
-    const isSelected = selectedDate === day;
-    const taskCount = day ? tasks.filter(task => {
+  // Custom render function for date cells
+  const renderDateCell = (cellInfo) => {
+    const cellDate = new Date(cellInfo.date);
+    const taskCount = tasks.filter((task) => {
       const taskStartDate = new Date(task.startDate);
       const taskEndDate = new Date(task.endDate);
-      const currentDate = new Date(year, month, day);
-      return currentDate >= taskStartDate && currentDate <= taskEndDate;
-    }).length : 0;
+      return cellDate >= taskStartDate && cellDate <= taskEndDate;
+    }).length;
 
     return (
-      <button
-        key={index}
-        className={`cal-calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
-        onClick={() => day && handleDateClick(day)}
-        disabled={day === null} // Disable empty cells
-      >
-        {day || ''}
-        {taskCount > 0 && <span className="cal-task-count">{taskCount}</span>}
-      </button>
+      <div>
+        {cellInfo.dayNumberText}
+        {taskCount > 0 && (
+          <span style={{ marginLeft: '5px', color: 'red', fontWeight: 'bold' }}>
+            {taskCount}
+          </span>
+        )}
+      </div>
+      // <div style={{ position: 'relative', height: '100%' }}>
+      //   <div style={{ position: 'absolute', top: 0, left: 0 }}>
+      //     {cellInfo.dayNumberText}
+      //   </div>
+      //   {taskCount > 0 && (
+      //     <div
+      //       style={{
+      //         position: 'absolute',
+      //         bottom: 0,
+      //         left: 0,
+      //         backgroundColor: 'red',
+      //         color: 'white',
+      //         borderRadius: '50%',
+      //         width: '20px',
+      //         height: '20px',
+      //         display: 'flex',
+      //         alignItems: 'center',
+      //         justifyContent: 'center',
+      //         fontSize: '12px',
+      //       }}
+      //     >
+      //       {taskCount}
+      //     </div>
+      //   )}
+      // </div>
     );
-  });
-};
+  };
 
-return (
-  <div className="cal-calendar">
-    <div className="cal-calendar-header">
-      <button onClick={handleToday}>Today</button>
-      <button onClick={handlePrevMonth}>Prev</button>
-      <select value={date.getMonth()} onChange={handleMonthChange}>
-        {months.map((month, index) => (
-          <option key={index} value={index}>
-            {month}
-          </option>
-        ))}
-      </select>
-      <select value={date.getFullYear()} onChange={handleYearChange}>
-        {years.map((year) => (
-          <option key={year} value={year}>
-            {year}
-          </option>
-        ))}
-      </select>
-      <button onClick={handleNextMonth}>Next</button>
-    </div>
-    <div className="cal-calendar-weekdays">
-      {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, index) => (
-        <div key={index} className="cal-calendar-weekday">
-          {day}
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
+
+  // if (error) {
+  //   return <div>Error: {error}</div>;
+  // }
+
+  return (
+    <div>
+      <FullCalendar
+        plugins={[dayGridPlugin, interactionPlugin]}
+        initialView="dayGridMonth"
+        dateClick={handleDateClick}
+        dayCellContent={renderDateCell}
+      />
+
+      {modalOpen && (
+        <div className="cal-modal">
+          <div className="cal-modal-content">
+            <span className="cal-close" onClick={closeModal}>
+              &times;
+            </span>
+            <h2>Tasks For Date: {format(selectedDate, 'dd-MM-yyyy')}</h2>
+            {selectedTasks.length > 0 ? (
+              selectedTasks.map((task) => (
+                <button key={task.id} className="cal-task-button" onClick={() => handleTaskClick(task)}>
+                  {task.name}
+                </button>
+              ))
+            ) : (
+              <p>No task assigned</p>
+            )}
+          </div>
         </div>
-      ))}
-    </div>
-    <div className="cal-calendar-grid">
-      {renderCalendar()}
-    </div>
-    {modalOpen && (
-      <div className="cal-modal">
-        <div className="cal-modal-content">
-          <span className="cal-close" onClick={closeModal}>&times;</span>
-          <h2>Tasks For Date: {format(new Date(date.getFullYear(), date.getMonth(), selectedDate), 'dd-MM-yyyy')}</h2>
-          {selectedTasks.length > 0 ? (
-            selectedTasks.map(task => (
-              <button key={task.id} className="cal-task-button" onClick={() => handleTaskClick(task)}>
-                {task.name}
-              </button>
-            ))
-          ) : (
-            <p>No task assigned</p>
-          )}
+      )}
 
+      {taskModalOpen && selectedTask && (
+        <div className="cal-modal">
+          <div className="cal-modal-content">
+            <span className="cal-close" onClick={closeTaskModal}>
+              &times;
+            </span>
+            <h2>{format(selectedDate, 'dd-MM-yyyy')}</h2>
+            <h3>{selectedTask.name}</h3>
+            <Form className="cal-form">
+              <Form.Label>Contractor Name</Form.Label>
+              <Form.Control type="text" disabled={true} value={selectedTask.member} />
+              <Form.Label>Start Date</Form.Label>
+              <Form.Control type="date" disabled={true} value={new Date(selectedTask.startDate).toISOString().substring(0, 10)} />
+              <Form.Label>End Date</Form.Label>
+              <Form.Control type="date" disabled={true} value={new Date(selectedTask.endDate).toISOString().substring(0, 10)} />
+              <Form.Label>Actual Start Date</Form.Label>
+              <Form.Control type="date" disabled={true} value={selectedTask.actualStartDate ? new Date(selectedTask.actualStartDate).toISOString().substring(0, 10) : ''} placeholder="dd-mm-yyyy" />
+              <Form.Label>Actual End Date</Form.Label>
+              <Form.Control type="date" disabled={true} value={selectedTask.actualEndDate ? new Date(selectedTask.actualEndDate).toISOString().substring(0, 10) : ''} placeholder="dd-mm-yyyy" />
+              <div>
+                <Form.Check type="checkbox" disabled={!isSameDay(selectedDate, startOfToday())} label="Hold" className="d-flex align-items-center" onChange={(e) => setCheckboxes({ ...checkboxes, hold: e.target.checked })} checked={checkboxes.hold} />
+                <Form.Check type="checkbox" disabled={!isSameDay(selectedDate, startOfToday())} label="Change" className="d-flex align-items-center" onChange={(e) => setCheckboxes({ ...checkboxes, change: e.target.checked })} checked={checkboxes.change} />
+                <Form.Check type="checkbox" disabled={!isSameDay(selectedDate, startOfToday())} label="Eng" className="d-flex align-items-center" onChange={(e) => setCheckboxes({ ...checkboxes, eng: e.target.checked })} checked={checkboxes.eng} />
+                <Form.Check type="checkbox" disabled={!isSameDay(selectedDate, startOfToday())} label="Curing" className="d-flex align-items-center" onChange={(e) => setCheckboxes({ ...checkboxes, curing: e.target.checked })} checked={checkboxes.curing} />
+              </div>
+              <Form.Label>Cost</Form.Label>
+              <Form.Control type="text" disabled={true} value={selectedTask.costEstimate} />
+              <Form.Label>Actual Cost</Form.Label>
+              <Form.Control type="number" disabled={!isSameDay(selectedDate, startOfToday())} value={actualCost} onChange={(e) => setActualCost(e.target.value)} />
+              <Form.Label>Progress</Form.Label>
+              <Form.Control type="text" disabled={!isSameDay(selectedDate, startOfToday())} value={progress} onChange={(e) => setProgress(e.target.value)} placeholder="00.00%" />
+            </Form>
+            <br />
+            <button type="button" onClick={handleSave} className="btn btn-primary">
+              Save
+            </button>
+          </div>
         </div>
-      </div>
-    )}
-    {taskModalOpen && selectedTask && (
-      <div className="cal-modal">
-        <div className="cal-modal-content">
-          <span className="cal-close" onClick={closeTaskModal}>&times;</span>
-          <h2>{format(new Date(date.getFullYear(), date.getMonth(), selectedDate), 'dd-MM-yyyy')}</h2>
-          <h3>{selectedTask.name}</h3>
-          <Form className='cal-form'>
-            <Form.Label>Contractor Name</Form.Label>
-            <Form.Control type="text" disabled={true} value={selectedTask.member} />
-            {/* {console.log(selectedTask.startDate)}
-              {console.log(startOfToday())} */}
-            {console.log(selectedTask)}
-
-            {/* <Form.Label>Location</Form.Label>
-              <Form.Control type="text" disabled={!isSameDay(new Date(date.getFullYear(), date.getMonth(), selectedDate), startOfToday())} /> */}
-
-            <Form.Label>Start Date</Form.Label>
-            <Form.Control type="date" disabled={true} value={new Date(selectedTask.startDate).toISOString().substring(0, 10)} />
-            {console.log(format(new Date(selectedTask.startDate), 'dd-MM-yyyy'))}
-
-            <Form.Label>End Date</Form.Label>
-            <Form.Control type="date" disabled={true} value={new Date(selectedTask.endDate).toISOString().substring(0, 10)} />
-
-            <Form.Label>Actual Start Date</Form.Label>
-            <Form.Control type="date" disabled={true} value={selectedTask.actualStartDate ? new Date(selectedTask.actualStartDate).toISOString().substring(0, 10) : ""} placeholder="dd-mm-yyyy" />
-
-            <Form.Label>Actual End Date</Form.Label>
-            <Form.Control type="date" disabled={true} value={selectedTask.actualEndDate ? new Date(selectedTask.actualEndDate).toISOString().substring(0, 10) : ""} placeholder="dd-mm-yyyy" />
-
-            <div>
-
-              <Form.Check type="checkbox" disabled={!isSameDay(new Date(date.getFullYear(), date.getMonth(), selectedDate), startOfToday())} label="Hold" className="d-flex align-items-center" onChange={(e) => setCheckboxes({ ...checkboxes, hold: e.target.checked })} checked={checkboxes.hold} />
-
-              <Form.Check type="checkbox" disabled={!isSameDay(new Date(date.getFullYear(), date.getMonth(), selectedDate), startOfToday())} label="Change" className="d-flex align-items-center" onChange={(e) => setCheckboxes({ ...checkboxes, change: e.target.checked })} checked={checkboxes.change} />
-
-              <Form.Check type="checkbox" disabled={!isSameDay(new Date(date.getFullYear(), date.getMonth(), selectedDate), startOfToday())} label="Eng" className="d-flex align-items-center" onChange={(e) => setCheckboxes({ ...checkboxes, eng: e.target.checked })} checked={checkboxes.eng} />
-
-              <Form.Check type="checkbox" disabled={!isSameDay(new Date(date.getFullYear(), date.getMonth(), selectedDate), startOfToday())} label="Curing" className="d-flex align-items-center" onChange={(e) => setCheckboxes({ ...checkboxes, curing: e.target.checked })} checked={checkboxes.curing} />
-
-            </div>
-
-            <Form.Label>Cost</Form.Label>
-            <Form.Control type="text" disabled={true} value={selectedTask.costEstimate} />
-
-            <Form.Label>Actual Cost</Form.Label>
-            <Form.Control type="number" disabled={!isSameDay(new Date(date.getFullYear(), date.getMonth(), selectedDate), startOfToday())} value={actualCost}
-              onChange={(e) => setActualCost(e.target.value)} />
-
-            {/* <Form.Label>Work Tag on</Form.Label>
-              <Form.Control type="text" disabled={!isSameDay(new Date(date.getFullYear(), date.getMonth(), selectedDate), startOfToday())} />
-
-              <Form.Label>Watcher</Form.Label>
-              <Form.Control type="text" disabled={!isSameDay(new Date(date.getFullYear(), date.getMonth(), selectedDate), startOfToday())} /> */}
-
-            <Form.Label >Progress</Form.Label>
-            <Form.Control type="text"
-              disabled={!isSameDay(new Date(date.getFullYear(), date.getMonth(), selectedDate), startOfToday())}
-              value={progress}
-              onChange={(e) => setProgress(e.target.value)}
-              placeholder="00.00%" />
-          </Form>
-          <br />
-          <button type="button" onClick={handleSave} className="btn btn-primary">Save</button>
-        </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
 };
 
 export default Calendar;
