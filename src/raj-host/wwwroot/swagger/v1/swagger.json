@@ -1108,6 +1108,10 @@
 "Notes": {
 "type": "string",
 },
+"UserId": {
+"type": "string",
+"nullable": true
+},
 "PriorityStatus": {
 "type": "string",
 "nullable": true
@@ -1201,9 +1205,12 @@
 "Flat": {
 "type": "string",
 },
-"UserId": {
+"ContractorId": {
 "type": "string",
 "nullable": true
+},
+"Contractor": {
+"type": "string",
 },
 "Id": {
 "type": "string",
@@ -1510,6 +1517,9 @@
 "type": "object",
 "properties": {
 "File": {
+"type": "string",
+},
+"Title": {
 "type": "string",
 },
 "Id": {
