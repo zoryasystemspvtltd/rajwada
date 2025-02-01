@@ -35,8 +35,9 @@ const IUIListFilter = (props) => {
         if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
             const formData = new FormData();
             formData.append('file', file); // Attach the file with the key 'file'
+            formData.append('title', schema?.title);
 
-            api.uploadExcelFile({ module: schema?.module, data: formData })
+            api.uploadExcelFile({ module: schema?.module, data: formData})
                 .then((response) => {
                     return response;
                 })

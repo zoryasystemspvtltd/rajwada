@@ -155,7 +155,7 @@ public class DownloadController : ControllerBase
         {
             foreach (var item in room)
             {
-                var name = string.Concat(item.Name, " Count");
+                var name = item.Name;
                 dt.Columns.Add(name);
             }
         }

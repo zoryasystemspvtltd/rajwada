@@ -42,12 +42,11 @@ public class BulkDataUploadController : ControllerBase
             {
                 Directory.CreateDirectory(folderPath);
             }
-            string fileName = model.File.FileName.Split('.')[0];
-            string module = HttpContext.Request.QueryString.Value.Split('=')[1].ToString();
-            //bool flag = CheckedTemplateAccordingtoModule(fileName, module);
-            //if (flag)
-            //{
-            string uniquefilename = string.Concat(fileName, DateTime.Now.ToString("ddMMyyyymmss"), ".xlsx");
+            string fileName = model.File.FileName.Split('.')[0];            
+            bool flag = CheckedTemplateAccordingtoModule(fileName, model.Title);
+            if (flag)
+            {
+                string uniquefilename = string.Concat(fileName, DateTime.Now.ToString("ddMMyyyymmss"), ".xlsx");
             string filepath = Path.Combine(folderPath, uniquefilename);
             //save uploaded file
             using (var fileStream = new FileStream(filepath, FileMode.Create))
@@ -55,9 +54,9 @@ public class BulkDataUploadController : ControllerBase
                 await model.File.CopyToAsync(fileStream);
             }
             response = await ProcessExcelData(fileName, filepath, response, token);
-            //}
-            //else
-            //    response.FailureData.Add("Uploaded a wrong template file!");
+            }
+            else
+                response.FailureData.Add("Uploaded a wrong template file!");
 
         }
         catch (Exception ex)
@@ -175,7 +174,7 @@ public class BulkDataUploadController : ControllerBase
             {
                 if (dataRow[i] != null && Convert.ToDecimal(dataRow[i]) > 0)
                 {
-                    string rommName = dataRow.Table.Columns[i].ToString().Split(' ')[0];
+                    string rommName = dataRow.Table.Columns[i].ToString();
                     //Get Room details
                     var room = GetModuleDetails("Room", "Name", rommName, null, 0);
                     if (room != null)
@@ -199,20 +198,17 @@ public class BulkDataUploadController : ControllerBase
                         }
                         else
                         {
-                            response.FailureData.Add(room.Name + ": Resource already exist!");
-                            return (null, response);
+                            response.FailureData.Add(room.Name + ": Resource already exist!");                           
                         }
                     }
                     else
                     {
-                        response.FailureData.Add(rommName + ": Room name not exist!");
-                        return (null, response);
+                        response.FailureData.Add(rommName + ": Room name not exist!");                       
                     }
                 }
                 else
                 {
-                    response.FailureData.Add(dataRow.Table.Columns[i].ToString() + ": value is missing!");
-                    return (null, response);
+                    response.FailureData.Add(dataRow.Table.Columns[i].ToString() + ": value is missing!");                   
                 }
             }
             return (listResources, response);

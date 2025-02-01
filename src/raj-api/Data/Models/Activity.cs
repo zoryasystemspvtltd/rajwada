@@ -15,6 +15,8 @@ namespace RajApi.Data.Models
 
         public string? Notes { get; set; }
 
+        public virtual long? UserId { get; set; }
+
         #region Workflow
         /// <summary>
         /// Activity Status 
@@ -115,7 +117,12 @@ namespace RajApi.Data.Models
 
         [JsonIgnore]
         public virtual Plan? Flat { get; set; }
-        public virtual long? UserId { get; set; }
+       
+        [ForeignKey("Contractor")]
+        public virtual long? ContractorId { get; set; }
+
+        [JsonIgnore]
+        public virtual Contractor? Contractor { get; set; }
         #endregion
     }
 }
