@@ -128,9 +128,15 @@ const IUIPage = (props) => {
         return errors;
     };
 
-    const assignPageValue = async (e, email) => {
+    const assignPageValue = async (e, email, userId) => {
         e.preventDefault();
-        const action = { module: module, data: { id: id, member: email } }
+        let action = {};
+        if (module === 'activity') {
+            action = { module: module, data: { id: id, member: email, userId: userId } }
+        }
+        else {
+            action = { module: module, data: { id: id, member: email } }
+        }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }))
@@ -185,7 +191,7 @@ const IUIPage = (props) => {
         const current = new Date();
         const action = {
             module: module,
-            data: { id: id, status: isApproved ? 3 : 5, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, remarks: remarks }
+            data: { id: id, status: isApproved ? 3 : 5, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, approvedRemarks: remarks }
         }
         try {
             await api.editPartialData(action);
@@ -421,7 +427,7 @@ const IUIPage = (props) => {
                                                         <IUIAssign onClick={assignPageValue} />
                                                     }
                                                     {/* Condition modified by Adrish */}
-                                                    {schema?.approving && privileges?.approve && approvalStatus < 3 &&
+                                                    {schema?.approving && privileges?.assign && approvalStatus < 3 &&
                                                         <IUIApprover onClick={assignApprover} />
                                                     }
                                                     <IUIModuleMessage schema={props.schema} />

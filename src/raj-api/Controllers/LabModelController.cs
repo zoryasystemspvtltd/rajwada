@@ -74,7 +74,7 @@ public class LabModelController : ControllerBase
         return await dataService.EditAsync(module, id, data, token);        
     }
 
-    [HasPrivileges("edit")]
+    // [HasPrivileges("edit")]
     [HttpPatch("{module}/{id}")]
     public async Task<long> PatchAsync(string module, long id, dynamic data, CancellationToken token)
     {

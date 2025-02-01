@@ -14,7 +14,7 @@ import {
     TransformWrapper
 } from "react-zoom-pan-pinch";
 import api from '../../store/api-service';
-import { toast, Bounce } from "react-toastify";
+import { notify } from "../../store/notification";
 import ModalComponent from "./Ilab-UnitOfWork";
 
 const markerModalSchema = {
@@ -255,17 +255,7 @@ export const IlabMarkerCanvas = (props) => {
         // Optionally, log the Base64 string for debugging
         // console.log(base64Encoded);
         await savePageValue();
-        toast.success('Units of Work Creation Successful!', {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            transition: Bounce,
-        });
+        notify("success", 'Units of Work Creation Successful!');
         navigate(`/${schema?.parent?.path}`);
         if (!props?.readonly) {
             const modifiedEvent = {
@@ -315,17 +305,7 @@ export const IlabMarkerCanvas = (props) => {
             }
         }
         catch (e) {
-            toast.error('Units of Work Creation Failed!', {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-                transition: Bounce,
-            });
+            notify("error", 'Units of Work Creation Failed!');
             // console.log(e);
         }
     }

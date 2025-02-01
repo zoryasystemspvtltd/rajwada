@@ -80,7 +80,7 @@ const IUIListFilter = (props) => {
                 const blob = new Blob(byteArrays, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
                 // Use FileSaver to trigger the download
-                saveAs(blob, `${schema?.title}-Details.xlsx`);
+                saveAs(blob, `${schema?.title}Details.xlsx`);
             }
         } catch (error) {
             notify("error", `Failed to download ${schema?.title} template!`);

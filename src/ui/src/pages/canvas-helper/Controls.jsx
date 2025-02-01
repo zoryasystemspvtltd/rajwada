@@ -50,10 +50,10 @@ export const Controls = (props) => {
 
     return (
         <div className="tools" style={{ backgroundColor: '#CCC' }}>
-            <button onClick={() => zoomIn()} title="Zoom +" className="btn">
+            <button onClick={(e) => { e.preventDefault(); zoomIn(); }} title="Zoom +" className="btn">
                 <i className="bi bi-zoom-in fs-5"></i>
             </button>
-            <button onClick={() => zoomOut()} title="Zoom -" className="btn">
+            <button onClick={(e) => { e.preventDefault(); zoomOut() }} title="Zoom -" className="btn">
                 <i className="bi bi-zoom-out fs-5"></i>
             </button>
             <button onClick={() => resetTransform()} title="Reset" className="btn">

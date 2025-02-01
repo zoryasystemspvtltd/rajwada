@@ -47,7 +47,7 @@ const IUIAssign = (props) => {
                     <Dropdown.Item href="#/action-1">Search</Dropdown.Item>
                     <Dropdown.Divider />
                     {dataSet?.items?.map((item, i) => (
-                        <Dropdown.Item key={i} onClick={e => props?.onClick(e, item.email)}>{item.name}</Dropdown.Item>
+                        <Dropdown.Item key={i} onClick={e => props?.onClick(e, item.email, item.id)}>{item.name}</Dropdown.Item>
                     ))}
                 </Dropdown.Menu>
             </Dropdown>
