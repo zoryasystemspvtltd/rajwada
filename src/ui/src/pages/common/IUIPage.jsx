@@ -150,7 +150,7 @@ const IUIPage = (props) => {
     const assignDirect = async (userId) => {
         const user = await api.getSingleData({ module: "user", id: userId });
         let email = user.data.email;
-        const action = { module: module, data: { id: id, member: email } }
+        const action = { module: module, data: { id: id, member: email, status: 2 } }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }))
@@ -191,7 +191,7 @@ const IUIPage = (props) => {
         const current = new Date();
         const action = {
             module: module,
-            data: { id: id, status: isApproved ? 3 : 5, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, approvedRemarks: remarks }
+            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, approvedRemarks: remarks }
         }
         try {
             await api.editPartialData(action);
@@ -407,7 +407,7 @@ const IUIPage = (props) => {
                                                         </>
                                                     }
                                                     {
-                                                        approvalStatus === 2 && loggedInUser?.email === data.member &&
+                                                        approvalStatus === 3 && loggedInUser?.email === data.member &&
                                                         <>
                                                             {
                                                                 schema?.readonly && privileges?.approve &&

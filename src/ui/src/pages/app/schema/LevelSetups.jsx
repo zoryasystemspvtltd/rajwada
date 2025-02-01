@@ -76,9 +76,10 @@ export const ViewLevelSetup = () => {
                             module: 'levelSetupDetails',
                             title: 'Level Setup Items',
                             relationKey: "headerId", //TODO
+                            approvalKey: "isApproved",
+                            parentModule: 'levelSetup',
                             title: 'Level Setup Items',
                             editing: loggedInUser?.roles?.includes("Quality Engineer") ? true : false,
-                            adding: loggedInUser?.roles?.includes("Quality Engineer") ? true : false,
                             fields: [
                                 {
                                     field: 'id', type: 'hidden-filter'
@@ -116,7 +117,7 @@ export const ViewLevelSetup = () => {
 
 export const EditLevelSetup = () => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
-    
+
     const schema = {
         module: 'levelSetup',
         title: 'Level Setup',

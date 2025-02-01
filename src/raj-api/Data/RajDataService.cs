@@ -55,14 +55,17 @@ namespace ILab.Data
                 existingData.Status = StatusType.Assigned;
                 if (type == typeof(LevelSetup))
                 {
-                    if (jsonData != null 
-                        && jsonData?.IsApproved != null)
+                    if (jsonData != null && jsonData?.Status != null)
                     {
-                        existingData.Status = jsonData.Status;
-                        existingData.ApprovedBy = jsonData.ApprovedBy;
-                        existingData.ApprovedDate = jsonData.ApprovedDate;
-                        existingData.IsApproved = jsonData.IsApproved;
-                        existingData.ApprovedRemarks = jsonData.ApprovedRemarks;
+                        existingData.Status = jsonData?.Status;
+                    }
+
+                    if (jsonData != null && jsonData?.IsApproved != null)
+                    {
+                        existingData.ApprovedBy = jsonData?.ApprovedBy;
+                        existingData.ApprovedDate = jsonData?.ApprovedDate;
+                        existingData.IsApproved = jsonData?.IsApproved;
+                        existingData.ApprovedRemarks = jsonData?.ApprovedRemarks;
                     }
                 }
                 
