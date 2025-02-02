@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
 import api from '../../../store/api-service';
-import { toast, Bounce } from "react-toastify";
+import { notify } from '../../../store/notification';
 import IUILookUp from '../../common/shared/IUILookUp';
 import IUITableInputElement from './IUITableInputElement';
 
@@ -170,17 +170,7 @@ const IUITableInput = (props) => {
             preventDefault: function () { }
         };
         props.onChange(modifiedEvent);
-        toast.success('Items Updation Successful!', {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            transition: Bounce,
-        });
+        notify("success", `${schema?.title} List Updation Successful!`);
     }
 
     return (
@@ -320,7 +310,7 @@ const IUITableInput = (props) => {
                                                             <Button variant="contained"
                                                                 disabled={disabled}
                                                                 className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
-                                                                onClick={savePageValue}>Save </Button>
+                                                                onClick={savePageValue}>Save {schema?.title} List</Button>
                                                         </>
                                                     }
                                                 </Col>

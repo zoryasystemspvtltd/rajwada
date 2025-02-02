@@ -68,7 +68,7 @@ const IUILookUpRelation = (props) => {
                                 value={text}
                                 disabled={true}
                                 readOnly={true}
-                                className={`fs-6 ${props.className}`} />
+                                className={`${props.className}`} />
                         }
                         {props?.textonly &&
                             <>

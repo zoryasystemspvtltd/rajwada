@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Col, Row, Form, Container } from "react-bootstrap";
+import { Button, Col, Row, Form, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSingleData, editData, addData, setSave } from '../../store/api-db'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,6 +9,7 @@ import api from '../../store/api-service'
 import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIAssign from './shared/IUIAssign';
 import IUIApprover from './shared/IUIApprover';
+import { notify } from "../../store/notification";
 
 const IUIPage = (props) => {
     // Properties
@@ -31,6 +32,9 @@ const IUIPage = (props) => {
     const [disabled, setDisabled] = useState(false)
     const [approvalStatus, setApprovalStatus] = useState({});
     const [approvedMemeber, setApprovalBy] = useState({});
+    const [remarks, setRemarks] = useState('');
+    const [approvalType, setApprovalType] = useState('');
+    const [showRemarksModal, setShowRemarksModal] = useState(false);
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -81,6 +85,11 @@ const IUIPage = (props) => {
         setData(newData);
     };
 
+    const handleRemarksChange = (event) => {
+        const { value } = event.target;
+        setRemarks(value);
+    };
+
     const validate = (values, fields) => {
         let errors = {};
 
@@ -119,9 +128,29 @@ const IUIPage = (props) => {
         return errors;
     };
 
-    const assignPageValue = async (e, email) => {
+    const assignPageValue = async (e, email, userId) => {
         e.preventDefault();
-        const action = { module: module, data: { id: id, member: email } }
+        let action = {};
+        if (module === 'activity') {
+            action = { module: module, data: { id: id, member: email, userId: userId } }
+        }
+        else {
+            action = { module: module, data: { id: id, member: email } }
+        }
+        try {
+            await api.editPartialData(action);
+            dispatch(setSave({ module: module }))
+            //navigate(-1);
+
+        } catch (e) {
+            // TODO
+        }
+    }
+
+    const assignDirect = async (userId) => {
+        const user = await api.getSingleData({ module: "user", id: userId });
+        let email = user.data.email;
+        const action = { module: module, data: { id: id, member: email, status: 2 } }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }))
@@ -153,12 +182,16 @@ const IUIPage = (props) => {
         }
     }
 
-    const approvedPageValue = async (e,isApproved) => {
+    const approvedPageValue = async (e, isApproved) => {
         e.preventDefault();
+        if (!remarks || remarks === '') {
+            notify("error", "Remarks is mandatory!");
+            return;
+        }
         const current = new Date();
         const action = {
             module: module,
-            data: { id: id, status: isApproved? 3: 5, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved }
+            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, approvedRemarks: remarks }
         }
         try {
             await api.editPartialData(action);
@@ -166,6 +199,7 @@ const IUIPage = (props) => {
 
             const timeId = setTimeout(() => {
                 // After 3 seconds set the show value to false
+                setShowRemarksModal(false);
                 navigate(0);
             }, 1000)
 
@@ -177,6 +211,12 @@ const IUIPage = (props) => {
             // TODO
         }
     }
+
+    const handleModalClose = () => {
+        setShowRemarksModal(false);
+        setRemarks('');
+    }
+
     const deletePageValue = (e) => {
         e.preventDefault();
         api.deleteData({ module: module, id: id });
@@ -209,6 +249,9 @@ const IUIPage = (props) => {
 
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
+                            if (schema?.assignNext) {
+                                assignDirect(data?.[schema?.assignField]);
+                            }
                             if (schema?.goNextList) {
                                 navigate(`/${schema.path}`);
                             }
@@ -335,56 +378,56 @@ const IUIPage = (props) => {
                                                     {
                                                         approvalStatus < 2 &&
                                                         <>
-                                                        {schema?.editing &&
-                                                            <>
-                                                                {privileges?.edit &&
-                                                                    <Button
-                                                                        variant="contained"
-                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                        onClick={() => navigate(`/${schema.path}/${id}/edit`)}
-                                                                    >
-                                                                        Edit
-                                                                    </Button>
-                                                                }
-                                                            </>
-                                                        }
-                                                        {schema?.deleting &&
-                                                            <>
-                                                                {privileges?.delete &&
-                                                                    <Button
-                                                                        variant="contained"
-                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                        onClick={deletePageValue}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                }
-                                                            </>
-                                                        }
+                                                            {schema?.editing &&
+                                                                <>
+                                                                    {privileges?.edit &&
+                                                                        <Button
+                                                                            variant="contained"
+                                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                            onClick={() => navigate(`/${schema.path}/${id}/edit`)}
+                                                                        >
+                                                                            Edit
+                                                                        </Button>
+                                                                    }
+                                                                </>
+                                                            }
+                                                            {schema?.deleting &&
+                                                                <>
+                                                                    {privileges?.delete &&
+                                                                        <Button
+                                                                            variant="contained"
+                                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                            onClick={deletePageValue}
+                                                                        >
+                                                                            Delete
+                                                                        </Button>
+                                                                    }
+                                                                </>
+                                                            }
                                                         </>
                                                     }
                                                     {
-                                                        approvalStatus === 2 && loggedInUser?.email === data.member && 
+                                                        approvalStatus === 3 && loggedInUser?.email === data.member &&
                                                         <>
-                                                        {
-                                                            schema?.readonly && privileges?.approve && 
-                                                            <Button variant="contained"
-                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                onClick={e=> approvedPageValue(e,true)}> Approve</Button>
-                                                        }
-                                                        {
-                                                            schema?.readonly && privileges?.approve &&
-                                                            <Button variant="contained"
-                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                                onClick={e=> approvedPageValue(e,false)}> Reject</Button>
-                                                        } 
+                                                            {
+                                                                schema?.readonly && privileges?.approve &&
+                                                                <Button variant="contained"
+                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                    onClick={(e) => { setShowRemarksModal(true); setApprovalType("Approve"); }}> Approve</Button>
+                                                            }
+                                                            {
+                                                                schema?.readonly && privileges?.approve &&
+                                                                <Button variant="contained"
+                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
+                                                                    onClick={(e) => { setShowRemarksModal(true); setApprovalType("Reject"); }}> Reject</Button>
+                                                            }
                                                         </>
                                                     }
                                                     {schema?.assign &&
                                                         <IUIAssign onClick={assignPageValue} />
                                                     }
                                                     {/* Condition modified by Adrish */}
-                                                    {schema?.approving && privileges?.approve && approvalStatus < 3 &&
+                                                    {schema?.approving && privileges?.assign && approvalStatus < 3 &&
                                                         <IUIApprover onClick={assignApprover} />
                                                     }
                                                     <IUIModuleMessage schema={props.schema} />
@@ -446,7 +489,7 @@ const IUIPage = (props) => {
 
 
                                                                     {
-                                                                        (module !== 'activity') || (module === 'activity' && !schema?.adding) && (
+                                                                        ((module !== 'activity') || (module === 'activity' && !schema?.adding)) && (
                                                                             <Button variant="contained"
                                                                                 className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                                                 onClick={() => navigate(-1)}> Cancel
@@ -490,6 +533,36 @@ const IUIPage = (props) => {
                                 </div>
                             </div>
                         </div>
+                        {
+                            (showRemarksModal) && <Modal show={showRemarksModal} onHide={handleModalClose}>
+                                <Modal.Header closeButton>
+                                    <h4 style={{ color: "black" }}>Remarks</h4>
+                                </Modal.Header>
+                                <Modal.Body style={{ color: "black" }}>
+                                    <Form.Group as={Row} controlId="remarksInput">
+                                        <Col>
+                                            <Form.Control type="text" value={remarks} onChange={handleRemarksChange} placeholder="Remarks here....." />
+                                        </Col>
+                                    </Form.Group>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <Button
+                                        variant="contained"
+                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
+                                        onClick={handleModalClose}
+                                    >
+                                        Close
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
+                                        onClick={(e) => (approvalType === "Approve") ? approvedPageValue(e, true) : approvedPageValue(e, false)}
+                                    >
+                                        Submit
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal>
+                        }
                     </div>
                 </div>
             </div>

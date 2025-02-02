@@ -14,10 +14,22 @@ const IUIPageInline = (props) => {
     const [value, setValue] = useState({});
     const [dirty, setDirty] = useState(false)
     const [errors, setErrors] = useState({});
-  
+    const [parentData, setParentData] = useState({});
+
 
     // Usage
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        async function fetchParent() {
+            if (schema?.parentModule && id) {
+                const item = await api.getSingleData({ module: schema?.parentModule, id: id });
+                setParentData(item.data);
+            }
+        }
+
+        fetchParent();
+    }, [id, schema?.parentModule]);
 
     useEffect(() => {
         if (props?.value) {
@@ -59,15 +71,15 @@ const IUIPageInline = (props) => {
 
             setDirty(false);
             setErrors({});
-            
+
             value.HeaderId = parseInt(id);
             setValue(value);
             if (id != undefined)
                 try {
-                    if(value?.mode === 'add'){
+                    if (value?.mode === 'add') {
                         delete value.id;
                         await api.addData({ module: module, data: value });
-                    }else{
+                    } else {
                         await api.editData({ module: module, data: value });
                     }
                     dispatch(setSave({ module: module }))
@@ -137,7 +149,7 @@ const IUIPageInline = (props) => {
             {<td>
                 {schema?.editing &&
                     <div className="input-group">
-                        {!value?.mode &&
+                        {(!value?.mode && !parentData?.[schema?.approvalKey]) &&
                             <>
                                 < button className="btn btn-outline-primary" onClick={e => setMode(e, 'edit')}><i className="fa-solid fa-edit" title='Edit'></i></button>
                                 < button className="btn btn-outline-danger" onClick={deletePageValue}><i className="fa-solid fa-trash" title='Delete'></i></button>
