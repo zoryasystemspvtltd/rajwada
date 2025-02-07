@@ -16,7 +16,7 @@ const Calendar = () => {
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [commentsModalOpen, setCommentsModalOpen] = useState(false);
-    const [comments, setComments] = useState({});
+    const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [checkboxes, setCheckboxes] = useState({
         hold: false,
@@ -27,6 +27,7 @@ const Calendar = () => {
     const [progress, setProgress] = useState('');
     const [actualCost, setActualCost] = useState(0);
     const [error, setError] = useState(null);
+    const [baseFilter, setBaseFilter] = useState({})
 
     const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i);
 
@@ -41,6 +42,28 @@ const Calendar = () => {
             setTasks(response.data.items);
         } catch (error) {
             setError('Failed to fetch tasks');
+        }
+    }
+
+    async function fetchComments(selectedId) {
+        try {
+            const newBaseFilter = {
+                name: 'activityId',
+                value: parseInt(selectedId),
+
+                //operator: 'likelihood' // Default value is equal
+            }
+
+            setBaseFilter(newBaseFilter)
+
+            const pageOptions = {
+                recordPerPage: 0
+            }
+            const response = await api.getData({ module: 'comment', options: pageOptions });
+            // console.log('response', response);
+            setComments(response?.data?.items);
+        } catch (error) {
+            console.error('Failed to fetch comments:', error);
         }
     }
 
@@ -73,8 +96,9 @@ const Calendar = () => {
     };
 
     // Handle comment button click
-    const handleCommentClick = (task) => {
+    const handleCommentClick = async (task) => {
         setSelectedTask(task);
+        await fetchComments(task.id);
         setCommentsModalOpen(true); // Open the modal for comments
     };
 
@@ -92,6 +116,7 @@ const Calendar = () => {
     const closeCommentsModal = () => {
         setCommentsModalOpen(false);
         setNewComment('');
+        setComments([]);
     };
 
     // Save task changes
@@ -126,17 +151,6 @@ const Calendar = () => {
         }
     };
 
-    // Handle comment submission
-    // const handleCommentSubmit = () => {
-    //     if (newComment.trim()) {
-    //         setComments((prevComments) => ({
-    //             ...prevComments,
-    //             [selectedTask.id]: [...(prevComments[selectedTask.id] || []), newComment],
-    //         }));
-    //         setNewComment('');
-    //     }
-    // };
-    // Handle comment submission
     const handleCommentSubmit = async () => {
         if (newComment.trim()) {
             const commentData = {
@@ -160,6 +174,9 @@ const Calendar = () => {
                 }
             } catch (error) {
                 console.error('Error saving comment:', error);
+            }
+            finally {
+                await fetchComments();
             }
         }
     };
@@ -334,7 +351,6 @@ const Calendar = () => {
                     </Modal.Footer>
                 </Modal>
             )}
-
             {commentsModalOpen && selectedTask && (
                 <Modal show={commentsModalOpen} onHide={closeCommentsModal}>
                     <Modal.Header>
@@ -342,13 +358,13 @@ const Calendar = () => {
                     </Modal.Header>
                     <Modal.Body style={{ color: "black" }}>
                         <div className="comments-section">
-                            {comments[selectedTask.id] && comments[selectedTask.id].length > 0 ? (
-                                comments[selectedTask.id].map((comment, index) => (
+                            {comments?.length > 0 ? (
+                                comments?.map((comment, index) => (
                                     <div key={index} className="d-flex justify-content-end mb-2">
                                         <div className="p-2 bg-light rounded-pill" style={{ maxWidth: '70%' }}>
-                                            <div className="text-break">{comment}</div>
+                                            <div className="text-break">{comment?.remarks}</div>
                                             <div className="text-left text-muted" style={{ fontSize: '0.60rem' }}>
-                                                {format(new Date(), 'dd/mm/yyyy HH:mm')}
+                                                {format(new Date(comment?.date), 'dd/MM/yyyy HH:mm')}
                                             </div>
                                         </div>
                                     </div>
