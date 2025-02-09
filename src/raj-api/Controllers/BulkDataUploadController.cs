@@ -42,18 +42,18 @@ public class BulkDataUploadController : ControllerBase
             {
                 Directory.CreateDirectory(folderPath);
             }
-            string fileName = model.File.FileName.Split('.')[0];            
+            string fileName = model.File.FileName.Split('.')[0];
             bool flag = CheckedTemplateAccordingtoModule(fileName, model.Title);
             if (flag)
             {
                 string uniquefilename = string.Concat(fileName, DateTime.Now.ToString("ddMMyyyymmss"), ".xlsx");
-            string filepath = Path.Combine(folderPath, uniquefilename);
-            //save uploaded file
-            using (var fileStream = new FileStream(filepath, FileMode.Create))
-            {
-                await model.File.CopyToAsync(fileStream);
-            }
-            response = await ProcessExcelData(fileName, filepath, response, token);
+                string filepath = Path.Combine(folderPath, uniquefilename);
+                //save uploaded file
+                using (var fileStream = new FileStream(filepath, FileMode.Create))
+                {
+                    await model.File.CopyToAsync(fileStream);
+                }
+                response = await ProcessExcelData(fileName, filepath, response, token);
             }
             else
                 response.FailureData.Add("Uploaded a wrong template file!");
@@ -198,17 +198,17 @@ public class BulkDataUploadController : ControllerBase
                         }
                         else
                         {
-                            response.FailureData.Add(room.Name + ": Resource already exist!");                           
+                            response.FailureData.Add(room.Name + ": Resource already exist!");
                         }
                     }
                     else
                     {
-                        response.FailureData.Add(rommName + ": Room name not exist!");                       
+                        response.FailureData.Add(rommName + ": Room name not exist!");
                     }
                 }
                 else
                 {
-                    response.FailureData.Add(dataRow.Table.Columns[i].ToString() + ": value is missing!");                   
+                    response.FailureData.Add(dataRow.Table.Columns[i].ToString() + ": value is missing!");
                 }
             }
             return (listResources, response);
@@ -406,15 +406,11 @@ public class BulkDataUploadController : ControllerBase
         {
             flag = true;
         }
-        else
-            flag = false;
-        if (fileName.Equals("FLOORDETAILS", StringComparison.CurrentCultureIgnoreCase) && module.Equals("FLOOR", StringComparison.CurrentCultureIgnoreCase))
+        else if (fileName.Equals("FLOORDETAILS", StringComparison.CurrentCultureIgnoreCase) && module.Equals("FLOOR", StringComparison.CurrentCultureIgnoreCase))
         {
             flag = true;
         }
-        else
-            flag = false;
-        if (fileName.Equals("FLATDETAILS", StringComparison.CurrentCultureIgnoreCase) && module.Equals("FLAT", StringComparison.CurrentCultureIgnoreCase))
+        else if (fileName.Equals("FLATDETAILS", StringComparison.CurrentCultureIgnoreCase) && module.Equals("FLAT", StringComparison.CurrentCultureIgnoreCase))
         {
             flag = true;
         }
