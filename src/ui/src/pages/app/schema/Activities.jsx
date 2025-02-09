@@ -1,4 +1,4 @@
-import IUIList from "../../common/IUIList";
+import IUIListFilter from "../../common/IUIListFilter.jsx";
 import IUIPage from "../../common/IUIPage";
 import IUIActivityCreate from "../../common/shared/IUIActivityCreate.jsx";
 
@@ -12,6 +12,7 @@ export const ListActivity = () => {
         searching: true,
         editing: true,
         adding: true,
+        relationKey: "type",
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
@@ -28,7 +29,7 @@ export const ListActivity = () => {
     }
 
 
-    return (<IUIList schema={schema} />)
+    return (<IUIListFilter schema={schema} filter='Main Task' />)
 }
 
 export const ViewActivity = () => {
@@ -126,6 +127,28 @@ export const ViewActivity = () => {
                             ]
                         }
                     },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        type: 'module-relation',
+                        schema: {
+                            module: 'activity',
+                            relationKey: "parentId",
+                            title: 'Related Activities',
+                            path: 'activities',
+                            paging: true,
+                            searching: true,
+                            editing: false,
+                            adding: false,
+                            fields: [
+                                { text: 'Floors', field: 'name', type: 'link', sorting: true, searching: true, },
+                                { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
+                            ]
+                        },
+                    }
                 ]
             }
         ]

@@ -5,10 +5,11 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import api from '../../store/api-service';
 import { format, isSameDay, startOfToday } from 'date-fns';
+import { enIN, de, fr } from 'date-fns/locale';
+import { utcToZonedTime } from 'date-fns-tz';
 import { FaRegCommentDots } from "react-icons/fa";
 
 const Calendar = () => {
-    const [date, setDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(null);
     const [tasks, setTasks] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
@@ -27,9 +28,36 @@ const Calendar = () => {
     const [progress, setProgress] = useState('');
     const [actualCost, setActualCost] = useState(0);
     const [error, setError] = useState(null);
-    const [baseFilter, setBaseFilter] = useState({})
 
     const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i);
+
+    const getFormattedDate = (date) => {
+        const locale = navigator.language || 'en-US'; // Default to 'en-US' if unavailable
+
+        let localeObj;
+        switch (locale) {
+            case 'de-DE':
+                localeObj = de;
+                break;
+            case 'fr-FR':
+                localeObj = fr;
+                break;
+            default:
+                localeObj = enIN;
+                break;
+        }
+
+        // Define IST time zone
+        const IST = 'Asia/Kolkata';
+
+        // Convert the UTC date to IST
+        const zonedDate = utcToZonedTime(date, IST);
+
+        // Format the IST date using date-fns with the system locale
+        const formattedDate = format(zonedDate, 'dd/MM/yyyy HH:mm', { locale: localeObj });
+
+        return formattedDate;
+    }
 
     // Fetch tasks from the API
     async function fetchData() {
@@ -54,16 +82,14 @@ const Calendar = () => {
                 //operator: 'likelihood' // Default value is equal
             }
 
-            setBaseFilter(newBaseFilter)
-
             const pageOptions = {
-                recordPerPage: 0
+                recordPerPage: 0,
+                searchCondition: newBaseFilter
             }
             const response = await api.getData({ module: 'comment', options: pageOptions });
-            // console.log('response', response);
             setComments(response?.data?.items);
         } catch (error) {
-            console.error('Failed to fetch comments:', error);
+            // console.error('Failed to fetch comments:', error);
         }
     }
 
@@ -130,12 +156,12 @@ const Calendar = () => {
         try {
             const response = await api.editData({ module: 'activity', data: updatedData });
             if (response.status === 200) {
-                console.log('Data saved successfully!');
+                // console.log('Data saved successfully!');
             } else {
-                console.log('Failed to save data.');
+                // console.log('Failed to save data.');
             }
         } catch (error) {
-            console.error('Error saving data:', error);
+            // console.error('Error saving data:', error);
         } finally {
             setProgress('');
             setActualCost(0);
@@ -156,24 +182,24 @@ const Calendar = () => {
             const commentData = {
                 activityId: selectedTask.id,
                 remarks: newComment,
-                timestamp: new Date(),
+                timestamp: getFormattedDate(new Date()),
             };
 
             try {
                 // Assuming you have an API endpoint to save comments
                 const response = await api.addData({ module: 'comment', data: commentData });
                 if (response.status === 200) {
-                    console.log('Comment saved successfully!');
+                    // console.log('Comment saved successfully!');
                     setComments((prevComments) => ({
                         ...prevComments,
                         [selectedTask.id]: [...(prevComments[selectedTask.id] || []), newComment],
                     }));
                     setNewComment('');
                 } else {
-                    console.log('Failed to save comment.');
+                    // console.log('Failed to save comment.');
                 }
             } catch (error) {
-                console.error('Error saving comment:', error);
+                // console.error('Error saving comment:', error);
             }
             finally {
                 await fetchComments();
@@ -231,8 +257,9 @@ const Calendar = () => {
                                         </div>
                                         <div className="col-2">
                                             <Button
+                                                title='Comments'
                                                 variant="contained"
-                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-lg btn-secondary pr-5'
+                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary'
                                                 onClick={() => handleCommentClick(task)}
                                                 style={{ width: '100%' }}
                                             >
@@ -342,6 +369,7 @@ const Calendar = () => {
                             Close
                         </Button>
                         <Button
+                            disabled={!isSameDay(selectedDate, startOfToday())}
                             variant="contained"
                             className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
                             onClick={handleSave}
@@ -354,7 +382,7 @@ const Calendar = () => {
             {commentsModalOpen && selectedTask && (
                 <Modal show={commentsModalOpen} onHide={closeCommentsModal}>
                     <Modal.Header>
-                        <Modal.Title>Comments for Task: {selectedTask.name}</Modal.Title>
+                        <Modal.Title>Task Comments: {selectedTask.name}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{ color: "black" }}>
                         <div className="comments-section">
@@ -364,7 +392,8 @@ const Calendar = () => {
                                         <div className="p-2 bg-light rounded-pill" style={{ maxWidth: '70%' }}>
                                             <div className="text-break">{comment?.remarks}</div>
                                             <div className="text-left text-muted" style={{ fontSize: '0.60rem' }}>
-                                                {format(new Date(comment?.date), 'dd/MM/yyyy HH:mm')}
+                                                {/* {format(new Date(comment?.date), 'dd/MM/yyyy HH:mm')} */}
+                                                {getFormattedDate(new Date(comment?.date))}
                                             </div>
                                         </div>
                                     </div>

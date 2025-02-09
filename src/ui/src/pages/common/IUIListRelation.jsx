@@ -216,7 +216,7 @@ const IUIListRelation = (props) => {
                                                     </th>
                                                 }
                                                 {schema?.fields?.map((fld, f) => (
-                                                    <th key={f}>
+                                                    <th key={f} scope='col'>
                                                         {fld.sorting &&
                                                             <button
                                                                 type="submit"
