@@ -26,8 +26,9 @@ public class RajDataHandler : LabDataHandler
     {
 
         // This is used to assign entity to member,
-        //if (Array.Exists(typeof(T).GetInterfaces(), i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAssignable)))
-        if ((typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0) || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0))
+        if ((typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
+            || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0)
+            || (typeof(T).GetInterfaces().Count(p => p == typeof(IActivity)) > 0))
         {
             var name = typeof(T).Name;
             var labModelLog = dbContext.Set<ApplicationLog>()
@@ -63,7 +64,7 @@ public class RajDataHandler : LabDataHandler
         var final = res.Join(rooms,
                 r => r.RoomId,
                 rm => rm.Id,
-                (r, rm) => new 
+                (r, rm) => new
                 {
                     r.Quantity,
                     rm.Name
