@@ -141,6 +141,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<AssetType> AssetTypes { get; set; }
     public virtual DbSet<Resource> Resources { get; set; }
     public virtual DbSet<Comment> Comments { get; set; }
+    public virtual DbSet<Attachment> Attachments { get; set; }
 
     #region Masters
     public virtual DbSet<Department> Departments { get; set; }
