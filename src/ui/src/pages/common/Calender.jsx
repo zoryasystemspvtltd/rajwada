@@ -5,7 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import api from '../../store/api-service';
 import { format, isSameDay, startOfToday } from 'date-fns';
-import { FaRegCommentDots } from "react-icons/fa";
+import { FaRegCommentDots, FaImage } from "react-icons/fa";
 
 const Calendar = () => {
     const [date, setDate] = useState(new Date());
@@ -18,6 +18,8 @@ const Calendar = () => {
     const [commentsModalOpen, setCommentsModalOpen] = useState(false);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
     const [checkboxes, setCheckboxes] = useState({
         hold: false,
         change: false,
@@ -32,14 +34,24 @@ const Calendar = () => {
     const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i);
 
     // Fetch tasks from the API
-    async function fetchData() {
+    async function fetchData(selectedId) {
         try {
             const pageOptions = {
                 recordPerPage: 0,
+                filters: [{ name: 'activityId', value: parseInt(selectedId) }],
             };
 
-            const response = await api.getData({ module: 'activity', options: pageOptions });
-            setTasks(response.data.items);
+            const photoPageOptions = {
+                recordPerPage: 0,
+                filters: [{ name: 'activityId', value: parseInt(selectedId) }],
+            };
+
+            const commentResponse = await api.getData({ module: 'activity', options: pageOptions });
+            const photoResponse = await api.getData({ module: 'photo', options: photoPageOptions });
+            // setTasks(response.data.items);
+
+            const commentsWithPhotos = [...(commentResponse?.data?.items || []), ...(photoResponse?.data?.items || [])];
+            setComments(commentsWithPhotos);
         } catch (error) {
             setError('Failed to fetch tasks');
         }
@@ -50,8 +62,6 @@ const Calendar = () => {
             const newBaseFilter = {
                 name: 'activityId',
                 value: parseInt(selectedId),
-
-                //operator: 'likelihood' // Default value is equal
             }
 
             setBaseFilter(newBaseFilter)
@@ -60,7 +70,6 @@ const Calendar = () => {
                 recordPerPage: 0
             }
             const response = await api.getData({ module: 'comment', options: pageOptions });
-            // console.log('response', response);
             setComments(response?.data?.items);
         } catch (error) {
             console.error('Failed to fetch comments:', error);
@@ -116,6 +125,8 @@ const Calendar = () => {
     const closeCommentsModal = () => {
         setCommentsModalOpen(false);
         setNewComment('');
+        setImageFile(null);
+        setImagePreview(null);
         setComments([]);
     };
 
@@ -152,32 +163,73 @@ const Calendar = () => {
     };
 
     const handleCommentSubmit = async () => {
-        if (newComment.trim()) {
-            const commentData = {
-                activityId: selectedTask.id,
-                remarks: newComment,
-                timestamp: new Date(),
-            };
+        if (newComment.trim() || imageFile) {
+            if (newComment.trim()) {
+                // Save text comment
+                const commentData = {
+                    activityId: selectedTask.id,
+                    remarks: newComment,
+                    date: new Date(),
+                };
 
-            try {
-                // Assuming you have an API endpoint to save comments
-                const response = await api.addData({ module: 'comment', data: commentData });
-                if (response.status === 200) {
-                    console.log('Comment saved successfully!');
-                    setComments((prevComments) => ({
-                        ...prevComments,
-                        [selectedTask.id]: [...(prevComments[selectedTask.id] || []), newComment],
-                    }));
-                    setNewComment('');
-                } else {
-                    console.log('Failed to save comment.');
+                try {
+                    const response = await api.addData({ module: 'comment', data: commentData });
+                    if (response.status === 200) {
+                        console.log('Comment saved successfully!');
+                        setNewComment('');
+                    } else {
+                        console.log('Failed to save comment.');
+                    }
+                } catch (error) {
+                    console.error('Error saving comment:', error);
                 }
-            } catch (error) {
-                console.error('Error saving comment:', error);
             }
-            finally {
-                await fetchComments();
+
+            if (imageFile) {
+                // Convert image to Base64
+                const base64Image = await convertImageToBase64(imageFile);
+
+                // Save photo
+                const photoData = {
+                    activityId: selectedTask.id,
+                    image: base64Image,
+                };
+
+                try {
+                    const response = await api.addData({ module: 'photo', data: photoData });
+                    if (response.status === 200) {
+                        console.log('Photo saved successfully!');
+                        setImageFile(null);
+                        setImagePreview(null);
+                    } else {
+                        console.log('Failed to save photo.');
+                    }
+                } catch (error) {
+                    console.error('Error saving photo:', error);
+                }
             }
+
+            // Fetch comments again to update the list
+            await fetchComments(selectedTask.id);
+        }
+    };
+
+    const convertImageToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+    const handleImageUpload = (event) => {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        } else {
+            alert('Please upload a valid image file.');
         }
     };
 
@@ -215,6 +267,7 @@ const Calendar = () => {
                         <Modal.Title>Tasks For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{ color: "black" }}>
+                        {console.log(selectedTasks)}
                         {selectedTasks.length > 0 ? (
                             selectedTasks.map((task) => (
                                 <div className='d-grid gap-2 mb-2' key={`Task-${task.id}`}>
@@ -362,6 +415,13 @@ const Calendar = () => {
                                 comments?.map((comment, index) => (
                                     <div key={index} className="d-flex justify-content-end mb-2">
                                         <div className="p-2 bg-light rounded-pill" style={{ maxWidth: '70%' }}>
+                                            {comment.image && (
+                                                <img
+                                                    src={comment?.image}
+                                                    alt="Comment"
+                                                    style={{ maxWidth: '100%', borderRadius: '8px', marginBottom: '8px' }}
+                                                />
+                                            )}
                                             <div className="text-break">{comment?.remarks}</div>
                                             <div className="text-left text-muted" style={{ fontSize: '0.60rem' }}>
                                                 {format(new Date(comment?.date), 'dd/MM/yyyy HH:mm')}
@@ -373,15 +433,32 @@ const Calendar = () => {
                                 <p className="">No comments yet.</p>
                             )}
                         </div>
-                        <Form.Group className="position-relative form-group">
-                            <Form.Label>New Comment</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
-                                placeholder="Type your comment here..."
-                            />
-                        </Form.Group>
+                        <div className="d-flex">
+                            <Form.Group className="position-relative form-group flex-grow-1 mr-2" style={{ flex: 6 }}>
+                                <Form.Label>New Comment</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    placeholder="Type your comment here..."
+                                />
+                            </Form.Group>
+                            <Form.Group className="position-relative form-group flex-grow-1" style={{ flex: 4 }}>
+                                <Form.Label>Upload Image</Form.Label>
+                                <Form.Control
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                />
+                                {imagePreview && (
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px' }}
+                                    />
+                                )}
+                            </Form.Group>
+                        </div>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button
