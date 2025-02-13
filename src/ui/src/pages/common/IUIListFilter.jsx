@@ -23,12 +23,24 @@ const IUIListFilter = (props) => {
     const dataSet = useSelector((state) => state.api[module])
     const [baseFilter, setBaseFilter] = useState({})
     const [search, setSearch] = useState(useSelector((state) => state.api[module])?.options?.search);
+    const loggedInUser = useSelector((state) => state.api.loggedInUser);
+    const [privileges, setPrivileges] = useState({});
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [showUploadStatus, setShowUploadStatus] = useState(false);
     const [bulkUploadResponse, setBulkUploadResponse] = useState(null);
 
     const handleClose = () => setShowUploadStatus(false);
+
+    useEffect(() => {
+        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === schema?.module)?.map(p => p.name);
+        let access = {};
+        modulePrivileges.forEach(p => {
+            access = { ...access, ...{ [p]: true } }
+        })
+        // console.log(access)
+        setPrivileges(access)
+    }, [loggedInUser, schema?.module]);
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
@@ -37,7 +49,7 @@ const IUIListFilter = (props) => {
             formData.append('file', file); // Attach the file with the key 'file'
             formData.append('title', schema?.title);
 
-            api.uploadExcelFile({ module: schema?.module, data: formData})
+            api.uploadExcelFile({ module: schema?.module, data: formData })
                 .then((response) => {
                     return response;
                 })
@@ -200,13 +212,16 @@ const IUIListFilter = (props) => {
                             <Row>
                                 <Col md={8} className='mb-3'>
                                     {schema.adding &&
-                                        <Button
-                                            variant="contained"
-                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
-                                            onClick={() => navigate(`/${schema?.path}/add`)}
-                                        >
-                                            Add New
-                                        </Button>
+                                        <>
+                                            {privileges.add &&
+                                                <Button
+                                                    variant="contained"
+                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
+                                                    onClick={() => navigate(`/${schema?.path}/add`)}
+                                                >
+                                                    Add New
+                                                </Button>}
+                                        </>
                                     }
                                     {schema?.downloading &&
                                         <Button
@@ -221,7 +236,7 @@ const IUIListFilter = (props) => {
                                     {schema?.uploading &&
                                         <Button
                                             variant="contained"
-                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
                                             onClick={() => document.getElementById('upload-btn').click()}
                                         >
                                             <HiOutlineUpload className="inline-block mr-2" />
@@ -302,9 +317,13 @@ const IUIListFilter = (props) => {
                                                     dataSet?.items?.map((item, i) => (
                                                         <tr key={i}>
                                                             {schema?.editing &&
-                                                                <td width={10}>
-                                                                    <Link to={`/${schema?.path}/${item?.id}/edit`}><i className="fa-solid fa-pencil"></i></Link>
-                                                                </td>
+                                                                <>
+                                                                    <td width={10}>
+                                                                        {privileges.edit &&
+                                                                            <Link to={`/${schema?.path}/${item?.id}/edit`}><i className="fa-solid fa-pencil"></i></Link>
+                                                                        }
+                                                                    </td>
+                                                                </>
                                                             }
                                                             {schema?.fields?.map((fld, f) => (
                                                                 <td key={f} width={fld.width}>
