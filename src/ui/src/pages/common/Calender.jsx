@@ -34,24 +34,14 @@ const Calendar = () => {
     const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i);
 
     // Fetch tasks from the API
-    async function fetchData(selectedId) {
+    async function fetchData() {
         try {
             const pageOptions = {
                 recordPerPage: 0,
-                filters: [{ name: 'activityId', value: parseInt(selectedId) }],
             };
 
-            const photoPageOptions = {
-                recordPerPage: 0,
-                filters: [{ name: 'activityId', value: parseInt(selectedId) }],
-            };
-
-            const commentResponse = await api.getData({ module: 'activity', options: pageOptions });
-            const photoResponse = await api.getData({ module: 'photo', options: photoPageOptions });
-            // setTasks(response.data.items);
-
-            const commentsWithPhotos = [...(commentResponse?.data?.items || []), ...(photoResponse?.data?.items || [])];
-            setComments(commentsWithPhotos);
+            const response = await api.getData({ module: 'activity', options: pageOptions });
+            setTasks(response.data.items);
         } catch (error) {
             setError('Failed to fetch tasks');
         }
@@ -75,6 +65,25 @@ const Calendar = () => {
             console.error('Failed to fetch comments:', error);
         }
     }
+
+    // async function handleImageUpload(selectedId) {
+    //     try {
+    //         const newBaseFilter = {
+    //             name: 'activityId',
+    //             value: parseInt(selectedId),
+    //         }
+
+    //         setBaseFilter(newBaseFilter)
+
+    //         const pageOptions = {
+    //             recordPerPage: 0
+    //         }
+    //         const response = await api.getData({ module: 'attachment', options: pageOptions });
+    //         setComments(response?.data?.items);
+    //     } catch (error) {
+    //         console.error('Failed to fetch comments:', error);
+    //     }
+    // }
 
     useEffect(() => {
         fetchData();
@@ -163,7 +172,7 @@ const Calendar = () => {
     };
 
     const handleCommentSubmit = async () => {
-        if (newComment.trim() || imageFile) {
+        if (newComment.trim()) {
             if (newComment.trim()) {
                 // Save text comment
                 const commentData = {
@@ -185,29 +194,7 @@ const Calendar = () => {
                 }
             }
 
-            if (imageFile) {
-                // Convert image to Base64
-                const base64Image = await convertImageToBase64(imageFile);
 
-                // Save photo
-                const photoData = {
-                    activityId: selectedTask.id,
-                    image: base64Image,
-                };
-
-                try {
-                    const response = await api.addData({ module: 'photo', data: photoData });
-                    if (response.status === 200) {
-                        console.log('Photo saved successfully!');
-                        setImageFile(null);
-                        setImagePreview(null);
-                    } else {
-                        console.log('Failed to save photo.');
-                    }
-                } catch (error) {
-                    console.error('Error saving photo:', error);
-                }
-            }
 
             // Fetch comments again to update the list
             await fetchComments(selectedTask.id);
@@ -223,11 +210,36 @@ const Calendar = () => {
         });
     };
 
-    const handleImageUpload = (event) => {
+    const handleImageUpload = async (event) => {
+        event.preventDefault();
         const file = event.target.files[0];
         if (file && file.type.startsWith('image/')) {
             setImageFile(file);
             setImagePreview(URL.createObjectURL(file));
+
+            // Convert image to Base64
+            const base64Image = await convertImageToBase64(file);
+
+            // Save photo
+            const photoData = {
+                parentId: selectedTask.id,
+                module: 'activity',
+                file: base64Image,
+            };
+
+            try {
+                const response = await api.addData({ module: 'attachment', data: photoData });
+                if (response.status === 200) {
+                    console.log('Photo saved successfully!');
+                    setImageFile(null);
+                    setImagePreview(null);
+                } else {
+                    console.log('Failed to save photo.');
+                }
+            } catch (error) {
+                console.error('Error saving photo:', error);
+            }
+
         } else {
             alert('Please upload a valid image file.');
         }
@@ -443,7 +455,7 @@ const Calendar = () => {
                                     placeholder="Type your comment here..."
                                 />
                             </Form.Group>
-                            <Form.Group className="position-relative form-group flex-grow-1" style={{ flex: 4 }}>
+                            {/* <Form.Group className="position-relative form-group flex-grow-1" style={{ flex: 4 }}>
                                 <Form.Label>Upload Image</Form.Label>
                                 <Form.Control
                                     type="file"
@@ -457,7 +469,7 @@ const Calendar = () => {
                                         style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px' }}
                                     />
                                 )}
-                            </Form.Group>
+                            </Form.Group> */}
                         </div>
                     </Modal.Body>
                     <Modal.Footer>
@@ -474,6 +486,19 @@ const Calendar = () => {
                             onClick={handleCommentSubmit}
                         >
                             Post Comment
+                        </Button>
+                        <Button
+                            variant="contained"
+                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
+                            onClick={() => document.getElementById('upload-photo-btn').click()}
+                        >
+                            <input id='upload-photo-btn'
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                style={{ display: 'none' }}
+                            />
+                            Upload Photo
                         </Button>
                     </Modal.Footer>
                 </Modal>
