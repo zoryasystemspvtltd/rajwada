@@ -141,7 +141,7 @@ const IUIPage = (props) => {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }))
             //navigate(-1);
-
+            notify("success", "Assignment Successful!");
         } catch (e) {
             // TODO
         }
@@ -423,7 +423,7 @@ const IUIPage = (props) => {
                                                             }
                                                         </>
                                                     }
-                                                    {schema?.assign &&
+                                                    {schema?.assign && privileges?.assign &&
                                                         <IUIAssign onClick={assignPageValue} />
                                                     }
                                                     {/* Condition modified by Adrish */}
