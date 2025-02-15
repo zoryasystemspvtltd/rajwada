@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux'
 import { Form, Modal, Button, InputGroup } from 'react-bootstrap';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import api from '../../store/api-service';
 import { format, isSameDay, startOfToday } from 'date-fns';
-import { enIN, de, fr } from 'date-fns/locale';
-import { utcToZonedTime } from 'date-fns-tz';
 import { FaRegCommentDots } from "react-icons/fa";
+import { FaImage } from "react-icons/fa6";
+import { notify } from "../../store/notification";
+import { getFormattedDate } from '../../store/datetime-formatter';
+import IUIImageGallery from './shared/IUIImageGallery';
 
 const Calendar = () => {
     const [selectedDate, setSelectedDate] = useState(null);
@@ -17,10 +20,9 @@ const Calendar = () => {
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [commentsModalOpen, setCommentsModalOpen] = useState(false);
+    const [showGalleryModal, setShowGalleryModal] = useState(false);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
-    const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
     const [checkboxes, setCheckboxes] = useState({
         hold: false,
         change: false,
@@ -29,37 +31,22 @@ const Calendar = () => {
     });
     const [progress, setProgress] = useState('');
     const [actualCost, setActualCost] = useState(0);
+    const [privileges, setPrivileges] = useState({});
+    const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const [error, setError] = useState(null);
 
-    const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i);
-
-    const getFormattedDate = (date) => {
-        const locale = navigator.language || 'en-US'; // Default to 'en-US' if unavailable
-
-        let localeObj;
-        switch (locale) {
-            case 'de-DE':
-                localeObj = de;
-                break;
-            case 'fr-FR':
-                localeObj = fr;
-                break;
-            default:
-                localeObj = enIN;
-                break;
-        }
-
-        // Define IST time zone
-        const IST = 'Asia/Kolkata';
-
-        // Convert the UTC date to IST
-        const zonedDate = utcToZonedTime(date, IST);
-
-        // Format the IST date using date-fns with the system locale
-        const formattedDate = format(zonedDate, 'dd/MM/yyyy HH:mm', { locale: localeObj });
-
-        return formattedDate;
-    }
+    useEffect(() => {
+        const commentPrivileges = loggedInUser?.privileges?.filter(p => p.module === "comment")?.map(p => p.name);
+        const imagePrivileges = loggedInUser?.privileges?.filter(p => p.module === "attachment")?.map(p => p.name);
+        let access = {};
+        commentPrivileges.forEach(p => {
+            access["comment"] = { ...access["comment"], ...{ [p]: true } }
+        })
+        imagePrivileges.forEach(p => {
+            access["image"] = { ...access["image"], ...{ [p]: true } }
+        })
+        setPrivileges(access)
+    }, [loggedInUser]);
 
     // Fetch tasks from the API
     async function fetchData() {
@@ -87,30 +74,13 @@ const Calendar = () => {
                 searchCondition: newBaseFilter
             }
             const response = await api.getData({ module: 'comment', options: pageOptions });
-            setComments(response?.data?.items);
+            let tempComments = response?.data?.items;
+            const sortedComments = tempComments.sort((a, b) => new Date(a.date) - new Date(b.date));
+            setComments(sortedComments);
         } catch (error) {
-            // console.error('Failed to fetch comments:', error);
+            notify("error", "Failed to fetch comments!");
         }
     }
-
-    // async function handleImageUpload(selectedId) {
-    //     try {
-    //         const newBaseFilter = {
-    //             name: 'activityId',
-    //             value: parseInt(selectedId),
-    //         }
-
-    //         setBaseFilter(newBaseFilter)
-
-    //         const pageOptions = {
-    //             recordPerPage: 0
-    //         }
-    //         const response = await api.getData({ module: 'attachment', options: pageOptions });
-    //         setComments(response?.data?.items);
-    //     } catch (error) {
-    //         console.error('Failed to fetch comments:', error);
-    //     }
-    // }
 
     useEffect(() => {
         fetchData();
@@ -147,6 +117,16 @@ const Calendar = () => {
         setCommentsModalOpen(true); // Open the modal for comments
     };
 
+    const handleGalleryClick = async (task) => {
+        setSelectedTask(task);
+        setShowGalleryModal(true);
+    };
+
+    const handleCloseGalleryModal = () => {
+        setShowGalleryModal(false);
+        setSelectedTask(null);
+    };
+
     // Close the date modal
     const closeModal = () => {
         setModalOpen(false);
@@ -161,8 +141,6 @@ const Calendar = () => {
     const closeCommentsModal = () => {
         setCommentsModalOpen(false);
         setNewComment('');
-        setImageFile(null);
-        setImagePreview(null);
         setComments([]);
     };
 
@@ -241,8 +219,6 @@ const Calendar = () => {
         event.preventDefault();
         const file = event.target.files[0];
         if (file && file.type.startsWith('image/')) {
-            setImageFile(file);
-            setImagePreview(URL.createObjectURL(file));
 
             // Convert image to Base64
             const base64Image = await convertImageToBase64(file);
@@ -257,18 +233,16 @@ const Calendar = () => {
             try {
                 const response = await api.addData({ module: 'attachment', data: photoData });
                 if (response.status === 200) {
-                    console.log('Photo saved successfully!');
-                    setImageFile(null);
-                    setImagePreview(null);
+                    notify("success", 'Photo saved successfully!');
                 } else {
-                    console.log('Failed to save photo.');
+                    notify("error", 'Failed to save photo!');
                 }
             } catch (error) {
                 console.error('Error saving photo:', error);
             }
 
         } else {
-            alert('Please upload a valid image file.');
+            notify("error", 'Please upload a valid image file!');
         }
     };
 
@@ -306,12 +280,11 @@ const Calendar = () => {
                         <Modal.Title>Tasks For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{ color: "black" }}>
-                        {console.log(selectedTasks)}
                         {selectedTasks.length > 0 ? (
                             selectedTasks.map((task) => (
                                 <div className='d-grid gap-2 mb-2' key={`Task-${task.id}`}>
                                     <div className="row">
-                                        <div className="col-10">
+                                        <div className="col-8">
                                             <Button
                                                 variant="contained"
                                                 className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-lg btn-primary'
@@ -329,7 +302,18 @@ const Calendar = () => {
                                                 onClick={() => handleCommentClick(task)}
                                                 style={{ width: '100%' }}
                                             >
-                                                <FaRegCommentDots size={25} />
+                                                <FaRegCommentDots size={22} />
+                                            </Button>
+                                        </div>
+                                        <div className="col-2">
+                                            <Button
+                                                title='Image Gallery'
+                                                variant="contained"
+                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-info'
+                                                onClick={() => handleGalleryClick(task)}
+                                                style={{ width: '100%' }}
+                                            >
+                                                <FaImage size={22} />
                                             </Button>
                                         </div>
                                     </div>
@@ -456,13 +440,6 @@ const Calendar = () => {
                                 comments?.map((comment, index) => (
                                     <div key={index} className="d-flex justify-content-end mb-2">
                                         <div className="p-2 bg-light rounded-pill" style={{ maxWidth: '70%' }}>
-                                            {comment.image && (
-                                                <img
-                                                    src={comment?.image}
-                                                    alt="Comment"
-                                                    style={{ maxWidth: '100%', borderRadius: '8px', marginBottom: '8px' }}
-                                                />
-                                            )}
                                             <div className="text-break">{comment?.remarks}</div>
                                             <div className="text-left text-muted" style={{ fontSize: '0.60rem' }}>
                                                 {/* {format(new Date(comment?.date), 'dd/MM/yyyy HH:mm')} */}
@@ -485,21 +462,6 @@ const Calendar = () => {
                                     placeholder="Type your comment here..."
                                 />
                             </Form.Group>
-                            {/* <Form.Group className="position-relative form-group flex-grow-1" style={{ flex: 4 }}>
-                                <Form.Label>Upload Image</Form.Label>
-                                <Form.Control
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                />
-                                {imagePreview && (
-                                    <img
-                                        src={imagePreview}
-                                        alt="Preview"
-                                        style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px' }}
-                                    />
-                                )}
-                            </Form.Group> */}
                         </div>
                     </Modal.Body>
                     <Modal.Footer>
@@ -510,29 +472,47 @@ const Calendar = () => {
                         >
                             Close
                         </Button>
-                        <Button
-                            variant="contained"
-                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
-                            onClick={handleCommentSubmit}
-                        >
-                            Post Comment
-                        </Button>
-                        <Button
-                            variant="contained"
-                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
-                            onClick={() => document.getElementById('upload-photo-btn').click()}
-                        >
-                            <input id='upload-photo-btn'
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                style={{ display: 'none' }}
-                            />
-                            Upload Photo
-                        </Button>
+                        {
+                            privileges?.comment?.add && (
+                                <Button
+                                    variant="contained"
+                                    className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
+                                    onClick={handleCommentSubmit}
+                                >
+                                    Post Comment
+                                </Button>
+                            )
+                        }
+                        {
+                            privileges?.image?.add && (
+                                <Button
+                                    variant="contained"
+                                    className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
+                                    onClick={() => document.getElementById('upload-photo-btn').click()}
+                                >
+                                    <input id='upload-photo-btn'
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        style={{ display: 'none' }}
+                                    />
+                                    Upload Photo
+                                </Button>
+                            )
+                        }
                     </Modal.Footer>
                 </Modal>
             )}
+            {
+                showGalleryModal && <IUIImageGallery
+                    show={showGalleryModal}
+                    searchKey="parentId"
+                    searchId={selectedTask?.id}
+                    module="attachment"
+                    handleClose={handleCloseGalleryModal}
+                    title={`Image Gallery: ${selectedTask?.name}`}
+                />
+            }
         </div>
     );
 };
