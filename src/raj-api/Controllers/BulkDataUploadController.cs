@@ -8,6 +8,7 @@ using ILab.Extensionss.Common;
 using System.Data;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.IdentityModel.Tokens;
 
 namespace RajApi.Controllers;
 
@@ -205,10 +206,6 @@ public class BulkDataUploadController : ControllerBase
                     {
                         response.FailureData.Add(rommName + ": Room name not exist!");
                     }
-                }
-                else
-                {
-                    response.FailureData.Add(dataRow.Table.Columns[i].ToString() + ": value is missing!");
                 }
             }
             return (listResources, response);

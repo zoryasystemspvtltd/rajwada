@@ -71,7 +71,7 @@ public class LabModelController : ControllerBase
         var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
         var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
         dataService.Identity = new ModuleIdentity(member, key);
-        return await dataService.EditAsync(module, id, data, token);        
+        return await dataService.EditAsync(module, id, data, token);
     }
 
     // [HasPrivileges("edit")]
@@ -83,7 +83,7 @@ public class LabModelController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-            return await dataService.EditPartialAsync(module, id, data, token);            
+            return await dataService.EditPartialAsync(module, id, data, token);
         }
         catch (Exception ex)
         {
@@ -161,7 +161,9 @@ public class LabModelController : ControllerBase
                             DependencyId = main.DependencyId,
                             UserId = main.UserId,
                             Name = string.Concat(main.Name, "-", desc),
-                            Description = string.Concat(main.Description, "-", desc)
+                            Description = string.Concat(main.Description, "-", desc),
+                            ActualStartDate = main.ActualStartDate,
+                            ActualEndDate = main.ActualEndDate
                         };
                         if (main.FlatId != null)
                         {
@@ -178,7 +180,7 @@ public class LabModelController : ControllerBase
                         {
                             activity.TowerId = main.TowerId;
                         }
-                       
+
                         await dataService.SaveDataAsync(model, activity, token);
                     }
                 }
@@ -192,7 +194,7 @@ public class LabModelController : ControllerBase
     }
 
     private dynamic GetResourceDetails(string model, long id, CancellationToken token)
-    {        
+    {
         var data = dataService.GetDetails(id, token);
 
         if (data != null)
