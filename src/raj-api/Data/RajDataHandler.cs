@@ -27,8 +27,7 @@ public class RajDataHandler : LabDataHandler
 
         // This is used to assign entity to member,
         if ((typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
-            || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0)
-            || (typeof(T).GetInterfaces().Count(p => p == typeof(IActivity)) > 0))
+            || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0))
         {
             var name = typeof(T).Name;
             var labModelLog = dbContext.Set<ApplicationLog>()

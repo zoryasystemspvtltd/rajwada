@@ -4,18 +4,22 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RajApi.Data.Models
 {
-    public class Activity : LabModel, IActivity
+    public class Activity : LabModel, IActivity, IApproval
     {
         public string? Description { get; set; }
         public required string Type { get; set; }
-
         public string? PhotoUrl { get; set; }
-
         public string? DocumentLinks { get; set; }
-
         public string? Notes { get; set; }
-
         public virtual long? UserId { get; set; }
+        public DateTime? CuringDate { get; set; }
+        public bool? IsCuringDone { get; set; }
+        public bool? IsCancelled { get; set; }
+        public bool? IsCompleted { get; set; }
+        public bool? IsOnHold { get; set; }
+        public bool? IsApproved { get; set; }
+        public DateTime? ApprovedDate { get; set; }
+        public string? ApprovedBy { get; set; }
 
         #region Workflow
         /// <summary>
