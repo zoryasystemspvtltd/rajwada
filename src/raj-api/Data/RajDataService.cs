@@ -8,7 +8,6 @@ namespace ILab.Data
 {
     public class RajDataService : ILabDataService
     {
-
         public readonly RajDataHandler dataHandler;
         public RajDataService(RajDataHandler handler
             , ILogger<RajDataService> logger)
@@ -122,6 +121,22 @@ namespace ILab.Data
                 logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
                 return 0;
             }
+        }
+
+        public dynamic GetChallanReport(string module, long id)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetChallanDetails));
+                object[] parameters = [id];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+                return 0;
+            }
+
         }
     }
 }

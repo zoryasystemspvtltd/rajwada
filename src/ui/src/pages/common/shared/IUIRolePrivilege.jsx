@@ -55,7 +55,7 @@ const IUIRolePrivilege = (props) => {
                     name: item.name.charAt(0).toLowerCase() + item.name.slice(1),
                     type: item.type ? item.type:item.name.charAt(0).toLowerCase() + item.name.slice(1),
                     text: item.type ? item.type.replace(/[A-Z]/g, letter => ` ${letter.toUpperCase()}`):item.name.replace(/[A-Z]/g, letter => ` ${letter.toUpperCase()}`),
-                    items: ((item.isAssignable || item.isProject || item.isCompany || item.isActivity)
+                    items: ((item.isAssignable || item.isProject || item.isCompany)
                         ? privileges.concat([
                             { id: 5, name: "assign" }
                         ])
