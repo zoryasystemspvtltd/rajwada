@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Carousel, Modal, Button } from 'react-bootstrap';
+import { Carousel, Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import api from '../../../store/api-service';
 import { notify } from "../../../store/notification";
 import { getFormattedDate } from '../../../store/datetime-formatter';
@@ -7,6 +7,9 @@ import { getFormattedDate } from '../../../store/datetime-formatter';
 const IUIImageGallery = (props) => {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [filteredImages, setFilteredImages] = useState([]);
 
     // Fetch images from the API
     useEffect(() => {
@@ -34,6 +37,18 @@ const IUIImageGallery = (props) => {
         fetchImages();
     }, [props]);
 
+    const handleSearch = () => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        const filtered = images.filter(image => {
+            const imageDate = new Date(image.date);
+            return (!startDate || imageDate >= start) && (!endDate || imageDate <= end);
+        });
+
+        setFilteredImages(filtered);
+    };
+
     // If images are still loading, show a loading message or spinner
     if (loading) {
         return <div>Loading...</div>;
@@ -49,25 +64,50 @@ const IUIImageGallery = (props) => {
                 <Modal.Title>{props?.title}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
+                <Form className="mb-3">
+                    <Row>
+                        <Col>
+                            <Form.Group controlId="startDate">
+                                <Form.Label>Start Date</Form.Label>
+                                <Form.Control
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col>
+                            <Form.Group controlId="endDate">
+                                <Form.Label>End Date</Form.Label>
+                                <Form.Control
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col xs="auto" className="d-flex align-items-end">
+                            <Button variant="primary" onClick={handleSearch}>
+                                Search
+                            </Button>
+                        </Col>
+                    </Row>
+                </Form>
                 <div className="container mt-2">
                     <Carousel>
-                        {images?.length > 0 ? (
-                            images?.map((image, index) => (
+                        {filteredImages.length > 0 ? (
+                            filteredImages.map((image, index) => (
                                 <Carousel.Item key={index}>
-                                    <img
-                                        className="d-block w-100"
-                                        src={image.file}
-                                        alt={`Slide ${index}`}
-                                    />
+                                    <img className="d-block w-100" src={image.file} alt={`Slide ${index}`} />
                                     <Carousel.Caption>
-                                        <h3>{image?.member}</h3>
-                                        <p>Upload Date Time: {getFormattedDate(image?.date)}</p>
+                                        <h3>{image.member}</h3>
+                                        <p>Upload Date Time: {getFormattedDate(image.date)}</p>
                                     </Carousel.Caption>
                                 </Carousel.Item>
-                            ))) :
-                            (
-                                <p>No images have been uploaded yet.</p>
-                            )}
+                            ))
+                        ) : (
+                            <p>No images found within the selected date range.</p>
+                        )}
                     </Carousel>
                 </div>
             </Modal.Body>

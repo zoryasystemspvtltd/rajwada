@@ -273,7 +273,6 @@ const Calendar = () => {
                 dateClick={handleDateClick}
                 dayCellContent={renderDateCell}
             />
-
             {modalOpen && (
                 <Modal show={modalOpen} onHide={closeModal} size='md'>
                     <Modal.Header>
@@ -438,11 +437,17 @@ const Calendar = () => {
                         <div className="comments-section">
                             {comments?.length > 0 ? (
                                 comments?.map((comment, index) => (
-                                    <div key={index} className="d-flex justify-content-end mb-2">
-                                        <div className="p-2 bg-light rounded-pill" style={{ maxWidth: '70%' }}>
+                                    <div
+                                        key={index}
+                                        className={`d-flex ${comment.member === loggedInUser?.email ? 'justify-content-end' : 'justify-content-start'} mb-2`}>
+                                        <div
+                                            className={`p-2 ${comment.member === loggedInUser?.email ? 'bg-light' : 'bg-secondary text-white'} rounded-4`}
+                                            style={{ maxWidth: '70%' }}>
+                                            <div className='text-left' style={{ fontWeight: 'bold', fontSize: '0.60rem' }}>
+                                                {comment?.member}
+                                            </div>
                                             <div className="text-break">{comment?.remarks}</div>
                                             <div className="text-left text-muted" style={{ fontSize: '0.60rem' }}>
-                                                {/* {format(new Date(comment?.date), 'dd/MM/yyyy HH:mm')} */}
                                                 {getFormattedDate(new Date(comment?.date))}
                                             </div>
                                         </div>
