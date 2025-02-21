@@ -26,13 +26,13 @@ public class ModuleController : ControllerBase
             .ToList();
         var type = asm.GetTypes()
             .Where(p => p.IsSubclassOf(typeof(LabModel)))
-            .Select(p => new RajModule() {
-                Name = p.Name, 
-                IsAssignable = p.GetInterfaces().Count(a => a == typeof(IAssignable)) > 0 ,
+            .Select(p => new RajModule()
+            {
+                Name = p.Name,
+                IsAssignable = p.GetInterfaces().Count(a => a == typeof(IAssignable)) > 0,
                 IsProject = p.GetInterfaces().Count(a => a == typeof(IProject)) > 0,
                 IsCompany = p.GetInterfaces().Count(a => a == typeof(ICompany)) > 0,
-                IsApproval = p.GetInterfaces().Count(a => a == typeof(IApproval)) > 0,
-                IsActivity = p.GetInterfaces().Count(a => a == typeof(IActivity)) > 0,
+                IsApproval = p.GetInterfaces().Count(a => a == typeof(IApproval)) > 0
             })
             .ToList();
 

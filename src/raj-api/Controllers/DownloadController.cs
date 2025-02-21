@@ -1,10 +1,13 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using ILab.Data;
 using ILab.Extensionss.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RajApi.Data;
+using RajApi.Data.Models;
 using System.Data;
+using System.Reflection;
 
 namespace RajApi.Controllers;
 
@@ -21,7 +24,6 @@ public class DownloadController : ControllerBase
         this.dataService = dataService;
     }
 
-    [HasPrivileges("view")]
     [HttpGet("{module}/{id}/{columnName}")]
     public IActionResult Get(string module, long id, string columnName)
     {
@@ -48,7 +50,76 @@ public class DownloadController : ControllerBase
         }
     }
 
-    //[HasPrivileges("view")]
+    [HttpGet("{module}/{id}")]
+    public IActionResult GetAsync(string module, long id)
+    {
+        try
+        {
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+
+            IEnumerable<ChallanReport> list = dataService.GetChallanReport(module, id);
+            DataTable data = ConvertToDataTable(list);
+            string base64String;
+            using (var wb = new XLWorkbook())
+            {
+                var sheet = wb.AddWorksheet(data, "Challan Report");
+
+                // Apply font color to columns 1 to 5
+                sheet.Columns(1, 5).Style.Font.FontColor = XLColor.Black;
+
+                using (var ms = new MemoryStream())
+                {
+                    wb.SaveAs(ms);
+
+                    // Convert the Excel workbook to a base64-encoded string
+                    base64String = Convert.ToBase64String(ms.ToArray());
+                }
+            }
+
+            // Return a CreatedResult with the base64-encoded Excel data
+            return new CreatedResult(string.Empty, new
+            {
+                Code = 200,
+                Status = true,
+                Message = "Report generated successfully",
+                Data = base64String
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = "An error occurred while generating the report.", error = ex.Message });
+        }
+    }
+
+    private DataTable ConvertToDataTable<T>(IEnumerable<T> items)
+    {
+        var dataTable = new DataTable(typeof(T).Name);
+
+        // Get all the properties
+        var properties = typeof(T).GetProperties();
+
+        // Loop through all the properties
+        foreach (var prop in properties)
+        {
+            // Setting column names as Property names
+            dataTable.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+        }
+
+        foreach (var item in items)
+        {
+            var values = new object[properties.Length];
+            for (var i = 0; i < properties.Length; i++)
+            {
+                values[i] = properties[i].GetValue(item, null);
+            }
+            dataTable.Rows.Add(values);
+        }
+
+        return dataTable;
+    }
+
     [HttpGet("{module}")]
     public IActionResult Get(string module)
     {
@@ -91,8 +162,8 @@ public class DownloadController : ControllerBase
         }
     }
     private dynamic? GetModuleDetails()
-    {        
-        ListOptions option = new();        
+    {
+        ListOptions option = new();
         var data = dataService.Get("room", option);
 
         if (data != null)

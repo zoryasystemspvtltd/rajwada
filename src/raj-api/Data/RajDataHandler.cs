@@ -1,8 +1,6 @@
-﻿using ILab.Data;
-using ILab.Extensionss.Data;
+﻿using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
 
@@ -27,8 +25,7 @@ public class RajDataHandler : LabDataHandler
 
         // This is used to assign entity to member,
         if ((typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
-            || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0)
-            || (typeof(T).GetInterfaces().Count(p => p == typeof(IActivity)) > 0))
+            || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0))
         {
             var name = typeof(T).Name;
             var labModelLog = dbContext.Set<ApplicationLog>()
@@ -51,6 +48,38 @@ public class RajDataHandler : LabDataHandler
         return dbSet
             .Where(p => p.Key == Identity.Key && p.Status != StatusType.Deleted)
             .AsQueryable();
+    }
+    public dynamic GetChallanDetails(long id)
+    {
+        var levelSetups = dbContext.Set<LevelSetup>()
+                 .Where(l => l.Id == id).ToList();
+        var details = dbContext.Set<LevelSetupDetails>()
+            .Where(l => l.HeaderId == id)
+            .ToList();
+
+        var final = details.Join(levelSetups,
+                d => d.HeaderId,
+                m => m.Id,
+                (d, m) => new ChallanReport()
+                {
+                    Project = m.ProjectName,
+                    DocumentDate = m.DocumentDate,
+                    VechileNo = m.VechileNo,
+                    TrackingNo = m.TrackingNo,
+                    SupplierName = m.SupplierName,
+                    QCChargeName = m.InChargeName,
+                    Item = d.Name,
+                    Quantity = d.Quantity,
+                    Price = d.Price,
+                    UOM = d.UOMName,
+                    ReceiverStatus = d.ReceiverStatus,
+                    ReceiverRemarks = d.ReceiverRemarks,
+                    QCStatus = d.QualityStatus,
+                    QCRemarks = d.QualityRemarks,
+                    DirectorFinalRemarks = m.ApprovedRemarks
+                });
+
+        return final;
     }
 
     public async Task<dynamic> GetResourceDetails(long planId)

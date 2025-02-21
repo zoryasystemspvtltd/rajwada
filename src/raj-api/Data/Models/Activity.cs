@@ -4,19 +4,82 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RajApi.Data.Models
 {
-    public class Activity : LabModel, IActivity
+    public class Activity : LabModel, IActivity, IApproval
     {
-        public string? Description { get; set; }
+        public virtual string? Description { get; set; }
         public required string Type { get; set; }
-
-        public string? PhotoUrl { get; set; }
-
-        public string? DocumentLinks { get; set; }
-
-        public string? Notes { get; set; }
-
+        public virtual string? PhotoUrl { get; set; }
+        public virtual string? DocumentLinks { get; set; }
+        public virtual string? Notes { get; set; }
         public virtual long? UserId { get; set; }
+        public virtual DateTime? CuringDate { get; set; }
+        public virtual bool? IsCuringDone { get; set; }
+        public virtual bool? IsCancelled { get; set; }
+        public virtual bool? IsCompleted { get; set; }
+        public virtual bool? IsOnHold { get; set; }
+        public virtual bool? IsAbandoned { get; set; }
+        public virtual bool? IsApproved { get; set; }
+        public virtual DateTime? ApprovedDate { get; set; }
+        public virtual string? ApprovedBy { get; set; }
+        public virtual bool? IsQCApproved { get; set; }
+        public virtual string? QCRemarks { get; set; }
+        public virtual string? HODRemarks { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public virtual string? ActivityStatus
+        {
+            get
+            {
+                var status = "";
+                var currentDate = DateTime.Now;
+                if (StartDate != null && StartDate < currentDate && ActualStartDate == null)
+                {
+                    status = "Not Started";
+                }
+                else if (StartDate != null && StartDate < currentDate && EndDate != null && EndDate > currentDate && ActualStartDate != null)
+                {
+                    status = "In Progress";
+                }
+                else if (EndDate != null && ActualEndDate == null && EndDate < currentDate && ActualStartDate != null)
+                {
+                    status = "Delayed";
+                }
+                else if (StartDate != null && EndDate != null && StartDate < currentDate && currentDate < EndDate && IsOnHold == true)
+                {
+                    status = "On Hold";
+                }
+                else if (ActualEndDate <= EndDate && ActualStartDate >= StartDate && IsCompleted == true)
+                {
+                    status = "Closed";
+                }
+                else if (IsCancelled == true)
+                {
+                    status = "Cancelled";
+                }
+                else if (IsQCApproved == null && IsCompleted == true) // QC Assigened but not approved
+                {
+                    status = "Pending QC Approval";
+                }
+                else if (IsCompleted == true && IsQCApproved != null && IsQCApproved == true && IsApproved == null) //HOD Assigend but not approved
+                {
+                    status = "Pending HOD Approval";
+                }
+                else if (IsCompleted == true && IsQCApproved != null && IsQCApproved == true)// QC Approved
+                {
+                    status = "Inspection Passed";
+                }
+                else if (IsCompleted == true && IsQCApproved != null && IsQCApproved == false) //QC is rejected
+                {
+                    status = "Inspection Failed/Rework Required";
+                }
+                else if (IsCompleted == true && IsAbandoned == true)//Is Abanndoned
+                {
+                    status = "Short Closed/Abandoned";
+                }
+                return status;
+            }
+            private set { /* needed for EF */ }
+        }
         #region Workflow
         /// <summary>
         /// Activity Status 
@@ -70,7 +133,7 @@ namespace RajApi.Data.Models
         /// <summary>
         /// Items for Activity
         /// </summary>
-        public string? Items { get; set; }
+        public virtual string? Items { get; set; }
         #endregion
 
         #region Relations
@@ -86,7 +149,7 @@ namespace RajApi.Data.Models
         /// Activity is also a collection of other activity
         /// </summary>
         [ForeignKey("Parent")]
-        public virtual long? ParentId { get; set; }        
+        public virtual long? ParentId { get; set; }
         [JsonIgnore]
         public virtual Activity? Parent { get; set; }
 
@@ -117,7 +180,7 @@ namespace RajApi.Data.Models
 
         [JsonIgnore]
         public virtual Plan? Flat { get; set; }
-       
+
         [ForeignKey("Contractor")]
         public virtual long? ContractorId { get; set; }
 

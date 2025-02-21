@@ -149,6 +149,10 @@ api.downloadTemplate = async (action) => {
     const response = await api.get(url);
     return response;
 }
-
+api.downloadReport = async (action) => {
+    const url = `/download/${action.module}/${action.id}`;
+    const response = await api.get(url);
+    return response;
+}
 export default api;
 
