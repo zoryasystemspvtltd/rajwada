@@ -1135,6 +1135,10 @@
 "type": "string",
 "nullable": true
 },
+"IsAbandoned": {
+"type": "string",
+"nullable": true
+},
 "IsApproved": {
 "type": "string",
 "nullable": true
@@ -1145,6 +1149,19 @@
 "nullable": true
 },
 "ApprovedBy": {
+"type": "string",
+},
+"IsQCApproved": {
+"type": "string",
+"nullable": true
+},
+"QCRemarks": {
+"type": "string",
+},
+"HODRemarks": {
+"type": "string",
+},
+"ActivityStatus": {
 "type": "string",
 },
 "PriorityStatus": {
@@ -1174,16 +1191,6 @@
 "format": "date-time",
 "nullable": true
 },
-"ActualStartDate": {
-"type": "string",
-"format": "date-time",
-"nullable": true
-},
-"ActualEndDate": {
-"type": "string",
-"format": "date-time",
-"nullable": true
-},
 "Duration": {
 "type": "integer",
 "format": "int32",
@@ -1194,6 +1201,16 @@
 },
 "Items": {
 "type": "string",
+},
+"ActualStartDate": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"ActualEndDate": {
+"type": "string",
+"format": "date-time",
+"nullable": true
 },
 "ProjectId": {
 "type": "string",

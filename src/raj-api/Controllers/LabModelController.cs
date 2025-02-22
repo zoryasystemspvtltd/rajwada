@@ -161,9 +161,7 @@ public class LabModelController : ControllerBase
                             DependencyId = main.DependencyId,
                             UserId = main.UserId,
                             Name = string.Concat(main.Name, "-", desc),
-                            Description = string.Concat(main.Description, "-", desc),
-                            ActualStartDate = main.ActualStartDate,
-                            ActualEndDate = main.ActualEndDate
+                            Description = string.Concat(main.Description, "-", desc)                            
                         };
                         if (main.FlatId != null)
                         {

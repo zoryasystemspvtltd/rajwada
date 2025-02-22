@@ -1,4 +1,5 @@
 ﻿using ILab.Extensionss.Data.Models;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -114,14 +115,7 @@ namespace RajApi.Data.Models
         /// End Date
         /// </summary>
         public virtual DateTime? EndDate { get; set; }
-        /// <summary>
-        /// Actual Start Date
-        /// </summary>
-        public virtual DateTime? ActualStartDate { get; set; }
-        /// <summary>
-        /// Actual End Date
-        /// </summary>
-        public virtual DateTime? ActualEndDate { get; set; }
+       
         /// <summary>
         /// Estimated time duration
         /// </summary>
@@ -134,6 +128,54 @@ namespace RajApi.Data.Models
         /// Items for Activity
         /// </summary>
         public virtual string? Items { get; set; }
+        /// <summary>
+        /// Actual Start Date
+        /// </summary>
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public virtual DateTime? ActualStartDate
+        {
+            get
+            {
+                if (ProgressPercentage > 0 && ActualStartDate == null)
+                {
+                    return DateTime.Now;
+                }
+                else if (ProgressPercentage == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return ActualStartDate;
+                }
+
+            }
+            private set { /* needed for EF */ }
+        }
+        /// <summary>
+        /// Actual End Date
+        /// </summary>
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public virtual DateTime? ActualEndDate
+        {
+            get
+            {
+                if (ProgressPercentage == 100 && ActualEndDate == null && IsCompleted == true)
+                {
+                    return DateTime.Now;
+                }
+                else if (ProgressPercentage < 100 && IsCompleted == false)
+                {
+                    return null;
+                }
+                else
+                {
+                    return ActualEndDate;
+                }
+
+            }
+            private set { /* needed for EF */ }
+        }
         #endregion
 
         #region Relations
