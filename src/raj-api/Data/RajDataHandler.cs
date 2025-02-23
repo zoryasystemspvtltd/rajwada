@@ -81,7 +81,7 @@ public class RajDataHandler : LabDataHandler
 
         return final;
     }
-
+    
     public async Task<dynamic> GetResourceDetails(long planId)
     {
         var rooms = dbContext.Set<Room>()

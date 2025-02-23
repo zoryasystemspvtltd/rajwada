@@ -1,4 +1,7 @@
-﻿using ILab.Extensionss.Data;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Wordprocessing;
+using ILab.Extensionss.Common;
+using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
@@ -133,7 +136,35 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+                logger.LogError("Exception in GetChallanReport method and details: " + ex.Message);
+                return 0;
+            }
+        }
+        public dynamic GetChallanReportDateWise(string module, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                ListOptions option = new();
+                Condition con = new()
+                {
+                    //Operator blank mean Equality
+                    Name = "DocumentDate",
+                    Value = startDate.AddDays(-1),
+                    Operator=OperatorType.GreaterThan
+                };
+                var typecon = new Condition()
+                {
+                    Name = "DocumentDate",
+                    Value = endDate,
+                    Operator = OperatorType.LessThan
+                };
+                con.And = typecon;
+
+                return Get(module, option);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetChallanReportDateWise method and details: " + ex.Message);
                 return 0;
             }
 

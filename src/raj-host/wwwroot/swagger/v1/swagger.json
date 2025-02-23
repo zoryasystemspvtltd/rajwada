@@ -648,6 +648,7 @@
     },
     "/api/Activity":{"get":{"tags":["Activity"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityItemList"}}}}}},"post":{"tags":["Activity"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Activity"}},"text/json":{"schema":{"$ref":"#/components/schemas/Activity"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Activity"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Activity/{id}":{"get":{"tags":["Activity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Activity"}},"application/json":{"schema":{"$ref":"#/components/schemas/Activity"}},"text/json":{"schema":{"$ref":"#/components/schemas/Activity"}}}}}},"put":{"tags":["Activity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Activity"}},"text/json":{"schema":{"$ref":"#/components/schemas/Activity"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Activity"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Activity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/ActivityResource":{"get":{"tags":["ActivityResource"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityResourceItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceItemList"}}}}}},"post":{"tags":["ActivityResource"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/ActivityResource/{id}":{"get":{"tags":["ActivityResource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}}}}}},"put":{"tags":["ActivityResource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["ActivityResource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/ActivityTracking":{"get":{"tags":["ActivityTracking"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityTrackingItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityTrackingItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityTrackingItemList"}}}}}},"post":{"tags":["ActivityTracking"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/ActivityTracking/{id}":{"get":{"tags":["ActivityTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}}}}}},"put":{"tags":["ActivityTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["ActivityTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Asset":{"get":{"tags":["Asset"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetItemList"}}}}}},"post":{"tags":["Asset"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Asset"}},"text/json":{"schema":{"$ref":"#/components/schemas/Asset"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Asset"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Asset/{id}":{"get":{"tags":["Asset"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Asset"}},"application/json":{"schema":{"$ref":"#/components/schemas/Asset"}},"text/json":{"schema":{"$ref":"#/components/schemas/Asset"}}}}}},"put":{"tags":["Asset"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Asset"}},"text/json":{"schema":{"$ref":"#/components/schemas/Asset"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Asset"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Asset"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/AssetGroup":{"get":{"tags":["AssetGroup"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetGroupItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroupItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroupItemList"}}}}}},"post":{"tags":["AssetGroup"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/AssetGroup/{id}":{"get":{"tags":["AssetGroup"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}}}}}},"put":{"tags":["AssetGroup"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["AssetGroup"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/AssetType":{"get":{"tags":["AssetType"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetTypeItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetTypeItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetTypeItemList"}}}}}},"post":{"tags":["AssetType"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssetType"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetType"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AssetType"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/AssetType/{id}":{"get":{"tags":["AssetType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetType"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetType"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetType"}}}}}},"put":{"tags":["AssetType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssetType"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetType"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AssetType"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["AssetType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
@@ -1368,6 +1369,85 @@
 "type": "array",
 "items": {
 "$ref": "#/components/schemas/ActivityResource"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
+"ActivityTracking": {
+"type": "object",
+"properties": {
+"ManPower": {
+"type": "string",
+"nullable": true
+},
+"IsOnHold": {
+"type": "string",
+"nullable": true
+},
+"IsCancelled": {
+"type": "string",
+"nullable": true
+},
+"IsCuringDone": {
+"type": "string",
+"nullable": true
+},
+"Cost": {
+"type": "string",
+"nullable": true
+},
+"Item": {
+"type": "string",
+},
+"ActivityId": {
+"type": "string",
+"nullable": true
+},
+"Activity": {
+"type": "string",
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+},
+"additionalProperties": false
+},
+"ActivityTrackingItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/ActivityTracking"
 },
 "nullable": true
 }

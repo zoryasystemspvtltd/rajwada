@@ -16,71 +16,40 @@ namespace RajApi.Data.Models
         public virtual DateTime? CuringDate { get; set; }
         public virtual bool? IsCuringDone { get; set; }
         public virtual bool? IsCancelled { get; set; }
+        /// <summary>
+        /// Is used for QC
+        /// </summary>
         public virtual bool? IsCompleted { get; set; }
         public virtual bool? IsOnHold { get; set; }
         public virtual bool? IsAbandoned { get; set; }
+        /// <summary>
+        /// Is HOD Approved
+        /// </summary>
         public virtual bool? IsApproved { get; set; }
+        /// <summary>
+        /// HOD Approved Date
+        /// </summary>
         public virtual DateTime? ApprovedDate { get; set; }
+        /// <summary>
+        /// HOD Approved By
+        /// </summary>
         public virtual string? ApprovedBy { get; set; }
+        /// <summary>
+        /// Is QC Approved
+        /// </summary>
         public virtual bool? IsQCApproved { get; set; }
+        /// <summary>
+        /// QC Remarks
+        /// </summary>
         public virtual string? QCRemarks { get; set; }
+        /// <summary>
+        /// HOD Remarks
+        /// </summary>
         public virtual string? HODRemarks { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public virtual string? ActivityStatus
-        {
-            get
-            {
-                var status = "";
-                var currentDate = DateTime.Now;
-                if (StartDate != null && StartDate < currentDate && ActualStartDate == null)
-                {
-                    status = "Not Started";
-                }
-                else if (StartDate != null && StartDate < currentDate && EndDate != null && EndDate > currentDate && ActualStartDate != null)
-                {
-                    status = "In Progress";
-                }
-                else if (EndDate != null && ActualEndDate == null && EndDate < currentDate && ActualStartDate != null)
-                {
-                    status = "Delayed";
-                }
-                else if (StartDate != null && EndDate != null && StartDate < currentDate && currentDate < EndDate && IsOnHold == true)
-                {
-                    status = "On Hold";
-                }
-                else if (ActualEndDate <= EndDate && ActualStartDate >= StartDate && IsCompleted == true)
-                {
-                    status = "Closed";
-                }
-                else if (IsCancelled == true)
-                {
-                    status = "Cancelled";
-                }
-                else if (IsQCApproved == null && IsCompleted == true) // QC Assigened but not approved
-                {
-                    status = "Pending QC Approval";
-                }
-                else if (IsCompleted == true && IsQCApproved != null && IsQCApproved == true && IsApproved == null) //HOD Assigend but not approved
-                {
-                    status = "Pending HOD Approval";
-                }
-                else if (IsCompleted == true && IsQCApproved != null && IsQCApproved == true)// QC Approved
-                {
-                    status = "Inspection Passed";
-                }
-                else if (IsCompleted == true && IsQCApproved != null && IsQCApproved == false) //QC is rejected
-                {
-                    status = "Inspection Failed/Rework Required";
-                }
-                else if (IsCompleted == true && IsAbandoned == true)//Is Abanndoned
-                {
-                    status = "Short Closed/Abandoned";
-                }
-                return status;
-            }
-            private set { /* needed for EF */ }
-        }
+        [NotMapped]
+        public string? ActivityStatus { get; set; }
+        
         #region Workflow
         /// <summary>
         /// Activity Status 

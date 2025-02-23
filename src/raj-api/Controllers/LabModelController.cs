@@ -161,7 +161,7 @@ public class LabModelController : ControllerBase
         {
             jsonData.ActualStartDate = DateTime.Now;
         }        
-        if (jsonData.ActualEndDate == null && jsonData.IsCompleted == true)
+        if (jsonData.ActualEndDate == null && jsonData.IsApproved == true)//When HOD Approved
         {
             jsonData.ActualEndDate = DateTime.Now;
         }        
