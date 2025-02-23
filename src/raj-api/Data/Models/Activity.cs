@@ -130,52 +130,14 @@ namespace RajApi.Data.Models
         public virtual string? Items { get; set; }
         /// <summary>
         /// Actual Start Date
-        /// </summary>
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public virtual DateTime? ActualStartDate
-        {
-            get
-            {
-                if (ProgressPercentage > 0 && ActualStartDate == null)
-                {
-                    return DateTime.Now;
-                }
-                else if (ProgressPercentage == 0)
-                {
-                    return null;
-                }
-                else
-                {
-                    return ActualStartDate;
-                }
+        /// </summary>        
+        public virtual DateTime? ActualStartDate { get; set; }
 
-            }
-            private set { /* needed for EF */ }
-        }
         /// <summary>
         /// Actual End Date
-        /// </summary>
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public virtual DateTime? ActualEndDate
-        {
-            get
-            {
-                if (ProgressPercentage == 100 && ActualEndDate == null && IsCompleted == true)
-                {
-                    return DateTime.Now;
-                }
-                else if (ProgressPercentage < 100 && IsCompleted == false)
-                {
-                    return null;
-                }
-                else
-                {
-                    return ActualEndDate;
-                }
-
-            }
-            private set { /* needed for EF */ }
-        }
+        /// </summary>       
+        public virtual DateTime? ActualEndDate { get; set; }
+        
         #endregion
 
         #region Relations

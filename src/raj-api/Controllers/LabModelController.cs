@@ -4,6 +4,7 @@ using RajApi.Helpers;
 using ILab.Data;
 using RajApi.Data;
 using RajApi.Data.Models;
+using Newtonsoft.Json;
 
 namespace RajApi.Controllers;
 
@@ -71,7 +72,13 @@ public class LabModelController : ControllerBase
         var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
         var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
         dataService.Identity = new ModuleIdentity(member, key);
-        return await dataService.EditAsync(module, id, data, token);
+        if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
+        {
+            data = UpdateAcutualDate(module, data);
+        }
+        var activityId = await dataService.EditAsync(module, id, data, token);
+
+        return activityId;
     }
 
     // [HasPrivileges("edit")]
@@ -140,7 +147,27 @@ public class LabModelController : ControllerBase
             throw;
         }
     }
+    private dynamic UpdateAcutualDate(string model, dynamic data)
+    {
+        Type type = dataService.GetType(model);
+        if (type == null)
+        {
+            return -1L;
+        }
 
+        dynamic jsonString = data.ToString();
+        var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+        if (jsonData.ProgressPercentage > 0 && jsonData.ActualStartDate == null)
+        {
+            jsonData.ActualStartDate = DateTime.Now;
+        }        
+        if (jsonData.ActualEndDate == null && jsonData.IsCompleted == true)
+        {
+            jsonData.ActualEndDate = DateTime.Now;
+        }        
+
+        return JsonConvert.SerializeObject(jsonData); ;
+    }
     private async Task SavaDataIntoDataBase(dynamic lists, string model, Activity main, CancellationToken token)
     {
         try
@@ -161,7 +188,9 @@ public class LabModelController : ControllerBase
                             DependencyId = main.DependencyId,
                             UserId = main.UserId,
                             Name = string.Concat(main.Name, "-", desc),
-                            Description = string.Concat(main.Description, "-", desc)                            
+                            Description = string.Concat(main.Description, "-", desc),
+                            ActualStartDate = main.ActualStartDate,
+                            ActualEndDate = main.ActualEndDate
                         };
                         if (main.FlatId != null)
                         {
