@@ -10,7 +10,14 @@ public class UnitOfWork : LabModel
 
     #region Relations
     /// <summary>
-    /// Project is also a collection of other projects
+    /// Activity is also a collection of other Activity
+    /// </summary>
+    [ForeignKey("Activity")]
+    public virtual long? ActivityId { get; set; }
+    [JsonIgnore]
+    public virtual Activity? Activity { get; set; }
+    /// <summary>
+    /// Plan is also a collection of other Plan
     /// </summary>
     [ForeignKey("Plan")]
     public virtual long? PlanId { get; set; }

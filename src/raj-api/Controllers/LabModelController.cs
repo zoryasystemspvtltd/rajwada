@@ -160,11 +160,11 @@ public class LabModelController : ControllerBase
         if (jsonData.ProgressPercentage > 0 && jsonData.ActualStartDate == null)
         {
             jsonData.ActualStartDate = DateTime.Now;
-        }        
+        }
         if (jsonData.ActualEndDate == null && jsonData.IsApproved == true)//When HOD Approved
         {
             jsonData.ActualEndDate = DateTime.Now;
-        }        
+        }
 
         return JsonConvert.SerializeObject(jsonData); ;
     }
@@ -189,8 +189,11 @@ public class LabModelController : ControllerBase
                             UserId = main.UserId,
                             Name = string.Concat(main.Name, "-", desc),
                             Description = string.Concat(main.Description, "-", desc),
-                            ActualStartDate = main.ActualStartDate,
-                            ActualEndDate = main.ActualEndDate
+                            StartDate = main.StartDate,
+                            EndDate = main.EndDate,
+                            Items = main.Items,
+                            ContractorId = main.ContractorId,
+                            PhotoUrl = main.PhotoUrl,
                         };
                         if (main.FlatId != null)
                         {
