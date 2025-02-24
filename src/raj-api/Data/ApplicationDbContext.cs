@@ -16,7 +16,7 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(builder);
         builder.Entity<Project>()
-            .Property(p => p.BudgetAllocationAmount).HasDefaultValue(0.0);       
+            .Property(p => p.BudgetAllocationAmount).HasDefaultValue(0.0);
         builder.Entity<Project>()
            .Property(p => p.TotalCost).HasDefaultValue(0.0);
 
@@ -76,27 +76,27 @@ public class ApplicationDbContext : DbContext
                 EntityId = 1,
             },
             new ApplicationLog()
-             {
-                 Id = 2,
-                 Key = rootKey,
-                 Name = "Department",
-                 Date = DateTime.UtcNow,
-                 Status = StatusType.Draft,
-                 Member = "super@rajwada.com",
-                 ActivityType = StatusType.Draft,
-                 EntityId = 1,
-             },
+            {
+                Id = 2,
+                Key = rootKey,
+                Name = "Department",
+                Date = DateTime.UtcNow,
+                Status = StatusType.Draft,
+                Member = "super@rajwada.com",
+                ActivityType = StatusType.Draft,
+                EntityId = 1,
+            },
             new ApplicationLog()
-              {
-                  Id = 3,
-                  Key = rootKey,
-                  Name = "Department",
-                  Date = DateTime.UtcNow,
-                  Status = StatusType.Draft,
-                  Member = "super@rajwada.com",
-                  ActivityType = StatusType.Draft,
-                  EntityId = 2,
-              });
+            {
+                Id = 3,
+                Key = rootKey,
+                Name = "Department",
+                Date = DateTime.UtcNow,
+                Status = StatusType.Draft,
+                Member = "super@rajwada.com",
+                ActivityType = StatusType.Draft,
+                EntityId = 2,
+            });
         builder.Entity<AssetType>().HasData(
             new AssetType()
             {
@@ -134,7 +134,8 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Company> Companys { get; set; }
     public virtual DbSet<Project> Projects { get; set; }
     public virtual DbSet<Plan> Plans { get; set; }
-    public virtual DbSet<Activity> Activities { get; set; }   
+    public virtual DbSet<Activity> Activities { get; set; }
+    public virtual DbSet<ActivityTracking> ActivityTrackings { get; set; }
     public virtual DbSet<ActivityResource> ActivityResources { get; set; }
     public virtual DbSet<AssetGroup> AssetGroups { get; set; }
     public virtual DbSet<Asset> Assets { get; set; }
@@ -157,7 +158,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<LevelSetup> LevelSetup { get; set; }
     public virtual DbSet<LevelSetupDetails> LevelSetupDetails { get; set; }
     public virtual DbSet<UnitOfWork> UnitOfWorks { get; set; }
-    
+
     #endregion
 
 }

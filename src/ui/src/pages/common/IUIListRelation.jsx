@@ -211,7 +211,7 @@ const IUIListRelation = (props) => {
                                             <tr>
                                                 {schema?.editing &&
                                                     <th>
-                                                        <button type="submit" className="btn btn-link text-white">#</button>
+                                                        <button type="submit" className="btn btn-link text-white p-0">#</button>
 
                                                     </th>
                                                 }
@@ -220,7 +220,7 @@ const IUIListRelation = (props) => {
                                                         {fld.sorting &&
                                                             <button
                                                                 type="submit"
-                                                                className="btn btn-link text-white"
+                                                                className="btn btn-link text-white p-0"
                                                                 onClick={(e) => sortData(e, fld.field)}
                                                             >
                                                                 {dataSet?.options && fld.field === dataSet?.options.sortColumnName && dataSet?.options?.sortDirection ? <Icon.SortUp /> : <Icon.SortDown />} {dataSet?.options?.sortDirection}
@@ -230,7 +230,7 @@ const IUIListRelation = (props) => {
                                                         {!fld.sorting &&
                                                             <button
                                                                 type="submit"
-                                                                className="btn btn-link text-white"
+                                                                className="btn btn-link text-white p-0"
                                                             >
                                                                 {fld.text}
                                                             </button>}

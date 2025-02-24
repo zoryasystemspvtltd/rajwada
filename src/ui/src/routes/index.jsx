@@ -41,6 +41,7 @@ import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/sche
 import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { AddRoomMapping, EditRoomMapping, ViewRoomMapping } from "../pages/app/schema/RoomMappings";
+import { LevelSetupReport } from "../pages/app/reports/LevelSetupReport";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -466,6 +467,10 @@ const Routes = () => {
                 {
                     path: "/statusreport",
                     element: <WorkStatusReport />
+                },
+                {
+                    path: "/levelsetupreport",
+                    element: <LevelSetupReport />
                 },
                 {
                     path: "/flats/:flatId/roommappings/:id/edit",

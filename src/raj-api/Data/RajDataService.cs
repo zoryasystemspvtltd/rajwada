@@ -1,5 +1,9 @@
-﻿using ILab.Extensionss.Data;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Wordprocessing;
+using ILab.Extensionss.Common;
+using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
+using Mysqlx.Crud;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
@@ -123,7 +127,7 @@ namespace ILab.Data
             }
         }
 
-        public dynamic GetChallanReport(string module, long id)
+        public dynamic GetChallanReport(long id)
         {
             try
             {
@@ -133,10 +137,54 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+                logger.LogError("Exception in GetChallanReport method and details: " + ex.Message);
+                return 0;
+            }
+        }
+        public dynamic GetChallanReportDateWise(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetChallanReportDateWise));
+                object[] parameters = [startDate, endDate];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetChallanReportDateWise method and details: " + ex.Message);
                 return 0;
             }
 
+        }
+
+        internal dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetWorkerStatusReport));
+                object[] parameters = [projectId, towerId, floorId, flatId];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetChallanReport method and details: " + ex.Message);
+                return 0;
+            }
+        }
+
+        internal dynamic GetAllAssignedUsers(long id)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetAllAssignedUsers));
+                object[] parameters = [id];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetChallanReport method and details: " + ex.Message);
+                return 0;
+            }
         }
     }
 }

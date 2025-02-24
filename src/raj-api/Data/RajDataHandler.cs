@@ -1,5 +1,8 @@
-﻿using ILab.Extensionss.Data;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using ILab.Extensionss.Common;
+using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
+using IlabAuthentication.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
@@ -11,7 +14,7 @@ public class RajDataHandler : LabDataHandler
 
     public readonly LabDataHandler handler;
     public RajDataHandler(DbContext dbContext,
-        ILogger<RajDataHandler> logger)
+    ILogger<RajDataHandler> logger)
         : base(dbContext, logger)
     {
 
@@ -82,7 +85,102 @@ public class RajDataHandler : LabDataHandler
         return final;
     }
 
-    public async Task<dynamic> GetResourceDetails(long planId)
+    public dynamic GetChallanReportDateWise(DateTime startDate, DateTime endDate)
+    {
+        ListOptions option = new();
+
+        option.SearchCondition = new Condition()
+        {
+            Name = "DocumentDate",
+            Value = startDate,
+            Operator = OperatorType.GreaterThan,
+            And = new Condition()
+            {
+                Name = "DocumentDate",
+                Value = endDate,
+                Operator = OperatorType.LessThan
+            }
+        };
+        var levelSetups = Load<LevelSetup>(option).Items;
+        var details = dbContext.Set<LevelSetupDetails>()
+            .ToList();
+
+        var final = details.Join(levelSetups,
+                d => d.HeaderId,
+                m => m.Id,
+                (d, m) => new ChallanReport()
+                {
+                    Project = m.ProjectName,
+                    DocumentDate = m.DocumentDate,
+                    VechileNo = m.VechileNo,
+                    TrackingNo = m.TrackingNo,
+                    SupplierName = m.SupplierName,
+                    QCChargeName = m.InChargeName,
+                    Item = d.Name,
+                    Quantity = d.Quantity,
+                    Price = d.Price,
+                    UOM = d.UOMName,
+                    ReceiverStatus = d.ReceiverStatus,
+                    ReceiverRemarks = d.ReceiverRemarks,
+                    QCStatus = d.QualityStatus,
+                    QCRemarks = d.QualityRemarks,
+                    DirectorFinalRemarks = m.ApprovedRemarks
+                });
+
+        return final;
+    }
+    public dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
+    {
+        try
+        {
+
+            var activities = dbContext.Set<Activity>()
+                     .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId && l.TowerId == towerId && l.FloorId == floorId).ToList();
+            if (flatId > 0)
+            {
+                activities = activities.Where(l => l.FlatId == flatId).ToList();
+            }
+            var resource = dbContext.Set<Resource>()
+                .ToList();
+            var plan = dbContext.Set<Plan>()
+                .ToList();
+            var room = dbContext.Set<Room>()
+               .ToList();
+            var workflow = dbContext.Set<Workflow>()
+               .ToList();
+
+            var final = resource.Join(activities, rec => rec.PlanId, act => act.FlatId, (rec, act) => new { rec, act })
+                .Join(plan, rrec => rrec.rec.PlanId, pl => pl.Id, (rrec, pl) => new { rrec, pl })
+                .Join(room, rrrec => rrrec.rrec.rec.RoomId, rm => rm.Id, (rrrec, rm) => new { rrrec, rm })
+                 .Join(workflow, aact => aact.rrrec.rrec.act.DependencyId, wf => wf.Id, (aact, wf) => new { aact, wf })
+                .Select(m => new WorkerStatusReport()
+                {
+                    Id = m.aact.rrrec.rrec.act.Id,
+                    StartDate = m.aact.rrrec.rrec.act.StartDate,
+                    ActualStartDate = m.aact.rrrec.rrec.act.ActualStartDate,
+                    EndDate = m.aact.rrrec.rrec.act.EndDate,
+                    ActualEndDate = m.aact.rrrec.rrec.act.ActualEndDate,
+                    IsOnHold = m.aact.rrrec.rrec.act.IsOnHold,
+                    IsCancelled = m.aact.rrrec.rrec.act.IsCancelled,
+                    IsQCApproved = m.aact.rrrec.rrec.act.IsQCApproved,
+                    IsCompleted = m.aact.rrrec.rrec.act.IsCompleted,
+                    IsApproved = m.aact.rrrec.rrec.act.IsApproved,
+                    IsAbandoned = m.aact.rrrec.rrec.act.IsAbandoned,
+                    ActivityStatus = "",
+                    RoomName = m.aact.rm.Name,
+                    Data = m.wf.Data,
+                    FlatName = m.aact.rrrec.pl.Name
+                });
+            return final;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkerStatusReport method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+    public dynamic GetResourceDetails(long planId)
     {
         var rooms = dbContext.Set<Room>()
                  .ToList();
@@ -100,6 +198,15 @@ public class RajDataHandler : LabDataHandler
                 });
 
         return final;
+    }
+
+    public dynamic GetAllAssignedUsers(long id)
+    {
+        var applog = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == id).
+            Select(a => new { a.EntityId, a.Member }).Distinct();
+
+
+        return applog;
     }
     public override async Task<long> AddAsync<T>(T item, CancellationToken cancellationToken)
     {

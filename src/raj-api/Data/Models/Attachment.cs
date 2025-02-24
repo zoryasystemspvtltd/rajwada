@@ -7,5 +7,6 @@ namespace RajApi.Data.Models
         public string? Module { get; set; }
         public string? File { get; set; }
         public string? ParentId { get; set; }
+        public string? Tag { get; set; }
     }
 }

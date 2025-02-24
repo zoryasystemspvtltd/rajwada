@@ -49,4 +49,8 @@
 	  </None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\ilab-authentication\ilab-authentication.csproj" />
+	</ItemGroup>
+
 </Project>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux'
-import { Form, Modal, Button, InputGroup } from 'react-bootstrap';
+import { Form, Modal, Button, InputGroup, ProgressBar } from 'react-bootstrap';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -24,14 +24,17 @@ const Calendar = () => {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [checkboxes, setCheckboxes] = useState({
-        hold: false,
-        change: false,
-        eng: false,
-        curing: false,
+        isOnHold: false,
+        isCancelled: false,
+        isAbandoned: false,
+        isCuringDone: false,
+        isCompleted: false
     });
-    const [progress, setProgress] = useState('');
+    const [progress, setProgress] = useState(0);
+    const [previousProgress, setPreviousProgress] = useState(0);
     const [actualCost, setActualCost] = useState(0);
     const [privileges, setPrivileges] = useState({});
+    const [isCompletionConfirmed, setIsCompletionConfirmed] = useState(false);
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const [error, setError] = useState(null);
 
@@ -102,10 +105,15 @@ const Calendar = () => {
         setModalOpen(true); // Open the modal for the date
     };
 
+    const handleProgressSliderChange = (event) => {
+        setProgress(parseInt(event.target.value, 10));
+    };
+
     // Handle task clicks in the date modal
     const handleTaskClick = (task) => {
         setSelectedTask(task);
-        setProgress(parseFloat(task.progressPercentage));
+        setProgress(parseInt(task.progressPercentage, 10));
+        setPreviousProgress(parseInt(task.progressPercentage, 10));
         setActualCost(parseFloat(task.actualCost));
         setTaskModalOpen(true); // Open the modal for the task
     };
@@ -144,12 +152,22 @@ const Calendar = () => {
         setComments([]);
     };
 
+    const handleCompletionConfirmationClose = () => {
+        setCheckboxes({ ...checkboxes, isCompleted: false });
+        setIsCompletionConfirmed(false);
+    };
+
+    const handleCompletionConfirmation = () => {
+        setIsCompletionConfirmed(true);
+    }
+
     // Save task changes
     const handleSave = async () => {
         const updatedData = {
             ...selectedTask,
-            progressPercentage: progress,
+            progressPercentage: Math.max(progress, previousProgress),
             actualCost: parseFloat(actualCost),
+            ...checkboxes
         };
 
         try {
@@ -165,10 +183,11 @@ const Calendar = () => {
             setProgress('');
             setActualCost(0);
             setCheckboxes({
-                hold: false,
-                change: false,
-                eng: false,
-                curing: false,
+                isOnHold: false,
+                isCancelled: false,
+                isAbandoned: false,
+                isCuringDone: false,
+                isCompleted: false
             });
             closeTaskModal();
             closeModal();
@@ -293,7 +312,7 @@ const Calendar = () => {
                                                 {task.name}
                                             </Button>
                                         </div>
-                                        <div className="col-2">
+                                        <div className="col-2 d-flex align-items-center">
                                             <Button
                                                 title='Comments'
                                                 variant="contained"
@@ -301,10 +320,10 @@ const Calendar = () => {
                                                 onClick={() => handleCommentClick(task)}
                                                 style={{ width: '100%' }}
                                             >
-                                                <FaRegCommentDots size={22} />
+                                                <FaRegCommentDots size={15} />
                                             </Button>
                                         </div>
-                                        <div className="col-2">
+                                        <div className="col-2 d-flex align-items-center">
                                             <Button
                                                 title='Image Gallery'
                                                 variant="contained"
@@ -312,7 +331,7 @@ const Calendar = () => {
                                                 onClick={() => handleGalleryClick(task)}
                                                 style={{ width: '100%' }}
                                             >
-                                                <FaImage size={22} />
+                                                <FaImage size={14} />
                                             </Button>
                                         </div>
                                     </div>
@@ -349,64 +368,135 @@ const Calendar = () => {
                             </div>
                         </div>
                         <Form>
-                            <Form.Group className="position-relative form-group">
-                                <Form.Label>Cost</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={actualCost}
-                                    disabled={!isSameDay(selectedDate, startOfToday())}
-                                    onChange={(e) => setActualCost(e.target.value)}
-                                    placeholder="Cost here......"
-                                />
-                            </Form.Group>
+                            <div className="row">
+                                <div className="col">
+                                    <Form.Group className="position-relative form-group">
+                                        <Form.Label>Cost</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={actualCost}
+                                            disabled={!isSameDay(selectedDate, startOfToday())}
+                                            onChange={(e) => setActualCost(e.target.value)}
+                                            placeholder="Cost here......"
+                                        />
+                                    </Form.Group>
+                                </div>
+                            </div>
 
-                            <Form.Group className="position-relative form-group">
-                                <InputGroup>
-                                    <Form.Check
-                                        type="checkbox"
-                                        disabled={!isSameDay(selectedDate, startOfToday())}
-                                        label="Hold"
-                                        className="d-flex align-items-center mr-2"
-                                        onChange={(e) => setCheckboxes({ ...checkboxes, hold: e.target.checked })}
-                                        checked={checkboxes.hold}
-                                    />
-                                    <Form.Check
-                                        type="checkbox"
-                                        disabled={!isSameDay(selectedDate, startOfToday())}
-                                        label="Change"
-                                        className="d-flex align-items-center mr-2"
-                                        onChange={(e) => setCheckboxes({ ...checkboxes, change: e.target.checked })}
-                                        checked={checkboxes.change}
-                                    />
-                                    <Form.Check
-                                        type="checkbox"
-                                        disabled={!isSameDay(selectedDate, startOfToday())}
-                                        label="Eng"
-                                        className="d-flex align-items-center mr-2"
-                                        onChange={(e) => setCheckboxes({ ...checkboxes, eng: e.target.checked })}
-                                        checked={checkboxes.eng}
-                                    />
-                                    <Form.Check
-                                        type="checkbox"
-                                        disabled={!isSameDay(selectedDate, startOfToday())}
-                                        label="Curing"
-                                        className="d-flex align-items-center"
-                                        onChange={(e) => setCheckboxes({ ...checkboxes, curing: e.target.checked })}
-                                        checked={checkboxes.curing}
-                                    />
-                                </InputGroup>
-                            </Form.Group>
+                            <div className="row">
+                                <div className="col-sm-12 col-md-3">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+                                            <Form.Check
+                                                type="checkbox"
+                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                label="On Hold"
+                                                className="d-flex align-items-center mr-2"
+                                                onChange={(e) => setCheckboxes({ ...checkboxes, isOnHold: e.target.checked })}
+                                                checked={checkboxes.isOnHold}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
+                                </div>
 
-                            <Form.Group className="position-relative form-group">
-                                <Form.Label>Progress</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={progress}
-                                    disabled={!isSameDay(selectedDate, startOfToday())}
-                                    onChange={(e) => setProgress(e.target.value)}
-                                    placeholder="00.00%"
-                                />
-                            </Form.Group>
+                                <div className="col-sm-12 col-md-3">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+
+                                            <Form.Check
+                                                type="checkbox"
+                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                label="Cancelled"
+                                                className="d-flex align-items-center mr-2"
+                                                onChange={(e) => setCheckboxes({ ...checkboxes, isCancelled: e.target.checked })}
+                                                checked={checkboxes.isCancelled}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
+                                </div>
+
+                                <div className="col-sm-12 col-md-3">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+                                            <Form.Check
+                                                type="checkbox"
+                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                label="Abandoned"
+                                                className="d-flex align-items-center mr-2"
+                                                onChange={(e) => setCheckboxes({ ...checkboxes, isAbandoned: e.target.checked })}
+                                                checked={checkboxes.isAbandoned}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
+                                </div>
+
+                                <div className="col-sm-12 col-md-3">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+                                            <Form.Check
+                                                type="checkbox"
+                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                label="Curing"
+                                                className="d-flex align-items-center"
+                                                onChange={(e) => setCheckboxes({ ...checkboxes, isCuringDone: e.target.checked })}
+                                                checked={checkboxes.isCuringDone}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col">
+                                    {/* <Form.Group className="position-relative form-group">
+                                        <Form.Label>Progress</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={progress}
+                                            disabled={!isSameDay(selectedDate, startOfToday())}
+                                            onChange={(e) => setProgress(e.target.value)}
+                                            placeholder="00.00%"
+                                        />
+                                    </Form.Group> */}
+                                    <Form.Group className="position-relative form-group">
+                                        <Form.Label>Progress</Form.Label>
+                                        <Form.Range
+                                            min="0"
+                                            max="100"
+                                            value={progress}
+                                            disabled={!isSameDay(selectedDate, startOfToday())}
+                                            onChange={handleProgressSliderChange}
+                                        />
+                                    </Form.Group>
+
+
+                                    <div className="my-2">
+                                        <ProgressBar
+                                            now={progress}
+                                            label={`${progress}%`}
+                                            variant="info"
+                                            style={{ height: '20px' }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+                                            <Form.Check
+                                                type="checkbox"
+                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                label="Assign to QC"
+                                                className="d-flex align-items-center mr-2"
+                                                onChange={(e) => setCheckboxes({ ...checkboxes, isCompleted: e.target.checked })}
+                                                checked={checkboxes.isCompleted}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
+                                </div>
+                            </div>
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
@@ -517,6 +607,28 @@ const Calendar = () => {
                     handleClose={handleCloseGalleryModal}
                     title={`Image Gallery: ${selectedTask?.name}`}
                 />
+            }
+            {
+                (checkboxes.isCompleted) && (
+                    <Modal show={checkboxes.isCompleted} onHide={handleCompletionConfirmationClose}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>QC Assignment Confirmation</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <p>
+                               Are you sure to assign the task <strong>{selectedTask?.name}</strong> to QC?
+                            </p>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleCompletionConfirmationClose}>
+                                Cancel
+                            </Button>
+                            <Button variant="primary" onClick={handleCompletionConfirmation}>
+                                Confirm
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                )
             }
         </div>
     );

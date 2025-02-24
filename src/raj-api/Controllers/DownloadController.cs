@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ILab.Data;
 using ILab.Extensionss.Data;
@@ -23,33 +24,51 @@ public class DownloadController : ControllerBase
         this.logger = logger;
         this.dataService = dataService;
     }
-
-    [HttpGet("{module}/{id}/{columnName}")]
-    public IActionResult Get(string module, long id, string columnName)
+    [AllowAnonymous]
+    [HttpGet("{module}/{startDate}/{endDate}")]
+    public IActionResult Get(string module, string startDate, string endDate)
     {
         try
         {
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-            dataService.Identity = new ModuleIdentity(member, key);
-
-            var Base64String = GetFile(module, id, columnName);
-            // Convert base64 string to byte array
-            byte[] fileBytes = Convert.FromBase64String(Base64String.ToString());
-
-            // Create a memory stream from the byte array
-            using (var stream = new MemoryStream(fileBytes))
+            dataService.Identity = new ModuleIdentity(member, key);           
+            DateTime sDate=Convert.ToDateTime(startDate);
+            DateTime eDate = Convert.ToDateTime(endDate);
+            IEnumerable<ChallanReport> list = dataService.GetChallanReportDateWise(sDate, eDate);
+            DataTable data = ConvertToDataTable(list);
+            string base64String;
+            using (var wb = new XLWorkbook())
             {
-                // Return the file as a downloadable file
-                return File(stream.ToArray(), "application/octet-stream", columnName);
+                var sheet = wb.AddWorksheet(data, "Challan Report");
+
+                // Apply font color to columns 1 to 5
+                sheet.Columns(1, 5).Style.Font.FontColor = XLColor.Black;
+
+                using (var ms = new MemoryStream())
+                {
+                    wb.SaveAs(ms);
+
+                    // Convert the Excel workbook to a base64-encoded string
+                    base64String = Convert.ToBase64String(ms.ToArray());
+                }
             }
+
+            // Return a CreatedResult with the base64-encoded Excel data
+            return new CreatedResult(string.Empty, new
+            {
+                Code = 200,
+                Status = true,
+                Message = "Report generated successfully",
+                Data = base64String
+            });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = "An error occurred while processing the file.", error = ex.Message });
+            return BadRequest(new { message = "An error occurred while generating the report.", error = ex.Message });
         }
     }
-
+    [AllowAnonymous]
     [HttpGet("{module}/{id}")]
     public IActionResult GetAsync(string module, long id)
     {
@@ -59,7 +78,7 @@ public class DownloadController : ControllerBase
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
 
-            IEnumerable<ChallanReport> list = dataService.GetChallanReport(module, id);
+            IEnumerable<ChallanReport> list = dataService.GetChallanReport(id);
             DataTable data = ConvertToDataTable(list);
             string base64String;
             using (var wb = new XLWorkbook())
@@ -119,7 +138,7 @@ public class DownloadController : ControllerBase
 
         return dataTable;
     }
-
+    [AllowAnonymous]
     [HttpGet("{module}")]
     public IActionResult Get(string module)
     {
