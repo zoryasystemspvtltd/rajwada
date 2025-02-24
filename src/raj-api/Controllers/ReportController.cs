@@ -1,9 +1,11 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Wordprocessing;
 using ILab.Data;
+using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Mysqlx.Crud;
 using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
@@ -25,20 +27,33 @@ public class ReportController : ControllerBase
     }
 
 
-    [HttpGet("{module}")]
-    public dynamic Get(string module)
+    [HttpGet("{projectId}/{towerId}/{floorId}/{flatId}")]
+    public dynamic Get(long projectId, long towerId, long floorId, long flatId)
     {
         var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
         var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
         dataService.Identity = new ModuleIdentity(member, key);
-        var data = dataService.Get(module, this.GetApiOption());
-        if (data != null && module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
+        var data = dataService.GetWorkerStatusReport(projectId, towerId, floorId, flatId);       
+        if (data != null)
         {
             data = CalculateWorkStatus(data);
         }
         return data;
     }
-
+    [HttpGet("{projectId}/{towerId}/{floorId}")]
+    public dynamic Get(long projectId, long towerId, long floorId)
+    {
+        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+        dataService.Identity = new ModuleIdentity(member, key);       
+        var data = dataService.GetWorkerStatusReport(projectId, towerId, floorId, 0);
+        if (data != null)
+        {
+            data = CalculateWorkStatus(data);
+        }
+        return data;
+    }
+    
     private dynamic? CalculateWorkStatus(dynamic? list)
     {
         foreach (var item in list)

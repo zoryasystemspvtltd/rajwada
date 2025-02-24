@@ -32,10 +32,10 @@ public class DownloadController : ControllerBase
         {
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-            dataService.Identity = new ModuleIdentity(member, key);
+            dataService.Identity = new ModuleIdentity(member, key);           
             DateTime sDate=Convert.ToDateTime(startDate);
             DateTime eDate = Convert.ToDateTime(endDate);
-            IEnumerable<ChallanReport> list = dataService.GetChallanReportDateWise(module, sDate, eDate);
+            IEnumerable<ChallanReport> list = dataService.GetChallanReportDateWise(sDate, eDate);
             DataTable data = ConvertToDataTable(list);
             string base64String;
             using (var wb = new XLWorkbook())
@@ -78,7 +78,7 @@ public class DownloadController : ControllerBase
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
 
-            IEnumerable<ChallanReport> list = dataService.GetChallanReport(module, id);
+            IEnumerable<ChallanReport> list = dataService.GetChallanReport(id);
             DataTable data = ConvertToDataTable(list);
             string base64String;
             using (var wb = new XLWorkbook())

@@ -1657,6 +1657,9 @@
 "ParentId": {
 "type": "string",
 },
+"Tag": {
+"type": "string",
+},
 "Id": {
 "type": "string",
 },
@@ -3141,6 +3144,13 @@
 "type": "object",
 "properties": {
 "MarkerJson": {
+"type": "string",
+},
+"ActivityId": {
+"type": "string",
+"nullable": true
+},
+"Activity": {
 "type": "string",
 },
 "PlanId": {

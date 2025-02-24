@@ -1,4 +1,5 @@
-﻿using ILab.Extensionss.Data;
+﻿using ILab.Extensionss.Common;
+using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -81,7 +82,86 @@ public class RajDataHandler : LabDataHandler
 
         return final;
     }
-    
+
+    public dynamic GetChallanReportDateWise(DateTime startDate, DateTime endDate)
+    {
+        ListOptions option = new();
+
+        option.SearchCondition = new Condition()
+        {
+            Name = "DocumentDate",
+            Value = startDate,
+            Operator = OperatorType.GreaterThan,
+            And = new Condition()
+            {
+                Name = "DocumentDate",
+                Value = endDate,
+                Operator = OperatorType.LessThan
+            }
+        };
+        var levelSetups = Load<LevelSetup>(option).Items;        
+        var details = dbContext.Set<LevelSetupDetails>()            
+            .ToList();
+
+        var final = details.Join(levelSetups,
+                d => d.HeaderId,
+                m => m.Id,
+                (d, m) => new ChallanReport()
+                {
+                    Project = m.ProjectName,
+                    DocumentDate = m.DocumentDate,
+                    VechileNo = m.VechileNo,
+                    TrackingNo = m.TrackingNo,
+                    SupplierName = m.SupplierName,
+                    QCChargeName = m.InChargeName,
+                    Item = d.Name,
+                    Quantity = d.Quantity,
+                    Price = d.Price,
+                    UOM = d.UOMName,
+                    ReceiverStatus = d.ReceiverStatus,
+                    ReceiverRemarks = d.ReceiverRemarks,
+                    QCStatus = d.QualityStatus,
+                    QCRemarks = d.QualityRemarks,
+                    DirectorFinalRemarks = m.ApprovedRemarks
+                });
+
+        return final;
+    }
+    public dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
+    {
+        var activityes = dbContext.Set<Activity>()
+                 .Where(l => l.Type=="Sub Task" && l.ProjectId == projectId && l.TowerId == towerId && l.FloorId == floorId).ToList();
+        if (flatId > 0)
+        {
+            activityes = activityes.Where(l => l.FlatId == flatId).ToList();
+        }
+        var workflow = dbContext.Set<Workflow>()           
+            .ToList();
+
+        //var final = workflow.Join(activityes,
+        //        d => d.Id,
+        //        m => m.DependencyId,
+        //        (d, m) => new 
+        //        {
+        //            m.ProjectName,
+        //             m.DocumentDate,
+        //            m.VechileNo,
+        //            m.TrackingNo,
+        //            m.SupplierName,
+        //            m.InChargeName,
+        //            d.Name,
+        //             d.Quantity,
+        //             d.Price,
+        //            UOM = d.UOMName,
+        //            ReceiverStatus = d.ReceiverStatus,
+        //            ReceiverRemarks = d.ReceiverRemarks,
+        //            QCStatus = d.QualityStatus,
+        //            QCRemarks = d.QualityRemarks,
+        //            DirectorFinalRemarks = m.ApprovedRemarks
+        //        });
+
+        return "";
+    }
     public async Task<dynamic> GetResourceDetails(long planId)
     {
         var rooms = dbContext.Set<Room>()

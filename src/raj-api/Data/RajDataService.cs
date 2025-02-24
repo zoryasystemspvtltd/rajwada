@@ -126,7 +126,7 @@ namespace ILab.Data
             }
         }
 
-        public dynamic GetChallanReport(string module, long id)
+        public dynamic GetChallanReport(long id)
         {
             try
             {
@@ -140,27 +140,13 @@ namespace ILab.Data
                 return 0;
             }
         }
-        public dynamic GetChallanReportDateWise(string module, DateTime startDate, DateTime endDate)
+        public dynamic GetChallanReportDateWise(DateTime startDate, DateTime endDate)
         {
             try
             {
-                ListOptions option = new();
-                Condition con = new()
-                {
-                    //Operator blank mean Equality
-                    Name = "DocumentDate",
-                    Value = startDate.AddDays(-1),
-                    Operator=OperatorType.GreaterThan
-                };
-                var typecon = new Condition()
-                {
-                    Name = "DocumentDate",
-                    Value = endDate,
-                    Operator = OperatorType.LessThan
-                };
-                con.And = typecon;
-
-                return Get(module, option);
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetChallanReportDateWise));
+                object[] parameters = [startDate, endDate];
+                return method?.Invoke(handler, parameters);
             }
             catch (Exception ex)
             {
@@ -168,6 +154,21 @@ namespace ILab.Data
                 return 0;
             }
 
+        }
+
+        internal dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetWorkerStatusReport));
+                object[] parameters = [projectId, towerId, floorId, flatId];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetChallanReport method and details: " + ex.Message);
+                return 0;
+            }
         }
     }
 }
