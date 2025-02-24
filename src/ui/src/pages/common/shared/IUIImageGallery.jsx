@@ -27,6 +27,7 @@ const IUIImageGallery = (props) => {
 
                 const response = await api.getData({ module: props?.module, options: pageOptions });
                 setImages(response?.data?.items);
+                setFilteredImages(response?.data?.items);
                 setLoading(false);
             } catch (error) {
                 notify("error", 'Failed to fetch images:');
@@ -38,8 +39,8 @@ const IUIImageGallery = (props) => {
     }, [props]);
 
     const handleSearch = () => {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
+        const start = new Date(startDate).setHours(0, 0, 0, 0);
+        const end = new Date(endDate).setHours(23, 59, 59, 0);
 
         const filtered = images.filter(image => {
             const imageDate = new Date(image.date);
@@ -48,6 +49,12 @@ const IUIImageGallery = (props) => {
 
         setFilteredImages(filtered);
     };
+
+    const handleReset = () => {
+        setFilteredImages(images);
+        setStartDate('');
+        setEndDate('');
+    }
 
     // If images are still loading, show a loading message or spinner
     if (loading) {
@@ -66,9 +73,9 @@ const IUIImageGallery = (props) => {
             <Modal.Body>
                 <Form className="mb-3">
                     <Row>
-                        <Col>
+                        <Col sm={12} md={4}>
                             <Form.Group controlId="startDate">
-                                <Form.Label>Start Date</Form.Label>
+                                <Form.Label className='fw-bold'>Start Date</Form.Label>
                                 <Form.Control
                                     type="date"
                                     value={startDate}
@@ -76,9 +83,9 @@ const IUIImageGallery = (props) => {
                                 />
                             </Form.Group>
                         </Col>
-                        <Col>
+                        <Col sm={12} md={4}>
                             <Form.Group controlId="endDate">
-                                <Form.Label>End Date</Form.Label>
+                                <Form.Label className='fw-bold'>End Date</Form.Label>
                                 <Form.Control
                                     type="date"
                                     value={endDate}
@@ -86,9 +93,20 @@ const IUIImageGallery = (props) => {
                                 />
                             </Form.Group>
                         </Col>
-                        <Col xs="auto" className="d-flex align-items-end">
-                            <Button variant="primary" onClick={handleSearch}>
+                        <Col xs="auto" className="d-flex align-items-end" sm={12} md={4}>
+                            <Button
+                                variant="contained"
+                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn-sm btn btn-primary mr-2'
+                                onClick={handleSearch}
+                            >
                                 Search
+                            </Button>
+                            <Button
+                                variant="conatined"
+                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn-sm btn btn-secondary'
+                                onClick={handleReset}
+                            >
+                                Reset
                             </Button>
                         </Col>
                     </Row>

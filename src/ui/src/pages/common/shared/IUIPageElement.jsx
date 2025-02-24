@@ -393,6 +393,7 @@ const IUIPageElement = (props) => {
                                                 value={fld?.defaultValue || data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                 id={fld.field}
+                                                clearFields={fld?.reset || false}
                                                 nameField={fld.nameField}
                                                 schema={fld.schema}
                                                 onChange={handleChange}

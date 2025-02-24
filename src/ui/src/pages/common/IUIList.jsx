@@ -10,6 +10,10 @@ import { useNavigate } from "react-router-dom";
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from '../common/shared/IUILookUp'
 import IUIBreadcrumb from './shared/IUIBreadcrumb';
+import { RiDownload2Fill } from 'react-icons/ri';
+import { saveAs } from 'file-saver';
+import api from '../../store/api-service';
+import { notify } from "../../store/notification";
 
 const IUIList = (props) => {
     const schema = props?.schema;
@@ -89,11 +93,41 @@ const IUIList = (props) => {
         }
     };
 
+    const handleDownloadReport = async (itemId, reportDate) => {
+        try {
+            const response = await api.downloadReport({ module: module, id: itemId });
+
+            if (response) {
+                // Decode the base64 string to binary data
+                const byteCharacters = atob(response.data.data); // Base64 decode
+                const byteArrays = [];
+
+                // Convert the decoded string into a byte array
+                for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                    const slice = byteCharacters.slice(offset, offset + 512);
+                    const byteNumbers = new Array(slice.length);
+                    for (let i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    byteArrays.push(new Uint8Array(byteNumbers));
+                }
+
+                // Create a Blob object from the byte arrays
+                const blob = new Blob(byteArrays, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+                // Use FileSaver to trigger the download
+                saveAs(blob, `${schema?.title}-Report-${new Date(reportDate).toISOString().split('T')[0]}.xlsx`);
+            }
+        } catch (error) {
+            notify("error", `Failed to download ${schema?.title} report!`);
+        }
+    };
+
     return (
         <>
             <div className="app-page-title">
                 {/* <div className="page-title-heading"> {schema?.title}</div> */}
-                <IUIBreadcrumb schema={{type: 'list', module: module, displayText: schema?.title}} />
+                <IUIBreadcrumb schema={{ type: 'list', module: module, displayText: schema?.title }} />
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -209,6 +243,16 @@ const IUIList = (props) => {
                                                                                     textonly={true}
                                                                                 />
                                                                             }
+                                                                            {(fld.type === 'report') &&
+                                                                                <Button
+                                                                                    variant="contained"
+                                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
+                                                                                    onClick={() => handleDownloadReport(item?.id, item[fld?.reportDateField])}
+                                                                                >
+                                                                                    <RiDownload2Fill className="inline-block mr-2" />
+                                                                                    Download Report
+                                                                                </Button>
+                                                                            }
                                                                         </td>
                                                                     ))}
                                                                 </tr>
@@ -235,9 +279,7 @@ const IUIList = (props) => {
                                                             }
                                                         </tr>
                                                     </tfoot>
-
                                                 }
-
                                             </Table>
                                         </Col>
                                     </Row>
