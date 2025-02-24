@@ -14,8 +14,9 @@ export const ListLevelSetup = () => {
         adding: true,
         fields: [
             { text: 'Project', field: 'projectName', type: 'link', sorting: true, searching: true },
+            { text: 'Document Date', field: 'documentDate', type: 'date', sorting: true, searching: true },
             { text: 'Tracking No', field: 'trackingNo', type: 'text', sorting: true, searching: true },
-            { text: 'VehicleNo', field: 'vechileNo', type: 'text', sorting: true, searching: true },
+            { text: 'Vehicle No', field: 'vechileNo', type: 'text', sorting: true, searching: true },
             { text: 'Supplier Name', field: 'supplierName', type: 'text', sorting: true, searching: true }
         ]
     }

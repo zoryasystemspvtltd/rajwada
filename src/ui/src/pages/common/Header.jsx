@@ -95,7 +95,8 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                 { name: "levelSetup", text: "Level Setup", icon: "vector-square", path: "/level-setups"}
             ],
             report: [
-                { name: "workStatusReport", text: "Work Status Report", icon: "vector-square", path: "/statusreport" }
+                { name: "workStatusReport", text: "Work Status Report", icon: "vector-square", path: "/statusreport" },
+                { name: "levelSetupReport", text: "Level Setup Report", icon: "vector-square", path: "/levelsetupreport" }
             ]
         },
         legal: {

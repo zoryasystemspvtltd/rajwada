@@ -154,5 +154,10 @@ api.downloadReport = async (action) => {
     const response = await api.get(url);
     return response;
 }
+api.downloadAggregatedReport = async (action) => {
+    const url = `/download/${action.module}/${action.startDate}/${action.endDate}`;
+    const response = await api.get(url);
+    return response;
+}
 export default api;
 

@@ -101,7 +101,7 @@ const IUIListInline = (props) => {
                                             <th >
                                                 <button
                                                     type="submit"
-                                                    className="btn btn-link text-white"
+                                                    className="btn btn-link text-white p-0"
                                                 >
                                                     {fld.text}
                                                 </button>
@@ -112,7 +112,7 @@ const IUIListInline = (props) => {
                                 ))}
                                 {
                                     <th width={90}>
-                                        <button type="submit" className="btn btn-link text-white">#</button>
+                                        <button type="submit" className="btn btn-link text-white p-0">#</button>
                                     </th>
                                 }
                             </tr>
