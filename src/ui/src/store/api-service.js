@@ -164,5 +164,11 @@ api.workerReport = async (action) => {
     const response = await api.get(url);
     return response;
 }
+
+api.assignedUsers = async (action) => {
+    const url = `/assigneduser/${action.id}`;
+    const response = await api.get(url);
+    return response;
+}
 export default api;
 

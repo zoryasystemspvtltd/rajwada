@@ -1,12 +1,11 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
 using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
+using IlabAuthentication.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
-using RajApi.Migrations;
 
 namespace RajApi.Data;
 
@@ -15,7 +14,7 @@ public class RajDataHandler : LabDataHandler
 
     public readonly LabDataHandler handler;
     public RajDataHandler(DbContext dbContext,
-        ILogger<RajDataHandler> logger)
+    ILogger<RajDataHandler> logger)
         : base(dbContext, logger)
     {
 
@@ -181,7 +180,7 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
-    public async Task<dynamic> GetResourceDetails(long planId)
+    public dynamic GetResourceDetails(long planId)
     {
         var rooms = dbContext.Set<Room>()
                  .ToList();
@@ -199,6 +198,15 @@ public class RajDataHandler : LabDataHandler
                 });
 
         return final;
+    }
+
+    public dynamic GetAllAssignedUsers(long id)
+    {
+        var applog = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == id).
+            Select(a => new { a.EntityId, a.Member }).Distinct();
+
+
+        return applog;
     }
     public override async Task<long> AddAsync<T>(T item, CancellationToken cancellationToken)
     {

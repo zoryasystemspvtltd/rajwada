@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
+using Mysqlx.Crud;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
@@ -162,6 +163,21 @@ namespace ILab.Data
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetWorkerStatusReport));
                 object[] parameters = [projectId, towerId, floorId, flatId];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetChallanReport method and details: " + ex.Message);
+                return 0;
+            }
+        }
+
+        internal dynamic GetAllAssignedUsers(long id)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetAllAssignedUsers));
+                object[] parameters = [id];
                 return method?.Invoke(handler, parameters);
             }
             catch (Exception ex)
