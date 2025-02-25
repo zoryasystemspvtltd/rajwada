@@ -10,6 +10,7 @@ import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIAssign from './shared/IUIAssign';
 import IUIApprover from './shared/IUIApprover';
 import { notify } from "../../store/notification";
+import IUIMultiAssign from './shared/IUIMultiAssign';
 
 const IUIPage = (props) => {
     // Properties
@@ -144,6 +145,35 @@ const IUIPage = (props) => {
             notify("success", "Assignment Successful!");
         } catch (e) {
             // TODO
+        }
+    }
+
+    const assignMultiPageValue = async (e, userList) => {
+        e.preventDefault();
+        let isAllAssignSuccessful = true;
+        for (let user of userList) {
+            let action = {};
+            if (module === 'activity') {
+                action = { module: module, data: { id: id, member: user.email, userId: user.id } }
+            }
+            else {
+                action = { module: module, data: { id: id, member: user.email } }
+            }
+            try {
+                await api.editPartialData(action);
+                dispatch(setSave({ module: module }))
+                //navigate(-1);
+
+            } catch (e) {
+                // TODO
+                isAllAssignSuccessful = false;
+            }
+        }
+        if (isAllAssignSuccessful) {
+            notify("success", "Assignments Successful!");
+        }
+        else {
+            notify("error", "One or more assignments failed!");
         }
     }
 
@@ -423,8 +453,11 @@ const IUIPage = (props) => {
                                                             }
                                                         </>
                                                     }
-                                                    {schema?.assign && privileges?.assign &&
+                                                    {schema?.assign && privileges?.assign && schema?.assignType === 'single' &&
                                                         <IUIAssign onClick={assignPageValue} />
+                                                    }
+                                                    {schema?.assign && privileges?.assign && schema?.assignType === 'multiple' &&
+                                                        <IUIMultiAssign onClick={assignMultiPageValue} />
                                                     }
                                                     {/* Condition modified by Adrish */}
                                                     {schema?.approving && privileges?.assign && approvalStatus < 3 &&

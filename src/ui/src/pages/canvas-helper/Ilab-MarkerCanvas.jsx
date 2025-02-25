@@ -583,7 +583,7 @@ export const IlabMarkerCanvas = (props) => {
                                                                                 openModal={handleOpenModal}
                                                                             />
                                                                         }
-                                                                        {markers.map((m, i) => (
+                                                                        {markers?.map((m, i) => (
                                                                             <Fragment key={i}>
 
                                                                                 {m.type === 'rectangle' &&
@@ -612,7 +612,7 @@ export const IlabMarkerCanvas = (props) => {
                                                                     </g>
                                                                     <g data-cell-id="01">
 
-                                                                        {markers.map((m, i) => (
+                                                                        {markers?.map((m, i) => (
                                                                             <Fragment key={i}>
                                                                                 {m.type === 'marker' &&
                                                                                     <Marker
@@ -636,7 +636,7 @@ export const IlabMarkerCanvas = (props) => {
                                                                     </g>
                                                                     <g data-cell-id="02">
 
-                                                                        {markers.map((m, i) => (
+                                                                        {markers?.map((m, i) => (
                                                                             <Fragment key={i}>
                                                                                 {m.type === 'camera' &&
                                                                                     <Camera
@@ -657,7 +657,7 @@ export const IlabMarkerCanvas = (props) => {
                                                                     </g>
                                                                     <g data-cell-id="03">
 
-                                                                        {markers.map((path, index) => (
+                                                                        {markers?.map((path, index) => (
                                                                             <Fragment key={index}>
                                                                                 {path.type === 'pencil' &&
                                                                                     <path
@@ -685,7 +685,7 @@ export const IlabMarkerCanvas = (props) => {
                                     </div>
                                     <div className='col-md-3'>
                                         <ol style={listStyles.list}>
-                                            {markers.map((m, i) => {
+                                            {markers?.map((m, i) => {
                                                 if (m.type === 'marker') {
                                                     return (
                                                         <li key={i} style={listStyles.listItem}>
