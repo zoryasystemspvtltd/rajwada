@@ -32,9 +32,9 @@ public class DownloadController : ControllerBase
         {
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-            dataService.Identity = new ModuleIdentity(member, key);           
-            DateTime sDate=Convert.ToDateTime(startDate);
-            DateTime eDate = Convert.ToDateTime(endDate);
+            dataService.Identity = new ModuleIdentity(member, key);
+            DateTime sDate = GetDateTime(startDate);
+            DateTime eDate = GetDateTime(endDate);
             IEnumerable<ChallanReport> list = dataService.GetChallanReportDateWise(sDate, eDate);
             DataTable data = ConvertToDataTable(list);
             string base64String;
@@ -68,6 +68,14 @@ public class DownloadController : ControllerBase
             return BadRequest(new { message = "An error occurred while generating the report.", error = ex.Message });
         }
     }
+
+    private DateTime GetDateTime(string startDate)
+    {
+        var newtime = new TimeSpan(00, 00, 0); //12:00 AM
+        var updated = Convert.ToDateTime(startDate).Date + newtime;
+        return updated;
+    }
+
     [AllowAnonymous]
     [HttpGet("{module}/{id}")]
     public IActionResult GetAsync(string module, long id)
