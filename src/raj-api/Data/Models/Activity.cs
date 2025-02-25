@@ -50,6 +50,8 @@ namespace RajApi.Data.Models
         [NotMapped]
         public string? ActivityStatus { get; set; }
         
+        public string? ActualItems { get; set; }
+
         #region Workflow
         /// <summary>
         /// Activity Status 
