@@ -164,9 +164,13 @@ api.workerReport = async (action) => {
     const response = await api.get(url);
     return response;
 }
-
+api.workerReport = async (action) => {
+    const url = `/report/${action.projectId}/${action.towerId}/${action.floorId}`;
+    const response = await api.get(url);
+    return response;
+}
 api.assignedUsers = async (action) => {
-    const url = `/assigneduser/${action.id}`;
+    const url = `/assigneduser/${action.module}/${action.id}`;
     const response = await api.get(url);
     return response;
 }

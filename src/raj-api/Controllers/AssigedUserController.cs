@@ -23,15 +23,23 @@ public class AssignedUserController : ControllerBase
     /// </summary>
     /// <param name="id">Activity Id</param>
     /// <returns></returns>
-    [HttpGet("{id}")]
-    public dynamic Get(long id)
+    [HttpGet("{module}/{id}")]
+    public dynamic Get(string module, long id)
     {
-        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-        dataService.Identity = new ModuleIdentity(member, key);
-        var users = dataService.GetAllAssignedUsers(id);        
-        return users;
-    }    
+        try
+        {
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+            var users = dataService.GetAllAssignedUsers(module, id);
+            return users;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in Get module: '{module}' id: '{id}' message:'{ex.Message}'");
+            throw;
+        }
+    }
 }
 
 
