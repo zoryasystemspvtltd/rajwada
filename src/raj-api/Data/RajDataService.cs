@@ -71,7 +71,29 @@ namespace ILab.Data
                         existingData.ApprovedRemarks = jsonData?.ApprovedRemarks;
                     }
                 }
-                
+                if (type == typeof(Activity))
+                {
+                    if (jsonData != null && jsonData?.Status != null)
+                    {
+                        existingData.Status = jsonData?.Status;
+                    }
+                    //When QC Approved
+                    if (jsonData != null && jsonData?.IsApproved != null)
+                    {
+                        existingData.IsQCApproved = jsonData?.IsQCApproved;
+                        existingData.QCApprovedBy = jsonData?.QCApprovedBy;
+                        existingData.QCApprovedDate = jsonData?.QCApprovedDate;
+                        existingData.QCRemarks = jsonData?.QCRemarks;
+                    }
+                    //When HOD Approved
+                    if (jsonData != null && jsonData?.IsApproved != null)
+                    {
+                        existingData.ApprovedBy = jsonData?.ApprovedBy;
+                        existingData.ApprovedDate = jsonData?.ApprovedDate;
+                        existingData.IsApproved = jsonData?.IsApproved;
+                        existingData.HODRemarks = jsonData?.HODRemarks;
+                    }
+                }
 
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.EditPartialAsync));
                 var generic = method?.MakeGenericMethod(type);
@@ -172,12 +194,12 @@ namespace ILab.Data
             }
         }
 
-        internal dynamic GetAllAssignedUsers(long id)
+        internal dynamic GetAllAssignedUsers(string module,long id)
         {
             try
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetAllAssignedUsers));
-                object[] parameters = [id];
+                object[] parameters = [module,id];
                 return method?.Invoke(handler, parameters);
             }
             catch (Exception ex)

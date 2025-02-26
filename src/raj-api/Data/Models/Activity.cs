@@ -22,6 +22,26 @@ namespace RajApi.Data.Models
         public virtual bool? IsCompleted { get; set; }
         public virtual bool? IsOnHold { get; set; }
         public virtual bool? IsAbandoned { get; set; }
+        #region QC
+        /// <summary>
+        /// Is QC Approved
+        /// </summary>
+        public virtual bool? IsQCApproved { get; set; }
+        /// <summary>
+        /// QC Approved Date
+        /// </summary>
+        public virtual DateTime? QCApprovedDate { get; set; }
+        /// <summary>
+        /// QC Approved By
+        /// </summary>
+        public virtual string? QCApprovedBy { get; set; }
+        /// <summary>
+        /// QC Remarks
+        /// </summary>
+        public virtual string? QCRemarks { get; set; }
+        #endregion
+
+        #region HOD
         /// <summary>
         /// Is HOD Approved
         /// </summary>
@@ -35,21 +55,16 @@ namespace RajApi.Data.Models
         /// </summary>
         public virtual string? ApprovedBy { get; set; }
         /// <summary>
-        /// Is QC Approved
-        /// </summary>
-        public virtual bool? IsQCApproved { get; set; }
-        /// <summary>
-        /// QC Remarks
-        /// </summary>
-        public virtual string? QCRemarks { get; set; }
-        /// <summary>
         /// HOD Remarks
         /// </summary>
         public virtual string? HODRemarks { get; set; }
+        #endregion
 
         [NotMapped]
         public string? ActivityStatus { get; set; }
-        
+
+        public string? ActualItems { get; set; }
+
         #region Workflow
         /// <summary>
         /// Activity Status 
@@ -84,7 +99,7 @@ namespace RajApi.Data.Models
         /// End Date
         /// </summary>
         public virtual DateTime? EndDate { get; set; }
-       
+
         /// <summary>
         /// Estimated time duration
         /// </summary>
@@ -106,7 +121,7 @@ namespace RajApi.Data.Models
         /// Actual End Date
         /// </summary>       
         public virtual DateTime? ActualEndDate { get; set; }
-        
+
         #endregion
 
         #region Relations
