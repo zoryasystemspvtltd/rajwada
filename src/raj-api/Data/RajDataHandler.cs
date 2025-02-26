@@ -200,9 +200,9 @@ public class RajDataHandler : LabDataHandler
         return final;
     }
 
-    public dynamic GetAllAssignedUsers(long id)
+    public dynamic GetAllAssignedUsers(string module, long id)
     {
-        var applog = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == id).
+        var applog = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == id && l.Name.Equals(module)).
             Select(a => new { a.EntityId, a.Member }).Distinct();
 
 

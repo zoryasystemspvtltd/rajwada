@@ -1165,6 +1165,9 @@
 "ActivityStatus": {
 "type": "string",
 },
+"ActualItems": {
+"type": "string",
+},
 "PriorityStatus": {
 "type": "string",
 "nullable": true

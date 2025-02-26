@@ -1,7 +1,9 @@
-﻿using ILab.Data;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using ILab.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RajApi.Data;
+using RajApi.Data.Models;
 
 namespace RajApi.Controllers;
 
@@ -22,28 +24,44 @@ public class ReportController : ControllerBase
     [HttpGet("{projectId}/{towerId}/{floorId}/{flatId}")]
     public dynamic Get(long projectId, long towerId, long floorId, long flatId)
     {
-        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-        dataService.Identity = new ModuleIdentity(member, key);
-        var finalData = dataService.GetWorkerStatusReport(projectId, towerId, floorId, flatId);
-        if (finalData != null)
+        try
         {
-            finalData = CalculateWorkStatus(finalData);
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+            var finalData = dataService.GetWorkerStatusReport(projectId, towerId, floorId, flatId);
+            if (finalData != null)
+            {
+                finalData = CalculateWorkStatus(finalData);
+            }
+            return finalData;
         }
-        return finalData;
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in Get projectId: '{projectId}',towerId: '{towerId}',floorId: '{floorId}',flatId: '{flatId}', message:'{ex.Message}'");
+            throw;
+        }
     }
     [HttpGet("{projectId}/{towerId}/{floorId}")]
     public dynamic Get(long projectId, long towerId, long floorId)
     {
-        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-        dataService.Identity = new ModuleIdentity(member, key);
-        var finalData = dataService.GetWorkerStatusReport(projectId, towerId, floorId, 0);
-        if (finalData != null)
+        try
         {
-            finalData = CalculateWorkStatus(finalData);
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+            var finalData = dataService.GetWorkerStatusReport(projectId, towerId, floorId, 0);
+            if (finalData != null)
+            {
+                finalData = CalculateWorkStatus(finalData);
+            }
+            return finalData;
         }
-        return finalData;
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in Get projectId: '{projectId}',towerId: '{towerId}',floorId: '{floorId}', message:'{ex.Message}'");
+            throw;
+        }
     }
 
     private dynamic? CalculateWorkStatus(dynamic? list)
