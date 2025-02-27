@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Button, Form } from "react-bootstrap";
 import Dropdown from 'react-bootstrap/Dropdown';
 import api from '../../../store/api-service';
@@ -21,11 +21,26 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 
 const IUIMultiAssign = (props) => {
     const module = "user"
-    const [value, setValue] = useState("")
+    const dropdownRef = useRef(null);
     const [dataSet, setDataSet] = useState([])
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     // State to track checked users
     const [checkedUsers, setCheckedUsers] = useState({});
     const [selectedUsers, setSelectedUsers] = useState([]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     useEffect(() => {
         async function fetchData() {
@@ -49,37 +64,43 @@ const IUIMultiAssign = (props) => {
     const handleAddUsers = (e) => {
         const selected = dataSet?.items?.filter(user => checkedUsers[user.id]);
         setSelectedUsers(selected);
+        setDropdownOpen(false);
         props?.onClick(e, selected);
+        setDataSet([]);
     };
 
     return (
         <>
-            <Dropdown className='float-right'>
-                <Dropdown.Toggle variant="contained" id="dropdown-users" className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2'>
-                    Share With...
+            <Dropdown ref={dropdownRef} show={dropdownOpen} className='float-right' autoClose="outside">
+                <Dropdown.Toggle
+                    variant="primary"
+                    id="dropdown-users"
+                    className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2'
+                    onClick={() => setDropdownOpen(true)}>
+                    Share With
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
                     <Dropdown.Item href="#/action-1">Search</Dropdown.Item>
                     <Dropdown.Divider />
                     {dataSet?.items?.map((item, i) => (
-                        <Dropdown.Item key={i}>
+                        <Dropdown.ItemText key={i}>
                             <Form.Check
                                 type="checkbox"
-                                className="d-flex align-items-center mr-2"
+                                className=""
+                                label={item.name}
                                 checked={checkedUsers[item.id] || false}
                                 onChange={() => handleCheckboxChange(item.id)}
                             />
-                            {item.name}
-                        </Dropdown.Item>
+                        </Dropdown.ItemText>
                     ))}
                     <Dropdown.Divider />
                     <Button
                         variant="contained"
-                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn-sm btn btn-primary mr-2'
+                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn-sm btn btn-primary ml-2'
                         onClick={e => handleAddUsers(e)}
                     >
-                        Add Checked Users
+                        Assign To Checked Users
                     </Button>
                 </Dropdown.Menu>
             </Dropdown>

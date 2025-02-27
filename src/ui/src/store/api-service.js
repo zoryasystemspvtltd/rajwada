@@ -159,7 +159,7 @@ api.downloadAggregatedReport = async (action) => {
     const response = await api.get(url);
     return response;
 }
-api.workerReport = async (action) => {
+api.workerReportIndividual = async (action) => {
     const url = `/report/${action.projectId}/${action.towerId}/${action.floorId}/${action.flatId}`;
     const response = await api.get(url);
     return response;

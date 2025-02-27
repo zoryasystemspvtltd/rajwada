@@ -95,9 +95,9 @@ export const IlabMarkerCanvas = (props) => {
 
             const response = await api.getData({ module: schema?.module, options: pageOptions });
 
-            const markerInfo = response?.data?.items?.filter(item => item?.planId === parseInt(schema?.parentId))?.map(item => JSON.parse(item?.markerJson));
+            const markerInfo = response?.data?.items?.filter(item => item?.[schema?.parent?.filter] === parseInt(schema?.parentId))?.map(item => JSON.parse(item?.markerJson));
             // console.log(markerInfo)
-            setUnitOfWorks(response?.data?.items?.filter(item => item?.planId === parseInt(schema?.parentId)));
+            setUnitOfWorks(response?.data?.items?.filter(item => item?.[schema?.parent?.filter] === parseInt(schema?.parentId)));
             setMarker(markerInfo);
             setExistingParentMarkers(markerInfo);
         }
@@ -121,7 +121,7 @@ export const IlabMarkerCanvas = (props) => {
     const handleSaveData = (data) => {
         const marker = markers?.filter(item => `${item.id}` === `${currentId}`);
         const index = markers?.findIndex(item => `${item.id}` === `${currentId}`);
-       
+
         if (index >= 0) {
             let newMarker = marker[0];
             if (marker?.type !== "pencil") {
@@ -256,7 +256,12 @@ export const IlabMarkerCanvas = (props) => {
         // console.log(base64Encoded);
         await savePageValue();
         notify("success", 'Units of Work Creation Successful!');
-        navigate(`/${schema?.parent?.path}`);
+        if (schema?.goBack) {
+            navigate(`/reporting`);
+        }
+        else {
+            navigate(`/${schema?.parent?.path}`);
+        }
         if (!props?.readonly) {
             const modifiedEvent = {
                 target: {
@@ -276,7 +281,7 @@ export const IlabMarkerCanvas = (props) => {
     }
 
     const addUnitOfWork = async (markerJson) => {
-        const response = await api.addData({ module: schema?.module, data: { planId: parseInt(schema?.parentId), markerJson: JSON.stringify(markerJson), name: markerJson?.label } });
+        const response = await api.addData({ module: schema?.module, data: { [schema?.parent?.filter]: parseInt(schema?.parentId), markerJson: JSON.stringify(markerJson), name: markerJson?.label } });
         return response.data;
     }
 

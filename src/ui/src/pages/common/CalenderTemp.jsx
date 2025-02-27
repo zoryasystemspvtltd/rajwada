@@ -1,18 +1,16 @@
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux'
+import { Form, Modal, Button, InputGroup, ProgressBar } from 'react-bootstrap';
+import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import FullCalendar from '@fullcalendar/react';
+import api from '../../store/api-service';
 import { format, isSameDay, startOfToday } from 'date-fns';
-import React, { useEffect, useState } from 'react';
-import { Button, Form, InputGroup, Modal, ProgressBar } from 'react-bootstrap';
 import { FaRegCommentDots } from "react-icons/fa";
 import { FaImage } from "react-icons/fa6";
-import { useDispatch, useSelector } from 'react-redux';
-import { setSave } from '../../store/api-db';
-import api from '../../store/api-service';
-import { getFormattedDate } from '../../store/datetime-formatter';
 import { notify } from "../../store/notification";
+import { getFormattedDate } from '../../store/datetime-formatter';
 import IUIImageGallery from './shared/IUIImageGallery';
-import ILab from '../canvas-helper/Ilab-Canvas';
 
 const Calendar = () => {
     const [selectedDate, setSelectedDate] = useState(null);
@@ -43,28 +41,26 @@ const Calendar = () => {
     const [canvasSchema, setCanvasSchema] = useState({
         text: 'Activity Blueprint', field: 'photoUrl', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
         schema: {
-            readonly: true,
+            readonly: false,
             upload: false,
             save: true,
             parentId: -1,
-            goBack: true,
             parent: {
                 module: 'activity',
-                filter: 'activityId',
+                filter: 'id',
                 path: 'activities'
             },
             controls: {
-                balloon: false,
-                rectangle: false,
-                pencil: false,
+                balloon: true,
+                rectangle: true,
+                pencil: true,
                 camera: false,
-                delete: false,
-                reset: false
+                delete: true,
+                reset: true
             },
             module: 'unitOfWork'
         }
     });
-    const dispatch = useDispatch();
 
     useEffect(() => {
         const commentPrivileges = loggedInUser?.privileges?.filter(p => p.module === "comment")?.map(p => p.name);
@@ -129,27 +125,6 @@ const Calendar = () => {
             return clickedDate >= taskStartDate && clickedDate <= taskEndDate;
         });
 
-        if (isSameDay(clickedDate, startOfToday())) {
-            setCanvasSchema(
-                {
-                    ...canvasSchema,
-                    schema: {
-                        ...canvasSchema.schema,
-                        readonly: false,
-                        controls: {
-                            ...canvasSchema.schema.controls,
-                            balloon: true,
-                            rectangle: true,
-                            pencil: true,
-                            camera: true,
-                            delete: true,
-                            reset: true
-                        }
-                    }
-                }
-            );
-        }
-
         setSelectedTasks(filteredTasks);
         setModalOpen(true); // Open the modal for the date
     };
@@ -160,7 +135,7 @@ const Calendar = () => {
 
     const handleBlueprintChange = (event) => {
         event.preventDefault();
-        setBlueprint(event.target.value);
+        setBlueprint(e.target.value);
     }
 
     // Handle task clicks in the date modal
@@ -168,7 +143,7 @@ const Calendar = () => {
         setSelectedTask(task);
         setProgress(parseInt(task.progressPercentage, 10));
         setBlueprint(task?.photoUrl);
-        setCanvasSchema({ ...canvasSchema, schema: { ...canvasSchema.schema, parentId: parseInt(task.id) } });
+        setCanvasSchema({ ...canvasSchema, schema: { ...schema, parentId: parseInt(task.id) } });
         // setPreviousProgress(parseInt(task.progressPercentage, 10));
         setActualCost(parseFloat(task.actualCost));
         setTaskModalOpen(true); // Open the modal for the task
@@ -214,53 +189,26 @@ const Calendar = () => {
     };
 
     const handleCompletionConfirmation = async () => {
-        try {
-            setIsCompletionConfirmed(true);
+        setIsCompletionConfirmed(true);
 
-            // Fetch List of users who are assigned that activity
-            let allUsersResponse = await api.assignedUsers({ module: "activity", id: selectedTask?.id });
+        // Fetch List of users who are assigned that activity
+        let allUsers = [];
 
-            // Filter users with Role QC Engineer
-            let userList = allUsersResponse?.data?.filter(item => `${item?.member}`.toLowerCase().includes("qc"));
+        // Filter users with Role QC Engineer
+        let qcEngineers = allUsers.filter((user) => user.role === "QC Engineer");
 
-            for (let user of userList) {
-                const action = { module: "activity", data: { id: selectedTask?.id, member: user?.member, status: 2 } }
-                try {
-                    await api.editPartialData(action);
-                    dispatch(setSave({ module: module }))
-                    //navigate(-1);
-                } catch (e) {
-                    // TODO
-                }
+        for (let user of qcEngineers) {
+            let email = user.email;
+            const action = { module: "activity", data: { id: selectedTask?.id, member: email, status: 2 } }
+            try {
+                await api.editPartialData(action);
+                dispatch(setSave({ module: module }))
+                //navigate(-1);
+            } catch (e) {
+                // TODO
             }
-            notify("success", "Assignment to QC Successful");
-
-            // Update Activity Details
-            const updatedActivityData = {
-                id: selectedTask?.id,
-                progressPercentage: progress,
-                actualCost: parseFloat(actualCost),
-                photoUrl: blueprint,
-            };
-            await api.editData({ module: 'activity', data: updatedActivityData });
         }
-        catch (error) {
-
-        } finally {
-            setProgress('');
-            setActualCost(0);
-            setBlueprint([]);
-            setCheckboxes({
-                isOnHold: false,
-                isCancelled: false,
-                isAbandoned: false,
-                isCuringDone: false,
-                isCompleted: false
-            });
-            closeTaskModal();
-            closeModal();
-            await fetchData();
-        }
+        notify("success", "Assignment to QC Successful");
     }
 
     // Save task changes
@@ -458,7 +406,7 @@ const Calendar = () => {
             )}
 
             {taskModalOpen && selectedTask && (
-                <Modal show={taskModalOpen && selectedTask} onHide={closeTaskModal} size='xl'>
+                <Modal show={taskModalOpen && selectedTask} onHide={closeTaskModal}>
                     <Modal.Header>
                         <Modal.Title>Task Update Form</Modal.Title>
                     </Modal.Header>
@@ -585,13 +533,13 @@ const Calendar = () => {
                                 </div>
                             </div>
 
-                            <div className="row my-2">
+                            <div className="row">
                                 <div className="col-sm-12">
                                     <Form.Group className="position-relative form-group">
                                         <InputGroup>
                                             <Form.Check
                                                 type="checkbox"
-                                                disabled={!isSameDay(selectedDate, startOfToday()) || progress !== 100}
+                                                disabled={!isSameDay(selectedDate, startOfToday()) || progress !== "100"}
                                                 label="Assign to QC"
                                                 className="d-flex align-items-center mr-2"
                                                 onChange={(e) => setCheckboxes({ ...checkboxes, isCompleted: e.target.checked })}
@@ -616,7 +564,7 @@ const Calendar = () => {
                                         value={blueprint || []}
                                         schema={canvasSchema.schema}
                                         onChange={handleBlueprintChange}
-                                        readonly={canvasSchema.readonly || !isSameDay(selectedDate, startOfToday())}
+                                        readonly={props.readonly || canvasSchema.readonly || false}
                                     />
                                 </div>
                             </div>
