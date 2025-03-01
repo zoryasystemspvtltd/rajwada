@@ -1,26 +1,20 @@
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux'
+import { Form, Modal, Button, InputGroup, ProgressBar } from 'react-bootstrap';
+import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import FullCalendar from '@fullcalendar/react';
+import api from '../../store/api-service';
 import { format, isSameDay, startOfToday } from 'date-fns';
-import React, { useEffect, useState } from 'react';
-import { Button, Form, InputGroup, Modal, ProgressBar } from 'react-bootstrap';
 import { FaRegCommentDots } from "react-icons/fa";
 import { FaImage } from "react-icons/fa6";
-import { useDispatch, useSelector } from 'react-redux';
-import { setSave } from '../../store/api-db';
-import api from '../../store/api-service';
-import { getFormattedDate } from '../../store/datetime-formatter';
 import { notify } from "../../store/notification";
+import { getFormattedDate } from '../../store/datetime-formatter';
 import IUIImageGallery from './shared/IUIImageGallery';
-import ILab from '../canvas-helper/Ilab-Canvas';
-import IUITableInput from './shared/IUITableInput';
-
-
 
 const Calendar = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [tasks, setTasks] = useState([]);
-    const [dayData, setDayData] = useState({});
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedTasks, setSelectedTasks] = useState([]);
     const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -30,69 +24,43 @@ const Calendar = () => {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [checkboxes, setCheckboxes] = useState({
+        isOnHold: false,
+        isCancelled: false,
+        isAbandoned: false,
         isCuringDone: false,
         isCompleted: false
     });
     const [progress, setProgress] = useState(0);
     // const [previousProgress, setPreviousProgress] = useState(0);
     const [blueprint, setBlueprint] = useState([]);
-    const [itemList, setItemList] = useState('');
     const [actualCost, setActualCost] = useState(0);
-    const [manPower, setManPower] = useState(0);
     const [privileges, setPrivileges] = useState({});
+    const [isCompletionConfirmed, setIsCompletionConfirmed] = useState(false);
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const [error, setError] = useState(null);
     const [canvasSchema, setCanvasSchema] = useState({
         text: 'Activity Blueprint', field: 'photoUrl', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
         schema: {
-            readonly: true,
+            readonly: false,
             upload: false,
-            save: false,
+            save: true,
             parentId: -1,
-            goBack: true,
             parent: {
                 module: 'activity',
-                filter: 'activityId',
+                filter: 'id',
                 path: 'activities'
             },
             controls: {
-                balloon: false,
-                rectangle: false,
-                pencil: false,
+                balloon: true,
+                rectangle: true,
+                pencil: true,
                 camera: false,
-                delete: false,
-                reset: false
+                delete: true,
+                reset: true
             },
             module: 'unitOfWork'
         }
     });
-    const [itemListSchema, setItemListSchema] = useState(
-        {
-            text: 'Item List', field: 'item', width: 12, type: 'table-input', required: false, readonly: true,
-            schema: {
-                title: 'Item',
-                module: 'activitytracking',
-                readonly: true,
-                paging: true,
-                searching: true,
-                editing: true,
-                adding: true,
-                fields: [
-                    {
-                        text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'asset' }
-                    },
-                    { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
-                    {
-                        text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'uom' }
-                    },
-                ]
-            }
-        }
-    );
-    const dispatch = useDispatch();
-    const [taskStatus, setTaskStatus] = useState('');
 
     useEffect(() => {
         const commentPrivileges = loggedInUser?.privileges?.filter(p => p.module === "comment")?.map(p => p.name);
@@ -145,146 +113,20 @@ const Calendar = () => {
         fetchData();
     }, []);
 
-    function getPreviousDay(dateString) {
-        // Convert the string to a Date object
-        let date = new Date(dateString);
-
-        // Subtract one day
-        date.setDate(date.getDate() - 1);
-
-        // Return the date in "YYYY-MM-DD" format
-        return date.toISOString().split('T')[0];
-    }
-
-    // This function will fetch data for a specific day activity tracking
-    const fetchTrackingDataForDate = async (date) => {
-        // Simulating a fetch request for data based on the date (e.g., from an API)
-        const timeStamp = new Date(date).getTime(); // check if new Date() is required
-        const trackingDateStart = new Date(timeStamp);
-        const trackingDateEnd = new Date(timeStamp + 86400000);
-
-        const newBaseFilter = {
-            name: 'date',
-            value: trackingDateStart,
-            operator: 'greaterThan',
-            and: {
-                name: 'date',
-                value: trackingDateEnd,
-                operator: 'lessThan'
-            }
-        }
-
-        const pageOptions = {
-            recordPerPage: 0,
-            searchCondition: newBaseFilter
-        }
-        const response = await api.getData({ module: 'activitytracking', options: pageOptions });
-        // console.log(response?.data);
-
-        let trackingData = response?.data?.items;
-        return trackingData;
-    };
-
-    // Use useEffect to populate dayData when the component mounts or the calendar is updated
-    useEffect(() => {
-        const getDataForAllDays = async () => {
-            const allDays = document.querySelectorAll('.fc-day'); // Get all the day elements
-            for (let day of allDays) {
-                const date = day.getAttribute('data-date'); // Extract the date
-                if (date && !dayData[date]) {
-                    let previousDay = getPreviousDay(date);
-                    const data = await fetchTrackingDataForDate(date);
-                    setDayData((prevData) => ({
-                        ...prevData,
-                        [previousDay]: data,
-                    }));
-                }
-            }
-        };
-
-        getDataForAllDays();
-    }, []);
-
-
     // Handle date clicks in FullCalendar
-    const handleDateClick = async (info) => {
+    const handleDateClick = (info) => {
         const clickedDate = new Date(info.date);
         setSelectedDate(clickedDate);
-
-        const timeStamp = clickedDate.getTime();
-        const trackingDateStart = new Date(timeStamp);
-        const trackingDateEnd = new Date(timeStamp + 86400000);
-
-        const newBaseFilter = {
-            name: 'date',
-            value: trackingDateStart,
-            operator: 'greaterThan',
-            and: {
-                name: 'date',
-                value: trackingDateEnd,
-                operator: 'lessThan'
-            }
-        }
-
-        const pageOptions = {
-            recordPerPage: 0,
-            searchCondition: newBaseFilter
-        }
-        const response = await api.getData({ module: 'activitytracking', options: pageOptions });
-        // console.log(response?.data);
-
-        let trackingData = response?.data?.items;
 
         // Filter tasks for the clicked date
         const filteredTasks = tasks.filter((task) => {
             const taskStartDate = new Date(task.startDate);
-            const endDate = new Date(task.endDate);
-            endDate.setDate(endDate.getDate() + 365);
-            const taskEndDate = task.actualEndDate ? new Date(task.actualEndDate) : endDate;
+            const taskEndDate = new Date(task.endDate);
             return clickedDate >= taskStartDate && clickedDate <= taskEndDate;
-        }).map(task => {
-            const taskTrackingInfo = trackingData.find(t => t.activityId === task.id);
-            return {
-                ...task,
-                curingStatus: taskTrackingInfo ? taskTrackingInfo.isCuringDone ? true : false : false
-            }
         });
-
-        if (isSameDay(clickedDate, startOfToday())) {
-            setCanvasSchema(
-                {
-                    ...canvasSchema,
-                    schema: {
-                        ...canvasSchema.schema,
-                        readonly: false,
-                        save: true,
-                        controls: {
-                            ...canvasSchema.schema.controls,
-                            balloon: true,
-                            rectangle: true,
-                            pencil: true,
-                            camera: true,
-                            delete: true,
-                            reset: true
-                        }
-                    }
-                }
-            );
-            setItemListSchema(
-                {
-                    ...itemListSchema,
-                    readonly: false,
-                    schema: {
-                        ...itemListSchema.schema,
-                        readonly: false
-                    }
-                }
-            );
-        }
 
         setSelectedTasks(filteredTasks);
         setModalOpen(true); // Open the modal for the date
-
     };
 
     const handleProgressSliderChange = (event) => {
@@ -293,12 +135,7 @@ const Calendar = () => {
 
     const handleBlueprintChange = (event) => {
         event.preventDefault();
-        setBlueprint(event.target.value);
-    }
-
-    const handleItemListChange = (event) => {
-        event.preventDefault();
-        setItemList(event.target.value);
+        setBlueprint(e.target.value);
     }
 
     // Handle task clicks in the date modal
@@ -306,70 +143,7 @@ const Calendar = () => {
         setSelectedTask(task);
         setProgress(parseInt(task.progressPercentage, 10));
         setBlueprint(task?.photoUrl);
-        if (!isSameDay(selectedDate, startOfToday()) || task?.isCompleted) {
-            setCanvasSchema(
-                {
-                    ...canvasSchema,
-                    schema: {
-                        ...canvasSchema.schema,
-                        parentId: parseInt(task.id),
-                        readonly: true,
-                        save: false,
-                        controls: {
-                            ...canvasSchema.schema.controls,
-                            balloon: false,
-                            rectangle: false,
-                            pencil: false,
-                            camera: false,
-                            delete: false,
-                            reset: false
-                        }
-                    }
-                }
-            );
-            setItemListSchema(
-                {
-                    ...itemListSchema,
-                    readonly: true,
-                    schema: {
-                        ...itemListSchema.schema,
-                        readonly: true
-                    }
-                }
-            );
-        }
-        else {
-            setCanvasSchema(
-                {
-                    ...canvasSchema,
-                    schema: {
-                        ...canvasSchema.schema,
-                        parentId: parseInt(task.id),
-                        readonly: false,
-                        save: true,
-                        controls: {
-                            ...canvasSchema.schema.controls,
-                            balloon: true,
-                            rectangle: true,
-                            pencil: true,
-                            camera: true,
-                            delete: true,
-                            reset: true
-                        }
-                    }
-                }
-            );
-            setItemListSchema(
-                {
-                    ...itemListSchema,
-                    readonly: false,
-                    schema: {
-                        ...itemListSchema.schema,
-                        readonly: false
-                    }
-                }
-            );
-        }
+        setCanvasSchema({ ...canvasSchema, schema: { ...schema, parentId: parseInt(task.id) } });
         // setPreviousProgress(parseInt(task.progressPercentage, 10));
         setActualCost(parseFloat(task.actualCost));
         setTaskModalOpen(true); // Open the modal for the task
@@ -411,89 +185,59 @@ const Calendar = () => {
 
     const handleCompletionConfirmationClose = () => {
         setCheckboxes({ ...checkboxes, isCompleted: false });
+        setIsCompletionConfirmed(false);
     };
 
     const handleCompletionConfirmation = async () => {
-        try {
-            // Fetch List of users who are assigned that activity
-            let allUsersResponse = await api.assignedUsers({ module: "activity", id: selectedTask?.id });
+        setIsCompletionConfirmed(true);
 
-            // Filter users with Role QC Engineer
-            let userList = allUsersResponse?.data?.filter(item => `${item?.member}`.toLowerCase().includes("qc"));
+        // Fetch List of users who are assigned that activity
+        let allUsers = [];
 
-            for (let user of userList) {
-                const action = { module: "activity", data: { id: selectedTask?.id, member: user?.member, status: 2 } }
-                try {
-                    await api.editPartialData(action);
-                    dispatch(setSave({ module: module }))
-                    //navigate(-1);
-                } catch (e) {
-                    // TODO
-                }
+        // Filter users with Role QC Engineer
+        let qcEngineers = allUsers.filter((user) => user.role === "QC Engineer");
+
+        for (let user of qcEngineers) {
+            let email = user.email;
+            const action = { module: "activity", data: { id: selectedTask?.id, member: email, status: 2 } }
+            try {
+                await api.editPartialData(action);
+                dispatch(setSave({ module: module }))
+                //navigate(-1);
+            } catch (e) {
+                // TODO
             }
-            notify("success", "Assignment to QC Successful");
-
-            // Update Activity Details
-            const updatedActivityData = {
-                id: selectedTask?.id,
-                progressPercentage: progress,
-                actualCost: parseFloat(actualCost),
-                photoUrl: blueprint,
-            };
-            await api.editData({ module: 'activity', data: updatedActivityData });
         }
-        catch (error) {
-
-        } finally {
-            setProgress('');
-            setActualCost(0);
-            setBlueprint([]);
-            setItemList('');
-            setCheckboxes({
-                isOnHold: false,
-                isCancelled: false,
-                isAbandoned: false,
-                isCuringDone: false,
-                isCompleted: false
-            });
-            closeTaskModal();
-            closeModal();
-            await fetchData();
-        }
+        notify("success", "Assignment to QC Successful");
     }
 
     // Save task changes
     const handleSave = async () => {
-        const updatedData_a = {
+        const updatedData = {
             ...selectedTask,
-            actualCost: selectedTask?.actualCost + parseFloat(actualCost),
-            progressPercentage: progress
-        };
-
-        const updateData_b = {
-            activityId: selectedTask.id,
-            manPower: parseInt(manPower),
-            item: itemList,
-            cost: parseFloat(actualCost),
-            isOnHold: taskStatus === 'onHold',
-            isCancelled: taskStatus === 'Cancelled',
-            isCuringDone: checkboxes.isCuringDone,
-            name: selectedTask.name
+            progressPercentage: progress,
+            actualCost: parseFloat(actualCost),
+            photoUrl: blueprint,
+            ...checkboxes
         };
 
         try {
-            await api.editData({ module: 'activity', data: updatedData_a });
-            await api.addData({ module: 'activitytracking', data: updateData_b });
+            const response = await api.editData({ module: 'activity', data: updatedData });
+            if (response.status === 200) {
+                // console.log('Data saved successfully!');
+            } else {
+                // console.log('Failed to save data.');
+            }
         } catch (error) {
             // console.error('Error saving data:', error);
         } finally {
             setProgress('');
             setActualCost(0);
-            setManPower(0);
-            setTaskStatus('');
             setBlueprint([]);
-            setItemList('');
             setCheckboxes({
+                isOnHold: false,
+                isCancelled: false,
+                isAbandoned: false,
                 isCuringDone: false,
                 isCompleted: false
             });
@@ -573,19 +317,14 @@ const Calendar = () => {
         }
     };
 
+    // Custom render function for date cells
     const renderDateCell = (cellInfo) => {
         const cellDate = new Date(cellInfo.date);
         const taskCount = tasks.filter((task) => {
             const taskStartDate = new Date(task.startDate);
-            const endDate = new Date(task.endDate);
-            endDate.setDate(endDate.getDate() + 365);
-            const taskEndDate = task.actualEndDate ? new Date(task.actualEndDate) : endDate;
+            const taskEndDate = new Date(task.endDate);
             return cellDate >= taskStartDate && cellDate <= taskEndDate;
         }).length;
-
-        const dateStr = cellDate.toISOString().split('T')[0];
-        const trackingDataForDay = dayData[dateStr] || null;
-        const isCuringDone = trackingDataForDay && (trackingDataForDay?.filter(t => t?.isCuringDone)?.length > 0);
 
         return (
             <div className='d-flex'>
@@ -593,15 +332,8 @@ const Calendar = () => {
                 {taskCount > 0 && (
                     <div className="task-count-badge bg-primary">{taskCount}</div>
                 )}
-                {isCuringDone && (
-                    <div className="curing-badge bg-success">C</div>
-                )}
             </div>
         );
-    };
-
-    const handleStatusChange = (status) => {
-        setTaskStatus(status);
     };
 
     return (
@@ -630,7 +362,6 @@ const Calendar = () => {
                                                 style={{ width: '100%' }}
                                             >
                                                 {task.name}
-                                                {task.curingStatus && <span className="badge badge-warning" >C</span>}
                                             </Button>
                                         </div>
                                         <div className="col-2 d-flex align-items-center">
@@ -675,11 +406,11 @@ const Calendar = () => {
             )}
 
             {taskModalOpen && selectedTask && (
-                <Modal show={taskModalOpen && selectedTask} onHide={closeTaskModal} size='xl'>
+                <Modal show={taskModalOpen && selectedTask} onHide={closeTaskModal}>
                     <Modal.Header>
                         <Modal.Title>Task Update Form</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body style={{ color: "black", maxHeight: '60vh', overflowY: 'auto' }}>
+                    <Modal.Body style={{ color: "black" }}>
                         <div className="row mb-2">
                             <div className="col-sm-12 col-md-6 col-lg-6">
                                 <span><strong>Date: </strong>{format(selectedDate, 'dd-MM-yyyy')}</span>
@@ -696,100 +427,67 @@ const Calendar = () => {
                                         <Form.Control
                                             type="text"
                                             value={actualCost}
-                                            disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
+                                            disabled={!isSameDay(selectedDate, startOfToday())}
                                             onChange={(e) => setActualCost(e.target.value)}
                                             placeholder="Cost here......"
                                         />
                                     </Form.Group>
                                 </div>
                             </div>
+
                             <div className="row">
-                                <div className="col">
-                                    <Form.Group className="position-relative form-group">
-                                        <Form.Label>Man Power</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={manPower}
-                                            disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
-                                            onChange={(e) => setManPower(e.target.value)}
-                                            placeholder="Man Power here......"
-                                        />
-                                    </Form.Group>
-                                </div>
-                            </div>
-                            <Form.Label className='font-weight-bold'>Task Status:</Form.Label>
-                            <div className="row">
-                                <div className="col-sm-12 col-md-3">
-                                    <Form.Group className="position-relative form-group">
-                                        <InputGroup>
-                                            <Form.Check
-                                                type="radio"
-                                                name="taskStatus"
-                                                disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
-                                                label="In Progress"
-                                                className="d-flex align-items-center mr-2"
-                                                onChange={() => handleStatusChange('inProgress')}
-                                                checked={taskStatus === 'inProgress'}
-                                            />
-                                        </InputGroup>
-                                    </Form.Group>
-                                </div>
-                                <div className="col-sm-12 col-md-3">
-                                    <Form.Group className="position-relative form-group">
-                                        <InputGroup>
-                                            <Form.Check
-                                                type="radio"
-                                                name="taskStatus"
-                                                disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
-                                                label="On Hold"
-                                                className="d-flex align-items-center mr-2"
-                                                onChange={() => handleStatusChange('onHold')}
-                                                checked={taskStatus === 'onHold'}
-                                            />
-                                        </InputGroup>
-                                    </Form.Group>
-                                </div>
-
-                                <div className="col-sm-12 col-md-3">
-                                    <Form.Group className="position-relative form-group">
-                                        <InputGroup>
-                                            <Form.Check
-                                                type="radio"
-                                                name="taskStatus"
-                                                disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
-                                                label="Cancelled"
-                                                className="d-flex align-items-center mr-2"
-                                                onChange={() => handleStatusChange('Cancelled')}
-                                                checked={taskStatus === 'Cancelled'}
-                                            />
-                                        </InputGroup>
-                                    </Form.Group>
-                                </div>
-
-                                <div className="col-sm-12 col-md-3">
-                                    <Form.Group className="position-relative form-group">
-                                        <InputGroup>
-                                            <Form.Check
-                                                type="radio"
-                                                name="taskStatus"
-                                                disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
-                                                label="Abandoned"
-                                                className="d-flex align-items-center mr-2"
-                                                onChange={() => handleStatusChange('Abandoned')}
-                                                checked={taskStatus === 'Abandoned'}
-                                            />
-                                        </InputGroup>
-                                    </Form.Group>
-                                </div>
-
-                            </div>
-                            <div className='row'>
                                 <div className="col-sm-12 col-md-3">
                                     <Form.Group className="position-relative form-group">
                                         <InputGroup>
                                             <Form.Check
                                                 type="checkbox"
-                                                disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
+                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                label="On Hold"
+                                                className="d-flex align-items-center mr-2"
+                                                onChange={(e) => setCheckboxes({ ...checkboxes, isOnHold: e.target.checked })}
+                                                checked={checkboxes.isOnHold}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
+                                </div>
+
+                                <div className="col-sm-12 col-md-3">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+
+                                            <Form.Check
+                                                type="checkbox"
+                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                label="Cancelled"
+                                                className="d-flex align-items-center mr-2"
+                                                onChange={(e) => setCheckboxes({ ...checkboxes, isCancelled: e.target.checked })}
+                                                checked={checkboxes.isCancelled}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
+                                </div>
+
+                                <div className="col-sm-12 col-md-3">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+                                            <Form.Check
+                                                type="checkbox"
+                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                label="Abandoned"
+                                                className="d-flex align-items-center mr-2"
+                                                onChange={(e) => setCheckboxes({ ...checkboxes, isAbandoned: e.target.checked })}
+                                                checked={checkboxes.isAbandoned}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
+                                </div>
+
+                                <div className="col-sm-12 col-md-3">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+                                            <Form.Check
+                                                type="checkbox"
+                                                disabled={!isSameDay(selectedDate, startOfToday())}
                                                 label="Curing"
                                                 className="d-flex align-items-center"
                                                 onChange={(e) => setCheckboxes({ ...checkboxes, isCuringDone: e.target.checked })}
@@ -798,7 +496,6 @@ const Calendar = () => {
                                         </InputGroup>
                                     </Form.Group>
                                 </div>
-
                             </div>
 
                             <div className="row">
@@ -819,7 +516,7 @@ const Calendar = () => {
                                             min="0"
                                             max="100"
                                             value={progress}
-                                            disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
+                                            disabled={!isSameDay(selectedDate, startOfToday())}
                                             onChange={handleProgressSliderChange}
                                         />
                                     </Form.Group>
@@ -836,13 +533,13 @@ const Calendar = () => {
                                 </div>
                             </div>
 
-                            <div className="row my-2">
+                            <div className="row">
                                 <div className="col-sm-12">
                                     <Form.Group className="position-relative form-group">
                                         <InputGroup>
                                             <Form.Check
                                                 type="checkbox"
-                                                disabled={!isSameDay(selectedDate, startOfToday()) || progress !== 100 || selectedTask?.isCompleted}
+                                                disabled={!isSameDay(selectedDate, startOfToday()) || progress !== "100"}
                                                 label="Assign to QC"
                                                 className="d-flex align-items-center mr-2"
                                                 onChange={(e) => setCheckboxes({ ...checkboxes, isCompleted: e.target.checked })}
@@ -853,27 +550,8 @@ const Calendar = () => {
                                 </div>
                             </div>
 
-                            {/* Daily Item List Input */}
-                            <div className="row my-2">
-                                <div className="col-sm-12">
-                                    <Form.Label htmlFor={itemListSchema.field} className='fw-bold'>{itemListSchema.text}
-                                        {itemListSchema.required &&
-                                            <span className="text-danger">*</span>
-                                        }
-                                    </Form.Label>
-
-                                    <IUITableInput
-                                        id={itemListSchema.field}
-                                        value={itemList}
-                                        schema={itemListSchema.schema}
-                                        onChange={handleItemListChange}
-                                        readonly={itemListSchema.readonly || !isSameDay(selectedDate, startOfToday())}
-                                    />
-                                </div>
-                            </div>
-
                             {/* Balloon Marker Input */}
-                            <div className="row my-2">
+                            <div className="row">
                                 <div className="col-sm-12">
                                     <Form.Label htmlFor={canvasSchema.field} className='fw-bold'>{canvasSchema.text}
                                         {canvasSchema.required &&
@@ -886,7 +564,7 @@ const Calendar = () => {
                                         value={blueprint || []}
                                         schema={canvasSchema.schema}
                                         onChange={handleBlueprintChange}
-                                        readonly={canvasSchema.readonly || !isSameDay(selectedDate, startOfToday())}
+                                        readonly={props.readonly || canvasSchema.readonly || false}
                                     />
                                 </div>
                             </div>
@@ -901,7 +579,7 @@ const Calendar = () => {
                             Close
                         </Button>
                         <Button
-                            disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
+                            disabled={!isSameDay(selectedDate, startOfToday())}
                             variant="contained"
                             className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
                             onClick={handleSave}
@@ -916,7 +594,7 @@ const Calendar = () => {
                     <Modal.Header>
                         <Modal.Title>Task Comments: {selectedTask.name}</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body style={{ color: "black", maxHeight: '60vh', overflowY: 'auto' }}>
+                    <Modal.Body style={{ color: "black" }}>
                         <div className="comments-section">
                             {comments?.length > 0 ? (
                                 comments?.map((comment, index) => (
@@ -926,13 +604,11 @@ const Calendar = () => {
                                         <div
                                             className={`p-2 ${comment.member === loggedInUser?.email ? 'bg-light' : 'bg-secondary text-white'} rounded-4`}
                                             style={{ maxWidth: '70%' }}>
-                                            <div className={`text-left ${comment.member === loggedInUser?.email ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
-                                                style={{ fontWeight: 'bold', fontSize: '0.60rem' }}>
+                                            <div className='text-left' style={{ fontWeight: 'bold', fontSize: '0.60rem' }}>
                                                 {comment?.member}
                                             </div>
                                             <div className="text-break">{comment?.remarks}</div>
-                                            <div className={`text-left ${comment.member === loggedInUser?.email ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
-                                                style={{ fontSize: '0.60rem' }}>
+                                            <div className="text-left text-muted" style={{ fontSize: '0.60rem' }}>
                                                 {getFormattedDate(new Date(comment?.date))}
                                             </div>
                                         </div>

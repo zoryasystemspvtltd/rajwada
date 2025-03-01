@@ -10,6 +10,7 @@ import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIAssign from './shared/IUIAssign';
 import IUIApprover from './shared/IUIApprover';
 import { notify } from "../../store/notification";
+import IUIMultiAssign from './shared/IUIMultiAssign';
 
 const IUIPage = (props) => {
     // Properties
@@ -147,6 +148,65 @@ const IUIPage = (props) => {
         }
     }
 
+    const assignMultiPageValue = async (e, userList) => {
+        e.preventDefault();
+        let isAllAssignSuccessful = true;
+        // Multi user assignment for main item
+        await multiUserAssignment(id, userList);
+        if (schema?.assignChild) {
+            const newBaseFilter = {
+                name: 'parentId',
+                value: parseInt(id)
+            }
+
+            const pageOptions = {
+                recordPerPage: 0
+                , searchCondition: newBaseFilter
+            }
+
+            const childResponse = await api.getData({ module: module, options: pageOptions });
+            let childrenItems = childResponse?.data?.items;
+            try {
+                // Multi user assignment for children
+                for (let item of childrenItems) {
+                    await multiUserAssignment(item.id, userList);
+                }
+            }
+            catch (error) {
+                isAllAssignSuccessful = false;
+            }
+        }
+        if (isAllAssignSuccessful) {
+            notify("success", "Assignments Successful!");
+        }
+        else {
+            notify("error", "One or more assignments failed!");
+        }
+    }
+
+    const multiUserAssignment = async (dataId, userList) => {
+        let isAllAssignSuccessful = true;
+        for (let user of userList) {
+            let action = {};
+            if (module === 'activity') {
+                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: 3 } }
+            }
+            else {
+                action = { module: module, data: { id: dataId, member: user.email, status: 3 } }
+            }
+            try {
+                await api.editPartialData(action);
+                dispatch(setSave({ module: module }))
+                //navigate(-1);
+
+            } catch (e) {
+                // TODO
+                isAllAssignSuccessful = false;
+            }
+        }
+        return;
+    }
+
     const assignDirect = async (userId) => {
         const user = await api.getSingleData({ module: "user", id: userId });
         let email = user.data.email;
@@ -191,15 +251,24 @@ const IUIPage = (props) => {
         const current = new Date();
         const action = {
             module: module,
-            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, approvedRemarks: remarks }
+            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, approvedRemarks: remarks }
         }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
 
-            const timeId = setTimeout(() => {
+            const timeId = setTimeout(async () => {
                 // After 3 seconds set the show value to false
                 setShowRemarksModal(false);
+                // Mark Activity as Completed
+                if (module === 'activity' && isApproved) {
+                    const updatedActivityData = {
+                        ...data,
+                        isCompleted: true,
+                        actualEndDate: new Date()
+                    };
+                    await api.editData({ module: 'activity', data: updatedActivityData });
+                }
                 navigate(0);
             }, 1000)
 
@@ -376,7 +445,8 @@ const IUIPage = (props) => {
                                                         </>
                                                     }
                                                     {
-                                                        approvalStatus < 2 &&
+                                                        // Edit allowed until approvalStatus <= 3 (3 -> Assigned)
+                                                        approvalStatus <= 3 &&
                                                         <>
                                                             {schema?.editing &&
                                                                 <>
@@ -407,7 +477,7 @@ const IUIPage = (props) => {
                                                         </>
                                                     }
                                                     {
-                                                        approvalStatus === 3 && loggedInUser?.email === data.member &&
+                                                        (approvalStatus === 3 || approvalStatus === 7) && loggedInUser?.email === data.member &&
                                                         <>
                                                             {
                                                                 schema?.readonly && privileges?.approve &&
@@ -418,16 +488,19 @@ const IUIPage = (props) => {
                                                             {
                                                                 schema?.readonly && privileges?.approve &&
                                                                 <Button variant="contained"
-                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
+                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-sm mr-2"
                                                                     onClick={(e) => { setShowRemarksModal(true); setApprovalType("Reject"); }}> Reject</Button>
                                                             }
                                                         </>
                                                     }
-                                                    {schema?.assign && privileges?.assign &&
+                                                    {schema?.assign && privileges?.assign && schema?.assignType === 'single' && (approvalStatus !== 3 && approvalStatus !== 4 && approvalStatus !== 6) &&
                                                         <IUIAssign onClick={assignPageValue} />
                                                     }
+                                                    {schema?.assign && privileges?.assign && schema?.assignType === 'multiple' && (approvalStatus !== 3 && approvalStatus !== 4 && approvalStatus !== 6) &&
+                                                        <IUIMultiAssign onClick={assignMultiPageValue} />
+                                                    }
                                                     {/* Condition modified by Adrish */}
-                                                    {schema?.approving && privileges?.assign && approvalStatus < 3 &&
+                                                    {schema?.approving && privileges?.assign && approvalStatus === 3 && loggedInUser?.email !== data.member &&
                                                         <IUIApprover onClick={assignApprover} />
                                                     }
                                                     <IUIModuleMessage schema={props.schema} />

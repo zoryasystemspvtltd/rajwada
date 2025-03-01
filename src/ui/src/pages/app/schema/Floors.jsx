@@ -65,6 +65,7 @@ export const ViewFloor = () => {
         adding: false,
         deleting: true,
         assign: true,
+        assignType: 'single',
         back: true,
         readonly: true,
         fields: [

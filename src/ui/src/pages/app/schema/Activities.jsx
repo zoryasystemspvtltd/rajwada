@@ -42,6 +42,9 @@ export const ViewActivity = () => {
         adding: false,
         deleting: false,
         assign: true,
+        assignType: 'multiple',
+        assignChild: true,
+        approving: true,
         back: true,
         readonly: true,
         fields: [

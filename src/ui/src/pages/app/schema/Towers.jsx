@@ -14,6 +14,7 @@ export const ListTower = () => {
         searching: true,
         editing: true,
         assign: true,
+        assignType: 'single',
         adding: true,
         uploading: true,
         downloading: true,
@@ -42,6 +43,7 @@ export const TowerDashboard = () => {
         searching: true,
         editing: true,
         assign: true,
+        assignType: 'single',
         adding: true,
         fields: [
             {
@@ -71,6 +73,7 @@ export const ViewTower = () => {
         adding: false,
         deleting: true,
         assign: true,
+        assignType: 'single',
         back: true,
         readonly: true,
         fields: [
