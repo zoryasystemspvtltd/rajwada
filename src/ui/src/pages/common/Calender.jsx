@@ -13,12 +13,14 @@ import { getFormattedDate } from '../../store/datetime-formatter';
 import { notify } from "../../store/notification";
 import IUIImageGallery from './shared/IUIImageGallery';
 import ILab from '../canvas-helper/Ilab-Canvas';
+import IUITableInput from './shared/IUITableInput';
 
 
 
 const Calendar = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [tasks, setTasks] = useState([]);
+    const [dayData, setDayData] = useState({});
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedTasks, setSelectedTasks] = useState([]);
     const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -34,10 +36,10 @@ const Calendar = () => {
     const [progress, setProgress] = useState(0);
     // const [previousProgress, setPreviousProgress] = useState(0);
     const [blueprint, setBlueprint] = useState([]);
+    const [itemList, setItemList] = useState('');
     const [actualCost, setActualCost] = useState(0);
     const [manPower, setManPower] = useState(0);
     const [privileges, setPrivileges] = useState({});
-    const [isCompletionConfirmed, setIsCompletionConfirmed] = useState(false);
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const [error, setError] = useState(null);
     const [canvasSchema, setCanvasSchema] = useState({
@@ -45,7 +47,7 @@ const Calendar = () => {
         schema: {
             readonly: true,
             upload: false,
-            save: true,
+            save: false,
             parentId: -1,
             goBack: true,
             parent: {
@@ -64,6 +66,31 @@ const Calendar = () => {
             module: 'unitOfWork'
         }
     });
+    const [itemListSchema, setItemListSchema] = useState(
+        {
+            text: 'Item List', field: 'item', width: 12, type: 'table-input', required: false, readonly: true,
+            schema: {
+                title: 'Item',
+                module: 'activitytracking',
+                readonly: true,
+                paging: true,
+                searching: true,
+                editing: true,
+                adding: true,
+                fields: [
+                    {
+                        text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                        schema: { module: 'asset' }
+                    },
+                    { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                    {
+                        text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                        schema: { module: 'uom' }
+                    },
+                ]
+            }
+        }
+    );
     const dispatch = useDispatch();
     const [taskStatus, setTaskStatus] = useState('');
 
@@ -118,6 +145,67 @@ const Calendar = () => {
         fetchData();
     }, []);
 
+    function getPreviousDay(dateString) {
+        // Convert the string to a Date object
+        let date = new Date(dateString);
+
+        // Subtract one day
+        date.setDate(date.getDate() - 1);
+
+        // Return the date in "YYYY-MM-DD" format
+        return date.toISOString().split('T')[0];
+    }
+
+    // This function will fetch data for a specific day activity tracking
+    const fetchTrackingDataForDate = async (date) => {
+        // Simulating a fetch request for data based on the date (e.g., from an API)
+        const timeStamp = new Date(date).getTime(); // check if new Date() is required
+        const trackingDateStart = new Date(timeStamp);
+        const trackingDateEnd = new Date(timeStamp + 86400000);
+
+        const newBaseFilter = {
+            name: 'date',
+            value: trackingDateStart,
+            operator: 'greaterThan',
+            and: {
+                name: 'date',
+                value: trackingDateEnd,
+                operator: 'lessThan'
+            }
+        }
+
+        const pageOptions = {
+            recordPerPage: 0,
+            searchCondition: newBaseFilter
+        }
+        const response = await api.getData({ module: 'activitytracking', options: pageOptions });
+        // console.log(response?.data);
+
+        let trackingData = response?.data?.items;
+        return trackingData;
+    };
+
+    // Use useEffect to populate dayData when the component mounts or the calendar is updated
+    useEffect(() => {
+        const getDataForAllDays = async () => {
+            const allDays = document.querySelectorAll('.fc-day'); // Get all the day elements
+            for (let day of allDays) {
+                const date = day.getAttribute('data-date'); // Extract the date
+                if (date && !dayData[date]) {
+                    let previousDay = getPreviousDay(date);
+                    const data = await fetchTrackingDataForDate(date);
+                    setDayData((prevData) => ({
+                        ...prevData,
+                        [previousDay]: data,
+                    }));
+                }
+            }
+        };
+
+        getDataForAllDays();
+    }, []);
+
+
     // Handle date clicks in FullCalendar
     const handleDateClick = async (info) => {
         const clickedDate = new Date(info.date);
@@ -169,6 +257,7 @@ const Calendar = () => {
                     schema: {
                         ...canvasSchema.schema,
                         readonly: false,
+                        save: true,
                         controls: {
                             ...canvasSchema.schema.controls,
                             balloon: true,
@@ -178,6 +267,16 @@ const Calendar = () => {
                             delete: true,
                             reset: true
                         }
+                    }
+                }
+            );
+            setItemListSchema(
+                {
+                    ...itemListSchema,
+                    readonly: false,
+                    schema: {
+                        ...itemListSchema.schema,
+                        readonly: false
                     }
                 }
             );
@@ -197,12 +296,80 @@ const Calendar = () => {
         setBlueprint(event.target.value);
     }
 
+    const handleItemListChange = (event) => {
+        event.preventDefault();
+        setItemList(event.target.value);
+    }
+
     // Handle task clicks in the date modal
     const handleTaskClick = (task) => {
         setSelectedTask(task);
         setProgress(parseInt(task.progressPercentage, 10));
         setBlueprint(task?.photoUrl);
-        setCanvasSchema({ ...canvasSchema, schema: { ...canvasSchema.schema, parentId: parseInt(task.id) } });
+        if (!isSameDay(selectedDate, startOfToday()) || task?.isCompleted) {
+            setCanvasSchema(
+                {
+                    ...canvasSchema,
+                    schema: {
+                        ...canvasSchema.schema,
+                        parentId: parseInt(task.id),
+                        readonly: true,
+                        save: false,
+                        controls: {
+                            ...canvasSchema.schema.controls,
+                            balloon: false,
+                            rectangle: false,
+                            pencil: false,
+                            camera: false,
+                            delete: false,
+                            reset: false
+                        }
+                    }
+                }
+            );
+            setItemListSchema(
+                {
+                    ...itemListSchema,
+                    readonly: true,
+                    schema: {
+                        ...itemListSchema.schema,
+                        readonly: true
+                    }
+                }
+            );
+        }
+        else {
+            setCanvasSchema(
+                {
+                    ...canvasSchema,
+                    schema: {
+                        ...canvasSchema.schema,
+                        parentId: parseInt(task.id),
+                        readonly: false,
+                        save: true,
+                        controls: {
+                            ...canvasSchema.schema.controls,
+                            balloon: true,
+                            rectangle: true,
+                            pencil: true,
+                            camera: true,
+                            delete: true,
+                            reset: true
+                        }
+                    }
+                }
+            );
+            setItemListSchema(
+                {
+                    ...itemListSchema,
+                    readonly: false,
+                    schema: {
+                        ...itemListSchema.schema,
+                        readonly: false
+                    }
+                }
+            );
+        }
         // setPreviousProgress(parseInt(task.progressPercentage, 10));
         setActualCost(parseFloat(task.actualCost));
         setTaskModalOpen(true); // Open the modal for the task
@@ -244,13 +411,10 @@ const Calendar = () => {
 
     const handleCompletionConfirmationClose = () => {
         setCheckboxes({ ...checkboxes, isCompleted: false });
-        setIsCompletionConfirmed(false);
     };
 
     const handleCompletionConfirmation = async () => {
         try {
-            setIsCompletionConfirmed(true);
-
             // Fetch List of users who are assigned that activity
             let allUsersResponse = await api.assignedUsers({ module: "activity", id: selectedTask?.id });
 
@@ -284,6 +448,7 @@ const Calendar = () => {
             setProgress('');
             setActualCost(0);
             setBlueprint([]);
+            setItemList('');
             setCheckboxes({
                 isOnHold: false,
                 isCancelled: false,
@@ -301,12 +466,14 @@ const Calendar = () => {
     const handleSave = async () => {
         const updatedData_a = {
             ...selectedTask,
+            actualCost: selectedTask?.actualCost + parseFloat(actualCost),
             progressPercentage: progress
         };
 
         const updateData_b = {
             activityId: selectedTask.id,
             manPower: parseInt(manPower),
+            item: itemList,
             cost: parseFloat(actualCost),
             isOnHold: taskStatus === 'onHold',
             isCancelled: taskStatus === 'Cancelled',
@@ -315,8 +482,8 @@ const Calendar = () => {
         };
 
         try {
-            const response_a = await api.editData({ module: 'activity', data: updatedData_a });
-            const response_b = await api.addData({ module: 'activitytracking', data: updateData_b });
+            await api.editData({ module: 'activity', data: updatedData_a });
+            await api.addData({ module: 'activitytracking', data: updateData_b });
         } catch (error) {
             // console.error('Error saving data:', error);
         } finally {
@@ -325,6 +492,7 @@ const Calendar = () => {
             setManPower(0);
             setTaskStatus('');
             setBlueprint([]);
+            setItemList('');
             setCheckboxes({
                 isCuringDone: false,
                 isCompleted: false
@@ -415,11 +583,18 @@ const Calendar = () => {
             return cellDate >= taskStartDate && cellDate <= taskEndDate;
         }).length;
 
+        const dateStr = cellDate.toISOString().split('T')[0];
+        const trackingDataForDay = dayData[dateStr] || null;
+        const isCuringDone = trackingDataForDay && (trackingDataForDay?.filter(t => t?.isCuringDone)?.length > 0);
+
         return (
             <div className='d-flex'>
                 {cellInfo.dayNumberText}
                 {taskCount > 0 && (
                     <div className="task-count-badge bg-primary">{taskCount}</div>
+                )}
+                {isCuringDone && (
+                    <div className="curing-badge bg-success">C</div>
                 )}
             </div>
         );
@@ -456,7 +631,6 @@ const Calendar = () => {
                                             >
                                                 {task.name}
                                                 {task.curingStatus && <span className="badge badge-warning" >C</span>}
-                                                {/* {console.log(task)}  */}
                                             </Button>
                                         </div>
                                         <div className="col-2 d-flex align-items-center">
@@ -522,7 +696,7 @@ const Calendar = () => {
                                         <Form.Control
                                             type="text"
                                             value={actualCost}
-                                            disabled={!isSameDay(selectedDate, startOfToday())}
+                                            disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
                                             onChange={(e) => setActualCost(e.target.value)}
                                             placeholder="Cost here......"
                                         />
@@ -536,7 +710,7 @@ const Calendar = () => {
                                         <Form.Control
                                             type="text"
                                             value={manPower}
-                                            disabled={!isSameDay(selectedDate, startOfToday())}
+                                            disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
                                             onChange={(e) => setManPower(e.target.value)}
                                             placeholder="Man Power here......"
                                         />
@@ -551,7 +725,7 @@ const Calendar = () => {
                                             <Form.Check
                                                 type="radio"
                                                 name="taskStatus"
-                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
                                                 label="In Progress"
                                                 className="d-flex align-items-center mr-2"
                                                 onChange={() => handleStatusChange('inProgress')}
@@ -566,7 +740,7 @@ const Calendar = () => {
                                             <Form.Check
                                                 type="radio"
                                                 name="taskStatus"
-                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
                                                 label="On Hold"
                                                 className="d-flex align-items-center mr-2"
                                                 onChange={() => handleStatusChange('onHold')}
@@ -582,7 +756,7 @@ const Calendar = () => {
                                             <Form.Check
                                                 type="radio"
                                                 name="taskStatus"
-                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
                                                 label="Cancelled"
                                                 className="d-flex align-items-center mr-2"
                                                 onChange={() => handleStatusChange('Cancelled')}
@@ -598,7 +772,7 @@ const Calendar = () => {
                                             <Form.Check
                                                 type="radio"
                                                 name="taskStatus"
-                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
                                                 label="Abandoned"
                                                 className="d-flex align-items-center mr-2"
                                                 onChange={() => handleStatusChange('Abandoned')}
@@ -615,7 +789,7 @@ const Calendar = () => {
                                         <InputGroup>
                                             <Form.Check
                                                 type="checkbox"
-                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
                                                 label="Curing"
                                                 className="d-flex align-items-center"
                                                 onChange={(e) => setCheckboxes({ ...checkboxes, isCuringDone: e.target.checked })}
@@ -645,7 +819,7 @@ const Calendar = () => {
                                             min="0"
                                             max="100"
                                             value={progress}
-                                            disabled={!isSameDay(selectedDate, startOfToday())}
+                                            disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
                                             onChange={handleProgressSliderChange}
                                         />
                                     </Form.Group>
@@ -668,7 +842,7 @@ const Calendar = () => {
                                         <InputGroup>
                                             <Form.Check
                                                 type="checkbox"
-                                                disabled={!isSameDay(selectedDate, startOfToday()) || progress !== 100}
+                                                disabled={!isSameDay(selectedDate, startOfToday()) || progress !== 100 || selectedTask?.isCompleted}
                                                 label="Assign to QC"
                                                 className="d-flex align-items-center mr-2"
                                                 onChange={(e) => setCheckboxes({ ...checkboxes, isCompleted: e.target.checked })}
@@ -678,14 +852,28 @@ const Calendar = () => {
                                     </Form.Group>
                                 </div>
                             </div>
-                            <div>
-                                {
 
-                                }
+                            {/* Daily Item List Input */}
+                            <div className="row my-2">
+                                <div className="col-sm-12">
+                                    <Form.Label htmlFor={itemListSchema.field} className='fw-bold'>{itemListSchema.text}
+                                        {itemListSchema.required &&
+                                            <span className="text-danger">*</span>
+                                        }
+                                    </Form.Label>
+
+                                    <IUITableInput
+                                        id={itemListSchema.field}
+                                        value={itemList}
+                                        schema={itemListSchema.schema}
+                                        onChange={handleItemListChange}
+                                        readonly={itemListSchema.readonly || !isSameDay(selectedDate, startOfToday())}
+                                    />
+                                </div>
                             </div>
 
                             {/* Balloon Marker Input */}
-                            <div className="row">
+                            <div className="row my-2">
                                 <div className="col-sm-12">
                                     <Form.Label htmlFor={canvasSchema.field} className='fw-bold'>{canvasSchema.text}
                                         {canvasSchema.required &&
@@ -713,7 +901,7 @@ const Calendar = () => {
                             Close
                         </Button>
                         <Button
-                            disabled={!isSameDay(selectedDate, startOfToday())}
+                            disabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
                             variant="contained"
                             className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
                             onClick={handleSave}
@@ -734,16 +922,16 @@ const Calendar = () => {
                                 comments?.map((comment, index) => (
                                     <div
                                         key={index}
-                                        className={`d-flex ${comment.member === loggedInUser?.user ? 'justify-content-end' : 'justify-content-start'} mb-2`}>
+                                        className={`d-flex ${comment.member === loggedInUser?.email ? 'justify-content-end' : 'justify-content-start'} mb-2`}>
                                         <div
-                                            className={`p-2 ${comment.member === loggedInUser?.user ? 'bg-light' : 'bg-secondary text-white'} rounded-4`}
+                                            className={`p-2 ${comment.member === loggedInUser?.email ? 'bg-light' : 'bg-secondary text-white'} rounded-4`}
                                             style={{ maxWidth: '70%' }}>
-                                            <div className={`text-left ${comment.member === loggedInUser?.user ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
+                                            <div className={`text-left ${comment.member === loggedInUser?.email ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
                                                 style={{ fontWeight: 'bold', fontSize: '0.60rem' }}>
                                                 {comment?.member}
                                             </div>
                                             <div className="text-break">{comment?.remarks}</div>
-                                            <div className={`text-left ${comment.member === loggedInUser?.user ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
+                                            <div className={`text-left ${comment.member === loggedInUser?.email ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
                                                 style={{ fontSize: '0.60rem' }}>
                                                 {getFormattedDate(new Date(comment?.date))}
                                             </div>

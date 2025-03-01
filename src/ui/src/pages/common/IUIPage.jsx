@@ -251,15 +251,24 @@ const IUIPage = (props) => {
         const current = new Date();
         const action = {
             module: module,
-            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, approvedRemarks: remarks }
+            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, approvedRemarks: remarks }
         }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
 
-            const timeId = setTimeout(() => {
+            const timeId = setTimeout(async () => {
                 // After 3 seconds set the show value to false
                 setShowRemarksModal(false);
+                // Mark Activity as Completed
+                if (module === 'activity' && isApproved) {
+                    const updatedActivityData = {
+                        ...data,
+                        isCompleted: true,
+                        actualEndDate: new Date()
+                    };
+                    await api.editData({ module: 'activity', data: updatedActivityData });
+                }
                 navigate(0);
             }, 1000)
 

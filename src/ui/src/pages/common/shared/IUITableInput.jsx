@@ -238,7 +238,7 @@ const IUITableInput = (props) => {
 
                                             {
                                                 (dataArray.length > 0) && (
-                                                    <Row>
+                                                    <Row className='mt-2'>
                                                         <Table responsive>
                                                             <thead>
                                                                 <tr>
@@ -302,7 +302,7 @@ const IUITableInput = (props) => {
                                             {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
                                                 <hr />
                                             }
-                                            <Row>
+                                            <Row className='mt-2'>
                                                 <Col>
                                                     {!schema?.readonly &&
                                                         <>
