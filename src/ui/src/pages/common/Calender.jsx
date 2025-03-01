@@ -14,6 +14,8 @@ import { notify } from "../../store/notification";
 import IUIImageGallery from './shared/IUIImageGallery';
 import ILab from '../canvas-helper/Ilab-Canvas';
 
+
+
 const Calendar = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [tasks, setTasks] = useState([]);
@@ -26,9 +28,6 @@ const Calendar = () => {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [checkboxes, setCheckboxes] = useState({
-        isOnHold: false,
-        isCancelled: false,
-        isAbandoned: false,
         isCuringDone: false,
         isCompleted: false
     });
@@ -36,6 +35,7 @@ const Calendar = () => {
     // const [previousProgress, setPreviousProgress] = useState(0);
     const [blueprint, setBlueprint] = useState([]);
     const [actualCost, setActualCost] = useState(0);
+    const [manPower, setManPower] = useState(0);
     const [privileges, setPrivileges] = useState({});
     const [isCompletionConfirmed, setIsCompletionConfirmed] = useState(false);
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
@@ -65,6 +65,7 @@ const Calendar = () => {
         }
     });
     const dispatch = useDispatch();
+    const [taskStatus, setTaskStatus] = useState('');
 
     useEffect(() => {
         const commentPrivileges = loggedInUser?.privileges?.filter(p => p.module === "comment")?.map(p => p.name);
@@ -118,15 +119,47 @@ const Calendar = () => {
     }, []);
 
     // Handle date clicks in FullCalendar
-    const handleDateClick = (info) => {
+    const handleDateClick = async (info) => {
         const clickedDate = new Date(info.date);
         setSelectedDate(clickedDate);
+
+        const timeStamp = clickedDate.getTime();
+        const trackingDateStart = new Date(timeStamp);
+        const trackingDateEnd = new Date(timeStamp + 86400000);
+
+        const newBaseFilter = {
+            name: 'date',
+            value: trackingDateStart,
+            operator: 'greaterThan',
+            and: {
+                name: 'date',
+                value: trackingDateEnd,
+                operator: 'lessThan'
+            }
+        }
+
+        const pageOptions = {
+            recordPerPage: 0,
+            searchCondition: newBaseFilter
+        }
+        const response = await api.getData({ module: 'activitytracking', options: pageOptions });
+        // console.log(response?.data);
+
+        let trackingData = response?.data?.items;
 
         // Filter tasks for the clicked date
         const filteredTasks = tasks.filter((task) => {
             const taskStartDate = new Date(task.startDate);
-            const taskEndDate = new Date(task.endDate);
+            const endDate = new Date(task.endDate);
+            endDate.setDate(endDate.getDate() + 365);
+            const taskEndDate = task.actualEndDate ? new Date(task.actualEndDate) : endDate;
             return clickedDate >= taskStartDate && clickedDate <= taskEndDate;
+        }).map(task => {
+            const taskTrackingInfo = trackingData.find(t => t.activityId === task.id);
+            return {
+                ...task,
+                curingStatus: taskTrackingInfo ? taskTrackingInfo.isCuringDone ? true : false : false
+            }
         });
 
         if (isSameDay(clickedDate, startOfToday())) {
@@ -152,6 +185,7 @@ const Calendar = () => {
 
         setSelectedTasks(filteredTasks);
         setModalOpen(true); // Open the modal for the date
+
     };
 
     const handleProgressSliderChange = (event) => {
@@ -265,31 +299,33 @@ const Calendar = () => {
 
     // Save task changes
     const handleSave = async () => {
-        const updatedData = {
+        const updatedData_a = {
             ...selectedTask,
-            progressPercentage: progress,
-            actualCost: parseFloat(actualCost),
-            photoUrl: blueprint,
-            ...checkboxes
+            progressPercentage: progress
+        };
+
+        const updateData_b = {
+            activityId: selectedTask.id,
+            manPower: parseInt(manPower),
+            cost: parseFloat(actualCost),
+            isOnHold: taskStatus === 'onHold',
+            isCancelled: taskStatus === 'Cancelled',
+            isCuringDone: checkboxes.isCuringDone,
+            name: selectedTask.name
         };
 
         try {
-            const response = await api.editData({ module: 'activity', data: updatedData });
-            if (response.status === 200) {
-                // console.log('Data saved successfully!');
-            } else {
-                // console.log('Failed to save data.');
-            }
+            const response_a = await api.editData({ module: 'activity', data: updatedData_a });
+            const response_b = await api.addData({ module: 'activitytracking', data: updateData_b });
         } catch (error) {
             // console.error('Error saving data:', error);
         } finally {
             setProgress('');
             setActualCost(0);
+            setManPower(0);
+            setTaskStatus('');
             setBlueprint([]);
             setCheckboxes({
-                isOnHold: false,
-                isCancelled: false,
-                isAbandoned: false,
                 isCuringDone: false,
                 isCompleted: false
             });
@@ -369,12 +405,13 @@ const Calendar = () => {
         }
     };
 
-    // Custom render function for date cells
     const renderDateCell = (cellInfo) => {
         const cellDate = new Date(cellInfo.date);
         const taskCount = tasks.filter((task) => {
             const taskStartDate = new Date(task.startDate);
-            const taskEndDate = new Date(task.endDate);
+            const endDate = new Date(task.endDate);
+            endDate.setDate(endDate.getDate() + 365);
+            const taskEndDate = task.actualEndDate ? new Date(task.actualEndDate) : endDate;
             return cellDate >= taskStartDate && cellDate <= taskEndDate;
         }).length;
 
@@ -386,6 +423,10 @@ const Calendar = () => {
                 )}
             </div>
         );
+    };
+
+    const handleStatusChange = (status) => {
+        setTaskStatus(status);
     };
 
     return (
@@ -414,6 +455,8 @@ const Calendar = () => {
                                                 style={{ width: '100%' }}
                                             >
                                                 {task.name}
+                                                {task.curingStatus && <span className="badge badge-warning" >C</span>}
+                                                {/* {console.log(task)}  */}
                                             </Button>
                                         </div>
                                         <div className="col-2 d-flex align-items-center">
@@ -462,7 +505,7 @@ const Calendar = () => {
                     <Modal.Header>
                         <Modal.Title>Task Update Form</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body style={{ color: "black" }}>
+                    <Modal.Body style={{ color: "black", maxHeight: '60vh', overflowY: 'auto' }}>
                         <div className="row mb-2">
                             <div className="col-sm-12 col-md-6 col-lg-6">
                                 <span><strong>Date: </strong>{format(selectedDate, 'dd-MM-yyyy')}</span>
@@ -486,18 +529,48 @@ const Calendar = () => {
                                     </Form.Group>
                                 </div>
                             </div>
-
+                            <div className="row">
+                                <div className="col">
+                                    <Form.Group className="position-relative form-group">
+                                        <Form.Label>Man Power</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={manPower}
+                                            disabled={!isSameDay(selectedDate, startOfToday())}
+                                            onChange={(e) => setManPower(e.target.value)}
+                                            placeholder="Man Power here......"
+                                        />
+                                    </Form.Group>
+                                </div>
+                            </div>
+                            <Form.Label className='font-weight-bold'>Task Status:</Form.Label>
                             <div className="row">
                                 <div className="col-sm-12 col-md-3">
                                     <Form.Group className="position-relative form-group">
                                         <InputGroup>
                                             <Form.Check
-                                                type="checkbox"
+                                                type="radio"
+                                                name="taskStatus"
+                                                disabled={!isSameDay(selectedDate, startOfToday())}
+                                                label="In Progress"
+                                                className="d-flex align-items-center mr-2"
+                                                onChange={() => handleStatusChange('inProgress')}
+                                                checked={taskStatus === 'inProgress'}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
+                                </div>
+                                <div className="col-sm-12 col-md-3">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+                                            <Form.Check
+                                                type="radio"
+                                                name="taskStatus"
                                                 disabled={!isSameDay(selectedDate, startOfToday())}
                                                 label="On Hold"
                                                 className="d-flex align-items-center mr-2"
-                                                onChange={(e) => setCheckboxes({ ...checkboxes, isOnHold: e.target.checked })}
-                                                checked={checkboxes.isOnHold}
+                                                onChange={() => handleStatusChange('onHold')}
+                                                checked={taskStatus === 'onHold'}
                                             />
                                         </InputGroup>
                                     </Form.Group>
@@ -506,14 +579,14 @@ const Calendar = () => {
                                 <div className="col-sm-12 col-md-3">
                                     <Form.Group className="position-relative form-group">
                                         <InputGroup>
-
                                             <Form.Check
-                                                type="checkbox"
+                                                type="radio"
+                                                name="taskStatus"
                                                 disabled={!isSameDay(selectedDate, startOfToday())}
                                                 label="Cancelled"
                                                 className="d-flex align-items-center mr-2"
-                                                onChange={(e) => setCheckboxes({ ...checkboxes, isCancelled: e.target.checked })}
-                                                checked={checkboxes.isCancelled}
+                                                onChange={() => handleStatusChange('Cancelled')}
+                                                checked={taskStatus === 'Cancelled'}
                                             />
                                         </InputGroup>
                                     </Form.Group>
@@ -523,17 +596,20 @@ const Calendar = () => {
                                     <Form.Group className="position-relative form-group">
                                         <InputGroup>
                                             <Form.Check
-                                                type="checkbox"
+                                                type="radio"
+                                                name="taskStatus"
                                                 disabled={!isSameDay(selectedDate, startOfToday())}
                                                 label="Abandoned"
                                                 className="d-flex align-items-center mr-2"
-                                                onChange={(e) => setCheckboxes({ ...checkboxes, isAbandoned: e.target.checked })}
-                                                checked={checkboxes.isAbandoned}
+                                                onChange={() => handleStatusChange('Abandoned')}
+                                                checked={taskStatus === 'Abandoned'}
                                             />
                                         </InputGroup>
                                     </Form.Group>
                                 </div>
 
+                            </div>
+                            <div className='row'>
                                 <div className="col-sm-12 col-md-3">
                                     <Form.Group className="position-relative form-group">
                                         <InputGroup>
@@ -548,6 +624,7 @@ const Calendar = () => {
                                         </InputGroup>
                                     </Form.Group>
                                 </div>
+
                             </div>
 
                             <div className="row">
@@ -601,6 +678,11 @@ const Calendar = () => {
                                     </Form.Group>
                                 </div>
                             </div>
+                            <div>
+                                {
+
+                                }
+                            </div>
 
                             {/* Balloon Marker Input */}
                             <div className="row">
@@ -646,21 +728,23 @@ const Calendar = () => {
                     <Modal.Header>
                         <Modal.Title>Task Comments: {selectedTask.name}</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body style={{ color: "black" }}>
+                    <Modal.Body style={{ color: "black", maxHeight: '60vh', overflowY: 'auto' }}>
                         <div className="comments-section">
                             {comments?.length > 0 ? (
                                 comments?.map((comment, index) => (
                                     <div
                                         key={index}
-                                        className={`d-flex ${comment.member === loggedInUser?.email ? 'justify-content-end' : 'justify-content-start'} mb-2`}>
+                                        className={`d-flex ${comment.member === loggedInUser?.user ? 'justify-content-end' : 'justify-content-start'} mb-2`}>
                                         <div
-                                            className={`p-2 ${comment.member === loggedInUser?.email ? 'bg-light' : 'bg-secondary text-white'} rounded-4`}
+                                            className={`p-2 ${comment.member === loggedInUser?.user ? 'bg-light' : 'bg-secondary text-white'} rounded-4`}
                                             style={{ maxWidth: '70%' }}>
-                                            <div className='text-left' style={{ fontWeight: 'bold', fontSize: '0.60rem' }}>
+                                            <div className={`text-left ${comment.member === loggedInUser?.user ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
+                                                style={{ fontWeight: 'bold', fontSize: '0.60rem' }}>
                                                 {comment?.member}
                                             </div>
                                             <div className="text-break">{comment?.remarks}</div>
-                                            <div className="text-left text-muted" style={{ fontSize: '0.60rem' }}>
+                                            <div className={`text-left ${comment.member === loggedInUser?.user ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
+                                                style={{ fontSize: '0.60rem' }}>
                                                 {getFormattedDate(new Date(comment?.date))}
                                             </div>
                                         </div>
