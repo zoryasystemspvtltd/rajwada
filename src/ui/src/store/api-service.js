@@ -159,14 +159,10 @@ api.downloadAggregatedReport = async (action) => {
     const response = await api.get(url);
     return response;
 }
-api.workerReportIndividual = async (action) => {
-    const url = `/report/${action.projectId}/${action.towerId}/${action.floorId}/${action.flatId}`;
-    const response = await api.get(url);
-    return response;
-}
+
 api.workerReport = async (action) => {
-    const url = `/report/${action.projectId}/${action.towerId}/${action.floorId}`;
-    const response = await api.get(url);
+    const url = `/report`;
+    const response =  await api.post(url, action.data);
     return response;
 }
 api.assignedUsers = async (action) => {

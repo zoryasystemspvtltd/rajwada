@@ -59,10 +59,7 @@ namespace RajApi.Data.Models
         /// </summary>
         public virtual string? HODRemarks { get; set; }
         #endregion
-
-        [NotMapped]
-        public string? ActivityStatus { get; set; }
-
+                
         public string? ActualItems { get; set; }
 
         #region Workflow
@@ -176,23 +173,19 @@ namespace RajApi.Data.Models
         public virtual Contractor? Contractor { get; set; }
         #endregion
     }
+
+    public class WorkerReportRequestPayload
+    {        
+        public long ProjectId { get; set; }
+        public long TowerId { get; set; }
+        public long FloorId { get; set; }
+        public long FlatId { get; set; }
+
+    }
     public class WorkerStatusReport
     {
         public long? Id { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? ActualStartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public DateTime? ActualEndDate { get; set; }
-        public bool? IsOnHold { get; set; }
-        public bool? IsCancelled { get; set; }
-        public bool? IsQCApproved { get; set; }
-        public bool? IsCompleted { get; set; }
-        public bool? IsApproved { get; set; }
-        public bool? IsAbandoned { get; set; }
-        public string? ActivityStatus { get; set; }
-        public string? RoomName { get; set; }
-        public string? FlatName { get; set; }
-        public string? Data { get; set; }
-
+        public string? ActivityName { get; set; }
+        public string? ActivityStatus { get; set; } 
     }
 }

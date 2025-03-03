@@ -20,16 +20,15 @@ public class ReportController : ControllerBase
         this.dataService = dataService;
     }
 
-
-    [HttpGet("{projectId}/{towerId}/{floorId}/{flatId}")]
-    public dynamic Get(long projectId, long towerId, long floorId, long flatId)
+    [HttpPost]
+    public dynamic Post(WorkerReportRequestPayload request, CancellationToken token)
     {
         try
         {
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-            var finalData = dataService.GetWorkerStatusReport(projectId, towerId, floorId, flatId);
+            var finalData = dataService.GetWorkerStatusReport(request);
             if (finalData != null)
             {
                 finalData = CalculateWorkStatus(finalData);
@@ -38,40 +37,20 @@ public class ReportController : ControllerBase
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Exception in Get projectId: '{projectId}',towerId: '{towerId}',floorId: '{floorId}',flatId: '{flatId}', message:'{ex.Message}'");
-            throw;
-        }
-    }
-    [HttpGet("{projectId}/{towerId}/{floorId}")]
-    public dynamic Get(long projectId, long towerId, long floorId)
-    {
-        try
-        {
-            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-            dataService.Identity = new ModuleIdentity(member, key);
-            var finalData = dataService.GetWorkerStatusReport(projectId, towerId, floorId, 0);
-            if (finalData != null)
-            {
-                finalData = CalculateWorkStatus(finalData);
-            }
-            return finalData;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in Get projectId: '{projectId}',towerId: '{towerId}',floorId: '{floorId}', message:'{ex.Message}'");
+            logger.LogError(ex, $"Exception in Get projectId: '{request.ProjectId}',towerId: '{request.TowerId}',floorId: '{request.FloorId}',flatId: '{request.FlatId}', message:'{ex.Message}'");
             throw;
         }
     }
 
-    private dynamic? CalculateWorkStatus(dynamic? list)
+    private static List<WorkerStatusReport>? CalculateWorkStatus(dynamic? rawlist)
     {
-        if (list != null)
+        List<WorkerStatusReport> newlist = [];
+        if (rawlist != null)
         {
-            foreach (var item in list)
+            var currentDate = DateTime.Now;
+            foreach (var item in rawlist)
             {
-                var status = "";
-                var currentDate = DateTime.Now;
+                var status = "";                
                 if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate == null)
                 {
                     status = "Not Started";
@@ -124,10 +103,17 @@ public class ReportController : ControllerBase
                 {
                     status = "Short Closed/Abandoned";
                 }
-                item.ActivityStatus = status;
+
+                WorkerStatusReport obj = new()
+                {
+                    ActivityStatus = status,
+                    Id = item.Id,
+                    ActivityName = item.Name
+                };
+                newlist.Add(obj);
             }
         }
-        return list;
+        return newlist;
     }
 }
 
