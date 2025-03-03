@@ -1140,6 +1140,21 @@
 "type": "string",
 "nullable": true
 },
+"IsQCApproved": {
+"type": "string",
+"nullable": true
+},
+"QCApprovedDate": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"QCApprovedBy": {
+"type": "string",
+},
+"QCRemarks": {
+"type": "string",
+},
 "IsApproved": {
 "type": "string",
 "nullable": true
@@ -1152,17 +1167,7 @@
 "ApprovedBy": {
 "type": "string",
 },
-"IsQCApproved": {
-"type": "string",
-"nullable": true
-},
-"QCRemarks": {
-"type": "string",
-},
 "HODRemarks": {
-"type": "string",
-},
-"ActivityStatus": {
 "type": "string",
 },
 "ActualItems": {

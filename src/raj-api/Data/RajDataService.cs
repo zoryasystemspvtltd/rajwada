@@ -137,8 +137,8 @@ namespace ILab.Data
         public virtual dynamic GetDetails(long planId, CancellationToken token)
         {
             try
-            {                
-                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetResourceDetails));               
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetResourceDetails));
                 object[] parameters = [planId];
                 return method?.Invoke(handler, parameters);
             }
@@ -179,12 +179,12 @@ namespace ILab.Data
 
         }
 
-        internal dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
+        internal dynamic GetWorkerStatusReport(WorkerReportRequestPayload request)
         {
             try
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetWorkerStatusReport));
-                object[] parameters = [projectId, towerId, floorId, flatId];
+                object[] parameters = [request.ProjectId, request.TowerId, request.FloorId, request.FlatId];
                 return method?.Invoke(handler, parameters);
             }
             catch (Exception ex)
@@ -194,12 +194,12 @@ namespace ILab.Data
             }
         }
 
-        internal dynamic GetAllAssignedUsers(string module,long id)
+        internal dynamic GetAllAssignedUsers(string module, long id)
         {
             try
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetAllAssignedUsers));
-                object[] parameters = [module,id];
+                object[] parameters = [module, id];
                 return method?.Invoke(handler, parameters);
             }
             catch (Exception ex)
