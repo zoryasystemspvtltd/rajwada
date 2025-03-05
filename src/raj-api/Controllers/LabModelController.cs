@@ -229,7 +229,7 @@ public class LabModelController : ControllerBase
 
         if (data != null)
         {
-            return data.Result;
+            return data;
         }
         else
         {
