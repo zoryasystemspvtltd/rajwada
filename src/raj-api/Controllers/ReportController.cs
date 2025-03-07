@@ -20,6 +20,7 @@ public class ReportController : ControllerBase
         this.dataService = dataService;
     }
 
+    [AllowAnonymous]
     [HttpPost]
     public dynamic Post(WorkerReportRequestPayload request, CancellationToken token)
     {
