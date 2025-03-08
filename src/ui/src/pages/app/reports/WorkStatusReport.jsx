@@ -142,6 +142,8 @@ const WorkStatusReport = () => {
                 notify('error', 'Provide complete project, tower, floor and flat details to fetch report!');
                 return;
             }
+            const res = await api.workerReport({ data: data });
+            console.log(res.data[0]);
 
             const newBaseFilter = baseQueryConstructor();
 
