@@ -8,6 +8,7 @@ import api from '../../../store/api-service';
 import { notify } from '../../../store/notification';
 import IUILookUp from '../../common/shared/IUILookUp';
 import IUITableInputElement from './IUITableInputElement';
+import { formatStringDate } from '../../../store/datetime-formatter';
 
 const IUITableInput = (props) => {
     // Properties
@@ -273,7 +274,7 @@ const IUITableInput = (props) => {
                                                                                         }
                                                                                         {(!fld.type || fld.type === 'text') && item[fld.field]}
                                                                                         {(fld.type === 'number') && item[fld.field]}
-                                                                                        {fld.type === 'date' && item[fld.field]?.substring(0, 10)}
+                                                                                        {fld.type === 'date' && formatStringDate(item[fld.field])}
                                                                                         {(fld.type === 'lookup') &&
                                                                                             <IUILookUp
                                                                                                 value={parseInt(item[fld.field])}

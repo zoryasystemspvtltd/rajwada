@@ -694,7 +694,11 @@ export const IlabMarkerCanvas = (props) => {
                                                 if (m.type === 'marker') {
                                                     return (
                                                         <li key={i} style={listStyles.listItem}>
-                                                            <i className="fa-solid fa-location-dot fa-lg" style={{ ...listStyles.icon, color: m?.color ? m.color : "#ff2424" }}></i>
+                                                            <i
+                                                                className="fa-solid fa-location-dot fa-lg"
+                                                                style={{ ...listStyles.icon, color: m?.color ? m.color : "#ff2424" }}
+                                                                title={m?.label ? m.label : m.type}>
+                                                            </i>
                                                             <span style={listStyles.text}>
                                                                 {/* {m?.label ? m.label : m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)} */}
                                                                 {m?.label ? m.label : m.type}
@@ -705,7 +709,7 @@ export const IlabMarkerCanvas = (props) => {
                                                 else if (m.type === 'rectangle') {
                                                     return (
                                                         <li key={i} style={listStyles.listItem}>
-                                                            <i className="bi bi-bounding-box fs-5" style={{ ...listStyles.icon, color: m?.color ? m.color : "blue" }}></i>
+                                                            <i className="bi bi-bounding-box fs-5" style={{ ...listStyles.icon, color: m?.color ? m.color : "blue" }} title={m?.label ? m.label : m.type}></i>
                                                             <span style={listStyles.text}>
                                                                 {/* {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)} */}
                                                                 {m?.label ? m.label : m.type}
@@ -717,7 +721,7 @@ export const IlabMarkerCanvas = (props) => {
                                                     return (
                                                         <li key={i} style={listStyles.listItem}>
                                                             <span style={listStyles.text}>
-                                                                <i className="bi bi-camera-fill fs-5" style={listStyles.icon}></i>
+                                                                <i className="bi bi-camera-fill fs-5" style={listStyles.icon} title={m.type}></i>
                                                                 {/* {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)} */}
                                                                 {m.type}
                                                             </span>

@@ -15,6 +15,7 @@ import { RiDownload2Fill } from 'react-icons/ri';
 import { saveAs } from 'file-saver';
 import api from '../../store/api-service';
 import { notify } from "../../store/notification";
+import { formatStringDate } from '../../store/datetime-formatter';
 
 const IUIListFilter = (props) => {
     const schema = props.schema;
@@ -323,7 +324,7 @@ const IUIListFilter = (props) => {
                                                                     {
                                                                         privileges?.edit &&
                                                                         <td width={10}>
-                                                                            <Link to={`/${schema?.path}/${item?.id}/edit`}><i className="fa-solid fa-pencil"></i></Link>
+                                                                            <Link to={`/${schema?.path}/${item?.id}/edit`} title='Edit'><i className="fa-solid fa-pencil"></i></Link>
                                                                         </td>
                                                                     }
                                                                 </>
@@ -334,7 +335,7 @@ const IUIListFilter = (props) => {
                                                                         <Link to={`/${schema.path}/${item.id}`}>{item[fld.field]}</Link>
                                                                     }
                                                                     {(!fld.type || fld.type === 'text') && item[fld.field]}
-                                                                    {fld.type === 'date' && item[fld.field].substring(0, 10)}
+                                                                    {fld.type === 'date' && formatStringDate(item[fld.field])}
                                                                     {(fld.type === 'lookup') &&
                                                                         <IUILookUp
                                                                             value={item[fld.field]}

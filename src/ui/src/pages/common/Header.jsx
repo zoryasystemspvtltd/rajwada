@@ -68,7 +68,7 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                 { name: "resetPassword", text: "Reset Password", icon: "vector-square", path: "/home" }
             ],
             report: [
-                { name: "adminReport", text: "Admin Report", icon: "vector-square", path: "/home" }
+                { name: "adminReport", text: "Admin", icon: "vector-square", path: "/home" }
             ]
         },
         civil: {
@@ -77,7 +77,7 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
             master: [
                 { name: "uom", text: "UOM", icon: "cubes-stacked", path: "/uoms", access: "uom" },
                 { name: "contractor", text: "Contractor", icon: "cubes-stacked", path: "/contractors", access: "contractor" },
-                { name: "supplier", text: "Supplier", icon: "cubes-stacked", path: "/suppliers", access: "supplier" },              
+                { name: "supplier", text: "Supplier", icon: "cubes-stacked", path: "/suppliers", access: "supplier" },
                 { name: "itemTypeManagement", text: "Item Type", icon: "cubes-stacked", path: "/item-types", access: "assetType" },
                 { name: "itemGroupManagement", text: "Item Group", icon: "cubes-stacked", path: "/item-groups", access: "assetGroup" },
                 { name: "itemMasterManagement", text: "Item", icon: "vector-square", path: "/item-masters", access: "asset" },
@@ -85,18 +85,18 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                 { name: "floorManagement", text: "Floor", icon: "cubes", path: "/floors", access: "plan" },
                 { name: "flatManagement", text: "Flat", icon: "bed", path: "/flats", access: "plan" },
                 { name: "roomManagement", text: "Room", icon: "cubes", path: "/rooms", access: "plan" },
-                { name: "activityManagement", text: "Activity", icon: "cubes-stacked" },
+                { name: "activityManagement", text: "Activity", icon: "cubes-stacked", path: "/activities", access: "activity" },
             ],
             transaction: [
                 { name: "workItemCreation", text: "Work Item Creation", icon: "vector-square", path: "/workitems" },
                 { name: "dependencyLabelSetting", text: "Dependency Label Setting", icon: "vector-square", path: "/labelsettings" },
                 { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
                 { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/reporting" },
-                { name: "levelSetup", text: "Level Setup", icon: "vector-square", path: "/level-setups"}
+                { name: "siteMaterialApproval", text: "Site Material Approval", icon: "vector-square", path: "/site-material-approvals" }
             ],
             report: [
-                { name: "workStatusReport", text: "Work Status Report", icon: "vector-square", path: "/statusreport" },
-                { name: "levelSetupReport", text: "Level Setup Report", icon: "vector-square", path: "/levelsetupreport" }
+                { name: "workStatusReport", text: "Work Status", icon: "vector-square", path: "/statusreport" },
+                { name: "siteMaterialApprovalReport", text: "Site Material Approval", icon: "vector-square", path: "/site-material-approval-report" }
             ]
         },
         legal: {
@@ -112,9 +112,9 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                 { name: "legalTransaction1", text: "Legal Transaction 1", icon: "vector-square", path: "/home" },
             ],
             report: [
-                { name: "legalReport", text: "Legal Report", icon: "vector-square", path: "/home" },
+                { name: "legalReport", text: "Legal", icon: "vector-square", path: "/home" },
             ]
-        },        
+        },
     };
 
     useEffect(() => {

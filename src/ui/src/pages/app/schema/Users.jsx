@@ -192,3 +192,26 @@ export const AddUser = () => {
 
     return (<IUIPage schema={schema} />)
 }
+
+export const ResetPasswordUser = () => {
+
+    const schema = {
+        module: 'user',
+        title: 'User',
+        path: 'users',
+        paging: true,
+        searching: true,
+        editing: false,
+        adding: false,
+        fields: [
+            { text: 'First Name', field: 'firstName', type: 'link', sorting: true, searching: true },
+            { text: 'Last Name', field: 'lastName', type: 'text', sorting: true, searching: true },
+            { text: 'Email', field: 'email', type: 'text', sorting: true, searching: true },
+            { text: 'Phone Number', field: 'phoneNumber', type: 'text', sorting: true, searching: false },
+            { text: 'Action', field: 'email', type: 'reset-password', sorting: false, searching: false },
+        ]
+    }
+
+
+    return (<IUIList schema={schema} />)
+}

@@ -69,16 +69,24 @@ public class LabModelController : ControllerBase
     [HttpPut("{module}/{id}")]
     public async Task<long> PutAsync(string module, long id, dynamic data, CancellationToken token)
     {
-        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-        dataService.Identity = new ModuleIdentity(member, key);
-        if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
+        try
         {
-            data = UpdateAcutualDate(module, data);
-        }
-        var activityId = await dataService.EditAsync(module, id, data, token);
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+            if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
+            {
+                data = UpdateAcutualDate(module, data);
+            }
+            var activityId = await dataService.EditAsync(module, id, data, token);
 
-        return activityId;
+            return activityId;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in PutAsync module: '{module}' message:'{ex.Message}'");
+            throw;
+        }
     }
 
     // [HasPrivileges("edit")]

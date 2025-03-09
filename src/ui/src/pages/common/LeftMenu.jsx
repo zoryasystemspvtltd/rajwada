@@ -94,7 +94,7 @@ const LeftMenu = (props) => {
                 { name: "projectManagement", text: "Project", icon: "sitemap", path: "/projects", access: "project" }
             ],
             transaction: [
-                { name: "resetPassword", text: "Reset Password", icon: "vector-square", path: "/users", access: "user" }
+                { name: "resetPassword", text: "Reset Password", icon: "vector-square", path: "/users/reset-password", access: "user" }
             ],
             report: [
                 { name: "adminReport", text: "Admin Report", icon: "vector-square", path: "/home" }
@@ -114,14 +114,15 @@ const LeftMenu = (props) => {
                 { name: "activityManagement", text: "Activity", icon: "cubes-stacked" },
             ],
             transaction: [
-                { name: "activityCreation", text: "Activity Creation", icon: "vector-square", path: "/workitems" },
+                { name: "workItemCreation", text: "Work Item Creation", icon: "vector-square", path: "/workitems" },
                 { name: "dependencyWorkflow", text: "Dependency Workflow", icon: "vector-square", path: "/labelsettings" },
+                { name: "activityCreation", text: "Activity Creation", icon: "vector-square", path: "/activities/add" },
                 { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
                 { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/reporting" },
-                { name: "levelSetup", text: "Level Setup", icon: "vector-square", path: "/level-setups"}
+                { name: "siteMaterialApproval", text: "Site Material Approval", icon: "vector-square", path: "/site-material-approvals"}
             ],
             report: [
-                { name: "workStatusReport", text: "Work Status Report", icon: "vector-square", path: "/statusreport" }
+                { name: "workStatusReport", text: "Work Status", icon: "vector-square", path: "/statusreport" }
             ]
         },
         legal: {

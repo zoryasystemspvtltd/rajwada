@@ -18,6 +18,7 @@ const IUIResetPasswordElement = (props) => {
 
     const navigate = useNavigate();
     const [email, setEmail] = useState(props?.value);
+    const [isDisabled, setIsDisabled] = useState(props?.disabled);
     const [notice, setNotice] = useState("");
 
     const dispatch = useDispatch();
@@ -34,7 +35,7 @@ const IUIResetPasswordElement = (props) => {
 
     return (
         <>
-            <Button variant="primary" onClick={handleShow}>
+            <Button variant="primary" onClick={handleShow} disabled={isDisabled}>
                 {props?.text}
             </Button>
             <Modal show={show} onHide={handleClose}>

@@ -12,13 +12,14 @@ import { getData } from '../../../store/api-db';
 import api from '../../../store/api-service';
 import { notify } from "../../../store/notification";
 import IUILookUp from '../../common/shared/IUILookUp';
+import { formatStringDate } from '../../../store/datetime-formatter';
 
-export const LevelSetupReport = () => {
+export const SiteMaterialApprovalReport = () => {
     const module = 'levelSetup';
     const schema = {
         module: 'levelSetup',
-        title: 'Level Setup',
-        path: 'level-setups',
+        title: 'Site Material Approval',
+        path: 'site-material-approvals',
         paging: false,
         searching: false,
         editing: false,
@@ -74,7 +75,6 @@ export const LevelSetupReport = () => {
 
         dispatch(getData({ module: module, options: sortOptions }));
     }
-
 
     const handleReset = () => {
         setDataSet([]);
@@ -148,7 +148,7 @@ export const LevelSetupReport = () => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading text-uppercase">Level Setup Report</div>
+                <div className="page-title-heading text-uppercase">Site Material Approval Report</div>
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -231,7 +231,7 @@ export const LevelSetupReport = () => {
                                                                                     className="btn btn-link text-white p-0"
                                                                                     onClick={(e) => sortData(e, fld.field)}
                                                                                 >
-                                                                                    {dataSet?.options && fld.field === dataSet?.options.sortColumnName && dataSet?.options?.sortDirection ? <Icon.SortUp /> : <Icon.SortDown />} {dataSet?.options?.sortDirection}
+                                                                                    {dataSet?.options && fld.field === dataSet?.options.sortColumnName && dataSet?.options?.sortDirection ? <Icon.SortUp title='Sort up' /> : <Icon.SortDown title='Sort down' />} {dataSet?.options?.sortDirection}
                                                                                     {fld.text}
                                                                                 </button>
                                                                             }
@@ -248,7 +248,6 @@ export const LevelSetupReport = () => {
                                                             </thead>
                                                             {
                                                                 <tbody>
-
                                                                     {
                                                                         dataSet?.items?.map((item, i) => (
                                                                             <tr key={i}>
@@ -258,7 +257,7 @@ export const LevelSetupReport = () => {
                                                                                             <Link to={`${item.id}`}>{item[fld.field]}</Link>
                                                                                         }
                                                                                         {(!fld.type || fld.type === 'text') && item[fld.field]}
-                                                                                        {fld.type === 'date' && item[fld.field]?.substring(0, 10)}
+                                                                                        {fld.type === 'date' && formatStringDate(item[fld.field])}
                                                                                         {(fld.type === 'lookup') &&
                                                                                             <IUILookUp
                                                                                                 value={item[fld.field]}
@@ -312,7 +311,7 @@ export const LevelSetupReport = () => {
                                     }
                                     {
                                         (dataSet?.items?.length === 0 && startDate !== '' && endDate !== '') && (
-                                            <p>No level setup details found within the selected date range.</p>
+                                            <p>No site material approval details found within the selected date range.</p>
                                         )
                                     }
                                 </div>

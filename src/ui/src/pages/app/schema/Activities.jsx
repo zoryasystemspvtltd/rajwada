@@ -11,7 +11,7 @@ export const ListActivity = () => {
         paging: true,
         searching: true,
         editing: true,
-        adding: true,
+        adding: false,
         relationKey: "type",
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },

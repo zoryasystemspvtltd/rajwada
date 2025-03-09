@@ -302,7 +302,7 @@ const IUIPage = (props) => {
     }
     const savePageValue = async (e) => {
         e.preventDefault();
-
+        
         if (!props?.readonly) {
             setDirty(true);
             const error = validate(data, schema?.fields)

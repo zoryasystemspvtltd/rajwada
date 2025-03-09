@@ -21,6 +21,7 @@ import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
 import IUITableInput from './IUITableInput';
 import IUIListMapping from '../IUIListMapping';
+import { formatStringDate } from '../../../store/datetime-formatter';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -165,7 +166,7 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
-                                            <span id={fld.field}> {data[fld.field]?.substring(0, 10)} </span>
+                                            <span id={fld.field}> {data[fld.field] ? formatStringDate(data[fld.field]) : ""} </span>
                                         </Form.Group>
                                     </>
                                 }

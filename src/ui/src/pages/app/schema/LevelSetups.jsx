@@ -6,8 +6,8 @@ import IUIPage from "../../common/IUIPage";
 export const ListLevelSetup = () => {
     const schema = {
         module: 'levelSetup',
-        title: 'Level Setup',
-        path: 'level-setups',
+        title: 'Site Material Approval',
+        path: 'site-material-approvals',
         paging: true,
         searching: true,
         editing: true,
@@ -28,8 +28,8 @@ export const ViewLevelSetup = () => {
 
     const schema = {
         module: 'levelSetup',
-        title: 'Level Setup',
-        path: 'level-setups',
+        title: 'Site Material Approval',
+        path: 'site-material-approvals',
         editing: true,
         adding: false,
         deleting: true,
@@ -121,8 +121,8 @@ export const EditLevelSetup = () => {
 
     const schema = {
         module: 'levelSetup',
-        title: 'Level Setup',
-        path: 'level-setups',
+        title: 'Site Material Approval',
+        path: 'site-material-approvals',
         goNextView: true,
         back: false,
         goNextList: true,
@@ -202,8 +202,8 @@ export const EditLevelSetup = () => {
 export const AddLevelSetup = () => {
     const schema = {
         module: 'levelSetup',
-        title: 'Level Setup',
-        path: 'level-setups',
+        title: 'Site Material Approval',
+        path: 'site-material-approvals',
         back: true,
         goNextEdit: true,
         fields: [

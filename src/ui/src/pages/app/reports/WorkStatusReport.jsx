@@ -70,6 +70,7 @@ const WorkStatusReport = () => {
     const [activityRows, setActivityRows] = useState({});
     const [mainActivityDetails, setMainActivityDetails] = useState([]);
     const [subActivityDetails, setSubActivityDetails] = useState([]);
+    const [activityStatuses, setActivityStatuses] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [isSetupComplete, setIsSetupComplete] = useState(false)
     // Local State
@@ -142,8 +143,8 @@ const WorkStatusReport = () => {
                 notify('error', 'Provide complete project, tower, floor and flat details to fetch report!');
                 return;
             }
-            const res = await api.workerReport({ data: data });
-            console.log(res.data[0]);
+            const activityStatusResponse = await api.workerReport({ data: data });
+            setActivityStatuses(activityStatusResponse.data);
 
             const newBaseFilter = baseQueryConstructor();
 
@@ -441,7 +442,9 @@ const WorkStatusReport = () => {
                                                                             {
                                                                                 activityRows[room]?.map((activityDetails) => (
                                                                                     <td key={activityDetails?.name}>
-                                                                                        <IUITrackBox schema={computeActivityStatus(activityDetails)} />
+                                                                                        <IUITrackBox
+                                                                                            schema={computeActivityStatus(activityStatuses?.find(status => status?.id === activityDetails?.id))}
+                                                                                        />
                                                                                     </td>
                                                                                 ))
                                                                             }
