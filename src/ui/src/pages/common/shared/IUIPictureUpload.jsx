@@ -40,7 +40,7 @@ const IUIPictureUpload = (props) => {
                 };
             }
 
-            if(schema){
+            if (schema) {
                 const response = await api.getData({ module: schema?.module, options: pageOptions });
                 setParentData(response?.data?.items);
             }
@@ -74,7 +74,7 @@ const IUIPictureUpload = (props) => {
         if (schema && props?.parentId) {
             fetchPictureData();
         }
-    }, [props?.parentId, file]);
+    }, [props?.parentId]);
 
     useEffect(() => {
         if (props?.value)

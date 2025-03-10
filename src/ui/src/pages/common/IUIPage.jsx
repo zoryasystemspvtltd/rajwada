@@ -302,7 +302,7 @@ const IUIPage = (props) => {
     }
     const savePageValue = async (e) => {
         e.preventDefault();
-        
+
         if (!props?.readonly) {
             setDirty(true);
             const error = validate(data, schema?.fields)
@@ -326,6 +326,7 @@ const IUIPage = (props) => {
                             }
                             else {
                                 navigate(-1);
+                                localStorage.removeItem(flowchartKey);
                             }
                         }, 1000)
 
@@ -350,6 +351,7 @@ const IUIPage = (props) => {
                             // After 3 seconds set the show value to false
                             if (module === 'activity') {
                                 props?.activityCallback(true);
+                                notify('success', `Activity ${data?.name} created successfully!`);
                                 return;
                             }
                             else {

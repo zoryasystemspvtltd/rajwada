@@ -3,10 +3,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "smartwizard/dist/css/smart_wizard_all.min.css"; // SmartWizard CSS
 import "smartwizard/dist/js/jquery.smartWizard.min.js"; // SmartWizard JS
+import api from '../../../store/api-service';
 import IUIPage from "../IUIPage";
 
 const IUIActivityWizard = (props) => {
-    const sequence = props?.sequence;
+    const [sequence, setSequence] = useState(props?.sequence);
     const schema = props?.schema;
     const dependencyData = props?.dependencyData
     // console.log(dependencyData);
@@ -15,7 +16,7 @@ const IUIActivityWizard = (props) => {
     const tabContentStyle = {
         overflow: 'auto',
         overflowX: 'hidden'
-      };
+    };
 
     const customNextStepLogic = () => {
         // Custom logic goes here
@@ -46,6 +47,56 @@ const IUIActivityWizard = (props) => {
     const activityCallback = (creationStatus) => {
         setIsCreationSuccessful(creationStatus);
     }
+
+    // Filter out works items whose activity has already been created
+    useEffect(() => {
+        async function fetchActivities() {
+            let baseQuery = {
+                name: 'dependencyId',
+                value: parseInt(props?.dependencyData?.dependencyId),
+                and: {
+                    name: 'projectId',
+                    value: parseInt(props?.dependencyData?.projectId),
+                    and: {
+                        name: 'towerId',
+                        value: parseInt(props?.dependencyData?.towerId),
+                        and: {
+                            name: 'floorId',
+                            value: parseInt(props?.dependencyData?.floorId),
+                            and: {
+                                name: 'flatId',
+                                value: parseInt(props?.dependencyData?.flatId),
+                            }
+                        }
+                    }
+                }
+            };
+            const pageOptions = {
+                recordPerPage: 0,
+                searchCondition: baseQuery
+            }
+            const response = await api.getData({ module: 'activity', options: pageOptions });
+            let activities = response?.data?.items;
+            if (activities?.length > 0) {
+                // find already existing activities for workitems
+                let finalSequence = [];
+                props?.sequence?.forEach((workItem) => {
+                    let existingActivities = activities?.filter((activity) => activity?.name?.includes(workItem) || activity?.description?.includes(workItem))
+                    if (existingActivities?.length === 0) {
+                        finalSequence.push(workItem);
+                    }
+                });
+                setSequence(finalSequence);
+            }
+            else {
+                setSequence(props?.sequence)
+            }
+        }
+
+        if (props?.sequence && props?.dependencyData) {
+            fetchActivities();
+        }
+    }, [props?.sequence, props?.dependencyData]);
 
     useEffect(() => {
         // Initialize SmartWizard

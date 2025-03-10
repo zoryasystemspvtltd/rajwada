@@ -231,18 +231,20 @@ const WorkStatusReport = () => {
     }
 
     const computeActivityStatus = (activity) => {
+        let status = activityStatuses?.find(status => status?.id === activity?.id);
+
         const colors = {
-            "Not Started": "#4c4c4c",
-            "In Progress": "#1e009f",
-            "Delayed": "#ff6700",
-            "On Hold": "#f6de4b",
-            "Closed": "#1fc600",
-            "Cancelled": "#ff3d41",
-            "Pending QC Approval": "#660094",
-            "Pending HOD Approval": "#59d4ff",
-            "Inspection Passed": "#034007",
-            "Inspection Failed/Rework Required": "#b10000",
-            "Short Closed/Abandoned": "#0e1111"
+            "Not Started": { bg: "#4c4c4c", text: "white" },
+            "In Progress": { bg: "#1e009f", text: "white" },
+            "Delayed": { bg: "#ff6700", text: "black" },
+            "On Hold": { bg: "#f6de4b", text: "black" },
+            "Closed": { bg: "#1fc600", text: "black" },
+            "Cancelled": { bg: "#ff3d41", text: "black" },
+            "Pending QC Approval": { bg: "#660094", text: "white" },
+            "Pending HOD Approval": { bg: "#59d4ff", text: "black" },
+            "Inspection Passed": { bg: "#034007", text: "black" },
+            "Inspection Failed/Rework Required": { bg: "#b10000", text: "black" },
+            "Short Closed/Abandoned": { bg: "#0e1111", text: "white" }
         };
 
         let result = {
@@ -251,97 +253,109 @@ const WorkStatusReport = () => {
             arrowDirection: "",
             arrowColor: "",
             progress: 0,
-            cardColor: ""
+            cardColor: "",
+            textColor: ""
         };
 
-        switch (activity?.activityStatus) {
+        switch (status?.activityStatus) {
             case "Not Started":
                 result.arrowDirection = "down";
                 result.arrowColor = "#e30202"; // red
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "Wrong";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             case "In Progress":
                 result.arrowDirection = "up";
                 result.arrowColor = "#11823b"; // green
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "InProgress";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             case "Delayed":
                 result.arrowDirection = "down";
                 result.arrowColor = "#e30202"; // green
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "InProgress";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             case "On Hold":
                 result.arrowDirection = "down";
                 result.arrowColor = "#e30202"; // green
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "HourGlass";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             case "Closed":
                 result.arrowDirection = "up";
                 result.arrowColor = "#11823b"; // green
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "Correct";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             case "Cancelled":
                 result.arrowDirection = "down";
                 result.arrowColor = "#e30202"; // green
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "Wrong";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             case "Pending QC Approval":
                 result.arrowDirection = "up";
                 result.arrowColor = "#11823b"; // green
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "HourGlass";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             case "Pending HOD Approval":
                 result.arrowDirection = "up";
                 result.arrowColor = "#11823b"; // green
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "HourGlass";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             case "Inspection Passed":
                 result.arrowDirection = "up";
                 result.arrowColor = "#11823b"; // green
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "InProgress";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             case "Inspection Failed/Rework Required":
                 result.arrowDirection = "down";
                 result.arrowColor = "#e30202"; // green
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "Wrong";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             case "Short Closed/Abandoned":
                 result.arrowDirection = "down";
                 result.arrowColor = "#e30202"; // green
-                result.text = activity?.activityStatus;
+                result.text = status?.activityStatus;
                 result.imageIcon = "Wrong";
-                result.progress = activity?.progress;
-                result.cardColor = colors[activity?.activityStatus];
+                result.progress = activity?.progressPercentage;
+                result.cardColor = colors[status?.activityStatus]?.bg;
+                result.textColor = colors[status?.activityStatus]?.text;
                 break;
             default:
                 result.arrowDirection = null;
@@ -350,6 +364,7 @@ const WorkStatusReport = () => {
                 result.imageIcon = "Wrong";
                 result.progress = 0;
                 result.cardColor = "grey";
+                result.textColor = "black";
                 break;
         }
 
@@ -443,7 +458,7 @@ const WorkStatusReport = () => {
                                                                                 activityRows[room]?.map((activityDetails) => (
                                                                                     <td key={activityDetails?.name}>
                                                                                         <IUITrackBox
-                                                                                            schema={computeActivityStatus(activityStatuses?.find(status => status?.id === activityDetails?.id))}
+                                                                                            schema={computeActivityStatus(activityDetails)}
                                                                                         />
                                                                                     </td>
                                                                                 ))

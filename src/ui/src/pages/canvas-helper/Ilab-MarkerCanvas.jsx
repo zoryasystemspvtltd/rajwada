@@ -255,13 +255,13 @@ export const IlabMarkerCanvas = (props) => {
         // Optionally, log the Base64 string for debugging
         // console.log(base64Encoded);
         await savePageValue();
-        notify("success", 'Units of Work Creation Successful!');
-        if (schema?.goBack) {
-            navigate(`/reporting`);
-        }
-        else {
-            navigate(`/${schema?.parent?.path}`);
-        }
+        notify("success", 'Save Successful!');
+        // if (schema?.goBack) {
+        //     navigate(`/reporting`);
+        // }
+        // else {
+        //     navigate(0);
+        // }
         if (!props?.readonly) {
             const modifiedEvent = {
                 target: {
@@ -321,12 +321,36 @@ export const IlabMarkerCanvas = (props) => {
     //     }
     // }, []);
 
-    const handlePlanImageChange = (event) => {
+    const convertBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file)
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+            }
+            fileReader.onerror = (error) => {
+                reject(error);
+            }
+        })
+    }
+
+    const handlePlanImageChange = async (event) => {
         const file = event.target.files[0];
         if (file) {
-            const imageUrl = URL.createObjectURL(file);
-            setPlanImage(imageUrl);
+            const imageContent = await convertBase64(file);
+            setPlanImage(imageContent);
             setMarker([]);
+            if (!props?.readonly) {
+                const modifiedEvent = {
+                    target: {
+                        id: props?.id,
+                        // modifiedImage: `data:image/svg+xml;base64,${base64Encoded}`,
+                        value: imageContent
+                    },
+                    preventDefault: function () { }
+                };
+                props.onChange(modifiedEvent);
+            }
         }
     };
 
@@ -515,7 +539,7 @@ export const IlabMarkerCanvas = (props) => {
                 <div className="row">
                     <div className="col-md-12">
                         <div className="main-card mb-3 card">
-                            <div className="card-body">
+                            <div className={`card-body ${props.className}`}>
                                 <div className='row'>
                                     <div className='col-md-9'>
                                         {

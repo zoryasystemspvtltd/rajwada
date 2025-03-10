@@ -56,7 +56,7 @@ const IUIPageElement = (props) => {
         e.preventDefault();
         if (props.readonly)
             return
-
+        
         let newData = { ...data, [e.target.id]: e.target.value }
         if (e.target?.dataset?.name) {
             newData = { ...newData, [e.target?.dataset?.name]: e.target[e.target.selectedIndex].text };
@@ -596,10 +596,12 @@ const IUIPageElement = (props) => {
                                         <ILab.MarkerCanvas
                                             id={fld.field}
                                             value={data[fld.field] || []}
+                                            className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                             schema={fld.schema}
                                             onChange={handleChange}
                                             readonly={props.readonly || fld.readonly || false}
                                         />
+                                        <p className="text-danger mt-2">{errors[fld.field]}</p>
                                         <br />
                                     </>
                                 }

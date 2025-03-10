@@ -62,9 +62,9 @@ const ModalComponent = ({ title, show, handleClose, formFields, value, handleSub
     };
 
     const handleModalClose = () => {
-        if (!isFormSubmitted && !value) {
-            return;
-        }
+        // if (!isFormSubmitted && !value) {
+        //     return;
+        // }
         handleClose();
     };
 
@@ -157,7 +157,7 @@ const ModalComponent = ({ title, show, handleClose, formFields, value, handleSub
                         variant="contained"
                         className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
                         onClick={() => { setErrors({}); setFormData({ color: '#000000' }); setDirty(false); handleModalClose(); }}
-                        disabled={!isFormSubmitted && value === null}
+                        // disabled={!isFormSubmitted && value === null}
                     >
                         Close
                     </Button>
