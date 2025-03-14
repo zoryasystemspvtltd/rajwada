@@ -8,6 +8,7 @@ import api from '../../../store/api-service';
 import { notify } from '../../../store/notification';
 import IUILookUp from '../../common/shared/IUILookUp';
 import IUITableInputElement from './IUITableInputElement';
+import { formatStringDate } from '../../../store/datetime-formatter';
 
 const IUITableInput = (props) => {
     // Properties
@@ -109,6 +110,17 @@ const IUITableInput = (props) => {
             if (item.type === 'lookup-relation') {
                 if (item?.exclusionCondition && values && values[item?.exclusionCondition?.field] === item?.exclusionCondition?.value && !values[item?.field]) {
                     errors[item.field] = `Required field.`;
+                }
+            }
+            if (item.type === 'number' && values[item?.field]) {
+                try {
+                    let numericValue = parseInt(values[item?.field]);
+                    if (numericValue < 0) {
+                        errors[item.field] = `Negative input not allowed.`;
+                    }
+                }
+                catch (e) {
+                    errors[item.field] = `Invalid Input.`;
                 }
             }
         }
@@ -273,7 +285,7 @@ const IUITableInput = (props) => {
                                                                                         }
                                                                                         {(!fld.type || fld.type === 'text') && item[fld.field]}
                                                                                         {(fld.type === 'number') && item[fld.field]}
-                                                                                        {fld.type === 'date' && item[fld.field]?.substring(0, 10)}
+                                                                                        {fld.type === 'date' && formatStringDate(item[fld.field])}
                                                                                         {(fld.type === 'lookup') &&
                                                                                             <IUILookUp
                                                                                                 value={parseInt(item[fld.field])}

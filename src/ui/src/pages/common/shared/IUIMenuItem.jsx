@@ -6,6 +6,7 @@ import { useState } from "react";
 const IUIMenuItem = (props) => {
     const privileges = useSelector((state) => state.api.loggedInUser?.privileges);
     const [value, setValue] = useState(props.schema);
+    console.log(value);
 
     const expandMenu = (e, index) => {
 
@@ -32,7 +33,7 @@ const IUIMenuItem = (props) => {
                                         item?.access ? privileges?.some(p => p.module === item.access) ?
                                             (
                                                 <Link to={item.path}>
-                                                    <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`}></i>{item.text}
+                                                    <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`} title={item.text}></i>{item.text}
                                                 </Link>
                                             )
                                             :
@@ -40,7 +41,7 @@ const IUIMenuItem = (props) => {
                                             :
                                             (
                                                 <Link to={item.path}>
-                                                    <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`}></i>{item.text}
+                                                    <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`} title={item.text}></i>{item.text}
                                                 </Link>
                                             )
                                     }

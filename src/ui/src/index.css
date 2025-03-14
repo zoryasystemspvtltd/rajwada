@@ -99,3 +99,7 @@ input:checked+.Slider:before {
 .sw .toolbar {
     margin-top: 20px !important;
 }
+
+.react-flow__attribution {
+    display: none !important;
+}

@@ -40,7 +40,7 @@ const IUIPictureUpload = (props) => {
                 };
             }
 
-            if(schema){
+            if (schema) {
                 const response = await api.getData({ module: schema?.module, options: pageOptions });
                 setParentData(response?.data?.items);
             }
@@ -74,7 +74,7 @@ const IUIPictureUpload = (props) => {
         if (schema && props?.parentId) {
             fetchPictureData();
         }
-    }, [props?.parentId, file]);
+    }, [props?.parentId]);
 
     useEffect(() => {
         if (props?.value)
@@ -125,7 +125,7 @@ const IUIPictureUpload = (props) => {
                                 }
                                 {
                                     (file.length === 0) && <span className="profile-pic-upload-text">
-                                        <i className="fa-solid fa-cloud-arrow-up"></i> {`Upload ${props?.text}`}
+                                        <i className="fa-solid fa-cloud-arrow-up" title="Upload Image"></i> {`Upload ${props?.text}`}
                                     </span>
                                 }
                             </button>
@@ -155,7 +155,7 @@ const IUIPictureUpload = (props) => {
                                 }
                                 {
                                     (file.length === 0) && <span className="profile-pic-upload-text">
-                                        <i className="fa-solid fa-cloud-arrow-up"></i> {`Upload ${props?.text}`}
+                                        <i className="fa-solid fa-cloud-arrow-up" title="Upload Image"></i> {`Upload ${props?.text}`}
                                     </span>
                                 }
                             </button>

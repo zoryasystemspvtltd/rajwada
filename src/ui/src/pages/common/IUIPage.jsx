@@ -70,7 +70,10 @@ const IUIPage = (props) => {
         modulePrivileges.forEach(p => {
             access = { ...access, ...{ [p]: true } }
         })
-        setPrivileges(access)
+        setPrivileges(access);
+        if (module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
     }, [loggedInUser, module]);
 
     useEffect(() => {
@@ -123,6 +126,17 @@ const IUIPage = (props) => {
             if (item.type === 'lookup-relation') {
                 if (item?.exclusionCondition && values && values[item?.exclusionCondition?.field] === item?.exclusionCondition?.value && !values[item?.field]) {
                     errors[item.field] = `Required field.`;
+                }
+            }
+            if (item.type === 'number' && values[item?.field]) {
+                try {
+                    let numericValue = parseInt(values[item?.field]);
+                    if (numericValue < 0) {
+                        errors[item.field] = `Negative input not allowed.`;
+                    }
+                }
+                catch (e) {
+                    errors[item.field] = `Invalid Input.`;
                 }
             }
         }
@@ -326,6 +340,7 @@ const IUIPage = (props) => {
                             }
                             else {
                                 navigate(-1);
+                                localStorage.removeItem(flowchartKey);
                             }
                         }, 1000)
 
@@ -350,6 +365,7 @@ const IUIPage = (props) => {
                             // After 3 seconds set the show value to false
                             if (module === 'activity') {
                                 props?.activityCallback(true);
+                                notify('success', `Activity ${data?.name} created successfully!`);
                                 return;
                             }
                             else {

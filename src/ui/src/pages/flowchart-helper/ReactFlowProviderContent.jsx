@@ -60,7 +60,7 @@ const Content = (props) => {
             }
 
             const response = await api.getData({ module: module, options: pageOptions });
-            
+
             let nodeTemplates = response?.data?.items?.map((item) => {
                 return {
                     data: { label: item?.name },
@@ -84,6 +84,14 @@ const Content = (props) => {
             setId(tempData?.nodes?.length || 0);
         }
     }, [props?.value, setNodes, setEdges]);
+
+    useEffect(() => {
+        // Update localStorage whenever nodes or edges change
+        if (reactFlowInstance) {
+            const flow = reactFlowInstance.toObject();
+            localStorage.setItem(flowKey, JSON.stringify(flow));
+        }
+    }, [nodes, edges, reactFlowInstance]);
 
     const [newNodeInput, setNewNodeInput] = useState({
         id: "",
@@ -541,9 +549,9 @@ const Content = (props) => {
                 onInit={setReactFlowInstance}
                 onDrop={onDrop}
                 onDragOver={onDragOver}
-                onEdgeUpdate={onEdgeUpdate}
-                onEdgeUpdateStart={onEdgeUpdateStart}
-                onEdgeUpdateEnd={onEdgeUpdateEnd}
+                onEdgeUpdate={(e) => { onEdgeUpdate(e); onSave(e) }}
+                onEdgeUpdateStart={(e) => { onEdgeUpdateStart(e); onSave(e) }}
+                onEdgeUpdateEnd={(e) => { onEdgeUpdateEnd(e); onSave(e) }}
                 onPaneClick={onPaneClick}
                 onNodeContextMenu={onNodeContextMenu}
                 onEdgeClick={(event, edge) => handleEdgeContextMenu(event, edge)}

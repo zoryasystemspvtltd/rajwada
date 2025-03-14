@@ -9,6 +9,7 @@ const IUITrackBox = (props) => {
     const arrowColor = schema?.arrowColor;
     const progress = schema?.progress;
     const cardColor = schema?.cardColor;
+    const textColor = schema?.textColor;
 
     return (
         <div className="container mt-3">
@@ -22,7 +23,7 @@ const IUITrackBox = (props) => {
                             className="img-fluid"
                             style={{ maxWidth: '40px' }}
                         />
-                        <h5 className="d-inline-block ml-2" style={{ textTransform: "uppercase", fontWeight: "700", fontSize: ".85rem" }}>{text}</h5>
+                        <h5 className="d-inline-block ml-2" style={{ textTransform: "uppercase", fontWeight: "700", fontSize: ".85rem", color: textColor }}>{text}</h5>
                         {
                             (arrowDirection && arrowDirection === "up") ?
                                 <i className={`${text}`.length <= 13 ? "fa-solid fa-up-long ml-5" : "fa-solid fa-up-long ml-4"} style={{ fontSize: '24px', color: arrowColor }}></i> : null

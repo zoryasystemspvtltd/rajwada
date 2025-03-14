@@ -14,6 +14,8 @@ import { RiDownload2Fill } from 'react-icons/ri';
 import { saveAs } from 'file-saver';
 import api from '../../store/api-service';
 import { notify } from "../../store/notification";
+import IUIResetPasswordElement from '../ResetUserPassword';
+import { formatStringDate } from '../../store/datetime-formatter';
 
 const IUIList = (props) => {
     const schema = props?.schema;
@@ -39,6 +41,9 @@ const IUIList = (props) => {
         })
         // console.log(access)
         setPrivileges(access)
+        if (module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
     }, [loggedInUser, module]);
 
     const pageChanges = async (e) => {
@@ -186,9 +191,13 @@ const IUIList = (props) => {
                                                 <thead>
                                                     <tr>
                                                         {schema?.editing &&
-                                                            <th>
-                                                                <button type="submit" className="btn btn-link text-white p-0">#</button>
-                                                            </th>
+                                                            <>
+                                                                <th>
+                                                                    {privileges.edit &&
+                                                                        <button type="submit" className="btn btn-link text-white p-0">#</button>
+                                                                    }
+                                                                </th>
+                                                            </>
                                                         }
                                                         {schema?.fields?.map((fld, f) => (
                                                             <th key={f} width={fld.width}>
@@ -223,7 +232,7 @@ const IUIList = (props) => {
                                                                         <>
                                                                             <td width={10}>
                                                                                 {privileges.edit &&
-                                                                                    <Link to={`${item.id}/edit`}><i className="fa-solid fa-pencil"></i></Link>
+                                                                                    <Link to={`${item.id}/edit`} title='Edit'><i className="fa-solid fa-pencil"></i></Link>
                                                                                 }
                                                                             </td>
                                                                         </>
@@ -234,7 +243,7 @@ const IUIList = (props) => {
                                                                                 <Link to={`${item.id}`}>{item[fld.field]}</Link>
                                                                             }
                                                                             {(!fld.type || fld.type === 'text') && item[fld.field]}
-                                                                            {fld.type === 'date' && item[fld.field]?.substring(0, 10)}
+                                                                            {fld.type === 'date' && formatStringDate(item[fld.field])}
                                                                             {(fld.type === 'lookup') &&
                                                                                 <IUILookUp
                                                                                     value={item[fld.field]}
@@ -252,6 +261,13 @@ const IUIList = (props) => {
                                                                                     <RiDownload2Fill className="inline-block mr-2" />
                                                                                     Download Report
                                                                                 </Button>
+                                                                            }
+                                                                            {(fld.type === 'reset-password') &&
+                                                                                <IUIResetPasswordElement value={item[fld.field] || []}
+                                                                                    id={`reset-password-${item.id}`}
+                                                                                    text={fld.text}
+                                                                                    disabled={!privileges.edit}
+                                                                                />
                                                                             }
                                                                         </td>
                                                                     ))}
