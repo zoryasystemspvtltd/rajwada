@@ -163,7 +163,7 @@ export const EditFlat = () => {
                         text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
                             readonly: false,
-                            upload: false,
+                            upload: true,
                             save: true,
                             parentId: id,
                             parent: {

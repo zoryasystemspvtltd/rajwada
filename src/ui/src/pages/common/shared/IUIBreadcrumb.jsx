@@ -42,6 +42,13 @@ const IUIBreadcrumb = (props) => {
                             </li>
                         );
                     }
+                    else if (last && type === 'list') {
+                        return (
+                            <li key={href} className={`${last ? 'active' : 'breadcrumbTxt'}`}>
+                                <Link to={href} className='text-capitalize'>{item ? item?.name : pathname}</Link>
+                            </li>
+                        );
+                    }
                     else {
 
                         return (

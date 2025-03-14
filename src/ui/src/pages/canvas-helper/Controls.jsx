@@ -61,34 +61,33 @@ export const Controls = (props) => {
             </button>
             <a title="Point Marker" className="btn"
                 href="./#" onClick={(e) => markerStatus?.balloon ? selectMode(e, 'marker') : e.preventDefault()}
-
             >
                 {/* <img src={"assets/marker-icon.png"} style={{ height: '22px' }} alt={'Point Marker'} title={'Point Marker'} /> */}
-                <i className="fa-solid fa-location-dot fa-lg" style={{ color: "#ff2424" }}></i>
+                <i className="fa-solid fa-location-dot fa-lg" style={{ color: "#ff2424" }} title="Balloon Marker"></i>
             </a>
             <a title="Draw Rectangle" className="btn"
                 href="./#" onClick={(e) => markerStatus?.rectangle ? selectMode(e, 'rectangle') : e.preventDefault()}
             >
-                <i className="bi bi-bounding-box fs-5"></i>
+                <i className="bi bi-bounding-box fs-5" title="Rectangle Marker"></i>
             </a>
             <a title="Point Camera" className="btn"
                 href="./#" onClick={(e) => markerStatus?.camera ? selectMode(e, 'camera') : e.preventDefault()}
             >
-                <i className="bi bi-camera-fill fs-5"></i>
+                <i className="bi bi-camera-fill fs-5" title="Camera Marker"></i>
             </a>
             <a title="Pencil" className="btn"
                 href="./#" onClick={(e) => markerStatus?.pencil ? selectMode(e, 'pencil') : e.preventDefault()}
             >
-                <i className="bi bi-pencil fs-5"></i>
+                <i className="bi bi-pencil fs-5" title="Pencil Marker"></i>
             </a>
-            <a title="Pencil" className="btn"
+            <a title="Pencil Color" className="btn"
                 href="./#"
             >
                 <label>
                     <input type="color" value={color} onChange={handleColorChange} />
                 </label>
             </a>
-            <div title="Pencil" className="btn"
+            <div title="Pencil Thickness" className="btn"
             >
                 <label>
                     <input

@@ -44,7 +44,7 @@ const IUIActivityCreate = (props) => {
                 text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true,
                 schema: {
                     readonly: true,
-                    upload: false,
+                    upload: true,
                     parentId: -1,
                     save: false,
                     parent: {
@@ -110,7 +110,10 @@ const IUIActivityCreate = (props) => {
         modulePrivileges.forEach(p => {
             access = { ...access, ...{ [p]: true } }
         })
-        setPrivileges(access)
+        setPrivileges(access);
+        if (module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
     }, [loggedInUser, module]);
 
     useEffect(() => {
@@ -267,7 +270,7 @@ const IUIActivityCreate = (props) => {
         else {
             activityParentId = selectedDependency?.projectId;
         }
-        let tempImage = {...imageField};
+        let tempImage = { ...imageField };
         tempImage.fields[0].schema.parentId = activityParentId;
         setImageField(tempImage);
         setBfsSequence(result.map(node => node.data.label));

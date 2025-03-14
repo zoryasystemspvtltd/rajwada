@@ -84,8 +84,8 @@ export const ViewTower = () => {
                         text: 'Project', field: 'projectId', type: 'lookup-link', required: false, width: 4,
                         schema: { module: 'project', path: 'projects' }
                     },
-                    { text: 'Planned Start Date', field: 'planStartDate', width: 4, type: 'label-date' },
-                    { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'label-date' },
+                    // { text: 'Planned Start Date', field: 'planStartDate', width: 4, type: 'label-date' },
+                    // { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'label-date' },
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'h5', required: true, width: 12 },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'p', required: true, width: 12 },
 
@@ -171,8 +171,8 @@ export const EditTower = () => {
                         text: 'Project', field: 'projectId', type: 'lookup-link', required: false, width: 4,
                         schema: { module: 'project', path: 'projects' }
                     },
-                    { text: 'Planned Start Date', field: 'planStartDate', width: 4, type: 'date', required: true },
-                    { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'date', required: false },
+                    // { text: 'Planned Start Date', field: 'planStartDate', width: 4, type: 'date', required: false },
+                    // { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'date', required: false },
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 12 },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
@@ -190,7 +190,7 @@ export const EditTower = () => {
                         text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
                             readonly: false,
-                            upload: false,
+                            upload: true,
                             save: true,
                             parentId: id,
                             parent: {

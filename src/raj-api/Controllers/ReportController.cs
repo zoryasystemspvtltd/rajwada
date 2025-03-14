@@ -51,56 +51,56 @@ public class ReportController : ControllerBase
             var currentDate = DateTime.Now;
             foreach (var item in rawlist)
             {
-                var status = "";                
+                var status = "";
                 if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate == null)
                 {
                     status = "Not Started";
                 }
-                else if (item.StartDate != null && item.StartDate < currentDate && item.EndDate != null
+                if (item.StartDate != null && item.StartDate < currentDate && item.EndDate != null
                     && item.EndDate > currentDate && item.ActualStartDate != null)
                 {
                     status = "In Progress";
                 }
-                else if (item.EndDate != null && item.ActualEndDate == null
+                if (item.EndDate != null && item.ActualEndDate == null
                     && item.EndDate < currentDate && item.ActualStartDate != null)
                 {
                     status = "Delayed";
                 }
-                else if (item.StartDate != null && item.EndDate != null && item.StartDate < currentDate
+                if (item.StartDate != null && item.EndDate != null && item.StartDate < currentDate
                     && currentDate < item.EndDate && item.IsOnHold != null && item.IsOnHold == true)
                 {
                     status = "On Hold";
                 }
-                else if (item.ActualEndDate <= item.EndDate && item.ActualStartDate >= item.StartDate
-                    && item.IsCompleted != null && item.IsCompleted == true)
-                {
-                    status = "Closed";
-                }
-                else if (item.IsCancelled != null && item.IsCancelled == true)
-                {
-                    status = "Cancelled";
-                }
-                else if (item.IsQCApproved == null && item.IsCompleted != null
+                if (item.IsQCApproved == null && item.IsCompleted != null
                     && item.IsCompleted == true) // QC Assigened but not approved
                 {
                     status = "Pending QC Approval";
                 }
-                else if (item.IsCompleted != null && item.IsCompleted == true && item.IsQCApproved != null
-                    && item.IsQCApproved == true && item.IsApproved == null) //HOD Assigend but not approved
+                if (item.ActualEndDate <= item.EndDate && item.ActualStartDate >= item.StartDate
+                    && item.IsCompleted != null && item.IsCompleted == true)
                 {
-                    status = "Pending HOD Approval";
+                    status = "Closed";
                 }
-                else if (item.IsCompleted != null && item.IsCompleted == true
-                    && item.IsQCApproved != null && item.IsQCApproved == true)// QC Approved
+                if (item.IsCancelled != null && item.IsCancelled == true)
+                {
+                    status = "Cancelled";
+                }
+                if (item.IsCompleted != null && item.IsCompleted == true
+                  && item.IsQCApproved != null && item.IsQCApproved == true)// QC Approved,this condition never display
                 {
                     status = "Inspection Passed";
                 }
-                else if (item.IsCompleted != null && item.IsCompleted == true
+                if (item.IsCompleted != null && item.IsCompleted == true
                     && item.IsQCApproved != null && item.IsQCApproved == false) //QC is rejected
                 {
                     status = "Inspection Failed/Rework Required";
                 }
-                else if (item.IsCompleted == true && item.IsAbandoned == true)//Is Abanndoned
+                if (item.IsCompleted != null && item.IsCompleted == true && item.IsQCApproved != null
+                    && item.IsQCApproved == true && item.IsApproved == null) //HOD Assigend but not approved
+                {
+                    status = "Pending HOD Approval";
+                }
+                if (item.IsCompleted == true && item.IsAbandoned == true)//Is Abanndoned
                 {
                     status = "Short Closed/Abandoned";
                 }

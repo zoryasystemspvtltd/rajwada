@@ -9,6 +9,7 @@ import { Button, Col, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from './shared/IUILookUp';
+import { formatStringDate } from '../../store/datetime-formatter';
 
 const IUIListMapping = (props) => {
     const schema = props.schema;
@@ -54,8 +55,11 @@ const IUIListMapping = (props) => {
         modulePrivileges.forEach(p => {
             access = { ...access, ...{ [p]: true } }
         })
-        setPrivileges(access)
-    }, [loggedInUser, module]);
+        setPrivileges(access);
+        if (schema.module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
+    }, [loggedInUser, schema.module]);
 
     const pageChanges = async (e) => {
         e.preventDefault();
@@ -203,7 +207,7 @@ const IUIListMapping = (props) => {
                                                                 <>
                                                                     <td width={10}>
                                                                         {privileges.edit &&
-                                                                            <Link to={`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/${item?.id}/edit`}><i className="fa-solid fa-pencil"></i></Link>
+                                                                            <Link to={`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/${item?.id}/edit`} title='Edit'><i className="fa-solid fa-pencil"></i></Link>
                                                                         }
                                                                     </td>
                                                                 </>
@@ -214,7 +218,7 @@ const IUIListMapping = (props) => {
                                                                         <Link to={`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/${item?.id}`}>{item[fld.field]}</Link>
                                                                     }
                                                                     {(!fld.type || fld.type === 'text') && item[fld.field]}
-                                                                    {fld.type === 'date' && item[fld.field].substring(0, 10)}
+                                                                    {fld.type === 'date' && formatStringDate(item[fld.field])}
                                                                     {(fld.type === 'lookup') &&
                                                                         <IUILookUp
                                                                             value={item[fld.field]}
