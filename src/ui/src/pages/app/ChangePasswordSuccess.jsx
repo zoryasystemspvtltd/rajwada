@@ -28,7 +28,7 @@ const ChangePasswordSuccess = () => {
             <Container>
                 <Row>
                     <Col className="d-flex justify-content-center align-items-center">
-                        <h2><i className="fa-regular fa-circle-check fa-lg" style={{ color: "#3bf751" }}></i> Password change was successful</h2>
+                        <h2><i className="fa-regular fa-circle-check fa-lg" style={{ color: "#3bf751" }} title='Success'></i> Password change was successful</h2>
                     </Col>
                 </Row>
                 <Row>

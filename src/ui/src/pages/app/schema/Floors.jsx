@@ -171,7 +171,7 @@ export const EditFloor = () => {
                         text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
                         schema: {
                             readonly: false,
-                            upload: false,
+                            upload: true,
                             save: true,
                             parentId: id,
                             parent: {

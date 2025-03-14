@@ -255,13 +255,13 @@ export const IlabMarkerCanvas = (props) => {
         // Optionally, log the Base64 string for debugging
         // console.log(base64Encoded);
         await savePageValue();
-        notify("success", 'Units of Work Creation Successful!');
-        if (schema?.goBack) {
-            navigate(`/reporting`);
-        }
-        else {
-            navigate(`/${schema?.parent?.path}`);
-        }
+        notify("success", 'Save Successful!');
+        // if (schema?.goBack) {
+        //     navigate(`/reporting`);
+        // }
+        // else {
+        //     navigate(0);
+        // }
         if (!props?.readonly) {
             const modifiedEvent = {
                 target: {
@@ -321,12 +321,36 @@ export const IlabMarkerCanvas = (props) => {
     //     }
     // }, []);
 
-    const handlePlanImageChange = (event) => {
+    const convertBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file)
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+            }
+            fileReader.onerror = (error) => {
+                reject(error);
+            }
+        })
+    }
+
+    const handlePlanImageChange = async (event) => {
         const file = event.target.files[0];
         if (file) {
-            const imageUrl = URL.createObjectURL(file);
-            setPlanImage(imageUrl);
+            const imageContent = await convertBase64(file);
+            setPlanImage(imageContent);
             setMarker([]);
+            if (!props?.readonly) {
+                const modifiedEvent = {
+                    target: {
+                        id: props?.id,
+                        // modifiedImage: `data:image/svg+xml;base64,${base64Encoded}`,
+                        value: imageContent
+                    },
+                    preventDefault: function () { }
+                };
+                props.onChange(modifiedEvent);
+            }
         }
     };
 
@@ -515,7 +539,7 @@ export const IlabMarkerCanvas = (props) => {
                 <div className="row">
                     <div className="col-md-12">
                         <div className="main-card mb-3 card">
-                            <div className="card-body">
+                            <div className={`card-body ${props.className}`}>
                                 <div className='row'>
                                     <div className='col-md-9'>
                                         {
@@ -694,7 +718,11 @@ export const IlabMarkerCanvas = (props) => {
                                                 if (m.type === 'marker') {
                                                     return (
                                                         <li key={i} style={listStyles.listItem}>
-                                                            <i className="fa-solid fa-location-dot fa-lg" style={{ ...listStyles.icon, color: m?.color ? m.color : "#ff2424" }}></i>
+                                                            <i
+                                                                className="fa-solid fa-location-dot fa-lg"
+                                                                style={{ ...listStyles.icon, color: m?.color ? m.color : "#ff2424" }}
+                                                                title={m?.label ? m.label : m.type}>
+                                                            </i>
                                                             <span style={listStyles.text}>
                                                                 {/* {m?.label ? m.label : m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)} */}
                                                                 {m?.label ? m.label : m.type}
@@ -705,7 +733,7 @@ export const IlabMarkerCanvas = (props) => {
                                                 else if (m.type === 'rectangle') {
                                                     return (
                                                         <li key={i} style={listStyles.listItem}>
-                                                            <i className="bi bi-bounding-box fs-5" style={{ ...listStyles.icon, color: m?.color ? m.color : "blue" }}></i>
+                                                            <i className="bi bi-bounding-box fs-5" style={{ ...listStyles.icon, color: m?.color ? m.color : "blue" }} title={m?.label ? m.label : m.type}></i>
                                                             <span style={listStyles.text}>
                                                                 {/* {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)} */}
                                                                 {m?.label ? m.label : m.type}
@@ -717,7 +745,7 @@ export const IlabMarkerCanvas = (props) => {
                                                     return (
                                                         <li key={i} style={listStyles.listItem}>
                                                             <span style={listStyles.text}>
-                                                                <i className="bi bi-camera-fill fs-5" style={listStyles.icon}></i>
+                                                                <i className="bi bi-camera-fill fs-5" style={listStyles.icon} title={m.type}></i>
                                                                 {/* {m.type} - (x:{parseInt(m.x)}, y:{parseInt(m.y)}) {parseInt(m.height)} {parseInt(m.width)} */}
                                                                 {m.type}
                                                             </span>

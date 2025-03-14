@@ -6,15 +6,15 @@ import IUIPage from "../../common/IUIPage";
 export const ListLevelSetup = () => {
     const schema = {
         module: 'levelSetup',
-        title: 'Level Setup',
-        path: 'level-setups',
+        title: 'Site Material Approval',
+        path: 'site-material-approvals',
         paging: true,
         searching: true,
         editing: true,
         adding: true,
         fields: [
             { text: 'Project', field: 'projectName', type: 'link', sorting: true, searching: true },
-            { text: 'Document Date', field: 'documentDate', type: 'date', sorting: true, searching: true },
+            { text: 'Document Date', field: 'documentDate', type: 'date', sorting: true, searching: false },
             { text: 'Tracking No', field: 'trackingNo', type: 'text', sorting: true, searching: true },
             { text: 'Vehicle No', field: 'vechileNo', type: 'text', sorting: true, searching: true },
             { text: 'Supplier Name', field: 'supplierName', type: 'text', sorting: true, searching: true }
@@ -28,8 +28,8 @@ export const ViewLevelSetup = () => {
 
     const schema = {
         module: 'levelSetup',
-        title: 'Level Setup',
-        path: 'level-setups',
+        title: 'Site Material Approval',
+        path: 'site-material-approvals',
         editing: true,
         adding: false,
         deleting: true,
@@ -89,7 +89,7 @@ export const ViewLevelSetup = () => {
                                     text: 'Item', field: 'itemId', nameField: 'name', type: 'lookup', labelvisible: false, // TODO
                                     required: true, width: 12, schema: { module: 'asset' }
                                 },
-                                { text: 'Quantity', field: 'quantity', type: 'text', required: true, width: 12, labelvisible: false },
+                                { text: 'Quantity', field: 'quantity', type: 'number', required: true, width: 12, labelvisible: false },
                                 { text: 'Price', field: 'price', type: 'text', required: true, width: 12, labelvisible: false },
                                 {
                                     text: 'UOM', field: 'uomId', nameField: 'uomName', type: 'lookup', required: true, width: 12,
@@ -121,8 +121,8 @@ export const EditLevelSetup = () => {
 
     const schema = {
         module: 'levelSetup',
-        title: 'Level Setup',
-        path: 'level-setups',
+        title: 'Site Material Approval',
+        path: 'site-material-approvals',
         goNextView: true,
         back: false,
         goNextList: true,
@@ -172,7 +172,7 @@ export const EditLevelSetup = () => {
                                     text: 'Item', field: 'itemId', nameField: 'name', type: 'lookup', labelvisible: false, // TODO
                                     required: true, width: 12, schema: { module: 'asset' }
                                 },
-                                { text: 'Quantity', field: 'quantity', type: 'text', required: true, width: 12, labelvisible: false },
+                                { text: 'Quantity', field: 'quantity', type: 'number', required: true, width: 12, labelvisible: false },
                                 { text: 'Price', field: 'price', type: 'text', required: true, width: 12, labelvisible: false },
                                 {
                                     text: 'UOM', field: 'uomId', nameField: 'uomName', type: 'lookup', required: true, width: 12,
@@ -202,8 +202,8 @@ export const EditLevelSetup = () => {
 export const AddLevelSetup = () => {
     const schema = {
         module: 'levelSetup',
-        title: 'Level Setup',
-        path: 'level-setups',
+        title: 'Site Material Approval',
+        path: 'site-material-approvals',
         back: true,
         goNextEdit: true,
         fields: [

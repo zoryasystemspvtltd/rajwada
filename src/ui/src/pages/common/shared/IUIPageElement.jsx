@@ -21,6 +21,7 @@ import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
 import IUITableInput from './IUITableInput';
 import IUIListMapping from '../IUIListMapping';
+import { formatStringDate } from '../../../store/datetime-formatter';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -165,7 +166,7 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
-                                            <span id={fld.field}> {data[fld.field]?.substring(0, 10)} </span>
+                                            <span id={fld.field}> {data[fld.field] ? formatStringDate(data[fld.field]) : ""} </span>
                                         </Form.Group>
                                     </>
                                 }
@@ -547,7 +548,7 @@ const IUIPageElement = (props) => {
                                 {fld.type === 'lookup-relation' &&
                                     <>
                                         {
-                                            (data[fld.parent]) && (
+                                            (data[fld.parent]) ? (
                                                 <Form.Group className="position-relative form-group">
                                                     <Form.Label htmlFor={fld.field} >{fld.text}
                                                         {fld.required &&
@@ -568,7 +569,7 @@ const IUIPageElement = (props) => {
                                                         readonly={props.readonly || fld.readonly || false}
                                                     />
                                                 </Form.Group>
-                                            )
+                                            ) : <></>
                                         }
                                         <br />
                                     </>
@@ -595,10 +596,12 @@ const IUIPageElement = (props) => {
                                         <ILab.MarkerCanvas
                                             id={fld.field}
                                             value={data[fld.field] || []}
+                                            className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                             schema={fld.schema}
                                             onChange={handleChange}
                                             readonly={props.readonly || fld.readonly || false}
                                         />
+                                        <p className="text-danger mt-2">{errors[fld.field]}</p>
                                         <br />
                                     </>
                                 }

@@ -16,7 +16,7 @@ import { AddProject, EditProject, ListProject, ViewProject } from "../pages/app/
 import { AddRole, EditRole, ListRole, ViewRole } from "../pages/app/schema/Roles";
 import { AddRoom, EditRoom, ListRoom, ViewRoom } from "../pages/app/schema/Rooms";
 import { AddTower, EditTower, ListTower, ViewTower } from "../pages/app/schema/Towers";
-import { AddUser, EditUser, ListUser, ViewUser } from "../pages/app/schema/Users";
+import { AddUser, EditUser, ListUser, ResetPasswordUser, ViewUser } from "../pages/app/schema/Users";
 
 import ChangePassword from "../pages/app/ChangePassword";
 import ChangePasswordSuccess from "../pages/app/ChangePasswordSuccess";
@@ -41,7 +41,7 @@ import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/sche
 import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { AddRoomMapping, EditRoomMapping, ViewRoomMapping } from "../pages/app/schema/RoomMappings";
-import { LevelSetupReport } from "../pages/app/reports/LevelSetupReport";
+import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -123,6 +123,10 @@ const Routes = () => {
                 {
                     path: "/users/add",
                     element: <AddUser />
+                },
+                {
+                    path: "/users/reset-password",
+                    element: <ResetPasswordUser />
                 },
                 {
                     path: "/departments",
@@ -449,19 +453,19 @@ const Routes = () => {
                     element: <AddSupplier />
                 },
                 {
-                    path: "/level-setups",
+                    path: "/site-material-approvals",
                     element: <ListLevelSetup />
                 },
                 {
-                    path: "/level-setups/:id",
+                    path: "/site-material-approvals/:id",
                     element: <ViewLevelSetup />
                 },
                 {
-                    path: "/level-setups/:id/edit",
+                    path: "/site-material-approvals/:id/edit",
                     element: <EditLevelSetup />
                 },
                 {
-                    path: "/level-setups/add",
+                    path: "/site-material-approvals/add",
                     element: <AddLevelSetup />
                 },
                 {
@@ -469,8 +473,8 @@ const Routes = () => {
                     element: <WorkStatusReport />
                 },
                 {
-                    path: "/levelsetupreport",
-                    element: <LevelSetupReport />
+                    path: "/site-material-approval-report",
+                    element: <SiteMaterialApprovalReport />
                 },
                 {
                     path: "/flats/:flatId/roommappings/:id/edit",

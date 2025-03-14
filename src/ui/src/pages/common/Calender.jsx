@@ -509,11 +509,13 @@ const Calendar = () => {
 
             // Update Activity Details
             const updatedActivityData = {
-                id: selectedTask?.id,
+                ...selectedTask,
                 progressPercentage: progress,
                 actualCost: parseFloat(actualCost),
                 photoUrl: blueprint,
+                isCompleted: true
             };
+            
             await api.editData({ module: 'activity', data: updatedActivityData });
         }
         catch (error) {
@@ -540,8 +542,11 @@ const Calendar = () => {
     const handleSave = async () => {
         const updatedData_a = {
             ...selectedTask,
-            actualCost: actualCost,
-            progressPercentage: progress
+            actualCost: parseFloat(actualCost),
+            progressPercentage: progress,
+            isOnHold: taskStatus === 'onHold',
+            isCancelled: taskStatus === 'Cancelled',
+            isAbandoned: taskStatus === 'Abandoned'
         };
 
         const updateData_b = {

@@ -109,7 +109,7 @@ const IUIHeaderMenu = (props) => {
                                                     return (
                                                         <div className="col-sm-6 col-xl-4" key={`col_${menuSchema[key].text}_${index}`}>
                                                             <Button className="btn-icon-vertical btn-square btn-transition btn btn-outline-link" onClick={(e) => handleMenuRoleChange(e, key)}>
-                                                                <i className={`fa-solid fa-${(menuSchema[key].icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`}></i>
+                                                                <i className={`fa-solid fa-${(menuSchema[key].icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`} title={menuSchema[key].text}></i>
                                                                 {menuSchema[key].text}
                                                             </Button>
                                                         </div>
@@ -156,7 +156,7 @@ const IUIHeaderMenu = (props) => {
                                                     return (
                                                         <div className="col-sm-6 col-xl-4" key={`${item.name}_${index}`}>
                                                             <Link to={item.path} onClick={() => setIsOpen((prev) => !prev)} className="btn-icon-vertical btn-square btn-transition btn btn-outline-link">
-                                                                <i className={`fa-solid fa-${(item.icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`}></i>
+                                                                <i className={`fa-solid fa-${(item.icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`} title={item.text}></i>
                                                                 {item.text}
                                                             </Link>
                                                         </div>
@@ -203,7 +203,7 @@ const IUIHeaderMenu = (props) => {
                                                     return (
                                                         <div className="col-sm-6 col-xl-4" key={`${item.name}_${index}`}>
                                                             <Link to={item.path} onClick={() => setIsOpen((prev) => !prev)} className="btn-icon-vertical btn-square btn-transition btn btn-outline-link">
-                                                                <i className={`fa-solid fa-${(item.icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`}></i>
+                                                                <i className={`fa-solid fa-${(item.icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`} title={item.text}></i>
                                                                 {item.text}
                                                             </Link>
                                                         </div>

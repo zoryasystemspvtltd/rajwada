@@ -12,6 +12,7 @@ import IUILookUp from './shared/IUILookUp';
 import { HiOutlineUpload } from 'react-icons/hi';
 import { RiDownload2Fill } from 'react-icons/ri';
 import * as XLSX from 'xlsx';
+import { formatStringDate } from '../../store/datetime-formatter';
 
 const IUIListRelation = (props) => {
     const schema = props.schema;
@@ -158,7 +159,7 @@ const IUIListRelation = (props) => {
                                                 document.body.removeChild(link);
                                             }}
                                         >
-                                            <RiDownload2Fill className="inline-block mr-2"/>
+                                            <RiDownload2Fill className="inline-block mr-2" />
                                             Download
                                         </Button>
                                     }
@@ -168,7 +169,7 @@ const IUIListRelation = (props) => {
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
                                             onClick={handleButtonClick}
                                         >
-                                            <HiOutlineUpload className="inline-block mr-2"/>
+                                            <HiOutlineUpload className="inline-block mr-2" />
                                             <input
                                                 type='file'
                                                 accept='.xlsx, .xls'
@@ -246,7 +247,7 @@ const IUIListRelation = (props) => {
                                                         <tr key={i} >
                                                             {schema?.editing &&
                                                                 <td width={10}>
-                                                                    <Link to={`/${schema?.path}/${item?.id}/edit/${props?.parentId}`}><i className="fa-solid fa-pencil"></i></Link>
+                                                                    <Link to={`/${schema?.path}/${item?.id}/edit/${props?.parentId}`} title='Edit'><i className="fa-solid fa-pencil"></i></Link>
                                                                 </td>
                                                             }
                                                             {schema?.fields?.map((fld, f) => (
@@ -255,7 +256,7 @@ const IUIListRelation = (props) => {
                                                                         <Link to={`/${schema.path}/${item.id}`}>{item[fld.field]}</Link>
                                                                     }
                                                                     {(!fld.type || fld.type === 'text') && item[fld.field]}
-                                                                    {fld.type === 'date' && item[fld.field].substring(0, 10)}
+                                                                    {fld.type === 'date' && formatStringDate(item[fld.field])}
                                                                     {(fld.type === 'lookup') &&
                                                                         <IUILookUp
                                                                             value={item[fld.field]}
