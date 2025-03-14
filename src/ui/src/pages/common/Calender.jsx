@@ -20,10 +20,10 @@ import IUITableInput from './shared/IUITableInput';
 const Calendar = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [tasks, setTasks] = useState([]);
-    const [subTasks, setSubTasks] = useState([]);
+    const [selectedMainTask, setSelectedMainTask] = useState([]);
     const [dayData, setDayData] = useState({});
     const [mainModalOpen, setMainModalOpen] = useState(false);
-    const [ModalOpen, setModalOpen] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
     const [selectedTasks, setSelectedTasks] = useState([]);
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
@@ -112,8 +112,7 @@ const Calendar = () => {
     // Fetch tasks from the API
     async function fetchData() {
         try {
-
-            const baseFilter={
+            const baseFilter = {
                 name: 'Type',
                 value: 'Main Task'
             }
@@ -311,8 +310,7 @@ const Calendar = () => {
 
     const handleMainTaskClick = async (task) => {
         try {
-
-            const baseFilter={
+            const baseFilter = {
                 name: 'parentId',
                 value: parseInt(task.id)
             }
@@ -322,19 +320,63 @@ const Calendar = () => {
             };
 
             const response = await api.getData({ module: 'activity', options: pageOptions });
-            setTasks(response.data.items);
+            setSelectedTasks(response.data.items);
+            setSelectedMainTask(task);
+            setModalOpen(true);
         } catch (error) {
             setError('Failed to fetch tasks');
         }
-
-    } 
+    }
 
     // Handle task clicks in the date modal
-    const handleTaskClick = (task) => {
-        setSelectedTask(task);
-        setProgress(parseInt(task.progressPercentage, 10));
-        setBlueprint(task?.photoUrl);
-        if (!isSameDay(selectedDate, startOfToday()) || task?.isCompleted) {
+    const handleTaskClick = async (task) => {
+        const today = new Date();
+        const todayStart = new Date(today.setHours(0, 0, 0, 0));
+        const todayEnd = new Date(today.setHours(23, 59, 59, 999));
+
+        const baseFilter = {
+            name: 'activityId',
+            value: parseInt(task.id),
+            and: {
+                name: 'date',
+                value: todayStart,
+                operator: 'greaterThan',
+                and: {
+                    name: 'date',
+                    value: todayEnd,
+                    operator: 'lessThan'
+                }
+            }
+        };
+
+        const pageOptions = {
+            recordPerPage: 0,
+            searchCondition: baseFilter
+        };
+
+        const response = await api.getData({ module: 'activitytracking', options: pageOptions });
+        const trackingData = response?.data?.items?.sort((t1, t2) => new Date(t2.date) - new Date(t1.date));
+
+        if (trackingData?.length > 0) {
+            const latestTrackingData = trackingData[0];
+
+            setActualCost(parseFloat(latestTrackingData.cost));
+            setManPower(latestTrackingData.manPower);
+        }
+        else {
+            setActualCost(task?.actualCost);
+            setManPower(0);
+        }
+
+        //console.log(trackingData);
+
+        const latestTaskItem = await api.getSingleData({ module: 'activity', id: parseInt(task.id) });
+        const taskDetails = latestTaskItem.data;
+
+        setSelectedTask(taskDetails);
+        setProgress(parseInt(taskDetails.progressPercentage, 10));
+        setBlueprint(taskDetails?.photoUrl);
+        if (!isSameDay(selectedDate, startOfToday()) || taskDetails?.isCompleted) {
             setCanvasSchema(
                 {
                     ...canvasSchema,
@@ -399,7 +441,7 @@ const Calendar = () => {
             );
         }
         // setPreviousProgress(parseInt(task.progressPercentage, 10));
-        setActualCost(parseFloat(task.actualCost));
+        setActualCost(parseFloat(taskDetails.actualCost));
         setTaskModalOpen(true); // Open the modal for the task
     };
 
@@ -423,7 +465,7 @@ const Calendar = () => {
     // Close the date modal
     const closeModal = () => {
         setModalOpen(false);
-        window.location.reload();
+        // window.location.reload();
     };
 
     const closeMainModal = () => {
@@ -498,7 +540,7 @@ const Calendar = () => {
     const handleSave = async () => {
         const updatedData_a = {
             ...selectedTask,
-            actualCost: selectedTask?.actualCost + parseFloat(actualCost),
+            actualCost: actualCost,
             progressPercentage: progress
         };
 
@@ -650,10 +692,10 @@ const Calendar = () => {
                         <Modal.Title>Tasks For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body size='md' style={{ color: "black", maxHeight: '80vh', overflowY: 'auto' }}>
-                        {selectedTasks.length > 0 ? (
-                            selectedTasks.map((task) => (
+                        {tasks.length > 0 ? (
+                            tasks.map((task) => (
                                 <div className='d-grid gap-2 mb-2' key={`Task-${task.id}`}>
-                                    <div className="row">
+                                    <div className="row d-flex justify-content-center">
                                         <div className="col-8">
                                             <Button
                                                 variant="contained"
@@ -665,28 +707,6 @@ const Calendar = () => {
                                                 {task.curingStatus && <span className="badge badge-warning" >C</span>}
                                             </Button>
                                         </div>
-                                        {/* <div className="col-2 d-flex align-items-center">
-                                            <Button
-                                                title='Comments'
-                                                variant="contained"
-                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary'
-                                                onClick={() => handleCommentClick(task)}
-                                                style={{ width: '100%' }}
-                                            >
-                                                <FaRegCommentDots size={15} />
-                                            </Button>
-                                        </div>
-                                        <div className="col-2 d-flex align-items-center">
-                                            <Button
-                                                title='Image Gallery'
-                                                variant="contained"
-                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-info'
-                                                onClick={() => handleGalleryClick(task)}
-                                                style={{ width: '100%' }}
-                                            >
-                                                <FaImage size={14} />
-                                            </Button>
-                                        </div> */}
                                     </div>
                                 </div>
                             ))
@@ -705,12 +725,17 @@ const Calendar = () => {
                     </Modal.Footer>
                 </Modal>
             )}
-            {ModalOpen && (
-                <Modal show={ModalOpen} onHide={closeModal} >
+            {modalOpen && (
+                <Modal show={modalOpen} onHide={closeModal} >
                     <Modal.Header>
                         <Modal.Title>Tasks For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body size='md' style={{ color: "black", maxHeight: '80vh', overflowY: 'auto' }}>
+                        <div className="row mb-3">
+                            <div className="col-6">
+                                <span><strong>Parent Task: </strong>{selectedMainTask?.name}</span>
+                            </div>
+                        </div>
                         {selectedTasks.length > 0 ? (
                             selectedTasks.map((task) => (
                                 <div className='d-grid gap-2 mb-2' key={`Task-${task.id}`}>
@@ -718,7 +743,7 @@ const Calendar = () => {
                                         <div className="col-8">
                                             <Button
                                                 variant="contained"
-                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-lg btn-primary'
+                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-md btn-primary'
                                                 onClick={() => handleTaskClick(task)}
                                                 style={{ width: '100%' }}
                                             >
@@ -776,7 +801,7 @@ const Calendar = () => {
                             <div className="col-sm-12 col-md-6 col-lg-6">
                                 <span><strong>Date: </strong>{format(selectedDate, 'dd-MM-yyyy')}</span>
                             </div>
-                            <div className="col-sm-12 col-md-6 col-lg-">
+                            <div className="col-sm-12 col-md-6 col-lg-6">
                                 <span><strong>Task: </strong>{selectedTask.name}</span>
                             </div>
                         </div>
