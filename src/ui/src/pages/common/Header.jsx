@@ -7,7 +7,7 @@ import clientLogo from "../../assets/images/logo.png";
 import { useAuth } from "../../provider/authProvider";
 import { loginUser } from "../../store/api-db";
 import IUIHeaderMenu from "./IUIHeaderMenu";
-
+import schema from "../../store/menu-schema.json";
 
 const Header = ({ headerToLayout, headerMenuToLayout }) => {
     const [showSidebar, setShowSidebar] = useState(true);
@@ -51,70 +51,6 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
     // Handler for theme selection change
     const handleThemeChange = (event) => {
         setTheme(event.target.value);
-    };
-
-    let schema = {
-        admin: {
-            text: "Admin",
-            icon: "lock",
-            master: [
-                { name: "departmentManagement", text: "Department", icon: "sitemap", path: "/departments", access: "department" },
-                { name: "roleManagement", text: "Role", icon: "sitemap", path: "/roles", access: "role" },
-                { name: "userManagement", text: "User", icon: "users", path: "/users", access: "user" },
-                { name: "companyManagement", text: "Company", icon: "cubes-stacked", path: "/companies", access: "company" },
-                { name: "projectManagement", text: "Project", icon: "sitemap", path: "/projects", access: "project" },
-            ],
-            transaction: [
-                { name: "resetPassword", text: "Reset Password", icon: "vector-square", path: "/home" }
-            ],
-            report: [
-                { name: "adminReport", text: "Admin", icon: "vector-square", path: "/home" }
-            ]
-        },
-        civil: {
-            text: "Civil",
-            icon: "screwdriver-wrench",
-            master: [
-                { name: "uom", text: "UOM", icon: "cubes-stacked", path: "/uoms", access: "uom" },
-                { name: "contractor", text: "Contractor", icon: "cubes-stacked", path: "/contractors", access: "contractor" },
-                { name: "supplier", text: "Supplier", icon: "cubes-stacked", path: "/suppliers", access: "supplier" },
-                { name: "itemTypeManagement", text: "Item Type", icon: "cubes-stacked", path: "/item-types", access: "assetType" },
-                { name: "itemGroupManagement", text: "Item Group", icon: "cubes-stacked", path: "/item-groups", access: "assetGroup" },
-                { name: "itemMasterManagement", text: "Item", icon: "vector-square", path: "/item-masters", access: "asset" },
-                { name: "towerManagement", text: "Tower", icon: "industry", path: "/towers", access: "plan" },
-                { name: "floorManagement", text: "Floor", icon: "cubes", path: "/floors", access: "plan" },
-                { name: "flatManagement", text: "Flat", icon: "bed", path: "/flats", access: "plan" },
-                { name: "roomManagement", text: "Room", icon: "cubes", path: "/rooms", access: "plan" },
-                { name: "activityManagement", text: "Activity", icon: "cubes-stacked", path: "/activities", access: "activity" },
-            ],
-            transaction: [
-                { name: "workItemCreation", text: "Work Item Creation", icon: "vector-square", path: "/workitems" },
-                { name: "dependencyLabelSetting", text: "Dependency Label Setting", icon: "vector-square", path: "/labelsettings" },
-                { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
-                { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/reporting" },
-                { name: "siteMaterialApproval", text: "Site Material Approval", icon: "vector-square", path: "/site-material-approvals" }
-            ],
-            report: [
-                { name: "workStatusReport", text: "Work Status", icon: "vector-square", path: "/statusreport" },
-                { name: "siteMaterialApprovalReport", text: "Site Material Approval", icon: "vector-square", path: "/site-material-approval-report" }
-            ]
-        },
-        legal: {
-            text: "Legal",
-            icon: "user-tie",
-            master: [
-                { name: "mouza", text: "Mouza", icon: "cubes-stacked", path: "/mouzas", access: "mouza" },
-                { name: "rsDaag", text: "RS Master", icon: "cubes-stacked", path: "/rsdaags", access: "rsDaag" },
-                { name: "nameMaster", text: "Name Master", icon: "cubes-stacked", path: "/nameMasters", access: "nameMaster" },
-                { name: "wonership", text: "Woner Ship", icon: "cubes-stacked", path: "/mouzas", access: "mouza" },
-            ],
-            transaction: [
-                { name: "legalTransaction1", text: "Legal Transaction 1", icon: "vector-square", path: "/home" },
-            ],
-            report: [
-                { name: "legalReport", text: "Legal", icon: "vector-square", path: "/home" },
-            ]
-        },
     };
 
     useEffect(() => {

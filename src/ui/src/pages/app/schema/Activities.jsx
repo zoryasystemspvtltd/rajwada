@@ -16,6 +16,8 @@ export const ListActivity = () => {
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
+            { text: 'Planned Start Date', field: 'startDate', type: 'date', sorting: true, searching: true },
+            { text: 'Planned End Date', field: 'endDate', type: 'date', sorting: true, searching: true },
             { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false },
             {
                 text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
@@ -288,7 +290,7 @@ export const AddActivity = () => {
     const setupSchema = {
         module: 'activity',
         title: 'Activity',
-        path: 'activities',
+        path: 'activities/add',
         back: true,
         fields: [
             {
@@ -342,7 +344,7 @@ export const AddActivity = () => {
     const creationSchema = {
         module: 'activity',
         title: 'Activity',
-        path: 'activities',
+        path: 'activities/add',
         adding: true,
         back: true,
         defaultFields: [
@@ -399,16 +401,42 @@ export const AddActivity = () => {
                         schema: { module: 'activity' }
                     },
                     {
-                        text: 'Tower', field: 'towerId', type: 'lookup-filter', required: false, width: 4,
+                        text: 'Tower', field: 'towerId', type: 'lookup-filter', required: true, width: 4,
                         schema: { module: 'plan', filter: 'type', value: 'tower' }
                     },
+                    // {
+                    //     text: 'Floor', field: 'floorId', type: 'lookup-filter', required: false, width: 4,
+                    //     schema: { module: 'plan', filter: 'type', value: 'floor' }
+                    // },
+                    // {
+                    //     text: 'Flat', field: 'flatId', type: 'lookup-filter', required: false, width: 4,
+                    //     schema: { module: 'plan', filter: 'type', value: 'flat' }
+                    // },
                     {
-                        text: 'Floor', field: 'floorId', type: 'lookup-filter', required: false, width: 4,
-                        schema: { module: 'plan', filter: 'type', value: 'floor' }
+                        type: 'lookup-relation',
+                        parent: 'towerId',
+                        field: 'floorId',
+                        text: 'Floor',
+                        width: 4,
+                        required: false,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "parentId",
+                            path: 'floors'
+                        },
                     },
                     {
-                        text: 'Flat', field: 'flatId', type: 'lookup-filter', required: false, width: 4,
-                        schema: { module: 'plan', filter: 'type', value: 'flat' }
+                        type: 'lookup-relation',
+                        parent: 'floorId',
+                        field: 'flatId',
+                        text: 'Flat',
+                        width: 4,
+                        required: false,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "parentId",
+                            path: 'flats'
+                        },
                     },
                     { text: 'Planned Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
                     { text: 'Planned End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: true },

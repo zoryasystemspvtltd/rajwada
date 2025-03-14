@@ -25,11 +25,11 @@ export const SiteMaterialApprovalReport = () => {
         editing: false,
         adding: false,
         fields: [
-            { text: 'Project', field: 'projectName', type: 'text', sorting: true, searching: true },
-            { text: 'Document Date', field: 'documentDate', type: 'date', sorting: true, searching: true },
-            { text: 'Tracking No', field: 'trackingNo', type: 'text', sorting: true, searching: true },
-            { text: 'Vehicle No', field: 'vechileNo', type: 'text', sorting: true, searching: true },
-            { text: 'Supplier Name', field: 'supplierName', type: 'text', sorting: true, searching: true },
+            { text: 'Project', field: 'projectName', type: 'text', sorting: false, searching: true },
+            { text: 'Document Date', field: 'documentDate', type: 'date', sorting: false, searching: true },
+            { text: 'Tracking No', field: 'trackingNo', type: 'text', sorting: false, searching: true },
+            { text: 'Vehicle No', field: 'vechileNo', type: 'text', sorting: false, searching: true },
+            { text: 'Supplier Name', field: 'supplierName', type: 'text', sorting: false, searching: true },
             { text: 'Individual Report', field: 'challanReport', reportDateField: 'documentDate', type: 'report', sorting: false, searching: false }
         ]
     }

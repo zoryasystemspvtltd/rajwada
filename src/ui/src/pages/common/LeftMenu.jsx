@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSelector } from 'react-redux';
 import IUIMenuItem from "./shared/IUIMenuItem";
 import softwareLogo from "../../assets/images/Rajwada-ERP-Logo-Modified.png";
+import schema from "../../store/menu-schema.json";
 
 const LeftMenu = (props) => {
     const privileges = useSelector((state) => state.api.loggedInUser?.privileges);
@@ -81,68 +82,6 @@ const LeftMenu = (props) => {
     // ];
 
     // Filter  menu schema based on privileges
-
-    let schema = {
-        admin: {
-            text: "Admin",
-            icon: "lock",
-            master: [
-                { name: "departmentManagement", text: "Department", icon: "sitemap", path: "/departments", access: "department" },
-                { name: "roleManagement", text: "Role", icon: "sitemap", path: "/roles", access: "role" },
-                { name: "userManagement", text: "User", icon: "users", path: "/users", access: "user" },
-                { name: "companyManagement", text: "Company", icon: "cubes-stacked", path: "/companies", access: "company" },
-                { name: "projectManagement", text: "Project", icon: "sitemap", path: "/projects", access: "project" }
-            ],
-            transaction: [
-                { name: "resetPassword", text: "Reset Password", icon: "vector-square", path: "/users/reset-password", access: "user" }
-            ],
-            report: [
-                { name: "adminReport", text: "Admin Report", icon: "vector-square", path: "/home" }
-            ]
-        },
-        civil: {
-            text: "Civil",
-            icon: "screwdriver-wrench",
-            master: [
-                { name: "uom", text: "UOM", icon: "cubes-stacked", path: "/uoms", access: "uom" },
-                { name: "itemTypeManagement", text: "Item Type", icon: "cubes-stacked", path: "/item-types", access: "assetType" },
-                { name: "itemGroupManagement", text: "Item Group", icon: "cubes-stacked", path: "/item-groups", access: "assetGroup" },
-                { name: "itemMasterManagement", text: "Item", icon: "vector-square", path: "/item-masters", access: "asset" },
-                { name: "towerManagement", text: "Tower", icon: "industry", path: "/towers", access: "plan" },
-                { name: "floorManagement", text: "Floor", icon: "cubes", path: "/floors", access: "plan" },
-                { name: "flatManagement", text: "Flat", icon: "bed", path: "/flats", access: "plan" },
-                { name: "activityManagement", text: "Activity", icon: "cubes-stacked" },
-            ],
-            transaction: [
-                { name: "workItemCreation", text: "Work Item Creation", icon: "vector-square", path: "/workitems" },
-                { name: "dependencyWorkflow", text: "Dependency Workflow", icon: "vector-square", path: "/labelsettings" },
-                { name: "activityCreation", text: "Activity Creation", icon: "vector-square", path: "/activities/add" },
-                { name: "activityAssignment", text: "Activity Assignment", icon: "vector-square", path: "/activities" },
-                { name: "activityReporting", text: "Activity Reporting", icon: "vector-square", path: "/reporting" },
-                { name: "siteMaterialApproval", text: "Site Material Approval", icon: "vector-square", path: "/site-material-approvals"}
-            ],
-            report: [
-                { name: "workStatusReport", text: "Work Status", icon: "vector-square", path: "/statusreport" }
-            ]
-        },
-        legal: {
-            text: "Legal",
-            icon: "user-tie",
-            master: [
-                { name: "mouza", text: "Mouza", icon: "cubes-stacked", path: "/mouzas", access: "mouza" },
-                { name: "rsDaag", text: "RS Master", icon: "cubes-stacked", path: "/rsdaags", access: "rsDaag" },
-                { name: "mouza", text: "Mouza", icon: "cubes-stacked", path: "/mouzas", access: "mouza" },
-                { name: "mouza", text: "Mouza", icon: "cubes-stacked", path: "/mouzas", access: "mouza" },
-            ],
-            transaction: [
-                { name: "legalTransaction1", text: "Legal Transaction 1", icon: "vector-square", path: "/home" },
-            ],
-            report: [
-                { name: "legalReport", text: "Legal Report", icon: "vector-square", path: "/home" },
-            ]
-        }
-    };
-
     const filterMenu = (s) => {
         if (s.schema) {
             s.schema.forEach(item => {

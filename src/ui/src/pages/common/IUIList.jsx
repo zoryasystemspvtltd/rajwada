@@ -41,6 +41,9 @@ const IUIList = (props) => {
         })
         // console.log(access)
         setPrivileges(access)
+        if (module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
     }, [loggedInUser, module]);
 
     const pageChanges = async (e) => {

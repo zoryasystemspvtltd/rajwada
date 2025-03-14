@@ -56,7 +56,7 @@ const IUIPageElement = (props) => {
         e.preventDefault();
         if (props.readonly)
             return
-        
+
         let newData = { ...data, [e.target.id]: e.target.value }
         if (e.target?.dataset?.name) {
             newData = { ...newData, [e.target?.dataset?.name]: e.target[e.target.selectedIndex].text };
@@ -548,7 +548,7 @@ const IUIPageElement = (props) => {
                                 {fld.type === 'lookup-relation' &&
                                     <>
                                         {
-                                            (data[fld.parent]) && (
+                                            (data[fld.parent]) ? (
                                                 <Form.Group className="position-relative form-group">
                                                     <Form.Label htmlFor={fld.field} >{fld.text}
                                                         {fld.required &&
@@ -569,7 +569,7 @@ const IUIPageElement = (props) => {
                                                         readonly={props.readonly || fld.readonly || false}
                                                     />
                                                 </Form.Group>
-                                            )
+                                            ) : <></>
                                         }
                                         <br />
                                     </>

@@ -40,7 +40,10 @@ const IUIListFilter = (props) => {
             access = { ...access, ...{ [p]: true } }
         })
         // console.log(access)
-        setPrivileges(access)
+        setPrivileges(access);
+        if (schema.module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
     }, [loggedInUser, schema.module]);
 
     const handleFileUpload = (event) => {

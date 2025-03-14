@@ -89,7 +89,7 @@ export const ViewLevelSetup = () => {
                                     text: 'Item', field: 'itemId', nameField: 'name', type: 'lookup', labelvisible: false, // TODO
                                     required: true, width: 12, schema: { module: 'asset' }
                                 },
-                                { text: 'Quantity', field: 'quantity', type: 'text', required: true, width: 12, labelvisible: false },
+                                { text: 'Quantity', field: 'quantity', type: 'number', required: true, width: 12, labelvisible: false },
                                 { text: 'Price', field: 'price', type: 'text', required: true, width: 12, labelvisible: false },
                                 {
                                     text: 'UOM', field: 'uomId', nameField: 'uomName', type: 'lookup', required: true, width: 12,
@@ -172,7 +172,7 @@ export const EditLevelSetup = () => {
                                     text: 'Item', field: 'itemId', nameField: 'name', type: 'lookup', labelvisible: false, // TODO
                                     required: true, width: 12, schema: { module: 'asset' }
                                 },
-                                { text: 'Quantity', field: 'quantity', type: 'text', required: true, width: 12, labelvisible: false },
+                                { text: 'Quantity', field: 'quantity', type: 'number', required: true, width: 12, labelvisible: false },
                                 { text: 'Price', field: 'price', type: 'text', required: true, width: 12, labelvisible: false },
                                 {
                                     text: 'UOM', field: 'uomId', nameField: 'uomName', type: 'lookup', required: true, width: 12,

@@ -36,7 +36,7 @@ const IUIResetPasswordElement = (props) => {
     return (
         <>
             <Button variant="primary" onClick={handleShow} disabled={isDisabled}>
-                {props?.text}
+                Reset Password
             </Button>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>

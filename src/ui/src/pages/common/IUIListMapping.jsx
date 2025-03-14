@@ -55,8 +55,11 @@ const IUIListMapping = (props) => {
         modulePrivileges.forEach(p => {
             access = { ...access, ...{ [p]: true } }
         })
-        setPrivileges(access)
-    }, [loggedInUser, module]);
+        setPrivileges(access);
+        if (schema.module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
+    }, [loggedInUser, schema.module]);
 
     const pageChanges = async (e) => {
         e.preventDefault();

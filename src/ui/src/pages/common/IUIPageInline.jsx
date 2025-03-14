@@ -55,6 +55,17 @@ const IUIPageInline = (props) => {
             if (item.required && values && !values[item?.field]) {
                 errors[item.field] = `Required field.`;
             }
+            if (item.type === 'number' && values[item?.field]) {
+                try {
+                    let numericValue = parseInt(values[item?.field]);
+                    if (numericValue < 0) {
+                        errors[item.field] = `Negative input not allowed.`;
+                    }
+                }
+                catch (e) {
+                    errors[item.field] = `Invalid Input.`;
+                }
+            }
         }
         return errors;
     };
