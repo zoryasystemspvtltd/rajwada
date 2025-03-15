@@ -513,7 +513,7 @@ const IUIPage = (props) => {
                                                         <IUIAssign onClick={assignPageValue} />
                                                     }
                                                     {schema?.assign && privileges?.assign && schema?.assignType === 'multiple' && (approvalStatus !== 3 && approvalStatus !== 4 && approvalStatus !== 6) &&
-                                                        <IUIMultiAssign onClick={assignMultiPageValue} />
+                                                        <IUIMultiAssign onClick={assignMultiPageValue} schema={{module: module, id: id}} />
                                                     }
                                                     {/* Condition modified by Adrish */}
                                                     {schema?.approving && privileges?.assign && approvalStatus === 3 && loggedInUser?.email !== data.member &&

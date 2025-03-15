@@ -341,19 +341,19 @@ const Routes = () => {
                     element: <AddWorkItem />
                 },
                 {
-                    path: "/labelsettings",
+                    path: "/dependencyworkflows",
                     element: <ListWorkflow />
                 },
                 {
-                    path: "/labelsettings/:id",
+                    path: "/dependencyworkflows/:id",
                     element: <ViewWorkflow />
                 },
                 {
-                    path: "/labelsettings/:id/edit",
+                    path: "/dependencyworkflows/:id/edit",
                     element: <EditWorkflow />
                 },
                 {
-                    path: "/labelsettings/add",
+                    path: "/dependencyworkflows/add",
                     element: <AddWorkflow />
                 },
                 {

@@ -20,9 +20,11 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 ));
 
 const IUIMultiAssign = (props) => {
-    const module = "user"
+    const module = "user";
+    const schema = props?.schema;
     const dropdownRef = useRef(null);
-    const [dataSet, setDataSet] = useState([])
+    const [dataSet, setDataSet] = useState([]);
+    const [alreadyChecked, setAlreadyChecked] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     // State to track checked users
     const [checkedUsers, setCheckedUsers] = useState({});
@@ -46,7 +48,23 @@ const IUIMultiAssign = (props) => {
         async function fetchData() {
             const pageOptions = { recordPerPage: 0 }
             const response = await api.getData({ module: module, options: pageOptions });
-            setDataSet(response?.data)
+            setDataSet(response?.data);
+            
+            let allAssignedUsersResponse = await api.assignedUsers({ module: schema?.module, id: schema?.id });
+            let allAssignedUsers = allAssignedUsersResponse?.data;
+
+            const assignedUserIds = allAssignedUsers?.map((item) => {
+                return response?.data?.items?.find(user => user.email === item?.member)?.id
+            })?.filter(value => value !== undefined) || [];
+
+            // Set already checked users
+            setAlreadyChecked(assignedUserIds);
+            assignedUserIds?.forEach((id) => {
+                setCheckedUsers(prevState => ({
+                    ...prevState,
+                    [id]: !prevState[id]
+                }));
+            })
         }
 
         fetchData();
@@ -91,6 +109,7 @@ const IUIMultiAssign = (props) => {
                                 label={item.name}
                                 checked={checkedUsers[item.id] || false}
                                 onChange={() => handleCheckboxChange(item.id)}
+                                disabled={alreadyChecked?.includes(item.id)}
                             />
                         </Dropdown.ItemText>
                     ))}
