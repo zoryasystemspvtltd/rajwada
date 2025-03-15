@@ -73,8 +73,9 @@ const IUITableInput = (props) => {
 
     const handleChange = (e) => {
         e.preventDefault();
-        const newData = { ...data, ...e.target.value }
+        const newData = { ...data, ...e.target.value };
         setData(newData);
+        setErrors(validate(newData, schema?.fields));
         setIsNewAdd(false);
     };
 
@@ -168,6 +169,14 @@ const IUITableInput = (props) => {
             setData({});
             setErrors({});
             setIsNewAdd(true);
+            const modifiedEvent = {
+                target: {
+                    id: props?.id,
+                    value: JSON.stringify([...dataArray, data])
+                },
+                preventDefault: function () { }
+            };
+            props.onChange(modifiedEvent);
             // console.log(dataArray)
         }
     };
@@ -191,8 +200,11 @@ const IUITableInput = (props) => {
                 <div className="tabs-animation">
                     <div className="row">
                         <div className="col-md-12">
-                            <div className={schema?.readonly ? "main-card card" : "main-card mb-3 card"}>
-                                <div className="card-body">
+                            <div className={schema?.readonly ? "main-card card" : "main-card mb-2 card"}>
+                                <div
+                                    className="card-body"
+                                    style={(props.className !== "" && props.className === "is-invalid") ? { border: "1px solid red" } : (props.className !== "" && props.className === "is-valid") ? { border: "1px solid green" } : {}}
+                                >
                                     <div>
                                         <Form>
                                             {
@@ -244,7 +256,7 @@ const IUITableInput = (props) => {
                                                 )
                                             }
 
-                                            {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
+                                            {(!schema?.readonly && (privileges?.add || privileges?.edit)) && (dataArray.length > 0) &&
                                                 <hr />
                                             }
 
@@ -311,7 +323,7 @@ const IUITableInput = (props) => {
                                                     </Row>
                                                 )
                                             }
-                                            {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
+                                            {(!schema?.readonly && (privileges?.add || privileges?.edit)) && (dataArray.length > 0) &&
                                                 <hr />
                                             }
                                             <Row className='mt-2'>

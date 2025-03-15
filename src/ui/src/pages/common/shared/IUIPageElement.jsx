@@ -519,11 +519,12 @@ const IUIPageElement = (props) => {
                                         <IUITableInput
                                             id={fld.field}
                                             schema={fld.schema}
+                                            className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                             value={data[fld.field]}
                                             onChange={handleChange}
                                             readonly={props.readonly || fld.readonly || false}
                                         />
-                                        <br />
+                                        <p className="text-danger">{errors[fld.field]}</p>
                                     </>
                                 }
                                 {fld.type === 'list-inline' &&
