@@ -6,7 +6,6 @@ import { useState } from "react";
 const IUIMenuItem = (props) => {
     const privileges = useSelector((state) => state.api.loggedInUser?.privileges);
     const [value, setValue] = useState(props.schema);
-    console.log(value);
 
     const expandMenu = (e, index) => {
 

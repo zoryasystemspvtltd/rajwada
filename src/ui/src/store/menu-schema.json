@@ -41,11 +41,10 @@
         ],
         "transaction": [
             {
-                "name": "resetPassword",
-                "text": "Reset Password",
+                "name": "userDashboard",
+                "text": "Dashboard",
                 "icon": "vector-square",
-                "path": "/users/reset-password",
-                "access": "user"
+                "path": "/home"
             }
         ],
         "report": [
