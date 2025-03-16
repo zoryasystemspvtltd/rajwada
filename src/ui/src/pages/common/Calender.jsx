@@ -501,7 +501,7 @@ const Calendar = () => {
     // Close the date modal
     const closeModal = () => {
         setModalOpen(false);
-        // window.location.reload();
+        window.location.reload();
     };
 
     const closeMainModal = () => {
@@ -613,7 +613,7 @@ const Calendar = () => {
                 isCompleted: false
             });
             closeTaskModal();
-            // closeModal();
+            closeModal(); // refresh page on task details update
             await fetchData();
         }
     };
@@ -1154,7 +1154,7 @@ const Calendar = () => {
                     show={showGalleryModal}
                     searchKey="parentId"
                     searchId={selectedTask?.id}
-                    module="attachment"
+                    searchModule="activity"
                     handleClose={handleCloseGalleryModal}
                     title={`Image Gallery: ${selectedTask?.name}`}
                 />
