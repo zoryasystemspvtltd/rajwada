@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Col, Form, InputGroup, Row } from "react-bootstrap";
+import { Col, Form, InputGroup, Row, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import MaskedInput from 'react-text-mask';
 import IUIResetPasswordElement from '../../ResetUserPassword';
@@ -22,6 +22,8 @@ import IUIRadio from './IUIRadio';
 import IUITableInput from './IUITableInput';
 import IUIListMapping from '../IUIListMapping';
 import { formatStringDate } from '../../../store/datetime-formatter';
+import IUIImageGallery from './IUIImageGallery';
+import { FaImage } from 'react-icons/fa';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -34,7 +36,8 @@ const IUIPageElement = (props) => {
     // Local State
     const [data, setData] = useState({});
     const [errors, setErrors] = useState({});
-    const [dirty, setDirty] = useState(props.dirty)
+    const [dirty, setDirty] = useState(props.dirty);
+    const [showImageGalleryModal, setShowImageGalleryModal] = useState(false);
 
     useEffect(() => {
         if (props?.value)
@@ -89,6 +92,13 @@ const IUIPageElement = (props) => {
         }
     };
 
+    const handleImageGalleryOpen = () => {
+        setShowImageGalleryModal(true);
+    };
+
+    const handleImageGalleryClose = () => {
+        setShowImageGalleryModal(false);
+    };
 
     return (
         <>
@@ -620,6 +630,28 @@ const IUIPageElement = (props) => {
                                             />
                                             <br />
                                         </Form.Group>
+                                    </>
+                                }
+                                {fld.type === 'image-gallery' &&
+                                    <>
+                                        <Button
+                                            title='Image Gallery'
+                                            variant="contained"
+                                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
+                                            onClick={handleImageGalleryOpen}
+                                        >
+                                            <FaImage size={14} className='mr-2' /> {fld.text}
+                                        </Button>
+                                        {
+                                            showImageGalleryModal && <IUIImageGallery
+                                                show={showImageGalleryModal}
+                                                searchKey={fld.schema?.searchKey}
+                                                searchId={fld.schema?.searchId}
+                                                searchModule={fld.schema?.searchModule}
+                                                handleClose={handleImageGalleryClose}
+                                                title={fld.text}
+                                            />
+                                        }
                                     </>
                                 }
                             </Col>

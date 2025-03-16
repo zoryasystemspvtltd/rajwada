@@ -1154,7 +1154,7 @@ const Calendar = () => {
                     show={showGalleryModal}
                     searchKey="parentId"
                     searchId={selectedTask?.id}
-                    module="attachment"
+                    searchModule="activity"
                     handleClose={handleCloseGalleryModal}
                     title={`Image Gallery: ${selectedTask?.name}`}
                 />

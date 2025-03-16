@@ -5,6 +5,7 @@ import { notify } from "../../../store/notification";
 import { getFormattedDate } from '../../../store/datetime-formatter';
 
 const IUIImageGallery = (props) => {
+    const module = "attachment";
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [startDate, setStartDate] = useState('');
@@ -18,6 +19,10 @@ const IUIImageGallery = (props) => {
                 const newBaseFilter = {
                     name: props?.searchKey,
                     value: `${props?.searchId}`,
+                    and: {
+                        name: "module",
+                        value: props?.searchModule
+                    }
                 }
 
                 const pageOptions = {
@@ -25,7 +30,7 @@ const IUIImageGallery = (props) => {
                     searchCondition: newBaseFilter
                 }
 
-                const response = await api.getData({ module: props?.module, options: pageOptions });
+                const response = await api.getData({ module: module, options: pageOptions });
                 setImages(response?.data?.items);
                 setFilteredImages(response?.data?.items);
                 setLoading(false);
