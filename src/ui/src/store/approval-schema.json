@@ -1,0 +1,27 @@
+{
+    "quality": {
+        "approvalPending": {
+            "isQcApproved": null,
+            "isCompleted": true,
+            "qcApprovedBy": null,
+            "qcRemarks": null
+        },
+        "approvalCompleted": {
+            "isQcApproved": true,
+            "isCompleted": true
+        }
+    },
+    "civilHead": {
+        "approvalPending": {
+            "isQcApproved": true,
+            "isCompleted": true,
+            "isApproved": null,
+            "approvedBy": null
+        },
+        "approvalCompleted": {
+            "isQcApproved": true,
+            "isCompleted": true,
+            "isApproved": true
+        }
+    }
+}

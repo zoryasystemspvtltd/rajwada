@@ -392,12 +392,13 @@ const Calendar = () => {
 
         const response = await api.getData({ module: 'activitytracking', options: pageOptions });
         const trackingData = response?.data?.items?.sort((t1, t2) => new Date(t2.date) - new Date(t1.date));
-
+        
         if (trackingData?.length > 0) {
             const latestTrackingData = trackingData[0];
 
             setActualCost(parseFloat(latestTrackingData.cost));
             setManPower(latestTrackingData.manPower);
+            setItemList(latestTrackingData?.item);
         }
         else {
             setActualCost(task?.actualCost);
@@ -501,7 +502,7 @@ const Calendar = () => {
     // Close the date modal
     const closeModal = () => {
         setModalOpen(false);
-        window.location.reload();
+        // window.location.reload();
     };
 
     const closeMainModal = () => {
@@ -613,7 +614,8 @@ const Calendar = () => {
                 isCompleted: false
             });
             closeTaskModal();
-            closeModal(); // refresh page on task details update
+            // closeModal(); // refresh page on task details update
+            window.location.reload();
             await fetchData();
         }
     };
@@ -731,7 +733,6 @@ const Calendar = () => {
                         <Modal.Title>Tasks For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body size='md' style={{ color: "black", maxHeight: '80vh', overflowY: 'auto' }}>
-                        {console.log(selectedMainTasks)}
                         {selectedMainTasks.length > 0 ? (
                             selectedMainTasks.map((task) => (
                                 <div className='d-grid gap-2 mb-2' key={`Task-${task.id}`}>
@@ -776,7 +777,6 @@ const Calendar = () => {
                                 <span><strong>Parent Task: </strong>{selectedMainTask?.name}</span>
                             </div>
                         </div>
-                        {console.log(selectedTasks)}
                         {selectedTasks.length > 0 ? (
                             selectedTasks.map((task) => (
                                 <div className='d-grid gap-2 mb-2' key={`Task-${task.id}`}>

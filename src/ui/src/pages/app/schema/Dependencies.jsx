@@ -5,7 +5,7 @@ export const ListWorkItem = () => {
 
     const schema = {
         module: 'dependency',
-        title: 'Work Item',
+        title: 'Activity Creation',
         path: 'workitems',
         paging: true,
         searching: true,
@@ -24,7 +24,7 @@ export const ListWorkItem = () => {
 export const ViewWorkItem = () => {
     const schema = {
         module: 'dependency',
-        title: 'Work Item',
+        title: 'Activity Creation',
         path: 'workitems',
         showBreadcrumbs: true,
         editing: true,
@@ -50,7 +50,7 @@ export const ViewWorkItem = () => {
 export const EditWorkItem = () => {
     const schema = {
         module: 'dependency',
-        title: 'Work Item',
+        title: 'Activity Creation',
         path: 'workitems',
         back: false,
         fields: [
@@ -80,7 +80,7 @@ export const EditWorkItem = () => {
 export const AddWorkItem = () => {
     const schema = {
         module: 'dependency',
-        title: 'Work Item',
+        title: 'Activity Creation',
         path: 'workitems',
         back: true,
         fields: [

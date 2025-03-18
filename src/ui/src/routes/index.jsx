@@ -42,6 +42,7 @@ import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from ".
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { AddRoomMapping, EditRoomMapping, ViewRoomMapping } from "../pages/app/schema/RoomMappings";
 import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
+import { ListActivityApproval } from "../pages/app/schema/ActivityApprovals";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -315,6 +316,10 @@ const Routes = () => {
                 {
                     path: "/reporting",
                     element: <ListReport />
+                },
+                {
+                    path: "/approvals",
+                    element: <ListActivityApproval />
                 },
                 // {
                 //     path: "/reporting/:id",
