@@ -2,11 +2,7 @@
     "quality": {
         "approvalPending": {
             "name": "isCompleted",
-            "value": true,
-            "and": {
-                "name": "status",
-                "value": 2
-            }
+            "value": true
         },
         "approvalCompleted": {
             "name": "isQcApproved",

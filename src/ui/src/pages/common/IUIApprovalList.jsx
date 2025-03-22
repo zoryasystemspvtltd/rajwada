@@ -58,7 +58,6 @@ const IUIApprovalList = (props) => {
                     }
 
                     const response = await api.getData({ module: module, options: pageOptions });
-                    console.log(response)
                     setDataSet(response?.data);
                 }
             }
