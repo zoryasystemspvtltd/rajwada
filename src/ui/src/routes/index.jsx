@@ -42,6 +42,7 @@ import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from ".
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { AddRoomMapping, EditRoomMapping, ViewRoomMapping } from "../pages/app/schema/RoomMappings";
 import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
+import { ListActivityApproval } from "../pages/app/schema/ActivityApprovals";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -316,6 +317,10 @@ const Routes = () => {
                     path: "/reporting",
                     element: <ListReport />
                 },
+                {
+                    path: "/approvals",
+                    element: <ListActivityApproval />
+                },
                 // {
                 //     path: "/reporting/:id",
                 //     element: <ViewReport />
@@ -341,19 +346,19 @@ const Routes = () => {
                     element: <AddWorkItem />
                 },
                 {
-                    path: "/labelsettings",
+                    path: "/dependencyworkflows",
                     element: <ListWorkflow />
                 },
                 {
-                    path: "/labelsettings/:id",
+                    path: "/dependencyworkflows/:id",
                     element: <ViewWorkflow />
                 },
                 {
-                    path: "/labelsettings/:id/edit",
+                    path: "/dependencyworkflows/:id/edit",
                     element: <EditWorkflow />
                 },
                 {
-                    path: "/labelsettings/add",
+                    path: "/dependencyworkflows/add",
                     element: <AddWorkflow />
                 },
                 {

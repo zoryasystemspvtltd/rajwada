@@ -6,7 +6,7 @@ export const ListActivity = () => {
 
     const schema = {
         module: 'activity',
-        title: 'Activity',
+        title: 'Work List',
         path: 'activities',
         paging: true,
         searching: true,
@@ -37,7 +37,7 @@ export const ListActivity = () => {
 export const ViewActivity = () => {
     const schema = {
         module: 'activity',
-        title: 'Activity',
+        title: 'Work Details',
         path: 'activities',
         showBreadcrumbs: true,
         editing: true,
@@ -165,7 +165,7 @@ export const ViewActivity = () => {
 export const EditActivity = () => {
     const schema = {
         module: 'activity',
-        title: 'Activity',
+        title: 'Work Details',
         path: 'activities',
         back: false,
         fields: [
@@ -289,7 +289,7 @@ export const EditActivity = () => {
 export const AddActivity = () => {
     const setupSchema = {
         module: 'activity',
-        title: 'Activity',
+        title: 'Work Creation',
         path: 'activities/add',
         back: true,
         fields: [
@@ -343,8 +343,8 @@ export const AddActivity = () => {
 
     const creationSchema = {
         module: 'activity',
-        title: 'Activity',
-        path: 'activities/add',
+        title: 'Work Creation',
+        path: 'activities',
         adding: true,
         back: true,
         defaultFields: [

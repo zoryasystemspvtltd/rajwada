@@ -174,35 +174,35 @@ export const apiSlice = createSlice({
     },
     extraReducers(builder) {
         builder
-        .addCase(getEnumData.pending, (state, action) => {
-            state[action.meta.arg.module] = { ...state[action.meta.arg.module], status: "loading" }
-            state["any"].status = "loading"
-        })
-        .addCase(getEnumData.fulfilled, (state, action) => {
-            state[action.meta.arg.module].status = "succeeded"
-            state["any"].status = "succeeded"
+            .addCase(getEnumData.pending, (state, action) => {
+                state[action.meta.arg.module] = { ...state[action.meta.arg.module], status: "loading" }
+                state["any"].status = "loading"
+            })
+            .addCase(getEnumData.fulfilled, (state, action) => {
+                state[action.meta.arg.module].status = "succeeded"
+                state["any"].status = "succeeded"
 
-            const items = state[action.meta.arg.module].items;
-            if (items) {
-                const index = items?.findIndex(item => `${item.id}` === action.meta.arg.id)
-                state[action.meta.arg.module].items = [
-                    ...items?.slice(0, index), // everything before array
-                    {
-                        ...items[index],
-                        ...action.payload.data
-                    },
-                    ...items?.slice(index + 1), // everything after array
-                ]
-            }
-        })
-        .addCase(getEnumData.rejected, (state, action) => {
-            state[action.meta.arg.module] = { ...state[action.meta.arg.module] }
-            state[action.meta.arg.module].status = "error"
-            state[action.meta.arg.module].message = action.error.message
+                const items = state[action.meta.arg.module].items;
+                if (items) {
+                    const index = items?.findIndex(item => `${item.id}` === action.meta.arg.id)
+                    state[action.meta.arg.module].items = [
+                        ...items?.slice(0, index), // everything before array
+                        {
+                            ...items[index],
+                            ...action.payload.data
+                        },
+                        ...items?.slice(index + 1), // everything after array
+                    ]
+                }
+            })
+            .addCase(getEnumData.rejected, (state, action) => {
+                state[action.meta.arg.module] = { ...state[action.meta.arg.module] }
+                state[action.meta.arg.module].status = "error"
+                state[action.meta.arg.module].message = action.error.message
 
-            state["any"].status = "error"
-            state["any"].message = state[action.meta.arg.module].message
-        })
+                state["any"].status = "error"
+                state["any"].message = state[action.meta.arg.module].message
+            })
             .addCase(getSingleData.pending, (state, action) => {
                 state[action.meta.arg.module] = { ...state[action.meta.arg.module], status: "loading" }
                 state["any"].status = "loading"
@@ -239,9 +239,11 @@ export const apiSlice = createSlice({
             .addCase(getData.fulfilled, (state, action) => {
                 state[action.meta.arg.module].status = "succeeded"
                 state["any"].status = "succeeded"
-                action.payload.data.totalPages = action.meta.arg.options.recordPerPage === 0 ? 1
-                    : parseInt(action.payload.data.totalRecords / action.meta.arg.options.recordPerPage)
-                    + (action.payload.data.totalRecords % action.meta.arg.options.recordPerPage !== 0 ? 1 : 0);
+                if (action.payload.data !== "") {
+                    action.payload.data.totalPages = action.meta.arg.options.recordPerPage === 0 ? 1
+                        : parseInt(action.payload.data.totalRecords / action.meta.arg.options.recordPerPage)
+                        + (action.payload.data.totalRecords % action.meta.arg.options.recordPerPage !== 0 ? 1 : 0);
+                }
                 state[action.meta.arg.module] = { ...action.payload.data, ...{ options: action.meta.arg.options } };
             })
             .addCase(getData.rejected, (state, action) => {

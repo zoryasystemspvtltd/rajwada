@@ -1,5 +1,6 @@
 import IUIList from "../../common/IUIList";
-import IUIPage from "../../common/IUIPage"
+import IUIPage from "../../common/IUIPage";
+
 export const ListWorkItem = () => {
 
     const schema = {

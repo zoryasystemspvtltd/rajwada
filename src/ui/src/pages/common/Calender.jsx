@@ -21,9 +21,11 @@ const Calendar = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [tasks, setTasks] = useState([]);
     const [selectedMainTask, setSelectedMainTask] = useState([]);
+    const [dailyActivityTrackingData, setDailyActivityTrackingData] = useState([]);
     const [dayData, setDayData] = useState({});
     const [mainModalOpen, setMainModalOpen] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
+    const [selectedMainTasks, setSelectedMainTasks] = useState([]);
     const [selectedTasks, setSelectedTasks] = useState([]);
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
@@ -241,6 +243,7 @@ const Calendar = () => {
         // console.log(response?.data);
 
         let trackingData = response?.data?.items;
+        setDailyActivityTrackingData(trackingData);
 
         // Filter tasks for the clicked date
         const filteredTasks = tasks.filter((task) => {
@@ -249,13 +252,36 @@ const Calendar = () => {
             endDate.setDate(endDate.getDate() + 365);
             const taskEndDate = task.actualEndDate ? new Date(task.actualEndDate) : endDate;
             return clickedDate >= taskStartDate && clickedDate <= taskEndDate;
-        }).map(task => {
-            const taskTrackingInfo = trackingData.find(t => t.activityId === task.id);
+        });
+
+        const finalTasks = await Promise.all(filteredTasks.map(async (task) => {
+            const baseFilter = {
+                name: 'parentId',
+                value: parseInt(task.id)
+            };
+            const pageOptions = {
+                recordPerPage: 0,
+                searchCondition: baseFilter
+            };
+
+            let childActivityIds = [];
+            try {
+                const childActivitiesResponse = await api.getData({ module: 'activity', options: pageOptions });
+                childActivityIds = childActivitiesResponse.data.items?.map(activity => activity.id) || [];
+            } catch (error) {
+                console.error('Error fetching child activities:', error);
+            }
+
+            const activitiesWithCuring = trackingData?.filter(t => t?.isCuringDone)?.map(t => t?.activityId) || [];
+            const curingSet = new Set(activitiesWithCuring);
+            const filteredIds = childActivityIds.filter(id => curingSet.has(id));
+
             return {
                 ...task,
-                curingStatus: taskTrackingInfo ? taskTrackingInfo.isCuringDone ? true : false : false
-            }
-        });
+                curingStatus: filteredIds.length > 0
+            };
+        }));
+
 
         if (isSameDay(clickedDate, startOfToday())) {
             setCanvasSchema(
@@ -289,7 +315,7 @@ const Calendar = () => {
             );
         }
 
-        setSelectedTasks(filteredTasks);
+        setSelectedMainTasks(finalTasks);
         setMainModalOpen(true); // Open the modal for the date
 
     };
@@ -320,7 +346,17 @@ const Calendar = () => {
             };
 
             const response = await api.getData({ module: 'activity', options: pageOptions });
-            setSelectedTasks(response.data.items);
+
+            // Filter tasks for the clicked date
+            const filteredTasks = response.data.items?.map(task => {
+                const taskTrackingInfo = dailyActivityTrackingData?.find(t => t.activityId === task.id);
+                return {
+                    ...task,
+                    curingStatus: taskTrackingInfo ? taskTrackingInfo.isCuringDone ? true : false : false
+                }
+            });
+
+            setSelectedTasks(filteredTasks);
             setSelectedMainTask(task);
             setModalOpen(true);
         } catch (error) {
@@ -362,6 +398,7 @@ const Calendar = () => {
 
             setActualCost(parseFloat(latestTrackingData.cost));
             setManPower(latestTrackingData.manPower);
+            setItemList(latestTrackingData?.item);
         }
         else {
             setActualCost(task?.actualCost);
@@ -489,6 +526,28 @@ const Calendar = () => {
 
     const handleCompletionConfirmation = async () => {
         try {
+            const updatedData_a = {
+                ...selectedTask,
+                actualCost: parseFloat(actualCost),
+                progressPercentage: progress,
+                status: 2,
+                isCompleted: true
+            };
+
+            const updateData_b = {
+                activityId: selectedTask.id,
+                manPower: parseInt(manPower),
+                item: itemList,
+                cost: parseFloat(actualCost),
+                isOnHold: taskStatus === 'onHold',
+                isCancelled: taskStatus === 'Cancelled',
+                isCuringDone: checkboxes.isCuringDone,
+                name: selectedTask.name
+            };
+
+            await api.editData({ module: 'activity', data: updatedData_a });
+            await api.addData({ module: 'activitytracking', data: updateData_b });
+
             // Fetch List of users who are assigned that activity
             let allUsersResponse = await api.assignedUsers({ module: "activity", id: selectedTask?.id });
 
@@ -499,24 +558,13 @@ const Calendar = () => {
                 const action = { module: "activity", data: { id: selectedTask?.id, member: user?.member, status: 2 } }
                 try {
                     await api.editPartialData(action);
-                    dispatch(setSave({ module: module }))
+                    dispatch(setSave({ module: "activity" }))
                     //navigate(-1);
                 } catch (e) {
                     // TODO
                 }
             }
             notify("success", "Assignment to QC Successful");
-
-            // Update Activity Details
-            const updatedActivityData = {
-                ...selectedTask,
-                progressPercentage: progress,
-                actualCost: parseFloat(actualCost),
-                photoUrl: blueprint,
-                isCompleted: true
-            };
-            
-            await api.editData({ module: 'activity', data: updatedActivityData });
         }
         catch (error) {
 
@@ -577,7 +625,8 @@ const Calendar = () => {
                 isCompleted: false
             });
             closeTaskModal();
-            // closeModal();
+            // closeModal(); // refresh page on task details update
+            window.location.reload();
             await fetchData();
         }
     };
@@ -595,10 +644,8 @@ const Calendar = () => {
                 try {
                     const response = await api.addData({ module: 'comment', data: commentData });
                     if (response.status === 200) {
-                        console.log('Comment saved successfully!');
+                        // console.log('Comment saved successfully!');
                         setNewComment('');
-                    } else {
-                        console.log('Failed to save comment.');
                     }
                 } catch (error) {
                     console.error('Error saving comment:', error);
@@ -697,8 +744,8 @@ const Calendar = () => {
                         <Modal.Title>Tasks For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body size='md' style={{ color: "black", maxHeight: '80vh', overflowY: 'auto' }}>
-                        {tasks.length > 0 ? (
-                            tasks.map((task) => (
+                        {selectedMainTasks.length > 0 ? (
+                            selectedMainTasks.map((task) => (
                                 <div className='d-grid gap-2 mb-2' key={`Task-${task.id}`}>
                                     <div className="row d-flex justify-content-center">
                                         <div className="col-8">
@@ -956,23 +1003,6 @@ const Calendar = () => {
                                 </div>
                             </div>
 
-                            <div className="row my-2">
-                                <div className="col-sm-12">
-                                    <Form.Group className="position-relative form-group">
-                                        <InputGroup>
-                                            <Form.Check
-                                                type="checkbox"
-                                                disabled={!isSameDay(selectedDate, startOfToday()) || progress !== 100 || selectedTask?.isCompleted}
-                                                label="Assign to QC"
-                                                className="d-flex align-items-center mr-2"
-                                                onChange={(e) => setCheckboxes({ ...checkboxes, isCompleted: e.target.checked })}
-                                                checked={checkboxes.isCompleted}
-                                            />
-                                        </InputGroup>
-                                    </Form.Group>
-                                </div>
-                            </div>
-
                             {/* Daily Item List Input */}
                             <div className="row my-2">
                                 <div className="col-sm-12">
@@ -1008,6 +1038,23 @@ const Calendar = () => {
                                         onChange={handleBlueprintChange}
                                         readonly={canvasSchema.readonly || !isSameDay(selectedDate, startOfToday())}
                                     />
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+                                            <Form.Check
+                                                type="checkbox"
+                                                disabled={!isSameDay(selectedDate, startOfToday()) || progress !== 100 || selectedTask?.isCompleted}
+                                                label="Assign to QC"
+                                                className="d-flex align-items-center mr-2"
+                                                onChange={(e) => setCheckboxes({ ...checkboxes, isCompleted: e.target.checked })}
+                                                checked={checkboxes.isCompleted}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
                                 </div>
                             </div>
                         </Form>
@@ -1118,7 +1165,7 @@ const Calendar = () => {
                     show={showGalleryModal}
                     searchKey="parentId"
                     searchId={selectedTask?.id}
-                    module="attachment"
+                    searchModule="activity"
                     handleClose={handleCloseGalleryModal}
                     title={`Image Gallery: ${selectedTask?.name}`}
                 />

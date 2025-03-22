@@ -41,11 +41,10 @@
         ],
         "transaction": [
             {
-                "name": "resetPassword",
-                "text": "Reset Password",
+                "name": "userDashboard",
+                "text": "Dashboard",
                 "icon": "vector-square",
-                "path": "/users/reset-password",
-                "access": "user"
+                "path": "/home"
             }
         ],
         "report": [
@@ -141,8 +140,8 @@
         ],
         "transaction": [
             {
-                "name": "workItemCreation",
-                "text": "Work Item Creation",
+                "name": "activityCreation",
+                "text": "Activity Creation",
                 "icon": "vector-square",
                 "path": "/workitems",
                 "access": "dependency"
@@ -151,28 +150,35 @@
                 "name": "dependencyWorkflow",
                 "text": "Dependency Workflow",
                 "icon": "vector-square",
-                "path": "/labelsettings",
+                "path": "/dependencyworkflows",
                 "access": "workflow"
             },
             {
-                "name": "activityCreation",
-                "text": "Activity Creation",
+                "name": "workCreation",
+                "text": "Work Creation",
                 "icon": "vector-square",
                 "path": "/activities/add",
                 "access": "activity"
             },
             {
-                "name": "activityAssignment",
-                "text": "Activity Assignment",
+                "name": "workAssignment",
+                "text": "Work Assignment",
                 "icon": "vector-square",
                 "path": "/activities",
                 "access": "activity"
             },
             {
-                "name": "activityReporting",
-                "text": "Activity Reporting",
+                "name": "workReporting",
+                "text": "Work Reporting",
                 "icon": "vector-square",
                 "path": "/reporting",
+                "access": "activity"
+            },
+            {
+                "name": "workApproval",
+                "text": "Work Approval",
+                "icon": "vector-square",
+                "path": "/approvals",
                 "access": "activity"
             },
             {

@@ -1,5 +1,6 @@
 
 import { useSelector } from 'react-redux';
+import { useParams } from "react-router-dom";
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage";
 
@@ -25,6 +26,7 @@ export const ListLevelSetup = () => {
 
 export const ViewLevelSetup = () => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
+    const { id } = useParams();
 
     const schema = {
         module: 'levelSetup',
@@ -107,6 +109,21 @@ export const ViewLevelSetup = () => {
                                 { text: 'Receiver Remarks', field: 'receiverRemarks', type: 'text', required: false, readonly: !loggedInUser?.roles?.includes("Receiver"), labelvisible: false, width: 12 }
                             ]
                         },
+                    }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        type: 'image-gallery',
+                        field: 'images',
+                        text: 'Site Material Images',
+                        schema: {
+                            searchKey: "parentId",
+                            searchId: id,
+                            searchModule: "levelsetup"
+                        }
                     }
                 ]
             }
