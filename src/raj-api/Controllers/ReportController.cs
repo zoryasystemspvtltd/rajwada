@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Office2010.Excel;
 using ILab.Data;
+using ILab.Extensionss.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RajApi.Data;
@@ -42,7 +43,11 @@ public class ReportController : ControllerBase
             throw;
         }
     }
-
+    /// <summary>
+    /// Status Type: Draft = 0, Modified = 1,QCAssigned = 2,Assigned = 3,Approved = 4,Hold = 5,Rejected = 6,HODAssigned = 7
+    /// </summary>
+    /// <param name="rawlist"></param>
+    /// <returns></returns>
     private static List<WorkerStatusReport>? CalculateWorkStatus(dynamic? rawlist)
     {
         List<WorkerStatusReport> newlist = [];
@@ -72,7 +77,7 @@ public class ReportController : ControllerBase
                     status = "On Hold";
                 }
                 if (item.IsQCApproved == null && item.IsCompleted != null
-                    && item.IsCompleted == true) // QC Assigened but not approved
+                    && item.IsCompleted == true && item.Status == StatusType.QCAssigned) // QC Assigened but not approved
                 {
                     status = "Pending QC Approval";
                 }
@@ -86,7 +91,7 @@ public class ReportController : ControllerBase
                     status = "Cancelled";
                 }
                 if (item.IsCompleted != null && item.IsCompleted == true
-                  && item.IsQCApproved != null && item.IsQCApproved == true)// QC Approved,this condition never display
+                  && item.IsQCApproved != null && item.IsQCApproved == true)// QC Approved
                 {
                     status = "Inspection Passed";
                 }
@@ -96,7 +101,7 @@ public class ReportController : ControllerBase
                     status = "Inspection Failed/Rework Required";
                 }
                 if (item.IsCompleted != null && item.IsCompleted == true && item.IsQCApproved != null
-                    && item.IsQCApproved == true && item.IsApproved == null) //HOD Assigend but not approved
+                    && item.IsQCApproved == true && item.IsApproved == null && item.Status == StatusType.HODAssigned) //HOD Assigend but not approved
                 {
                     status = "Pending HOD Approval";
                 }
