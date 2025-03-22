@@ -7,15 +7,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
 import { getData } from '../../store/api-db';
 import { formatStringDate } from '../../store/datetime-formatter';
-import IUIBreadcrumb from './shared/IUIBreadcrumb';
+import api from '../../store/api-service';
 import IUILookUp from './shared/IUILookUp';
 import IUIModuleMessage from './shared/IUIModuleMessage';
+import { notify } from "../../store/notification";
 
 const IUIApprovalList = (props) => {
     const schema = props.schema;
     const module = `${schema.module}#${props.filter}`;
     const pageLength = schema.paging ? 10 : 0;
-    const dataSet = useSelector((state) => state.api[module])
+    const initialData = useSelector((state) => state.api[module])
+    const [dataSet, setDataSet] = useState(initialData)
     const [baseFilter, setBaseFilter] = useState({})
     const [search, setSearch] = useState(useSelector((state) => state.api[module])?.options?.search);
     const dispatch = useDispatch();
@@ -37,22 +39,35 @@ const IUIApprovalList = (props) => {
     }, [loggedInUser, schema.module]);
 
     useEffect(() => {
-        if (props?.filter) {
-            const newBaseFilter = {
-                name: schema?.relationKey,
-                value: props?.filter,
-                //operator: 'likelihood' // Default value is equal
-            }
+        async function fetchApprovalList() {
+            try {
+                if (props?.filter && props?.filterSchema) {
+                    const newBaseFilter = {
+                        name: schema?.relationKey,
+                        value: props?.filter,
+                        //operator: 'likelihood' // Default value is equal
+                        and: props?.filterSchema
+                    }
 
-            setBaseFilter(newBaseFilter)
+                    setBaseFilter(newBaseFilter)
 
-            const pageOptions = {
-                ...dataSet?.options
-                , recordPerPage: pageLength
-                , searchCondition: newBaseFilter
+                    const pageOptions = {
+                        ...initialData?.options
+                        , recordPerPage: pageLength
+                        , searchCondition: newBaseFilter
+                    }
+
+                    const response = await api.getData({ module: module, options: pageOptions });
+                    console.log(response)
+                    setDataSet(response?.data);
+                }
             }
-            dispatch(getData({ module: module, options: pageOptions }));
+            catch (error) {
+                notify('error', 'Failed to fetch Activity List!')
+            }
         }
+
+        fetchApprovalList()
     }, [props]);
 
     const pageChanges = async (e) => {
@@ -111,10 +126,6 @@ const IUIApprovalList = (props) => {
 
     return (
         <>
-            <div className="app-page-title">
-                {/* <div className="page-title-heading"> {schema?.title}</div> */}
-                <IUIBreadcrumb schema={{ type: 'list', module: module, displayText: schema?.title }} />
-            </div>
             <div className="row ">
                 <div className="col-md-12">
                     <div className="main-card mb-3 card">
@@ -204,7 +215,7 @@ const IUIApprovalList = (props) => {
                                                             {schema?.fields?.map((fld, f) => (
                                                                 <td key={f} width={fld.width}>
                                                                     {fld.type === 'link' &&
-                                                                        <Link to={`/${schema.path}/${item.id}`}>{item[fld.field]}</Link>
+                                                                        <Link to={`/approvals/${item.id}`}>{item[fld.field]}</Link>
                                                                     }
                                                                     {(!fld.type || fld.type === 'text') && item[fld.field]}
                                                                     {fld.type === 'date' && formatStringDate(item[fld.field])}
@@ -243,7 +254,6 @@ const IUIApprovalList = (props) => {
                                             </tfoot>
 
                                         }
-
                                     </Table>
                                 </Col>
                             </Row>

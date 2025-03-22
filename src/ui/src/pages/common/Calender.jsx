@@ -392,7 +392,7 @@ const Calendar = () => {
 
         const response = await api.getData({ module: 'activitytracking', options: pageOptions });
         const trackingData = response?.data?.items?.sort((t1, t2) => new Date(t2.date) - new Date(t1.date));
-        
+
         if (trackingData?.length > 0) {
             const latestTrackingData = trackingData[0];
 
@@ -526,6 +526,28 @@ const Calendar = () => {
 
     const handleCompletionConfirmation = async () => {
         try {
+            const updatedData_a = {
+                ...selectedTask,
+                actualCost: parseFloat(actualCost),
+                progressPercentage: progress,
+                status: 2,
+                isCompleted: true
+            };
+
+            const updateData_b = {
+                activityId: selectedTask.id,
+                manPower: parseInt(manPower),
+                item: itemList,
+                cost: parseFloat(actualCost),
+                isOnHold: taskStatus === 'onHold',
+                isCancelled: taskStatus === 'Cancelled',
+                isCuringDone: checkboxes.isCuringDone,
+                name: selectedTask.name
+            };
+
+            await api.editData({ module: 'activity', data: updatedData_a });
+            await api.addData({ module: 'activitytracking', data: updateData_b });
+
             // Fetch List of users who are assigned that activity
             let allUsersResponse = await api.assignedUsers({ module: "activity", id: selectedTask?.id });
 
@@ -536,24 +558,13 @@ const Calendar = () => {
                 const action = { module: "activity", data: { id: selectedTask?.id, member: user?.member, status: 2 } }
                 try {
                     await api.editPartialData(action);
-                    dispatch(setSave({ module: module }))
+                    dispatch(setSave({ module: "activity" }))
                     //navigate(-1);
                 } catch (e) {
                     // TODO
                 }
             }
             notify("success", "Assignment to QC Successful");
-
-            // Update Activity Details
-            const updatedActivityData = {
-                ...selectedTask,
-                progressPercentage: progress,
-                actualCost: parseFloat(actualCost),
-                photoUrl: blueprint,
-                isCompleted: true
-            };
-
-            await api.editData({ module: 'activity', data: updatedActivityData });
         }
         catch (error) {
 
@@ -992,23 +1003,6 @@ const Calendar = () => {
                                 </div>
                             </div>
 
-                            <div className="row my-2">
-                                <div className="col-sm-12">
-                                    <Form.Group className="position-relative form-group">
-                                        <InputGroup>
-                                            <Form.Check
-                                                type="checkbox"
-                                                disabled={!isSameDay(selectedDate, startOfToday()) || progress !== 100 || selectedTask?.isCompleted}
-                                                label="Assign to QC"
-                                                className="d-flex align-items-center mr-2"
-                                                onChange={(e) => setCheckboxes({ ...checkboxes, isCompleted: e.target.checked })}
-                                                checked={checkboxes.isCompleted}
-                                            />
-                                        </InputGroup>
-                                    </Form.Group>
-                                </div>
-                            </div>
-
                             {/* Daily Item List Input */}
                             <div className="row my-2">
                                 <div className="col-sm-12">
@@ -1044,6 +1038,23 @@ const Calendar = () => {
                                         onChange={handleBlueprintChange}
                                         readonly={canvasSchema.readonly || !isSameDay(selectedDate, startOfToday())}
                                     />
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <Form.Group className="position-relative form-group">
+                                        <InputGroup>
+                                            <Form.Check
+                                                type="checkbox"
+                                                disabled={!isSameDay(selectedDate, startOfToday()) || progress !== 100 || selectedTask?.isCompleted}
+                                                label="Assign to QC"
+                                                className="d-flex align-items-center mr-2"
+                                                onChange={(e) => setCheckboxes({ ...checkboxes, isCompleted: e.target.checked })}
+                                                checked={checkboxes.isCompleted}
+                                            />
+                                        </InputGroup>
+                                    </Form.Group>
                                 </div>
                             </div>
                         </Form>
