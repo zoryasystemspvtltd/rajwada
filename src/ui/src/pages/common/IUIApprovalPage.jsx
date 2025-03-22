@@ -248,7 +248,7 @@ const IUIApprovalPage = (props) => {
                                                         </>
                                                     } */}
                                                     {
-                                                        (approvalStatus === 3 || approvalStatus === 7) && loggedInUser?.email === data.member &&
+                                                        // (approvalStatus === 3 || approvalStatus === 7) && loggedInUser?.email === data.member &&
                                                         <>
                                                             {
                                                                 schema?.readonly && privileges?.approve &&

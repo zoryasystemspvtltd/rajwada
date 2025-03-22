@@ -58,10 +58,10 @@ const IUITableInput = (props) => {
     }, [data, dirty]);
 
     useEffect(() => {
-        if (props?.value) {
+        if (props?.value && !props?.collate) {
             setDataArray(JSON.parse(props?.value));
         }
-    }, [props?.value]);
+    }, [props?.value, props?.collate]);
 
     useEffect(() => {
         if (dataArray.length > 0) {

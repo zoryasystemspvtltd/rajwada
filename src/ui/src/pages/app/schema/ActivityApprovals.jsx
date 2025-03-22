@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux';
+import { useParams } from "react-router-dom";
 import IUIApprovalList from "../../common/IUIApprovalList.jsx";
 import IUIApprovalPage from '../../common/IUIApprovalPage.jsx';
 import approvalSchema from "../../../store/approval-schema.json";
@@ -79,12 +80,14 @@ export const ListActivityApproval = () => {
 }
 
 export const ViewActivityApproval = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'activity',
         title: 'Work Details',
         path: 'activities',
         showBreadcrumbs: true,
-        editing: false,
+        editing: true,
         adding: false,
         deleting: false,
         approving: true,
@@ -151,6 +154,12 @@ export const ViewActivityApproval = () => {
                             paging: true,
                             searching: true,
                             editing: true,
+                            collate: true,
+                            collateSchema: {
+                                module: 'activitytracking',
+                                parentKey: 'activityId',
+                                parentValue: id
+                            },
                             adding: true,
                             fields: [
                                 {
