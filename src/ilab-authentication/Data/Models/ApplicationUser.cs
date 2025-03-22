@@ -14,6 +14,7 @@ namespace IlabAuthentication.Data.Models
         [NotMapped]
         public string Name { get { return $"{FirstName} {LastName}"; } }
         public string? Address { get; set; }
+        public string? Theme { get; set; }
         [NotMapped]
         public List<UserRoles>? Roles { get; set; }
         [NotMapped]
