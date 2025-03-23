@@ -78,7 +78,7 @@ namespace ILab.Data
                         existingData.Status = jsonData?.Status;
                     }
                     //When QC Approved
-                    if (jsonData != null && jsonData?.IsApproved != null)
+                    if (jsonData != null && jsonData?.IsQCApproved != null)
                     {
                         existingData.IsQCApproved = jsonData?.IsQCApproved;
                         existingData.QCApprovedBy = jsonData?.QCApprovedBy;
