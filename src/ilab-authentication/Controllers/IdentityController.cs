@@ -48,6 +48,7 @@ public class IdentityController : ControllerBase
         userDetails.Department = loggedInUser.Department;
         userDetails.Disable = loggedInUser.Disable;
         userDetails.PhotoUrl = loggedInUser.PhotoUrl;
+        userDetails.Theme = loggedInUser.Theme;
 
         userDetails.Roles = _dbContext
             .UserRoles?
