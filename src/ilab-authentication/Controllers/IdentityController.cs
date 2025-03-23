@@ -136,7 +136,7 @@ public class IdentityController : ControllerBase
             existingUser.Department = user.Department;
             existingUser.PhotoUrl = user.PhotoUrl;
             existingUser.Address = user.Address;
-
+            existingUser.Theme = user.Theme;
             await _dbContext.SaveChangesAsync();
         }
 
