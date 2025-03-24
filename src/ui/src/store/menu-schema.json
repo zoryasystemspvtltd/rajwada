@@ -131,40 +131,26 @@
                 "access": "plan"
             },
             {
-                "name": "activityManagement",
-                "text": "Activity",
-                "icon": "cubes-stacked",
-                "path": "/activities",
-                "access": "activity"
-            }
-        ],
-        "transaction": [
-            {
                 "name": "activityCreation",
-                "text": "Activity Creation",
+                "text": "Activity",
                 "icon": "vector-square",
-                "path": "/workitems",
+                "path": "/activities",
                 "access": "dependency"
             },
             {
                 "name": "dependencyWorkflow",
-                "text": "Dependency Workflow",
+                "text": "Dependency",
                 "icon": "vector-square",
                 "path": "/dependencyworkflows",
                 "access": "workflow"
-            },
+            }
+        ],
+        "transaction": [
             {
-                "name": "workCreation",
-                "text": "Work Creation",
+                "name": "work",
+                "text": "Work",
                 "icon": "vector-square",
-                "path": "/activities/add",
-                "access": "activity"
-            },
-            {
-                "name": "workAssignment",
-                "text": "Work Assignment",
-                "icon": "vector-square",
-                "path": "/activities",
+                "path": "/works",
                 "access": "activity"
             },
             {
@@ -179,7 +165,11 @@
                 "text": "Work Approval",
                 "icon": "vector-square",
                 "path": "/approvals",
-                "access": "activity"
+                "access": "activity",
+                "role": [
+                    "Quality Engineer",
+                    "New Civil Head"
+                ]
             },
             {
                 "name": "siteMaterialApproval",

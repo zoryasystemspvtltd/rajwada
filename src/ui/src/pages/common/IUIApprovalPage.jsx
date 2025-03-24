@@ -28,7 +28,7 @@ const IUIApprovalPage = (props) => {
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
     const [approvalStatus, setApprovalStatus] = useState({});
-    const [approvedMemeber, setApprovalBy] = useState({});
+    const [displayApprovalButtons, setDisplayApprovalButtons] = useState(false);
     const [remarks, setRemarks] = useState('');
     const [approvalType, setApprovalType] = useState('');
     const [showRemarksModal, setShowRemarksModal] = useState(false);
@@ -42,12 +42,27 @@ const IUIApprovalPage = (props) => {
                 const item = await api.getSingleData({ module: module, id: id });
                 setData(item.data);
                 setApprovalStatus(item.data.status);
-                setApprovalBy(item.data.member);
+                if (loggedInUser?.roles?.includes("Quality Engineer")) {
+                    if (item.data?.isQCApproved) {
+                        setDisplayApprovalButtons(false);
+                    }
+                    else {
+                        setDisplayApprovalButtons(true);
+                    }
+                }
+                else {
+                    if (item.data?.isApproved) {
+                        setDisplayApprovalButtons(false);
+                    }
+                    else {
+                        setDisplayApprovalButtons(true);
+                    }
+                }
             }
         }
 
         fetchData();
-    }, [id]);
+    }, [id, loggedInUser]);
 
     useEffect(() => {
         if (props?.defaultValues) {
@@ -287,7 +302,7 @@ const IUIApprovalPage = (props) => {
                                                         </>
                                                     } */}
                                                     {
-                                                        (approvalStatus === 2 || approvalStatus === 7) &&
+                                                        (approvalStatus === 2 || approvalStatus === 7) && displayApprovalButtons &&
                                                         <>
                                                             {
                                                                 schema?.readonly && privileges?.approve &&

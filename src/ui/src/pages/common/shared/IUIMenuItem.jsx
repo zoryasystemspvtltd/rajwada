@@ -4,6 +4,7 @@ import { useState } from "react";
 
 
 const IUIMenuItem = (props) => {
+    const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const privileges = useSelector((state) => state.api.loggedInUser?.privileges);
     const [value, setValue] = useState(props.schema);
 
@@ -29,7 +30,7 @@ const IUIMenuItem = (props) => {
                             {!item.schema &&
                                 <>
                                     {
-                                        item?.access ? privileges?.some(p => p.module === item.access) ?
+                                        item?.access ? privileges?.some(p => (p.module === item.access) && (item?.role ? loggedInUser?.roles?.filter(role => item.role.includes(role))?.length > 0 : true)) ?
                                             (
                                                 <Link to={item.path}>
                                                     <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`} title={item.text}></i>{item.text}

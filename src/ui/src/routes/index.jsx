@@ -298,19 +298,19 @@ const Routes = () => {
                     element: <AddItemType />
                 },
                 {
-                    path: "/activities",
+                    path: "/works",
                     element: <ListActivity />
                 },
                 {
-                    path: "/activities/:id",
+                    path: "/works/:id",
                     element: <ViewActivity />
                 },
                 {
-                    path: "/activities/:id/edit",
+                    path: "/works/:id/edit",
                     element: <EditActivity />
                 },
                 {
-                    path: "/activities/add",
+                    path: "/works/add",
                     element: <AddActivity />
                 },
                 {
@@ -334,19 +334,19 @@ const Routes = () => {
                 //     element: <EditReport />
                 // },
                 {
-                    path: "/workitems",
+                    path: "/activities",
                     element: <ListWorkItem />
                 },
                 {
-                    path: "/workitems/:id",
+                    path: "/activities/:id",
                     element: <ViewWorkItem />
                 },
                 {
-                    path: "/workitems/:id/edit",
+                    path: "/activities/:id/edit",
                     element: <EditWorkItem />
                 },
                 {
-                    path: "/workitems/add",
+                    path: "/activities/add",
                     element: <AddWorkItem />
                 },
                 {

@@ -66,8 +66,8 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
     useEffect(() => {
         if (loggedInUser !== undefined) {
             setProfilePicture(loggedInUser?.photoUrl);
-            setTheme(loggedInUser?.theme);
-            loadTheme(loggedInUser?.theme);
+            setTheme(loggedInUser?.theme || 'red');
+            loadTheme(loggedInUser?.theme || 'red');
         }
     }, [loggedInUser]);
 

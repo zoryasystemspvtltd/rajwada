@@ -132,7 +132,7 @@ const IUIList = (props) => {
         <>
             <div className="app-page-title">
                 {/* <div className="page-title-heading"> {schema?.title}</div> */}
-                <IUIBreadcrumb schema={{ type: 'list', module: module, displayText: schema?.title }} />
+                <IUIBreadcrumb schema={{ type: 'list', module: module, displayText: schema?.path }} />
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
