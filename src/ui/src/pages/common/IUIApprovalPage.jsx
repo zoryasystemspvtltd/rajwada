@@ -289,7 +289,6 @@ const IUIApprovalPage = (props) => {
                                                     {
                                                         (approvalStatus === 2 || approvalStatus === 7) &&
                                                         <>
-                                                            {console.log(approvalStatus)}
                                                             {
                                                                 schema?.readonly && privileges?.approve &&
                                                                 <Button variant="contained"

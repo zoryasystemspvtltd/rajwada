@@ -64,7 +64,7 @@ public class UserDetails
     public ICollection<string?>? Roles { get; set; }
 
     public ICollection<PrivilegeDetails>? Privileges { get; set; }
-    public string? Theme { get; set; }
+    public string Theme { get; set; }
 }
 
 public class PrivilegeDetails
