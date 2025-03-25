@@ -178,7 +178,20 @@ namespace ILab.Data
             }
 
         }
-
+        internal dynamic GetTaskItemDetails(long id)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetTaskItemDetails));
+                object[] parameters = [id];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetTaskItemDetails method and details: " + ex.Message);
+                return 0;
+            }
+        }
         internal dynamic GetWorkerStatusReport(WorkerReportRequestPayload request)
         {
             try
