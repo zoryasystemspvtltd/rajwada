@@ -5,8 +5,8 @@ export const ListWorkflow = () => {
 
     const schema = {
         module: 'workflow',
-        title: 'Dependency Workflow',
-        path: 'dependencyworkflows',
+        title: 'Dependency',
+        path: 'dependencies',
         paging: true,
         searching: true,
         editing: true,
@@ -27,8 +27,8 @@ export const ListWorkflow = () => {
 export const ViewWorkflow = () => {
     const schema = {
         module: 'workflow',
-        title: 'Dependency Workflow',
-        path: 'dependencyworkflows',
+        title: 'Dependency',
+        path: 'dependencies',
         showBreadcrumbs: true,
         editing: true,
         adding: false,
@@ -78,8 +78,8 @@ export const ViewWorkflow = () => {
 export const EditWorkflow = () => {
     const schema = {
         module: 'workflow',
-        title: 'Dependency Workflow',
-        path: 'dependencyworkflows',
+        title: 'Dependency',
+        path: 'dependencies',
         back: false,
         fields: [
             {
@@ -158,8 +158,8 @@ export const EditWorkflow = () => {
 export const AddWorkflow = () => {
     const schema = {
         module: 'workflow',
-        title: 'Dependency Workflow',
-        path: 'dependencyworkflows',
+        title: 'Dependency',
+        path: 'dependencies',
         back: true,
         fields: [
             {

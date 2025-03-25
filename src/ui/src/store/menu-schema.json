@@ -141,7 +141,7 @@
                 "name": "dependencyWorkflow",
                 "text": "Dependency",
                 "icon": "vector-square",
-                "path": "/dependencyworkflows",
+                "path": "/dependencies",
                 "access": "workflow"
             }
         ],

@@ -10,7 +10,7 @@ export const ListActivityApproval = () => {
 
     const schema = {
         module: 'activity',
-        title: 'Work List',
+        title: 'Work Approval',
         path: 'activities',
         paging: true,
         searching: true,
@@ -84,7 +84,7 @@ export const ViewActivityApproval = () => {
 
     const schema = {
         module: 'activity',
-        title: 'Approvals',
+        title: 'Work Approval',
         path: 'activities',
         showBreadcrumbs: true,
         editing: true,

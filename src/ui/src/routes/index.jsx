@@ -350,19 +350,19 @@ const Routes = () => {
                     element: <AddWorkItem />
                 },
                 {
-                    path: "/dependencyworkflows",
+                    path: "/dependencies",
                     element: <ListWorkflow />
                 },
                 {
-                    path: "/dependencyworkflows/:id",
+                    path: "/dependencies/:id",
                     element: <ViewWorkflow />
                 },
                 {
-                    path: "/dependencyworkflows/:id/edit",
+                    path: "/dependencies/:id/edit",
                     element: <EditWorkflow />
                 },
                 {
-                    path: "/dependencyworkflows/add",
+                    path: "/dependencies/add",
                     element: <AddWorkflow />
                 },
                 {

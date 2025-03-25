@@ -236,7 +236,7 @@ const IUIApprovalList = (props) => {
                                         {schema.paging &&
                                             <tfoot>
                                                 <tr>
-                                                    <td colSpan={schema?.fields.length}>
+                                                    <td colSpan={schema?.fields?.length}>
                                                         <Pagination size="sm" onClick={pageChanges}>
                                                             {[...Array(dataSet?.totalPages)].map((e, i) => {
                                                                 return <Pagination.Item key={i}
