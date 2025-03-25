@@ -1,11 +1,10 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using ILab.Extensionss.Common;
+﻿using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
-using IlabAuthentication.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
+
 
 namespace RajApi.Data;
 
@@ -129,6 +128,59 @@ public class RajDataHandler : LabDataHandler
 
         return final;
     }
+
+    public dynamic GetTaskItemDetails(long id)
+    {
+        try
+        {
+            var groupActivity = dbContext.Set<ActivityTracking>()
+                     .Where(l => l.ActivityId == id).GroupBy(r => r.Date.ToString().Substring(0, 10)).ToList();
+
+            var assets = dbContext.Set<Asset>().Where(l => l.Status == 0).ToList();
+           
+            List<FinalItem> draftlist = [];
+            foreach (var gactvity in groupActivity)
+            {
+                var activity = gactvity.OrderByDescending(a => a.Id).FirstOrDefault();
+
+                var taskItems = JsonConvert.DeserializeObject<List<TaskItem>>(activity.Item);
+                if (taskItems != null)
+                {
+                    var final = assets.Join(taskItems,
+                        a => a.Id,
+                        ti => ti.ItemId,
+                        (a, ti) => new FinalItem
+                        {
+                            TaskId = activity.Id,
+                            ItemId = ti.ItemId,
+                            ItemName = a.Name,
+                            Quantity = ti.Quantity,
+                            Cost = activity.Cost,
+                            ManPower = activity.ManPower
+                        });
+
+                    foreach (var item in final)
+                    {                       
+                        item.TransactionDate = gactvity.Key;
+                        draftlist.Add(item);
+                    }
+                }
+            }
+            List<FinalItem> finallist = [];
+            foreach (var item in draftlist)
+            {
+                var totalquantity = draftlist.GroupBy(item => item.ItemId).Select(group => group.Sum(item => item.Quantity)).First();
+                item.TotalQuantity = totalquantity;
+                finallist.Add(item);
+            }
+            return finallist;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetTaskItemDetails method and details: '{ex.Message}'");
+            throw;
+        }
+    }
     public dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
     {
         try
@@ -138,8 +190,8 @@ public class RajDataHandler : LabDataHandler
             if (flatId > 0)
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
-            }           
-           
+            }
+
             return activities;
         }
         catch (Exception ex)
