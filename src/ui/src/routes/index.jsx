@@ -42,6 +42,7 @@ import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from ".
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { AddRoomMapping, EditRoomMapping, ViewRoomMapping } from "../pages/app/schema/RoomMappings";
 import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
+import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -297,24 +298,32 @@ const Routes = () => {
                     element: <AddItemType />
                 },
                 {
-                    path: "/activities",
+                    path: "/works",
                     element: <ListActivity />
                 },
                 {
-                    path: "/activities/:id",
+                    path: "/works/:id",
                     element: <ViewActivity />
                 },
                 {
-                    path: "/activities/:id/edit",
+                    path: "/works/:id/edit",
                     element: <EditActivity />
                 },
                 {
-                    path: "/activities/add",
+                    path: "/works/add",
                     element: <AddActivity />
                 },
                 {
                     path: "/reporting",
                     element: <ListReport />
+                },
+                {
+                    path: "/approvals",
+                    element: <ListActivityApproval />
+                },
+                {
+                    path: "/approvals/:id",
+                    element: <ViewActivityApproval />
                 },
                 // {
                 //     path: "/reporting/:id",
@@ -325,35 +334,35 @@ const Routes = () => {
                 //     element: <EditReport />
                 // },
                 {
-                    path: "/workitems",
+                    path: "/activities",
                     element: <ListWorkItem />
                 },
                 {
-                    path: "/workitems/:id",
+                    path: "/activities/:id",
                     element: <ViewWorkItem />
                 },
                 {
-                    path: "/workitems/:id/edit",
+                    path: "/activities/:id/edit",
                     element: <EditWorkItem />
                 },
                 {
-                    path: "/workitems/add",
+                    path: "/activities/add",
                     element: <AddWorkItem />
                 },
                 {
-                    path: "/dependencyworkflows",
+                    path: "/dependencies",
                     element: <ListWorkflow />
                 },
                 {
-                    path: "/dependencyworkflows/:id",
+                    path: "/dependencies/:id",
                     element: <ViewWorkflow />
                 },
                 {
-                    path: "/dependencyworkflows/:id/edit",
+                    path: "/dependencies/:id/edit",
                     element: <EditWorkflow />
                 },
                 {
-                    path: "/dependencyworkflows/add",
+                    path: "/dependencies/add",
                     element: <AddWorkflow />
                 },
                 {

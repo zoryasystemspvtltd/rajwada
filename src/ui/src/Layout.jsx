@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import Footer from "./pages/common/Footer";
 import Header from "./pages/common/Header";
 import LeftMenu from "./pages/common/LeftMenu";
 
 const Layout = () => {
+    const navigate = useNavigate();
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const [showSidebar, setShowSidebar] = useState(true);
     const [menuRole, setMenuRole] = useState(sessionStorage.getItem("menuRole"));
@@ -17,7 +19,7 @@ const Layout = () => {
 
     const headerMenuToLayout = (sidebarRole) => {
         setMenuRole(sidebarRole);
-        window.location.reload();
+        navigate("/home", { replace: true });
     }
 
     useEffect(() => {

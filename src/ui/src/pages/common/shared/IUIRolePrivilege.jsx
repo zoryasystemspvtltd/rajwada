@@ -35,9 +35,9 @@ const IUIRolePrivilege = (props) => {
             // Replacing hardcoded plan type with Tower Floor Flat
             const planIndex = items?.findIndex(item => `${item.name}` === `Plan`)
             const planItems = [
-                {name:"plan", type:"tower",isApproval:items[planIndex].isApproval,isAssignable:items[planIndex].isAssignable,isCompany:items[planIndex].isCompany,isProject:items[planIndex].isProject},
-                {name:"plan", type:"floor",isApproval:items[planIndex].isApproval,isAssignable:items[planIndex].isAssignable,isCompany:items[planIndex].isCompany,isProject:items[planIndex].isProject},
-                {name:"plan", type:"flat",isApproval:items[planIndex].isApproval,isAssignable:items[planIndex].isAssignable,isCompany:items[planIndex].isCompany,isProject:items[planIndex].isProject}
+                { name: "plan", type: "tower", isApproval: items[planIndex].isApproval, isAssignable: items[planIndex].isAssignable, isCompany: items[planIndex].isCompany, isProject: items[planIndex].isProject },
+                { name: "plan", type: "floor", isApproval: items[planIndex].isApproval, isAssignable: items[planIndex].isAssignable, isCompany: items[planIndex].isCompany, isProject: items[planIndex].isProject },
+                { name: "plan", type: "flat", isApproval: items[planIndex].isApproval, isAssignable: items[planIndex].isAssignable, isCompany: items[planIndex].isCompany, isProject: items[planIndex].isProject }
             ]
 
             items = [
@@ -45,30 +45,31 @@ const IUIRolePrivilege = (props) => {
                 ...items?.slice(planIndex + 1), // everything after array
                 ...planItems
             ]
-            
+
             let modulePrivileges = [
-                { id: 998, name: 'user',type:'user', text: "User", items: privileges },
-                { id: 999, name: 'role',type:'role', text: "Role", items: privileges },
+                { id: 998, name: 'user', type: 'user', text: "User", items: privileges },
+                { id: 999, name: 'role', type: 'role', text: "Role", items: privileges },
             ].concat(items.map((item, index) => {
                 return {
                     id: index,
                     name: item.name.charAt(0).toLowerCase() + item.name.slice(1),
-                    type: item.type ? item.type:item.name.charAt(0).toLowerCase() + item.name.slice(1),
-                    text: item.type ? item.type.replace(/[A-Z]/g, letter => ` ${letter.toUpperCase()}`):item.name.replace(/[A-Z]/g, letter => ` ${letter.toUpperCase()}`),
+                    type: item.type ? item.type : item.name.charAt(0).toLowerCase() + item.name.slice(1),
+                    text: item.type ? item.type.replace(/[A-Z]/g, letter => ` ${letter.toUpperCase()}`) : item.name.replace(/[A-Z]/g, letter => ` ${letter.toUpperCase()}`),
                     items: ((item.isAssignable || item.isProject || item.isCompany)
                         ? privileges.concat([
                             { id: 5, name: "assign" }
                         ])
                         : (item?.isApproval)
-                        ? privileges.concat([
-                            { id: 5, name: "assign" },
-                            { id: 6, name: "approve" }
-                        ])
-                        : privileges
+                            ? privileges.concat([
+                                { id: 5, name: "assign" },
+                                { id: 6, name: "approve" },
+                                { id: 7, name: "report" }
+                            ])
+                            : privileges
                     )
                 }
             }));
-            
+
             setModules(items)
             setSchema(modulePrivileges)
         }

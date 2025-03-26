@@ -529,6 +529,7 @@ const IUIPageElement = (props) => {
                                         <IUITableInput
                                             id={fld.field}
                                             schema={fld.schema}
+                                            collate={fld.schema?.collate || false}
                                             className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                             value={data[fld.field]}
                                             onChange={handleChange}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import defaultAvatar from "../../assets/images/avatars/man.png";
@@ -8,8 +8,10 @@ import { useAuth } from "../../provider/authProvider";
 import { loginUser } from "../../store/api-db";
 import IUIHeaderMenu from "./IUIHeaderMenu";
 import schema from "../../store/menu-schema.json";
+import api from '../../store/api-service';
 
 const Header = ({ headerToLayout, headerMenuToLayout }) => {
+    const dropDownRef = useRef();
     const [showSidebar, setShowSidebar] = useState(true);
     const [showMobileHeader, setShowMobileHeader] = useState(false);
     const { setToken } = useAuth();
@@ -18,7 +20,7 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const [profilePicture, setProfilePicture] = useState([]);
     // Get the theme from localStorage or set the default to 'theme1'
-    const savedTheme = localStorage.getItem('theme') || 'red';
+    const savedTheme = loggedInUser?.theme || 'red';
     const [theme, setTheme] = useState(savedTheme);
 
     const menuToHeader = (roleName) => {
@@ -41,20 +43,32 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
         document.head.appendChild(link); // Append the new theme link to the head
     };
 
-    // Load the theme when the component mounts or theme changes
-    useEffect(() => {
-        loadTheme(theme);
-        // Save the selected theme to localStorage
-        localStorage.setItem('theme', theme);
-    }, [theme]);
-
     // Handler for theme selection change
-    const handleThemeChange = (event) => {
+    const handleThemeChange = async (event) => {
         setTheme(event.target.value);
+        loadTheme(event.target.value);
+
+        if (loggedInUser !== undefined) {
+            const userData = {
+                firstName: loggedInUser?.firstName,
+                lastName: loggedInUser?.lastName,
+                phoneNumber: loggedInUser?.phoneNumber,
+                department: loggedInUser?.department,
+                photoUrl: loggedInUser?.photoUrl,
+                address: loggedInUser?.address,
+                theme: event.target.value
+            }
+
+            await api.updateProfile({ module: 'identity', data: userData });
+        }
     };
 
     useEffect(() => {
-        setProfilePicture(loggedInUser?.photoUrl);
+        if (loggedInUser !== undefined) {
+            setProfilePicture(loggedInUser?.photoUrl);
+            setTheme(loggedInUser?.theme || 'red');
+            loadTheme(loggedInUser?.theme || 'red');
+        }
     }, [loggedInUser]);
 
     const handleLogout = () => {
@@ -116,7 +130,7 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                         <IUIHeaderMenu schema={{ type: 'reports', schema: schema }} />
                         <IUIHeaderMenu schema={{ type: 'master', schema: schema }} />
                         <IUIHeaderMenu schema={{ type: 'module', schema: schema }} menuToHeader={menuToHeader} />
-                        <div className="header-dots">
+                        <div className="header-dots" ref={dropDownRef}>
                             <select
                                 id="theme-select"
                                 value={theme}

@@ -1,0 +1,50 @@
+{
+    "quality": {
+        "approvalPending": {
+            "name": "isCompleted",
+            "value": true,
+            "and": {
+                "name": "status",
+                "value": 2
+            }
+        },
+        "approvalCompleted": {
+            "name": "isQcApproved",
+            "value": true,
+            "and": {
+                "name": "isCompleted",
+                "value": true
+            }
+        }
+    },
+    "civilHead": {
+        "approvalPending": {
+            "name": "isQcApproved",
+            "value": true,
+            "and": {
+                "name": "isCompleted",
+                "value": true,
+                "and": {
+                    "name": "status",
+                    "value": 7
+                }
+            }
+        },
+        "approvalCompleted": {
+            "name": "isQcApproved",
+            "value": true,
+            "and": {
+                "name": "isCompleted",
+                "value": true,
+                "and": {
+                    "name": "status",
+                    "value": 4,
+                    "or": {
+                        "name": "status",
+                        "value": 6
+                    }
+                }
+            }
+        }
+    }
+}

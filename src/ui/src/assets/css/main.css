@@ -688,7 +688,7 @@ textarea.form-control { height: calc(4.25rem + 2px)}
 .btn-icon-only .btn-icon-wrapper { margin-left:0; margin-right:0 }
 .btn-hover-shine { position:relative }
 .btn-hover-shine:after { content:''; position:absolute; top:0; left:0; width:0; height:100%; -webkit-transition:none; -moz-transition:none; transition:none }
-.btn-hover-shine:hover:after { width:120%; background-color:transparent; transition:all .4s ease-in-out}
+.btn-hover-shine:hover:after { background-color:transparent; transition:all .4s ease-in-out}
 .btn-hover-shine.btn-pill::after {border-top-left-radius:50px;border-bottom-left-radius:50px;border-top-right-radius:50px;border-bottom-right-radius:50px}
 .btn-icon-vertical { padding-top:1rem; padding-bottom:1rem }
 .btn-icon-vertical .btn-icon-wrapper { display:block; font-size:200%; margin:5px 0; opacity:.6 }

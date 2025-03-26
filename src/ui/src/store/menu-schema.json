@@ -131,48 +131,45 @@
                 "access": "plan"
             },
             {
-                "name": "activityManagement",
+                "name": "activityCreation",
                 "text": "Activity",
-                "icon": "cubes-stacked",
-                "path": "/activities",
-                "access": "activity"
-            }
-        ],
-        "transaction": [
-            {
-                "name": "workItemCreation",
-                "text": "Work Item Creation",
                 "icon": "vector-square",
-                "path": "/workitems",
+                "path": "/activities",
                 "access": "dependency"
             },
             {
                 "name": "dependencyWorkflow",
-                "text": "Dependency Workflow",
+                "text": "Dependency",
                 "icon": "vector-square",
-                "path": "/dependencyworkflows",
+                "path": "/dependencies",
                 "access": "workflow"
-            },
+            }
+        ],
+        "transaction": [
             {
-                "name": "activityCreation",
-                "text": "Activity Creation",
+                "name": "work",
+                "text": "Work",
                 "icon": "vector-square",
-                "path": "/activities/add",
+                "path": "/works",
                 "access": "activity"
             },
             {
-                "name": "activityAssignment",
-                "text": "Activity Assignment",
-                "icon": "vector-square",
-                "path": "/activities",
-                "access": "activity"
-            },
-            {
-                "name": "activityReporting",
-                "text": "Activity Reporting",
+                "name": "workReporting",
+                "text": "Work Reporting",
                 "icon": "vector-square",
                 "path": "/reporting",
                 "access": "activity"
+            },
+            {
+                "name": "workApproval",
+                "text": "Work Approval",
+                "icon": "vector-square",
+                "path": "/approvals",
+                "access": "activity",
+                "role": [
+                    "Quality Engineer",
+                    "New Civil Head"
+                ]
             },
             {
                 "name": "siteMaterialApproval",
