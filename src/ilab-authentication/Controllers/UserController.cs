@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Security;
 using System.Security.Principal;
 
@@ -27,7 +28,7 @@ namespace IlabAuthentication.Controllers
             _logger = logger;
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _userManager = userManager;
-            
+
         }
 
         [HasPrivileges("user", "list")]
@@ -40,17 +41,12 @@ namespace IlabAuthentication.Controllers
                         .AsQueryable();
             var loggedInUser = await _userManager.GetUserAsync(User);
 
-
-
-
             var noSelf = new Condition()
             {
                 Name = "email",
                 Value = loggedInUser?.Email,
                 Operator = OperatorType.InEquality,
             };
-
-
 
             if (!User.IsInRole("root"))
             {
@@ -105,34 +101,42 @@ namespace IlabAuthentication.Controllers
         [HttpPost("")]
         public async Task<long> Post(ApplicationUser user)
         {
-            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-            var identity = new ModuleIdentity(member, key);
+            try
+            {
+                var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+                var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+                var identity = new ModuleIdentity(member, key);
 
-            // todo more on password
-            user.EmailConfirmed = true;
-            // Password Admin@123 // TODO Change Password
-            user.PasswordHash = "AQAAAAEAACcQAAAAEEefFhqm+R9OLtBjdjt2lunRuIhcbwULdR4zjkvZb0KaitPni5P+bqo51WAjPH7FCA==";
-            user.SecurityStamp = "LOSTZG7CZF7DPZ4L5EGLXEOVQ2SJCV42";
-            user.ConcurrencyStamp = "5b0ff902-597e-4c93-8390-33823bc58d2e";
-            user.UserName = user.Email;
-            user.NormalizedUserName = user?.UserName?.ToUnderscoreCase();
-            user.NormalizedEmail = user?.Email?.ToUnderscoreCase();
-            user.Member = identity.Member;
-            user.Key = identity.Key;
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
-            if (user.Roles != null)
-                foreach (var role in user.Roles)
-                {
-                    _dbContext.UserRoles.Add(new IdentityUserRole<long>()
+                // todo more on password
+                user.EmailConfirmed = true;
+                // Password Admin@123 // TODO Change Password
+                user.PasswordHash = "AQAAAAEAACcQAAAAEEefFhqm+R9OLtBjdjt2lunRuIhcbwULdR4zjkvZb0KaitPni5P+bqo51WAjPH7FCA==";
+                user.SecurityStamp = "LOSTZG7CZF7DPZ4L5EGLXEOVQ2SJCV42";
+                user.ConcurrencyStamp = "5b0ff902-597e-4c93-8390-33823bc58d2e";
+                user.UserName = user.Email;
+                user.NormalizedUserName = user?.UserName?.ToUnderscoreCase();
+                user.NormalizedEmail = user?.Email?.ToUnderscoreCase();
+                user.Member = identity.Member;
+                user.Key = identity.Key;
+                await _dbContext.Users.AddAsync(user);
+                await _dbContext.SaveChangesAsync();
+                if (user.Roles != null)
+                    foreach (var role in user.Roles)
                     {
-                        RoleId = role.Id,
-                        UserId = user.Id,
-                    });
-                }
-            await _dbContext.SaveChangesAsync();
-            return user.Id;
+                        _dbContext.UserRoles.Add(new IdentityUserRole<long>()
+                        {
+                            RoleId = role.Id,
+                            UserId = user.Id,
+                        });
+                    }
+                await _dbContext.SaveChangesAsync();
+                return user.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Exception in Post, message:'{ex.Message}'");
+                throw;
+            }
         }
 
         [HasPrivileges("user", "view")]
@@ -178,42 +182,70 @@ namespace IlabAuthentication.Controllers
         [HttpPut("{id}")]
         public async Task<long> Put(long id, ApplicationUser user)
         {
-            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-            var identity = new ModuleIdentity(member, key);
-
-            // TODO Assign role
-            var existingUser = await _dbContext.Users.SingleAsync(p => p.Id == id);
-            //_dbContext.Attach(user);
-            existingUser.FirstName = user.FirstName;
-            existingUser.LastName = user.LastName;
-            //existingUser.Email = user.Email; // Email can't be changed
-            existingUser.PhoneNumber = user.PhoneNumber;
-            existingUser.Department = user.Department;
-            existingUser.EmailConfirmed = !user.Disable;
-            existingUser.Disable = user.Disable;
-            existingUser.PhotoUrl = user.PhotoUrl;
-            existingUser.Address = user.Address;
-            existingUser.Member = identity.Member;
-            //existingUser.UserName = user.Email;// Eser name can't be changed
-
-            var _existingRoles = await _dbContext.UserRoles.Where(p => p.UserId == existingUser.Id).ToListAsync();
-            if (_existingRoles != null && _existingRoles.Count > 0)
+            try
             {
-                _dbContext.UserRoles.RemoveRange(_existingRoles);
-            }
-            if (user.Roles != null)
-                foreach (var role in user.Roles)
+                var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+                var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+                var identity = new ModuleIdentity(member, key);
+
+                // TODO Assign role
+                var existingUser = await _dbContext.Users.SingleAsync(p => p.Id == id);
+                //_dbContext.Attach(user);
+                existingUser.FirstName = user.FirstName;
+                existingUser.LastName = user.LastName;
+                //existingUser.Email = user.Email; // Email can't be changed
+                existingUser.PhoneNumber = user.PhoneNumber;
+                existingUser.Department = user.Department;
+                existingUser.EmailConfirmed = !user.Disable;
+                existingUser.Disable = user.Disable;
+                existingUser.PhotoUrl = user.PhotoUrl;
+                existingUser.Address = user.Address;
+                existingUser.Member = identity.Member;
+                //existingUser.UserName = user.Email;// Eser name can't be changed
+
+                var _existingRoles = await _dbContext.UserRoles.Where(p => p.UserId == existingUser.Id).ToListAsync();
+                if (_existingRoles != null && _existingRoles.Count > 0)
                 {
-                    _dbContext.UserRoles.Add(new IdentityUserRole<long>()
-                    {
-                        RoleId = role.Id,
-                        UserId = existingUser.Id,
-                    });
+                    _dbContext.UserRoles.RemoveRange(_existingRoles);
                 }
-            await _dbContext.SaveChangesAsync();
-            return user.Id;
+                if (user.Roles != null)
+                    foreach (var role in user.Roles)
+                    {
+                        _dbContext.UserRoles.Add(new IdentityUserRole<long>()
+                        {
+                            RoleId = role.Id,
+                            UserId = existingUser.Id,
+                        });
+                    }
+                await _dbContext.SaveChangesAsync();
+                return user.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Exception in Put, message:'{ex.Message}'");
+
+                throw;
+            }
         }
+
+
+        [HttpPut("{id}")]
+        public async Task<long> Patch(long id, string themeName)
+        {
+            try
+            {               
+                var existingUser = await _dbContext.Users.SingleAsync(p => p.Id == id);
+                existingUser.Theme = themeName;
+                _dbContext.Update(existingUser);
+                return existingUser.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Exception in Patch, message:'{ex.Message}'");
+                throw;
+            }
+        }
+
 
         [HasPrivileges("user", "delete")]
         [HttpDelete("{id}")]
