@@ -13,12 +13,22 @@ const Dashboard = () => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const privileges = loggedInUser?.privileges;
 
-    // useEffect(() => {
-    //     const pageOptions = {
-    //     };
-    //     const response = api.getData({ module: 'plan', options: pageOptions });
-    //     console.log(response);
-    // }, []);
+    useEffect(() => {
+        async function fetchData() {
+            const pageOptions = {
+            };
+            const pageOptionsTower = {
+                name: 'type',
+                value: 'tower'
+            };
+            const userData = await api.getData({ module: 'user', options: pageOptions });
+            const projectData = await api.getData({ module: 'plan', options: pageOptions });
+            console.log(userData.data);
+        }
+        fetchData();
+    }, []);
+
+
 
     // Dummy data for demonstration purposes
     const metrics = {
@@ -97,15 +107,15 @@ const Dashboard = () => {
                                 <Card.Body>
                                     <Card.Title>User Details</Card.Title>
                                     <div>
-                                        User : {loggedInUser?.FirstName} {loggedInUser?.LastName} <br />
-                                        Email : {loggedInUser?.email} <br />
-                                        Role : {loggedInUser?.role} <br />
+                                        <b>User : </b>{loggedInUser?.firstName} {loggedInUser?.lastName} <br />
+                                        <b>Email : </b>{loggedInUser?.email} <br />
+                                        <b>Role : </b>{loggedInUser?.roles[0]} <br />
                                     </div>
                                 </Card.Body>
 
                             </Card>
-                            <Card className="mt-2">
-                                <Card.Body>
+                            <Card className="mt-2" style={{ height: '53vh' }}>
+                                <Card.Body >
                                     <Card.Title>Projects, Towers, and Flats</Card.Title>
                                     <Bar
                                         data={{
