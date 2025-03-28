@@ -6,12 +6,12 @@ export const ListActivity = () => {
 
     const schema = {
         module: 'activity',
-        title: 'Work List',
-        path: 'activities',
+        title: 'Work',
+        path: 'works',
         paging: true,
         searching: true,
         editing: true,
-        adding: false,
+        adding: true,
         relationKey: "type",
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
@@ -37,8 +37,8 @@ export const ListActivity = () => {
 export const ViewActivity = () => {
     const schema = {
         module: 'activity',
-        title: 'Work Details',
-        path: 'activities',
+        title: 'Work',
+        path: 'works',
         showBreadcrumbs: true,
         editing: true,
         adding: false,
@@ -101,10 +101,10 @@ export const ViewActivity = () => {
                     { text: 'Actual Cost', field: 'actualCost', width: 4, type: 'label' },
                     // { text: 'Document Links', field: 'documentLinks', width: 4, type: 'text' },
                     {
-                        text: 'Assigned To', field: 'userId', width: 4, type: 'lookup-link',
+                        text: 'Assigned To', field: 'member', width: 4, type: 'label',
                         schema: { module: 'user', path: 'users' }
                     },
-                    { text: 'Notes', field: 'notes', width: 4, type: 'label' }
+                    { text: 'Notes', field: 'notes', width: 12, type: 'label' }
                 ]
             },
             {
@@ -165,8 +165,8 @@ export const ViewActivity = () => {
 export const EditActivity = () => {
     const schema = {
         module: 'activity',
-        title: 'Work Details',
-        path: 'activities',
+        title: 'Work',
+        path: 'works',
         back: false,
         fields: [
             {
@@ -289,8 +289,8 @@ export const EditActivity = () => {
 export const AddActivity = () => {
     const setupSchema = {
         module: 'activity',
-        title: 'Work Creation',
-        path: 'activities/add',
+        title: 'Work',
+        path: 'works',
         back: true,
         fields: [
             {
@@ -343,8 +343,8 @@ export const AddActivity = () => {
 
     const creationSchema = {
         module: 'activity',
-        title: 'Work Creation',
-        path: 'activities',
+        title: 'Work',
+        path: 'works',
         adding: true,
         back: true,
         defaultFields: [

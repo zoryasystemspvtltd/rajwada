@@ -48,6 +48,7 @@ public class IdentityController : ControllerBase
         userDetails.Department = loggedInUser.Department;
         userDetails.Disable = loggedInUser.Disable;
         userDetails.PhotoUrl = loggedInUser.PhotoUrl;
+        userDetails.Theme = loggedInUser.Theme;
 
         userDetails.Roles = _dbContext
             .UserRoles?
@@ -136,7 +137,7 @@ public class IdentityController : ControllerBase
             existingUser.Department = user.Department;
             existingUser.PhotoUrl = user.PhotoUrl;
             existingUser.Address = user.Address;
-
+            existingUser.Theme = user.Theme;
             await _dbContext.SaveChangesAsync();
         }
 

@@ -228,25 +228,6 @@ namespace IlabAuthentication.Controllers
             }
         }
 
-
-        [HttpPut("{id}")]
-        public async Task<long> Patch(long id, string themeName)
-        {
-            try
-            {               
-                var existingUser = await _dbContext.Users.SingleAsync(p => p.Id == id);
-                existingUser.Theme = themeName;
-                _dbContext.Update(existingUser);
-                return existingUser.Id;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Exception in Patch, message:'{ex.Message}'");
-                throw;
-            }
-        }
-
-
         [HasPrivileges("user", "delete")]
         [HttpDelete("{id}")]
         public async Task<long> Delete(long id)

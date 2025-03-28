@@ -28,7 +28,7 @@ const IUIApprovalPage = (props) => {
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
     const [approvalStatus, setApprovalStatus] = useState({});
-    const [approvedMemeber, setApprovalBy] = useState({});
+    const [displayApprovalButtons, setDisplayApprovalButtons] = useState(false);
     const [remarks, setRemarks] = useState('');
     const [approvalType, setApprovalType] = useState('');
     const [showRemarksModal, setShowRemarksModal] = useState(false);
@@ -42,12 +42,27 @@ const IUIApprovalPage = (props) => {
                 const item = await api.getSingleData({ module: module, id: id });
                 setData(item.data);
                 setApprovalStatus(item.data.status);
-                setApprovalBy(item.data.member);
+                if (loggedInUser?.roles?.includes("Quality Engineer")) {
+                    if (item.data?.isQCApproved) {
+                        setDisplayApprovalButtons(false);
+                    }
+                    else {
+                        setDisplayApprovalButtons(true);
+                    }
+                }
+                else {
+                    if (item.data?.isApproved) {
+                        setDisplayApprovalButtons(false);
+                    }
+                    else {
+                        setDisplayApprovalButtons(true);
+                    }
+                }
             }
         }
 
         fetchData();
-    }, [id]);
+    }, [id, loggedInUser]);
 
     useEffect(() => {
         if (props?.defaultValues) {
@@ -167,26 +182,64 @@ const IUIApprovalPage = (props) => {
             return;
         }
         const current = new Date();
-        const action = {
-            module: module,
-            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, approvedRemarks: remarks }
+        let patchAction = {};
+        let editAction = {};
+        if (loggedInUser?.roles?.includes("Quality Engineer")) {
+            // QC is approving
+            if (isApproved) {
+                patchAction = {
+                    module: module,
+                    data: { id: id, status: 7, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
+                }
+            }
+            // QC is rejecting
+            else {
+                patchAction = {
+                    module: module,
+                    data: { id: id, status: 3, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
+                }
+                editAction = {
+                    module: module,
+                    data: { ...data, isCompleted: false, isAbandoned: true }
+                }
+            }
+        }
+        else {
+            // HOD is approving
+            if (isApproved) {
+                patchAction = {
+                    module: module,
+                    data: { id: id, status: 4, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
+                }
+                editAction = {
+                    module: module,
+                    data: { ...data, isCompleted: true, actualEndDate: current }
+                }
+            }
+            // HOD is rejecting
+            else {
+                patchAction = {
+                    module: module,
+                    data: { id: id, status: 6, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
+                }
+                editAction = {
+                    module: module,
+                    data: { ...data, isCompleted: false, isAbandoned: true }
+                }
+            }
         }
         try {
-            await api.editPartialData(action);
+            if (Object.keys(editAction).length > 0) {
+                await api.editData(editAction);
+            }
+
+            await api.editPartialData(patchAction);
             dispatch(setSave({ module: module }));
 
             const timeId = setTimeout(async () => {
                 // After 3 seconds set the show value to false
+                notify('success', 'Approval submission successful!');
                 setShowRemarksModal(false);
-                // Mark Activity as Completed
-                if (module === 'activity' && isApproved) {
-                    const updatedActivityData = {
-                        ...data,
-                        isCompleted: true,
-                        actualEndDate: new Date()
-                    };
-                    await api.editData({ module: 'activity', data: updatedActivityData });
-                }
                 navigate(0);
             }, 1000)
 
@@ -196,6 +249,7 @@ const IUIApprovalPage = (props) => {
 
         } catch (e) {
             // TODO
+            notify('error', 'Failed to submit approval!');
         }
     }
 
@@ -248,7 +302,7 @@ const IUIApprovalPage = (props) => {
                                                         </>
                                                     } */}
                                                     {
-                                                        // (approvalStatus === 3 || approvalStatus === 7) && loggedInUser?.email === data.member &&
+                                                        (approvalStatus === 2 || approvalStatus === 7) && displayApprovalButtons &&
                                                         <>
                                                             {
                                                                 schema?.readonly && privileges?.approve &&
@@ -264,7 +318,7 @@ const IUIApprovalPage = (props) => {
                                                             }
                                                         </>
                                                     }
-                                                   
+
                                                     {/* Condition modified by Adrish */}
                                                     {schema?.approving && privileges?.assign && approvalStatus === 3 && loggedInUser?.email !== data.member &&
                                                         <IUIApprover onClick={assignApprover} />

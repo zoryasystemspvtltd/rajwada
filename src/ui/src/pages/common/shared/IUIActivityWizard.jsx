@@ -9,6 +9,7 @@ import IUIPage from "../IUIPage";
 const IUIActivityWizard = (props) => {
     const wizardRef = useRef(null);
     const [sequence, setSequence] = useState([]);
+    const [alreadyCreationNote, setAlreadyCreationNote] = useState("");
     const schema = props?.schema;
     const dependencyData = props?.dependencyData
     // console.log(dependencyData);
@@ -61,6 +62,14 @@ const IUIActivityWizard = (props) => {
                     and: {
                         name: 'towerId',
                         value: parseInt(data?.towerId),
+                        and: {
+                            name: 'floorId',
+                            value: null,
+                            and: {
+                                name: 'flatId',
+                                value: null,
+                            }
+                        }
                     }
                 }
             };
@@ -78,6 +87,10 @@ const IUIActivityWizard = (props) => {
                         and: {
                             name: 'floorId',
                             value: parseInt(data?.floorId),
+                            and: {
+                                name: 'flatId',
+                                value: null,
+                            }
                         }
                     }
                 }
@@ -119,8 +132,8 @@ const IUIActivityWizard = (props) => {
                 searchCondition: baseQuery
             }
             const response = await api.getData({ module: 'activity', options: pageOptions });
-            let activities = response?.data?.items;
-            console.log(response);
+            let activities = response?.data?.items || [];
+
             if (activities?.length > 0) {
                 // find already existing activities for workitems
                 let finalSequence = [];
@@ -132,9 +145,12 @@ const IUIActivityWizard = (props) => {
                 });
 
                 setSequence(finalSequence);
+                if (finalSequence?.length === 0) {
+                    setAlreadyCreationNote("Activities have already been created for the selected Tower, Floor, Flat and Dependency details !");
+                }
             }
             else {
-                setSequence(props?.sequence)
+                setSequence(props?.sequence);
             }
         }
 
@@ -236,7 +252,7 @@ const IUIActivityWizard = (props) => {
                     </div>
                 ) : (
                     <p className="text-center">
-                        <strong>Activities have already been created for the selected Tower, Floor, Flat and Dependency details !</strong>
+                        <strong>{alreadyCreationNote}</strong>
                     </p>
                 )
             }

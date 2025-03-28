@@ -170,5 +170,10 @@ api.assignedUsers = async (action) => {
     const response = await api.get(url);
     return response;
 }
+api.taskReport = async (action) => {
+    const url = `/report/${action.id}`;
+    const response = await api.get(url);
+    return response;
+}
 export default api;
 

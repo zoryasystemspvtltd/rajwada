@@ -22,6 +22,24 @@ public class ReportController : ControllerBase
     }
 
     [AllowAnonymous]
+    [HttpGet("{id}")]
+    public async Task<dynamic> Get(long id)
+    {
+        try
+        {
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+            var item = await dataService.GetTaskItemDetails(id);
+            return item;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in Get id: '{id}' message:'{ex.Message}'");
+            throw;
+        }
+    }
+    [AllowAnonymous]
     [HttpPost]
     public dynamic Post(WorkerReportRequestPayload request, CancellationToken token)
     {

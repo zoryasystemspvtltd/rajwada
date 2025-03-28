@@ -58,10 +58,37 @@ const IUITableInput = (props) => {
     }, [data, dirty]);
 
     useEffect(() => {
+        async function collateData() {
+            let collateSchema = schema?.collateSchema;
+            const baseFilter = {
+                name: collateSchema?.parentKey,
+                value: parseInt(collateSchema?.parentValue)
+            };
+
+            const pageOptions = {
+                recordPerPage: 0,
+                searchCondition: baseFilter
+            };
+
+            const response = await api.getData({ module: collateSchema?.module, options: pageOptions });
+            let tempArray = [];
+            if (response?.data?.items) {
+                for (let data of response?.data?.items) {
+                    let collection = data[collateSchema?.searchKey];
+                    tempArray = [...tempArray, ...JSON.parse(collection)];
+                }
+                setDataArray(tempArray);
+            }
+        }
+
         if (props?.value && !props?.collate) {
             setDataArray(JSON.parse(props?.value));
         }
-    }, [props?.value, props?.collate]);
+        else if (props?.collate) {
+            // Logic to collate
+            collateData()
+        }
+    }, [props?.value, props?.collate, schema]);
 
     useEffect(() => {
         if (dataArray.length > 0) {

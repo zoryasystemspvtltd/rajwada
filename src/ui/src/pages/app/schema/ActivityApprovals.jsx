@@ -10,7 +10,7 @@ export const ListActivityApproval = () => {
 
     const schema = {
         module: 'activity',
-        title: 'Work List',
+        title: 'Work Approval',
         path: 'activities',
         paging: true,
         searching: true,
@@ -84,7 +84,7 @@ export const ViewActivityApproval = () => {
 
     const schema = {
         module: 'activity',
-        title: 'Work Details',
+        title: 'Work Approval',
         path: 'activities',
         showBreadcrumbs: true,
         editing: true,
@@ -121,15 +121,8 @@ export const ViewActivityApproval = () => {
                     { text: 'Actual Start Date', field: 'actualStartDate', width: 4, type: 'label-date', },
                     { text: 'Actual End Date', field: 'actualEndDate', width: 4, type: 'label-date', },
                     {
-                        text: 'Status', field: 'workflowState', width: 4, type: 'lookup-link',
-                        // schema: { module: 'stateType' }
-                        schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'New' },
-                                { name: 'In Progress' },
-                                { name: 'Completed' }
-                            ]
-                        }
+                        text: 'Status', field: 'status', type: 'lookup-enum', width: 4, textonly: true,
+                        schema: { module: 'statusType' }
                     },
 
                     { text: 'Duration', field: 'Duration', width: 4, type: 'label' },
@@ -137,10 +130,11 @@ export const ViewActivityApproval = () => {
                     { text: 'Estimate Cost', field: 'costEstimate', width: 4, type: 'label' },
                     { text: 'Actual Cost', field: 'actualCost', width: 4, type: 'label' },
                     {
-                        text: 'Assigned To', field: 'userId', width: 4, type: 'lookup-link',
+                        text: 'Assigned To', field: 'member', width: 4, type: 'label',
                         schema: { module: 'user', path: 'users' }
                     },
-                    { text: 'Notes', field: 'notes', width: 4, type: 'label' }
+                    { text: 'QC Remarks', field: 'qcRemarks', type: 'label', width: 4 },
+                    { text: 'HOD Remarks', field: 'hodRemarks', type: 'label', width: 4 },
                 ]
             },
             {
@@ -158,7 +152,8 @@ export const ViewActivityApproval = () => {
                             collateSchema: {
                                 module: 'activitytracking',
                                 parentKey: 'activityId',
-                                parentValue: id
+                                parentValue: id,
+                                searchKey: 'item'
                             },
                             adding: true,
                             fields: [
@@ -174,6 +169,35 @@ export const ViewActivityApproval = () => {
                             ]
                         }
                     },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Activity Blueprint', field: 'photoUrl', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        schema: {
+                            readonly: true,
+                            upload: false,
+                            save: false,
+                            parentId: id,
+                            goBack: true,
+                            parent: {
+                                module: 'activity',
+                                filter: 'activityId',
+                                path: 'activities'
+                            },
+                            controls: {
+                                balloon: false,
+                                rectangle: false,
+                                pencil: false,
+                                camera: false,
+                                delete: false,
+                                reset: false
+                            },
+                            module: 'unitOfWork'
+                        }
+                    }
                 ]
             }
         ]
