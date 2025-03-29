@@ -26,7 +26,9 @@ const Dashboard = () => {
         async function fetchData() {
             try {
                 const pageOptions = {};
-                const pageOptionsPlan = [{ name: 'type', value: 'tower' }, { name: 'type', value: 'floor' }, { name: 'type', value: 'flat' }];
+                const pageOptionsPlan = [{ recordPerPage: 0, searchCondition:{ name: 'type', value: 'tower' }}, 
+                    { recordPerPage: 0, searchCondition:{ name: 'type', value: 'floor' }}, 
+                    { recordPerPage: 0, searchCondition:{ name: 'type', value: 'flat' }}];
                 // const pageOptionsTower = { name: 'type', value: 'tower' };
                 // const pageOptionsFloor = { name: 'type', value: 'floor' };
                 // const pageOptionsFlat = { name: 'type', value: 'flat' };
