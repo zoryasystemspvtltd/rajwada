@@ -412,6 +412,16 @@ const Calendar = () => {
 
         setSelectedTask(taskDetails);
         setProgress(parseInt(taskDetails.progressPercentage, 10));
+        if(taskDetails?.isOnHold){
+            setTaskStatus('onHold');
+        }
+        else if(taskDetails?.isCancelled){
+            setTaskStatus('Cancelled');
+        }
+        else if(taskDetails?.isAbandoned){ 
+            setTaskStatus('Abandoned');  
+        }
+        
         setBlueprint(taskDetails?.photoUrl);
         if (!isSameDay(selectedDate, startOfToday()) || taskDetails?.isCompleted) {
             setCanvasSchema(
@@ -731,12 +741,13 @@ const Calendar = () => {
     };
 
     return (
-        <div>
+        <div >
             <FullCalendar
                 plugins={[dayGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
                 dateClick={handleDateClick}
                 dayCellContent={renderDateCell}
+                // contentHeight="80vh"
             />
             {mainModalOpen && (
                 <Modal show={mainModalOpen} onHide={closeMainModal} >
