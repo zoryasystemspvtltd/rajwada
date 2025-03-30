@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from 'react-redux';
 import IUIMenuItem from "./shared/IUIMenuItem";
 import softwareLogo from "../../assets/images/Rajwada-ERP-Logo-Modified.png";
@@ -6,7 +6,12 @@ import schema from "../../store/menu-schema.json";
 
 const LeftMenu = (props) => {
     const privileges = useSelector((state) => state.api.loggedInUser?.privileges);
-    const menuRole = props?.role;
+    const [menuRole, setMenuRole] = useState(props?.role);
+
+    useEffect(() => {
+        if (props?.role)
+            setMenuRole(props?.role);
+    }, [props?.role]);
 
     // let schema = [
     //     {
