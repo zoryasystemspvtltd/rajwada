@@ -1,12 +1,17 @@
 import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
 const IUIMenuItem = (props) => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const privileges = useSelector((state) => state.api.loggedInUser?.privileges);
     const [value, setValue] = useState(props.schema);
+
+    useEffect(() => {
+        if (props.schema)
+            setValue(props.schema);
+    }, [props.schema]);
 
     const expandMenu = (e, index) => {
 
