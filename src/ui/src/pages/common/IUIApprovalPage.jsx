@@ -200,7 +200,7 @@ const IUIApprovalPage = (props) => {
                 }
                 editAction = {
                     module: module,
-                    data: { ...data, isCompleted: false, isAbandoned: true }
+                    data: { ...data, isCompleted: false, isAbandoned: true, isInProgress: true, progressPercentage: 95 }
                 }
             }
         }
@@ -428,7 +428,6 @@ const IUIApprovalPage = (props) => {
                 </div>
             </div>
         </>
-
     )
 }
 

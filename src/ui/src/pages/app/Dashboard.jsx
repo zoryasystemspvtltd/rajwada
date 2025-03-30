@@ -16,7 +16,6 @@ const Dashboard = () => {
     const [metrics, setMetrics] = useState({
         projects: { total: 0 },
         departments: { total: 0 },
-        roles: { total: 0 },
         users: { total: 0, disabled: 0, active: 0 },
         towers: { total: 0 },
         floors: { total: 0 },
@@ -44,10 +43,9 @@ const Dashboard = () => {
                     api.getData({ module: 'activity', options: activityPageOptions }),
                 ]);
 
-                const [projectData, departmentData, roleData] = await Promise.all([
+                const [projectData, departmentData] = await Promise.all([
                     api.getData({ module: 'project', options: pageOptionsPortfolio }),
-                    api.getData({ module: 'department', options: pageOptionsPortfolio }),
-                    api.getData({ module: 'role', options: pageOptionsPortfolio })
+                    api.getData({ module: 'department', options: pageOptionsPortfolio })
                 ]);
 
                 // console.log("activityData", activityData);
@@ -59,7 +57,6 @@ const Dashboard = () => {
 
                 const totalProjects = projectData?.data?.items.length;
                 const totalDepartments = departmentData?.data?.items.length;
-                const totalRoles = roleData?.data?.items.length;
 
                 const totalTowers = projectDataTower?.data?.items.length;
                 const totalFloors = projectDataFloor?.data?.items.length;
@@ -75,9 +72,6 @@ const Dashboard = () => {
                     },
                     departments: {
                         total: totalDepartments
-                    },
-                    roles: {
-                        total: totalRoles
                     },
                     users: {
                         total: totalUsers,
@@ -123,75 +117,28 @@ const Dashboard = () => {
 
     return (
         <div className="container-fluid">
-            <div className="card">
-                <div className="card-header-tab card-header">
-                    <div className="card-header-title font-size-lg text-capitalize font-weight-normal">
-                        <i className="header-icon lnr-charts icon-gradient bg-happy-green"> </i>
-                        Portfolio Statistics
-                    </div>
-                </div>
-                <div className="no-gutters row">
-                    <div className="col-sm-6 col-md-4 col-xl-4">
-                        <div className="card no-shadow rm-border bg-transparent widget-chart text-left">
-                            <div className="icon-wrapper rounded-circle">
-                                <div className="icon-wrapper-bg opacity-10 bg-warning"></div>
-                                <i class="fa-solid fa-building-shield text-white"></i>
-                            </div>
-                            <div className="widget-chart-content">
-                                <div className="widget-subheading">Total Projects</div>
-                                <div className="widget-numbers text-warning">{metrics.projects.total}</div>
-                            </div>
-                        </div>
-                        <div className="divider m-0 d-md-none d-sm-block"></div>
-                    </div>
-                    <div className="col-sm-6 col-md-4 col-xl-4">
-                        <div className="card no-shadow rm-border bg-transparent widget-chart text-left">
-                            <div className="icon-wrapper rounded-circle">
-                                <div className="icon-wrapper-bg opacity-9 bg-danger"></div>
-                                <i class="fa-solid fa-building-user text-white"></i>
-                            </div>
-                            <div className="widget-chart-content">
-                                <div className="widget-subheading">Total Departments</div>
-                                <div className="widget-numbers text-danger"><span>{metrics.departments.total}</span></div>
-                            </div>
-                        </div>
-                        <div className="divider m-0 d-md-none d-sm-block"></div>
-                    </div>
-                    <div className="col-sm-12 col-md-4 col-xl-4">
-                        <div className="card no-shadow rm-border bg-transparent widget-chart text-left">
-                            <div className="icon-wrapper rounded-circle">
-                                <div className="icon-wrapper-bg opacity-9 bg-success"></div>
-                                <i class="fa-solid fa-circle-user text-white"></i>
-                            </div>
-                            <div className="widget-chart-content">
-                                <div className="widget-subheading">Total User Roles</div>
-                                <div className="widget-numbers text-success"><span>{metrics.roles.total}</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             {
                 privileges?.some(p => (p.module === 'user' || p.module === 'plan')) ? (
                     <Row className="mt-2">
                         <Col md={6}>
                             <Card>
                                 <Card.Body>
-                                    <Card.Title>User Statistics</Card.Title>
+                                    <Card.Title>Activities</Card.Title>
                                     {/* <Card.Text>
-                                    <b>Active Users :</b> {metrics.users.active} <br />
-                                    <b>Disabled Users :</b> {metrics.users.disabled} <br />
+                                    <b>Created :</b> {metrics.activities.created} <br />
+                                    <b>In Progress :</b> {metrics.activities.inProgress} <br />
+                                    <b>Completed :</b> {metrics.activities.completed} <br />
                                 </Card.Text> */}
                                     <div style={{ maxWidth: '600px', maxHeight: '350px' }} className='d-flex justify-content-center'>
-                                        <Doughnut
+                                        <Pie
                                             data={{
-                                                labels: ['Active', 'Disabled'],
+                                                labels: ['Not Started', 'In Progress', 'Completed'],
                                                 datasets: [
                                                     {
-                                                        label: 'Number of Users',
-                                                        data: [metrics.users.active, metrics.users.disabled],
+                                                        label: 'Count',
+                                                        data: [metrics.activities.notStarted, metrics.activities.inProgress, metrics.activities.completed],
                                                         backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56'],
-                                                    },
+                                                    }
                                                 ],
                                             }}
                                             options={options} />
@@ -208,6 +155,7 @@ const Dashboard = () => {
                                     <b>Total Floors :</b> {metrics.floors.total} <br />
                                     <b>Total Flats :</b> {metrics.flats.total} <br />
                                 </Card.Text> */}
+                                <div style={{ maxWidth: '600px', maxHeight: '450px' }}>
                                     <Bar
                                         data={{
                                             labels: ['Count'],
@@ -231,36 +179,7 @@ const Dashboard = () => {
                                         }}
                                         options={options}
                                     />
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
-                ) : <></>
-            }
-            {
-                privileges?.some(p => p.module === 'activity') ? (
-                    <Row className="my-2">
-                        <Col md={6}>
-                            <Card>
-                                <Card.Body>
-                                    <Card.Title>Activities</Card.Title>
-                                    {/* <Card.Text>
-                                    <b>Created :</b> {metrics.activities.created} <br />
-                                    <b>In Progress :</b> {metrics.activities.inProgress} <br />
-                                    <b>Completed :</b> {metrics.activities.completed} <br />
-                                </Card.Text> */}
-                                    <Pie
-                                        data={{
-                                            labels: ['Not Started', 'In Progress', 'Completed'],
-                                            datasets: [
-                                                {
-                                                    label: 'Activity Status',
-                                                    data: [metrics.activities.notStarted, metrics.activities.inProgress, metrics.activities.completed],
-                                                    backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56'],
-                                                }
-                                            ],
-                                        }}
-                                        options={options} />
+                                    </div>
                                 </Card.Body>
                             </Card>
                         </Col>
