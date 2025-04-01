@@ -188,7 +188,7 @@ public class RajDataHandler : LabDataHandler
         {
             var activities = dbContext.Set<Activity>()
                      .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
-                     && l.TowerId == towerId && l.FloorId == floorId 
+                     && l.TowerId == towerId && l.FloorId == floorId
                      && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
             if (flatId > 0)
             {
@@ -233,19 +233,16 @@ public class RajDataHandler : LabDataHandler
 
     public List<IdNamePair> GetAllAssignedProjects(string member)
     {
-        var query = "select distinct pr.Id,pr.Name from [dbo].[ApplicationLogs] l" +
-             "inner join dbo.Plans p on l.EntityId = p.Id" +
-             "inner join dbo.Projects pr on pr.Id = p.ProjectId" +
-        "where l.Member = @Member";
+        var query = "select distinct pr.Id,pr.Name from [dbo].[ApplicationLogs] l " +
+             "inner join dbo.Plans p on l.EntityId = p.Id " +
+             "inner join dbo.Projects pr on pr.Id = p.ProjectId " +
+            "where l.Member ='" + member + "'";
 
         using (var command = dbContext.Database.GetDbConnection().CreateCommand())
         {
             command.CommandText = query;
             command.CommandType = CommandType.Text;
-
-            command.Parameters.Add("@Member");
-            command.Parameters["@Member"].Value = member;
-
+                        
             dbContext.Database.OpenConnection();
 
             using (var result = command.ExecuteReader())
