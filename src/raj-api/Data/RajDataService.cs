@@ -221,5 +221,19 @@ namespace ILab.Data
                 return 0;
             }
         }
+        internal dynamic GetAllAssignedProjects(string member)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetAllAssignedProjects));
+                object[] parameters = [member];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetChallanReport method and details: " + ex.Message);
+                return 0;
+            }
+        }
     }
 }

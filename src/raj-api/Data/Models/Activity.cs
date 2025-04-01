@@ -1,5 +1,4 @@
 ﻿using ILab.Extensionss.Data.Models;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,6 +8,7 @@ namespace RajApi.Data.Models
     {
         public virtual string? Description { get; set; }
         public required string Type { get; set; }
+        public virtual bool? IsSubSubType { get; set; }
         public virtual string? PhotoUrl { get; set; }
         public virtual string? DocumentLinks { get; set; }
         public virtual string? Notes { get; set; }

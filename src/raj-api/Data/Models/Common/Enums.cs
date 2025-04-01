@@ -12,6 +12,13 @@ public class EnumData
     public string Name { get; set; }
     public int Value { get; set; }
 }
+
+public class IdNamePair
+{
+    public string Name { get; set; }
+    public long Id { get; set; }
+}
+
 public enum StateType
 {
     Initiated = 0,
