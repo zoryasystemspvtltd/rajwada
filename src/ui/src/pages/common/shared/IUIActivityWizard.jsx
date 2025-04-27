@@ -16,8 +16,8 @@ const IUIActivityWizard = (props) => {
     const [isCreationSuccessful, setIsCreationSuccessful] = useState(true);
     const navigate = useNavigate();
     const tabContentStyle = {
-        overflow: 'auto',
-        overflowX: 'hidden'
+        height: 'auto',
+        overflow: 'visible'
     };
 
     const customNextStepLogic = () => {
@@ -126,7 +126,7 @@ const IUIActivityWizard = (props) => {
         async function fetchActivities() {
             let baseQuery = baseQueryConstructor(props?.dependencyData);
 
-            console.log(props?.dependencyData)
+            // console.log(props?.dependencyData)
             const pageOptions = {
                 recordPerPage: 0,
                 searchCondition: baseQuery
@@ -245,8 +245,8 @@ const IUIActivityWizard = (props) => {
                             }
                         </div>
 
-
-                        <div className="progress">
+                        {/* style property added to middle align progress bar */}
+                        <div className="progress" style={{ margin: "auto", width: "50%" }}>
                             <div className="progress-bar" role="progressbar" style={{ width: "0%" }} aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>

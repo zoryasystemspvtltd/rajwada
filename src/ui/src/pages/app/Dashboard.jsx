@@ -155,30 +155,30 @@ const Dashboard = () => {
                                     <b>Total Floors :</b> {metrics.floors.total} <br />
                                     <b>Total Flats :</b> {metrics.flats.total} <br />
                                 </Card.Text> */}
-                                <div style={{ maxWidth: '600px', maxHeight: '450px' }}>
-                                    <Bar
-                                        data={{
-                                            labels: ['Count'],
-                                            datasets: [
-                                                {
-                                                    label: 'Towers',
-                                                    data: [metrics.towers.total],
-                                                    backgroundColor: '#36A2EB',
-                                                },
-                                                {
-                                                    label: 'Floors',
-                                                    data: [metrics.floors.total],
-                                                    backgroundColor: '#FF6384',
-                                                },
-                                                {
-                                                    label: 'Flats',
-                                                    data: [metrics.flats.total],
-                                                    backgroundColor: '#FFCE56',
-                                                },
-                                            ],
-                                        }}
-                                        options={options}
-                                    />
+                                    <div style={{ maxWidth: '600px', maxHeight: '450px' }}>
+                                        <Bar
+                                            data={{
+                                                labels: ['Count'],
+                                                datasets: [
+                                                    {
+                                                        label: 'Towers',
+                                                        data: [metrics.towers.total],
+                                                        backgroundColor: '#36A2EB',
+                                                    },
+                                                    {
+                                                        label: 'Floors',
+                                                        data: [metrics.floors.total],
+                                                        backgroundColor: '#FF6384',
+                                                    },
+                                                    {
+                                                        label: 'Flats',
+                                                        data: [metrics.flats.total],
+                                                        backgroundColor: '#FFCE56',
+                                                    },
+                                                ],
+                                            }}
+                                            options={options}
+                                        />
                                     </div>
                                 </Card.Body>
                             </Card>
