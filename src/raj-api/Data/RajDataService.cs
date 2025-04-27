@@ -1,9 +1,5 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Wordprocessing;
-using ILab.Extensionss.Common;
-using ILab.Extensionss.Data;
+﻿using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
-using Mysqlx.Crud;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
@@ -106,7 +102,7 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+                logger.LogError("Exception in EditPartialAsync method and details: " + ex.Message);
                 return 0;
             }
         }
@@ -129,7 +125,7 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+                logger.LogError("Exception in SaveDataAsync method and details: " + ex.Message);
                 return 0;
             }
         }
@@ -144,7 +140,7 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError("Exception in AssignAsync method and details: " + ex.Message);
+                logger.LogError("Exception in GetDetails method and details: " + ex.Message);
                 return 0;
             }
         }
@@ -202,7 +198,7 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError("Exception in GetChallanReport method and details: " + ex.Message);
+                logger.LogError("Exception in GetWorkerStatusReport method and details: " + ex.Message);
                 return 0;
             }
         }
@@ -217,7 +213,21 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError("Exception in GetChallanReport method and details: " + ex.Message);
+                logger.LogError("Exception in GetAllAssignedUsers method and details: " + ex.Message);
+                return 0;
+            }
+        }
+        internal dynamic GetAllAssignedProjects(string member)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetAllAssignedProjects));
+                object[] parameters = [member];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetAllAssignedProjects method and details: " + ex.Message);
                 return 0;
             }
         }
