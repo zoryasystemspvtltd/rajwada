@@ -175,5 +175,10 @@ api.taskReport = async (action) => {
     const response = await api.get(url);
     return response;
 }
+api.getMyProject = async (action) => {
+    const url = `/assignedproject`;
+    const response = await api.get(url);
+    return response;
+}
 export default api;
 

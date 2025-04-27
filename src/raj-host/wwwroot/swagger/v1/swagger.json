@@ -1102,6 +1102,10 @@
 "Type": {
 "type": "string",
 },
+"IsSubSubType": {
+"type": "string",
+"nullable": true
+},
 "PhotoUrl": {
 "type": "string",
 },
