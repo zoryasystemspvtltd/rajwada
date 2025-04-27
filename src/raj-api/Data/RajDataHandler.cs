@@ -4,6 +4,7 @@ using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
+using System.Data;
 
 
 namespace RajApi.Data;
@@ -137,7 +138,7 @@ public class RajDataHandler : LabDataHandler
                      .Where(l => l.ActivityId == id).GroupBy(r => r.Date.ToString().Substring(0, 10)).ToList();
 
             var assets = dbContext.Set<Asset>().Where(l => l.Status == 0).ToList();
-           
+
             List<FinalItem> draftlist = [];
             foreach (var gactvity in groupActivity)
             {
@@ -160,7 +161,7 @@ public class RajDataHandler : LabDataHandler
                         });
 
                     foreach (var item in final)
-                    {                       
+                    {
                         item.TransactionDate = gactvity.Key;
                         draftlist.Add(item);
                     }
@@ -186,7 +187,9 @@ public class RajDataHandler : LabDataHandler
         try
         {
             var activities = dbContext.Set<Activity>()
-                     .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId && l.TowerId == towerId && l.FloorId == floorId).ToList();
+                     .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
+                     && l.TowerId == towerId && l.FloorId == floorId
+                     && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
             if (flatId > 0)
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
@@ -225,8 +228,35 @@ public class RajDataHandler : LabDataHandler
         var applog = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == id && l.Name.Equals(module)).
             Select(a => new { a.EntityId, a.Member }).Distinct();
 
-
         return applog;
+    }
+
+    public List<IdNamePair> GetAllAssignedProjects(string member)
+    {
+        var query = "select distinct pr.Id,pr.Name from [dbo].[ApplicationLogs] l " +
+             "inner join dbo.Plans p on l.EntityId = p.Id " +
+             "inner join dbo.Projects pr on pr.Id = p.ProjectId " +
+            "where l.Member ='" + member + "'";
+
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+                        
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var entities = new List<IdNamePair>();
+
+                while (result.Read())
+                {
+                    entities.Add(new IdNamePair() { Id = result.GetInt64("Id"), Name = result.GetString("Name") });
+                }
+
+                return entities;
+            }
+        }
     }
     public override async Task<long> AddAsync<T>(T item, CancellationToken cancellationToken)
     {
