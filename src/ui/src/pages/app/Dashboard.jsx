@@ -37,19 +37,19 @@ const Dashboard = () => {
 
         const [userData, projectData, departmentData, activityData] = await Promise.all([
           api.getData({ module: 'user', options: userPageOptions }),
-          api.getData({ module: 'project', options: pageOptionsPortfolio }),
+          api.getMyProject(),
           api.getData({ module: 'department', options: pageOptionsPortfolio }),
           api.getData({ module: 'activity', options: activityPageOptions }),
         ]);
 
-        setProjects(projectData?.data?.items || []);
+        setProjects(projectData?.data);
 
         // Calculate totals
         const totalUsers = userData?.data?.items.length;
         const disabledUsers = userData?.data?.items.filter(userData => userData.disable === true).length;
         const activeUsers = totalUsers - disabledUsers;
 
-        const totalProjects = projectData?.data?.items.length;
+        const totalProjects = projectData?.data?.length;
         const totalDepartments = departmentData?.data?.items.length;
 
         const createdActivities = activityData?.data?.items.filter(activity => [0].includes(activity?.status)).length;
@@ -81,9 +81,9 @@ const Dashboard = () => {
 
       try {
         const pageOptionsPlan = [
-          { recordPerPage: 0, searchCondition: { name: 'type', value: 'tower', and: { name: 'projectId', value: selectedProject } } },
-          { recordPerPage: 0, searchCondition: { name: 'type', value: 'floor', and: { name: 'projectId', value: selectedProject } } },
-          { recordPerPage: 0, searchCondition: { name: 'type', value: 'flat', and: { name: 'projectId', value: selectedProject } } },
+          { recordPerPage: 0, searchCondition: { name: 'type', value: 'tower', and: { name: 'projectId', value: parseInt(selectedProject)} } },
+          { recordPerPage: 0, searchCondition: { name: 'type', value: 'floor', and: { name: 'projectId', value: parseInt(selectedProject) } } },
+          { recordPerPage: 0, searchCondition: { name: 'type', value: 'flat', and: { name: 'projectId', value: parseInt(selectedProject) } } },
         ];
 
         const [projectDataTower, projectDataFloor, projectDataFlat] = await Promise.all([
@@ -95,6 +95,9 @@ const Dashboard = () => {
         const totalTowers = projectDataTower?.data?.items.length;
         const totalFloors = projectDataFloor?.data?.items.length;
         const totalFlats = projectDataFlat?.data?.items.length;
+
+        console.log(projectDataTower, projectDataFloor, projectDataFlat);
+        console.log("Selected Project ID:", selectedProject);
 
         setMetrics((prevMetrics) => ({
           ...prevMetrics,
