@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using RajApi.Data.Models;
 using System.Data;
 
-
 namespace RajApi.Data;
 
 public class RajDataHandler : LabDataHandler
@@ -25,25 +24,38 @@ public class RajDataHandler : LabDataHandler
 
     public override IQueryable<T> FilterIdentity<T>(DbSet<T> dbSet)
     {
-
         // This is used to assign entity to member,
         if ((typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
             || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0))
         {
             var name = typeof(T).Name;
-            var labModelLog = dbContext.Set<ApplicationLog>()
-                .Where(l => l.Name.Equals(name) && l.Member.Equals(Identity.Member))
-                .Select(l => new { l.Member, l.EntityId })
-                .Distinct()
-                .AsQueryable();
+            var query = dbSet
+            .Select(act => new
+            {
+                data = act,
+                Log = dbContext.Set<ApplicationLog>()
+                    .Where(apl => apl.EntityId == act.Id && apl.Member.Equals(Identity.Member) && apl.Name.Equals(name))
+                    .OrderByDescending(apl => apl.Date)
+                    .Select(apl => new { apl.ActivityType, apl.Member, apl.Date })
+                    .FirstOrDefault()
+            })
+            .Where(x => x.Log != null && x.Log.ActivityType != StatusType.UnAssigned)
+            .Select(x => x.data)
+            .AsQueryable();
 
-            var query = labModelLog.Join(dbSet,
-                    l => l.EntityId,
-                    m => m.Id,
-                    (l, m) => m)
-                .AsQueryable()
-                .Where(p => p.Status != StatusType.Deleted)
-                .AsQueryable();
+            /* var labModelLog = dbContext.Set<ApplicationLog>()
+                 .Where(l => l.Name.Equals(name) && l.Member.Equals(Identity.Member) && l.ActivityType != StatusType.UnAssigned)
+                 .Select(l => new { l.Member, l.EntityId })
+                 .Distinct()
+                 .AsQueryable();           
+
+             var query = labModelLog.Join(dbSet,
+                     l => l.EntityId,
+                     m => m.Id,
+                     (l, m) => m)
+                 .AsQueryable()
+                 .Where(p => p.Status != StatusType.Deleted)
+                 .AsQueryable();*/
             return query;
         }
 
@@ -52,6 +64,7 @@ public class RajDataHandler : LabDataHandler
             .Where(p => p.Key == Identity.Key && p.Status != StatusType.Deleted)
             .AsQueryable();
     }
+
     public dynamic GetChallanDetails(long id)
     {
         var levelSetups = dbContext.Set<LevelSetup>()
@@ -233,16 +246,18 @@ public class RajDataHandler : LabDataHandler
 
     public List<IdNamePair> GetAllAssignedProjects(string member)
     {
-        var query = "select distinct pr.Id,pr.Name from [dbo].[ApplicationLogs] l " +
-             "inner join dbo.Plans p on l.EntityId = p.Id " +
-             "inner join dbo.Projects pr on pr.Id = p.ProjectId " +
-            "where l.Member ='" + member + "'";
+        var query = "select distinct pr.Id,pr.Name from Plans as p inner join dbo.Projects pr on pr.Id = p.ProjectId" +
+            "cross apply(" +
+                "select top 1 ActivityType,Member,Date from[dbo].[ApplicationLogs] apl" +
+                "where apl.EntityId = p.id and apl.Member = '" + member + "' order by Date desc" +
+            ") x" +
+           " WHERE x.ActivityType != -3 ";
 
         using (var command = dbContext.Database.GetDbConnection().CreateCommand())
         {
             command.CommandText = query;
             command.CommandType = CommandType.Text;
-                        
+
             dbContext.Database.OpenConnection();
 
             using (var result = command.ExecuteReader())
@@ -375,12 +390,22 @@ public class RajDataHandler : LabDataHandler
     public async Task<long> EditPartialAsync<T>(T item, CancellationToken cancellationToken)
         where T : LabModel
     {
-        item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
-        item.Date = DateTime.UtcNow;
-        //item.Key = Identity.Key; Not changing key anymore
-
         try
         {
+            if (item.Status.Equals(StatusType.UnAssigned))
+            {
+                var data = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == item.Id && l.Name.Equals(item.Name)
+                && l.ActivityType.Equals(StateType.Initiated)).FirstOrDefault();
+
+                item.Member = data?.Member;
+            }
+            else
+            {
+                item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
+            }
+            item.Date = DateTime.UtcNow;
+            //item.Key = Identity.Key; Not changing key anymore
+
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);

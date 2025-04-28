@@ -51,7 +51,7 @@ namespace ILab.Data
 
                 var existingData = await Get(model, id);
                 existingData.Member = jsonData.Member;
-                existingData.Status = StatusType.Assigned;
+                existingData.Status = jsonData?.Status;
                 if (type == typeof(LevelSetup))
                 {
                     if (jsonData != null && jsonData?.Status != null)
