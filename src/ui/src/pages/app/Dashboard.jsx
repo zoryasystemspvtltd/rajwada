@@ -118,7 +118,7 @@ const Dashboard = () => {
     return (
         <div className="container-fluid">
             {
-                privileges?.some(p => (p.module === 'user' || p.module === 'plan')) ? (
+                (privileges?.some(p => (p.module === 'user' || p.module === 'plan')) && !loggedInUser?.roles?.includes("Super Admin")) ? (
                     <Row className="mt-2">
                         <Col md={6}>
                             <Card>
@@ -184,7 +184,16 @@ const Dashboard = () => {
                             </Card>
                         </Col>
                     </Row>
-                ) : <></>
+                ) :
+                    <>
+                        <div className="container-fluid">
+                            <div className="row">
+                                <div className="col d-flex justify-content-center">
+                                    <h2>Welcome to Civilier ERP</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </>
             }
         </div>
     );
