@@ -390,25 +390,22 @@ public class RajDataHandler : LabDataHandler
     public async Task<long> EditPartialAsync<T>(T item, CancellationToken cancellationToken)
         where T : LabModel
     {
+        item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
+        item.Date = DateTime.UtcNow;
+        //item.Key = Identity.Key; Not changing key anymore
         try
         {
+            await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);
+
             if (item.Status.Equals(StatusType.UnAssigned))
             {
                 var data = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == item.Id && l.Name.Equals(item.Name)
-                && l.ActivityType.Equals(StateType.Initiated)).FirstOrDefault();
+                && l.ActivityType.Equals(StatusType.Draft)).FirstOrDefault();
 
+                item.Status = StatusType.Draft;
                 item.Member = data?.Member;
             }
-            else
-            {
-                item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
-            }
-            item.Date = DateTime.UtcNow;
-            //item.Key = Identity.Key; Not changing key anymore
-
             var id = await base.EditAsync(item, cancellationToken);
-
-            await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);
 
             return id;
         }
