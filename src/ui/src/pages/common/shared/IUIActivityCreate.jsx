@@ -167,7 +167,8 @@ const IUIActivityCreate = (props) => {
 
     const assignPageValue = async (e, email) => {
         e.preventDefault();
-        const action = { module: module, data: { id: id, member: email } }
+         //status :3 means assigned
+        const action = { module: module, data: { id: id, member: email ,status: 3} }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }))

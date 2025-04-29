@@ -147,10 +147,11 @@ const IUIPage = (props) => {
         e.preventDefault();
         let action = {};
         if (module === 'activity') {
-            action = { module: module, data: { id: id, member: email, userId: userId } }
+            action = { module: module, data: { id: id, member: email, userId: userId ,status: 3} }
         }
         else {
-            action = { module: module, data: { id: id, member: email } }
+            //status :3 means assigned
+            action = { module: module, data: { id: id, member: email ,status: 3} }
         }
         try {
             await api.editPartialData(action);
@@ -206,6 +207,7 @@ const IUIPage = (props) => {
                 action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: 3 } }
             }
             else {
+                 //status :3 means assigned
                 action = { module: module, data: { id: dataId, member: user.email, status: 3 } }
             }
             try {
@@ -237,7 +239,8 @@ const IUIPage = (props) => {
 
     const assignApprover = async (e, email) => {
         e.preventDefault();
-        const action = { module: module, data: { id: id, member: email } }
+         //status :3 means assigned
+        const action = { module: module, data: { id: id, member: email ,status: 3} }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
