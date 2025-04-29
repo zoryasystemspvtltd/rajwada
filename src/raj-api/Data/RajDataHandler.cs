@@ -39,7 +39,7 @@ public class RajDataHandler : LabDataHandler
                     .Select(apl => new { apl.ActivityType, apl.Member, apl.Date })
                     .FirstOrDefault()
             })
-            .Where(x => x.Log != null && x.Log.ActivityType != StatusType.UnAssigned)
+            .Where(x => x.Log != null && x.Log.ActivityType != StatusType.UnAssigned && x.data.Status != StatusType.Deleted)
             .Select(x => x.data)
             .AsQueryable();
 
