@@ -142,8 +142,8 @@ export const ViewActivity = () => {
                         schema: {
                             module: 'activity',
                             relationKey: "parentId",
-                            title: 'Related Activities',
-                            path: 'activities',
+                            title: 'Related Work',
+                            path: 'works',
                             paging: true,
                             searching: true,
                             editing: false,
