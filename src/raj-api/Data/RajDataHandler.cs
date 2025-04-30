@@ -238,10 +238,22 @@ public class RajDataHandler : LabDataHandler
 
     public dynamic GetAllAssignedUsers(string module, long id)
     {
-        var applog = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == id && l.Name.Equals(module)).
-            Select(a => new { a.EntityId, a.Member }).Distinct();
+        var result = dbContext.Set<ApplicationLog>()
+                    .Select(p => new
+                    {
+                        p.Member,p.EntityId,
+                        data = dbContext.Set<ApplicationLog>()
+                            .Where(apl => apl.EntityId == id && apl.Name.Equals(module) &&
+                            apl.EntityId == p.EntityId && apl.Name == p.Name && apl.Member == p.Member)
+                            .OrderByDescending(apl => apl.Date)
+                            .Select(apl => new { apl.ActivityType, apl.Member, apl.Date })
+                            .FirstOrDefault()
+                    })
+                    .Where(x => x.data != null && x.data.ActivityType != StatusType.UnAssigned)
+                    .Select(a => new { a.EntityId, a.Member })
+                    .Distinct();
 
-        return applog;
+        return result;
     }
 
     public List<IdNamePair> GetAllAssignedProjects(string member)
@@ -387,7 +399,7 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public async Task<long> EditPartialAsync<T>(T item, CancellationToken cancellationToken)
+    public async Task<long> EditPartialAsync<T>(T item, string module, CancellationToken cancellationToken)
         where T : LabModel
     {
         item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
@@ -399,7 +411,7 @@ public class RajDataHandler : LabDataHandler
 
             if (item.Status.Equals(StatusType.UnAssigned))
             {
-                var data = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == item.Id && l.Name.Equals(item.Name)
+                var data = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == item.Id && l.Name.Equals(module)
                 && l.ActivityType.Equals(StatusType.Draft)).FirstOrDefault();
 
                 item.Status = StatusType.Draft;

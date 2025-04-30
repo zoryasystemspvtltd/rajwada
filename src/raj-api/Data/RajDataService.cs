@@ -39,17 +39,17 @@ namespace ILab.Data
             return type;
         }
 
-        public override async Task<long> EditPartialAsync(string model, long id, dynamic data, CancellationToken token)
+        public override async Task<long> EditPartialAsync(string module, long id, dynamic data, CancellationToken token)
         {
             try
             {
-                var type = GetType(model);
+                var type = GetType(module);
                 if (type == null) { return -1; }
 
                 var jsonString = data.ToString();
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);
 
-                var existingData = await Get(model, id);
+                var existingData = await Get(module, id);
                 existingData.Member = jsonData.Member;
                 existingData.Status = jsonData?.Status;
                 if (type == typeof(LevelSetup))
@@ -93,7 +93,7 @@ namespace ILab.Data
 
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.EditPartialAsync));
                 var generic = method?.MakeGenericMethod(type);
-                object[] parameters = { existingData, token };
+                object[] parameters = { existingData, module, token };
                 var task = (Task<long>)generic.Invoke(handler, parameters);
 
                 var result = await task;
