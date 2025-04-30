@@ -100,6 +100,14 @@ input:checked+.Slider:before {
     margin-top: 20px !important;
 }
 
+.sw>.progress {
+    height: 15px !important;
+}
+
+.sw>.progress>.progress-bar {
+    height: 15px !important;
+}
+
 .react-flow__attribution {
     display: none !important;
 }

@@ -14,7 +14,8 @@ const IUIHeaderMenu = (props) => {
     const [isOpen, setIsOpen] = useState(false);
     const headerMenuClassName = "dropdown-menu-xl rm-pointers dropdown-menu dropdown-menu-right";
     const dropdownRef = useRef(null);
-    const privileges = useSelector((state) => state.api.loggedInUser?.privileges)
+    const loggedInUser = useSelector((state) => state.api.loggedInUser);
+    const privileges = loggedInUser?.privileges;
 
     const filterMasterMenu = (s) => {
         if (s.master) {
@@ -105,16 +106,26 @@ const IUIHeaderMenu = (props) => {
                                     <div className="grid-menu grid-menu-xl grid-menu-3col">
                                         <div className="no-gutters row">
                                             {
-                                                Object.keys(menuSchema).map((key, index) => {
-                                                    return (
-                                                        <div className="col-sm-6 col-xl-4" key={`col_${menuSchema[key].text}_${index}`}>
-                                                            <Button className="btn-icon-vertical btn-square btn-transition btn btn-outline-link" onClick={(e) => handleMenuRoleChange(e, key)}>
-                                                                <i className={`fa-solid fa-${(menuSchema[key].icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`} title={menuSchema[key].text}></i>
-                                                                {menuSchema[key].text}
-                                                            </Button>
-                                                        </div>
-                                                    )
-                                                })
+                                                (!loggedInUser?.roles?.includes("Super Admin")) ? (
+                                                    Object.keys(menuSchema).map((key, index) => {
+                                                        return (
+                                                            <div className="col-sm-6 col-xl-4" key={`col_${menuSchema[key].text}_${index}`}>
+                                                                <Button className="btn-icon-vertical btn-square btn-transition btn btn-outline-link" onClick={(e) => handleMenuRoleChange(e, key)}>
+                                                                    <i className={`fa-solid fa-${(menuSchema[key].icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`} title={menuSchema[key].text}></i>
+                                                                    {menuSchema[key].text}
+                                                                </Button>
+                                                            </div>
+                                                        )
+                                                    })
+
+                                                ) : (
+                                                    <div className="col-sm-6 col-xl-4" key={`col_Admin_Only`}>
+                                                        <Button className="btn-icon-vertical btn-square btn-transition btn btn-outline-link" onClick={(e) => handleMenuRoleChange(e, "admin")}>
+                                                            <i className={`fa-solid fa-lock icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`} title={"Admin"}></i>
+                                                            Admin
+                                                        </Button>
+                                                    </div>
+                                                )
                                             }
                                         </div>
                                     </div>

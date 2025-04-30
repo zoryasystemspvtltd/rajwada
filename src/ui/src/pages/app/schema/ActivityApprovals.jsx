@@ -199,6 +199,21 @@ export const ViewActivityApproval = () => {
                         }
                     }
                 ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        type: 'image-gallery',
+                        field: 'images',
+                        text: 'Activity Images',
+                        schema: {
+                            searchKey: "parentId",
+                            searchId: id,
+                            searchModule: "activity"
+                        }
+                    }
+                ]
             }
         ]
     }

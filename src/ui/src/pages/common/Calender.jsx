@@ -5,6 +5,7 @@ import { format, isSameDay, startOfToday } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import { Button, Form, InputGroup, Modal, ProgressBar } from 'react-bootstrap';
 import { FaRegCommentDots } from "react-icons/fa";
+import { FaTrashCan } from "react-icons/fa6";
 import { FaImage } from "react-icons/fa6";
 import { useDispatch, useSelector } from 'react-redux';
 import { setSave } from '../../store/api-db';
@@ -97,16 +98,47 @@ const Calendar = () => {
     );
     const dispatch = useDispatch();
     const [taskStatus, setTaskStatus] = useState('');
+    const [deleteWorkItems, setDeleteWorkItems] = useState([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    // Simple inline styles
+    const deleteCardStyles = {
+        card: {
+            position: 'relative',
+            width: '280px',
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            backgroundColor: '#fff',
+            margin: '10px'
+        },
+        deleteButton: {
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#cc0000',
+            fontSize: '16px'
+        },
+        info: {
+            marginTop: '8px'
+        }
+    };
 
     useEffect(() => {
         const commentPrivileges = loggedInUser?.privileges?.filter(p => p.module === "comment")?.map(p => p.name);
         const imagePrivileges = loggedInUser?.privileges?.filter(p => p.module === "attachment")?.map(p => p.name);
+        const activityTrackingPrivileges = loggedInUser?.privileges?.filter(p => p.module === "activityTracking")?.map(p => p.name);
         let access = {};
         commentPrivileges.forEach(p => {
             access["comment"] = { ...access["comment"], ...{ [p]: true } }
         })
         imagePrivileges.forEach(p => {
             access["image"] = { ...access["image"], ...{ [p]: true } }
+        })
+        activityTrackingPrivileges.forEach(p => {
+            access["activitytracking"] = { ...access["activitytracking"], ...{ [p]: true } }
         })
         setPrivileges(access)
     }, [loggedInUser]);
@@ -412,16 +444,16 @@ const Calendar = () => {
 
         setSelectedTask(taskDetails);
         setProgress(parseInt(taskDetails.progressPercentage, 10));
-        if(taskDetails?.isOnHold){
+        if (taskDetails?.isOnHold) {
             setTaskStatus('onHold');
         }
-        else if(taskDetails?.isCancelled){
+        else if (taskDetails?.isCancelled) {
             setTaskStatus('Cancelled');
         }
-        else if(taskDetails?.isAbandoned){ 
-            setTaskStatus('Abandoned');  
+        else if (taskDetails?.isAbandoned) {
+            setTaskStatus('Abandoned');
         }
-        
+
         setBlueprint(taskDetails?.photoUrl);
         if (!isSameDay(selectedDate, startOfToday()) || taskDetails?.isCompleted) {
             setCanvasSchema(
@@ -504,6 +536,37 @@ const Calendar = () => {
         setShowGalleryModal(true);
     };
 
+    const handleDeleteWork = async (task) => {
+        const today = new Date(selectedDate);
+        const todayStart = new Date(today.setHours(0, 0, 0, 0));
+        const todayEnd = new Date(today.setHours(23, 59, 59, 999));
+
+        const baseFilter = {
+            name: 'activityId',
+            value: parseInt(task.id),
+            and: {
+                name: 'date',
+                value: todayStart,
+                operator: 'greaterThan',
+                and: {
+                    name: 'date',
+                    value: todayEnd,
+                    operator: 'lessThan'
+                }
+            }
+        };
+
+        const pageOptions = {
+            recordPerPage: 0,
+            searchCondition: baseFilter
+        };
+
+        const response = await api.getData({ module: 'activitytracking', options: pageOptions });
+        const trackingData = response?.data?.items?.sort((t1, t2) => new Date(t2.date) - new Date(t1.date));
+        setDeleteWorkItems(trackingData);
+        setShowDeleteModal(true);
+    }
+
     const handleCloseGalleryModal = () => {
         setShowGalleryModal(false);
         setSelectedTask(null);
@@ -533,6 +596,29 @@ const Calendar = () => {
     const handleCompletionConfirmationClose = () => {
         setCheckboxes({ ...checkboxes, isCompleted: false });
     };
+
+    const handleDeleteModalClose = () => {
+        setShowDeleteModal(false);
+        setDeleteWorkItems([]);
+    }
+
+    const onDeleteWorkItem = (e, workItem) => {
+        e.preventDefault();
+
+        api.deleteData({ module: 'activitytracking', id: workItem.id });
+        dispatch(setSave({ module: 'activitytracking' }));
+
+        const timeId = setTimeout(() => {
+            // After 3 seconds set the show value to false
+            notify("success", "Work item deletion successful");
+            setShowDeleteModal(false);
+            setDeleteWorkItems([]);
+        }, 1000)
+
+        return () => {
+            clearTimeout(timeId)
+        }
+    }
 
     const handleCompletionConfirmation = async () => {
         try {
@@ -747,7 +833,7 @@ const Calendar = () => {
                 initialView="dayGridMonth"
                 dateClick={handleDateClick}
                 dayCellContent={renderDateCell}
-                // contentHeight="80vh"
+            // contentHeight="80vh"
             />
             {mainModalOpen && (
                 <Modal show={mainModalOpen} onHide={closeMainModal} >
@@ -795,7 +881,7 @@ const Calendar = () => {
                     </Modal.Header>
                     <Modal.Body size='md' style={{ color: "black", maxHeight: '80vh', overflowY: 'auto' }}>
                         <div className="row mb-3">
-                            <div className="col-6">
+                            <div className="col">
                                 <span><strong>Parent Task: </strong>{selectedMainTask?.name}</span>
                             </div>
                         </div>
@@ -803,7 +889,7 @@ const Calendar = () => {
                             selectedTasks.map((task) => (
                                 <div className='d-grid gap-2 mb-2' key={`Task-${task.id}`}>
                                     <div className="row">
-                                        <div className="col-8">
+                                        <div className="col-6">
                                             <Button
                                                 variant="contained"
                                                 className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-md btn-primary'
@@ -836,6 +922,21 @@ const Calendar = () => {
                                                 <FaImage size={14} />
                                             </Button>
                                         </div>
+                                        {
+                                            (privileges?.activitytracking?.delete) && (
+                                                <div className="col-2 d-flex align-items-center">
+                                                    <Button
+                                                        title='Delete Work'
+                                                        variant="contained"
+                                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-danger'
+                                                        onClick={() => handleDeleteWork(task)}
+                                                        style={{ width: '100%' }}
+                                                    >
+                                                        <FaTrashCan size={14} className='text-center' />
+                                                    </Button>
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                 </div>
                             ))
@@ -1198,6 +1299,56 @@ const Calendar = () => {
                             </Button>
                             <Button variant="primary" onClick={handleCompletionConfirmation}>
                                 Confirm
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                )
+            }
+            {
+                (showDeleteModal) && (
+                    <Modal show={showDeleteModal} onHide={handleDeleteModalClose} size='lg'>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Work Items For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <p>
+                                {
+                                    (deleteWorkItems.length > 0) && (
+                                        <div className="row">
+                                            {
+                                                deleteWorkItems?.map((workItem, index) => (
+
+                                                    <div className="col">
+                                                        <div style={deleteCardStyles.card}>
+                                                            <button onClick={(e) => onDeleteWorkItem(e, workItem)} style={deleteCardStyles.deleteButton}>
+                                                                <FaTrashCan />
+                                                            </button>
+                                                            <div style={deleteCardStyles.info}>
+                                                                <p><strong>Cost:</strong> Rs.{workItem.cost}</p>
+                                                                <p><strong>Manpower:</strong> {workItem.manPower}</p>
+                                                                <div>
+                                                                    <strong>Items:</strong>
+                                                                    <IUITableInput
+                                                                        id={itemListSchema.field}
+                                                                        value={workItem.item}
+                                                                        schema={itemListSchema.schema}
+                                                                        onChange={handleItemListChange}
+                                                                        readonly={true}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
+                                    )
+                                }
+                            </p>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleDeleteModalClose}>
+                                Cancel
                             </Button>
                         </Modal.Footer>
                     </Modal>

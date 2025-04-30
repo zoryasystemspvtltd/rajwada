@@ -28,6 +28,7 @@ const IUIMultiAssign = (props) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     // State to track checked users
     const [checkedUsers, setCheckedUsers] = useState({});
+    const [unCheckedUsers, setUnCheckedUsers] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
 
     useEffect(() => {
@@ -49,7 +50,7 @@ const IUIMultiAssign = (props) => {
             const pageOptions = { recordPerPage: 0 }
             const response = await api.getData({ module: module, options: pageOptions });
             setDataSet(response?.data);
-            
+
             let allAssignedUsersResponse = await api.assignedUsers({ module: schema?.module, id: schema?.id });
             let allAssignedUsers = allAssignedUsersResponse?.data;
 
@@ -72,18 +73,28 @@ const IUIMultiAssign = (props) => {
 
     // Handle checkbox change
     const handleCheckboxChange = (id) => {
-        setCheckedUsers(prevState => ({
-            ...prevState,
-            [id]: !prevState[id]  // Toggle checked state for this user
-        }));
+        setCheckedUsers(prevState => {
+            const newCheckedState = {
+                ...prevState,
+                [id]: !prevState[id],  // Toggle the checked state
+            };
+
+            // If the user was originally checked but is now unchecked, track them
+            if (alreadyChecked.includes(id) && !newCheckedState[id]) {
+                setUnCheckedUsers(prevUnchecked => [...prevUnchecked, id]);
+            }
+
+            return newCheckedState;
+        });
     };
 
     // Add checked users to the selected list
     const handleAddUsers = (e) => {
         const selected = dataSet?.items?.filter(user => checkedUsers[user.id]);
+        const notSelected = dataSet?.items?.filter(user => unCheckedUsers.includes(user.id));
         setSelectedUsers(selected);
         setDropdownOpen(false);
-        props?.onClick(e, selected);
+        props?.onClick(e, selected, notSelected);
         setDataSet([]);
     };
 
@@ -109,7 +120,7 @@ const IUIMultiAssign = (props) => {
                                 label={item.name}
                                 checked={checkedUsers[item.id] || false}
                                 onChange={() => handleCheckboxChange(item.id)}
-                                disabled={alreadyChecked?.includes(item.id)}
+                                // disabled={alreadyChecked?.includes(item.id)}
                             />
                         </Dropdown.ItemText>
                     ))}

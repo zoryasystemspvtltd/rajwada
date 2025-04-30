@@ -11,6 +11,7 @@ import IUIAssign from './shared/IUIAssign';
 import IUIApprover from './shared/IUIApprover';
 import { notify } from "../../store/notification";
 import IUIMultiAssign from './shared/IUIMultiAssign';
+import IUICopy from './shared/IUICopy';
 
 const IUIPage = (props) => {
     // Properties
@@ -89,6 +90,11 @@ const IUIPage = (props) => {
         setData(newData);
     };
 
+    const handleCopyChange = (e) => {
+        e.preventDefault();
+        setData(e.target.value);
+    }
+
     const handleRemarksChange = (event) => {
         const { value } = event.target;
         setRemarks(value);
@@ -163,11 +169,12 @@ const IUIPage = (props) => {
         }
     }
 
-    const assignMultiPageValue = async (e, userList) => {
+    const assignMultiPageValue = async (e, userList, uncheckedUserList) => {
         e.preventDefault();
         let isAllAssignSuccessful = true;
         // Multi user assignment for main item
         await multiUserAssignment(id, userList);
+        await multiUserUnassignment(id, uncheckedUserList); // unassign users
         if (schema?.assignChild) {
             const newBaseFilter = {
                 name: 'parentId',
@@ -185,6 +192,7 @@ const IUIPage = (props) => {
                 // Multi user assignment for children
                 for (let item of childrenItems) {
                     await multiUserAssignment(item.id, userList);
+                    await multiUserUnassignment(item.id, uncheckedUserList);
                 }
             }
             catch (error) {
@@ -212,12 +220,35 @@ const IUIPage = (props) => {
             }
             try {
                 await api.editPartialData(action);
-                dispatch(setSave({ module: module }))
+                dispatch(setSave({ module: module }));
                 //navigate(-1);
 
             } catch (e) {
                 // TODO
                 isAllAssignSuccessful = false;
+            }
+        }
+        return;
+    }
+
+    const multiUserUnassignment = async (dataId, uncheckedUserList) => {
+        let isAllUnassignSuccessful = true;
+        for (let user of uncheckedUserList) {
+            let action = {};
+            if (module === 'activity') {
+                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: -3 } }
+            }
+            else {
+                action = { module: module, data: { id: dataId, member: user.email, status: -3 } }
+            }
+            try {
+                await api.editPartialData(action);
+                dispatch(setSave({ module: module }));
+                //navigate(-1);
+
+            } catch (e) {
+                // TODO
+                isAllUnassignSuccessful = false;
             }
         }
         return;
@@ -515,8 +546,8 @@ const IUIPage = (props) => {
                                                     {schema?.assign && privileges?.assign && schema?.assignType === 'single' && (approvalStatus !== 3 && approvalStatus !== 4 && approvalStatus !== 6) &&
                                                         <IUIAssign onClick={assignPageValue} />
                                                     }
-                                                    {schema?.assign && privileges?.assign && schema?.assignType === 'multiple' && (approvalStatus !== 3 && approvalStatus !== 4 && approvalStatus !== 6) &&
-                                                        <IUIMultiAssign onClick={assignMultiPageValue} schema={{module: module, id: id}} />
+                                                    {schema?.assign && privileges?.assign && schema?.assignType === 'multiple' && (approvalStatus !== 4 && approvalStatus !== 6) &&
+                                                        <IUIMultiAssign onClick={assignMultiPageValue} schema={{ module: module, id: id }} />
                                                     }
                                                     {/* Condition modified by Adrish */}
                                                     {schema?.approving && privileges?.assign && approvalStatus === 3 && loggedInUser?.email !== data.member &&
@@ -528,6 +559,9 @@ const IUIPage = (props) => {
                                             {
                                                 ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity' && schema?.editing) ?
                                                     <hr /> : null
+                                            }
+                                            {
+                                                schema?.copy && <IUICopy module={module} onChange={handleCopyChange} />
                                             }
                                             <Row>
                                                 {schema?.fields?.map((fld, f) => (
