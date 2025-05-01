@@ -42,23 +42,9 @@ public class RajDataHandler : LabDataHandler
             .Where(x => x.Log != null && x.Log.ActivityType != StatusType.UnAssigned && x.data.Status != StatusType.Deleted)
             .Select(x => x.data)
             .AsQueryable();
-
-            /* var labModelLog = dbContext.Set<ApplicationLog>()
-                 .Where(l => l.Name.Equals(name) && l.Member.Equals(Identity.Member) && l.ActivityType != StatusType.UnAssigned)
-                 .Select(l => new { l.Member, l.EntityId })
-                 .Distinct()
-                 .AsQueryable();           
-
-             var query = labModelLog.Join(dbSet,
-                     l => l.EntityId,
-                     m => m.Id,
-                     (l, m) => m)
-                 .AsQueryable()
-                 .Where(p => p.Status != StatusType.Deleted)
-                 .AsQueryable();*/
+            
             return query;
         }
-
 
         return dbSet
             .Where(p => p.Key == Identity.Key && p.Status != StatusType.Deleted)
@@ -259,9 +245,9 @@ public class RajDataHandler : LabDataHandler
     public List<IdNamePair> GetAllAssignedProjects(string member)
     {
         var query = "select distinct pr.Id,pr.Name from Plans as p inner join dbo.Projects pr on pr.Id = p.ProjectId" +
-            "cross apply(" +
-                "select top 1 ActivityType,Member,Date from[dbo].[ApplicationLogs] apl" +
-                "where apl.EntityId = p.id and apl.Member = '" + member + "' order by Date desc" +
+            " cross apply(" +
+                " select top 1 ActivityType,Member,Date from[dbo].[ApplicationLogs] apl" +
+                " where apl.EntityId = p.id and apl.Member = '" + member + "' order by Date desc" +
             ") x" +
            " WHERE x.ActivityType != -3 ";
 
