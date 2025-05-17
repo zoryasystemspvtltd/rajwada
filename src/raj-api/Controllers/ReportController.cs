@@ -51,14 +51,12 @@ public class ReportController : ControllerBase
             //var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             //dataService.Identity = new ModuleIdentity(member, key);
 
-            var result = new List<DateWiseActivity>();
+           /* var result = new List<DateWiseActivity>();
 
             DateTime date = DateTime.Now;
 
             Random rnd = new Random();
             Random rnd2 = new Random();
-
-
 
             for (int i = 0; i < 31; i++)
             {
@@ -87,15 +85,11 @@ public class ReportController : ControllerBase
                     IsCuringDone = i % 2 == 0 ? true : false
                 });
 
-            }
+            }*/
 
-
-
-
-
-            //var item = await dataService.GetMobileActivityData(startDate, endDate);
-            //return item;
-            return result;
+            var item = await dataService.GetMobileActivityData(startDate, endDate);
+            return item;
+            //return result;
         }
         catch (Exception ex)
         {

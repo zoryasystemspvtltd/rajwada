@@ -74,6 +74,10 @@ const Routes = () => {
                     element: <Dashboard />,
                 },
                 {
+                    path: "/login",
+                    element: <Login />,
+                },
+                {
                     path: "/change-password",
                     element: <ChangePassword />,
                 },

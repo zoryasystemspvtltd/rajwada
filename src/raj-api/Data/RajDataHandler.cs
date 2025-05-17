@@ -4,7 +4,6 @@ using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
-using RajApi.Migrations;
 using System.Data;
 
 namespace RajApi.Data;
@@ -183,25 +182,66 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public dynamic GetMobileActivityData(DateTime startDate, DateTime endDate)
+    public dynamic GetMobileActivityData(DateOnly startDate, DateOnly endDate)
     {
         try
         {
-            var activityTracking = dbContext.Set<ActivityTracking>().Where(p => p.IsCuringDone == true).ToList();
+            var sDate = startDate.ToDateTime(TimeOnly.Parse("00:00 AM"));
+            var eDate = endDate.ToDateTime(TimeOnly.Parse("00:00 AM")); ;
 
-            var activity = dbContext.Set<Activity>().Where(l => l.StartDate >= startDate && l.EndDate <= endDate).ToList();
+            var activities = dbContext.Set<Activity>().Where(a => (a.ActualStartDate ?? a.StartDate) >= sDate && (a.ActualEndDate ?? a.EndDate) <= eDate).ToList();
+            var activityTrackings = dbContext.Set<ActivityTracking>().Where(p => p.IsCuringDone == true).ToList();
 
-            List<FinalItem> finallist = [];
+            var listData = activities
+                .GroupJoin(
+                    activityTrackings,
+                    ac => ac.Id,
+                    act => act.ActivityId,
+                    (ac, actGroup) => new { ac, actGroup }
+                )
+                .SelectMany(
+                    x => x.actGroup.DefaultIfEmpty(), // Left join: if no matching act, act will be null
+                    (x, act) => new
+                    {
+                        x.ac.Id,
+                        x.ac.Name,
+                        StartDate = x.ac.StartDate.Value.Date,
+                        IsCuringDone = act != null ? act.IsCuringDone : false
+                    }
+                )
+                .OrderByDescending(a => a.StartDate)
+                .Distinct().ToList();
 
-            var final = activity.Join(activityTracking,
-           d => d.Id,
-           m => m.ActivityId,
-           (d, m) => new DailyActivity()
-           {
-               Id = d.Id,
-               Name = d.Name,
-           });
-            return finallist;
+
+            var result = new List<DateWiseActivity>();
+            var lastDays = DateTime.DaysInMonth(endDate.Year, endDate.Month);
+
+            for (int i = 0; i < lastDays; i++)
+            {
+                var date = new DateTime(startDate.Year, startDate.Month, i + 1);
+                var newactivities = listData.Where(a => a.StartDate == date).ToList();
+                var isCurring = newactivities.Where(a => a.IsCuringDone == true).FirstOrDefault();
+
+                List<DailyActivity> listDAct = new List<DailyActivity>();
+
+                foreach (var item in newactivities)
+                {
+                    listDAct.Add(new DailyActivity
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                    });
+                }
+                result.Add(new DateWiseActivity
+                {
+                    Date = DateOnly.FromDateTime(date),
+                    Activities = listDAct,
+                    IsCuringDone = isCurring != null ? isCurring.IsCuringDone : false
+                });
+
+            }
+
+            return result;
         }
         catch (Exception ex)
         {

@@ -189,7 +189,7 @@ namespace ILab.Data
             }
         }
 
-        internal dynamic GetMobileActivityData(DateTime startDate, DateTime endDate)
+        internal dynamic GetMobileActivityData(DateOnly startDate, DateOnly endDate)
         {
             try
             {
