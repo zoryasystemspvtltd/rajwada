@@ -39,3 +39,17 @@ public class ChallanReport
     public string? DirectorFinalRemarks { get; set; }
 
 }
+
+public class DailyActivity
+{
+    public long? Id { get; set; }
+    public string? Name { get; set; }
+    
+}
+
+public class DateWiseActivity
+{
+    public DateOnly Date { get; set; }
+    public bool? IsCuringDone { get; set; }
+    public List<DailyActivity>? Activities { get; set; }
+}

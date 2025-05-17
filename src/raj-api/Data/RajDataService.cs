@@ -188,6 +188,22 @@ namespace ILab.Data
                 return 0;
             }
         }
+
+        internal dynamic GetMobileActivityData(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetMobileActivityData));
+                object[] parameters = [startDate, endDate];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetTaskItemDetails method and details: " + ex.Message);
+                return 0;
+            }
+        }
+        
         internal dynamic GetWorkerStatusReport(WorkerReportRequestPayload request)
         {
             try

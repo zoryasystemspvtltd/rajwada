@@ -4,6 +4,7 @@ using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
+using RajApi.Migrations;
 using System.Data;
 
 namespace RajApi.Data;
@@ -42,7 +43,7 @@ public class RajDataHandler : LabDataHandler
             .Where(x => x.Log != null && x.Log.ActivityType != StatusType.UnAssigned && x.data.Status != StatusType.Deleted)
             .Select(x => x.data)
             .AsQueryable();
-            
+
             return query;
         }
 
@@ -181,6 +182,33 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
+
+    public dynamic GetMobileActivityData(DateTime startDate, DateTime endDate)
+    {
+        try
+        {
+            var activityTracking = dbContext.Set<ActivityTracking>().Where(p => p.IsCuringDone == true).ToList();
+
+            var activity = dbContext.Set<Activity>().Where(l => l.StartDate >= startDate && l.EndDate <= endDate).ToList();
+
+            List<FinalItem> finallist = [];
+
+            var final = activity.Join(activityTracking,
+           d => d.Id,
+           m => m.ActivityId,
+           (d, m) => new DailyActivity()
+           {
+               Id = d.Id,
+               Name = d.Name,
+           });
+            return finallist;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetTaskItemDetails method and details: '{ex.Message}'");
+            throw;
+        }
+    }
     public dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
     {
         try
@@ -227,7 +255,8 @@ public class RajDataHandler : LabDataHandler
         var result = dbContext.Set<ApplicationLog>()
                     .Select(p => new
                     {
-                        p.Member,p.EntityId,
+                        p.Member,
+                        p.EntityId,
                         data = dbContext.Set<ApplicationLog>()
                             .Where(apl => apl.EntityId == id && apl.Name.Equals(module) &&
                             apl.EntityId == p.EntityId && apl.Name == p.Name && apl.Member == p.Member)
