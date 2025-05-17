@@ -87,7 +87,7 @@ public class ReportController : ControllerBase
 
             }*/
 
-            var item = await dataService.GetMobileActivityData(startDate, endDate);
+            var item = dataService.GetMobileActivityData(startDate, endDate);
             return item;
             //return result;
         }
