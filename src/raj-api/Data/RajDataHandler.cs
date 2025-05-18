@@ -190,21 +190,19 @@ public class RajDataHandler : LabDataHandler
             var sDate = startDate.ToDateTime(TimeOnly.Parse("00:00 AM"));
             var eDate = endDate.ToDateTime(TimeOnly.Parse("00:00 AM")); ;
 
+            var tDate = DateTime.Now;
             var activities = dbContext.Set<Activity>()
-                .Where(a => (a.ActualStartDate ?? a.StartDate) >= sDate
-                            && (a.ActualEndDate ?? a.EndDate) <= eDate
-                            && a.Type == "Main Task")
+                .Where(a => a.Type == "Main Task"
+                             && (a.ActualStartDate ?? a.StartDate) <= tDate
+                             && (a.ActualEndDate == null || a.ActualEndDate <= eDate)
+                            )
                 .Select(x => new
                 {
                     x.Id,
                     x.Name,
                     StartDate = x.ActualStartDate != null ? x.ActualStartDate.Value.Date : x.StartDate.Value.Date,
-                    EndDate = x.ActualEndDate != null ? x.ActualEndDate.Value.Date : x.EndDate.Value.Date,
+                    EndDate = x.ActualEndDate != null ? x.ActualEndDate.Value.Date : DateTime.Now,
                 })
-                .Where(x=>
-                    x.StartDate > sDate
-                    && x.EndDate < eDate
-                )
                 .Distinct()
                 .ToList();
 
@@ -216,8 +214,8 @@ public class RajDataHandler : LabDataHandler
                 .Join(dbContext.Set<ActivityTracking>(),
                     act => act.sub.Id,
                     tr => tr.ActivityId,
-                    (act, tr) => new { Id = act.main.Id, Date = tr.Date, IsCuringDone=tr.IsCuringDone })
-                .Where(x=>x.IsCuringDone == true
+                    (act, tr) => new { Id = act.main.Id, Date = tr.Date, IsCuringDone = tr.IsCuringDone })
+                .Where(x => x.IsCuringDone == true
                     && x.Date > sDate
                     && x.Date < eDate
                 )
