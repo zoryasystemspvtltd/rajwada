@@ -189,7 +189,8 @@ public class RajDataHandler : LabDataHandler
             var sDate = startDate.ToDateTime(TimeOnly.Parse("00:00 AM"));
             var eDate = endDate.ToDateTime(TimeOnly.Parse("00:00 AM")); ;
 
-            var activities = dbContext.Set<Activity>().Where(a => (a.ActualStartDate ?? a.StartDate) >= sDate && (a.ActualEndDate ?? a.EndDate) <= eDate).ToList();
+            var activities = dbContext.Set<Activity>().Where(a => (a.ActualStartDate ?? a.StartDate) >= sDate &&
+            (a.ActualEndDate ?? a.EndDate) <= eDate && a.Type == "Main Task").ToList();
             var activityTrackings = dbContext.Set<ActivityTracking>().Where(p => p.IsCuringDone == true).ToList();
 
             var listData = activities
@@ -205,7 +206,8 @@ public class RajDataHandler : LabDataHandler
                     {
                         x.ac.Id,
                         x.ac.Name,
-                        StartDate = x.ac.StartDate.Value.Date,
+                        StartDate = x.ac.ActualStartDate != null ? x.ac.ActualStartDate.Value.Date : x.ac.StartDate.Value.Date,
+                        EndDate = x.ac.ActualEndDate != null ? x.ac.ActualEndDate.Value.Date : x.ac.EndDate.Value.Date,
                         IsCuringDone = act != null ? act.IsCuringDone : false
                     }
                 )
@@ -219,7 +221,7 @@ public class RajDataHandler : LabDataHandler
             for (int i = 0; i < lastDays; i++)
             {
                 var date = new DateTime(startDate.Year, startDate.Month, i + 1);
-                var newactivities = listData.Where(a => a.StartDate == date).ToList();
+                var newactivities = listData.Where(a => a.StartDate <= date && a.EndDate >= date).ToList();
                 var isCurring = newactivities.Where(a => a.IsCuringDone == true).FirstOrDefault();
 
                 List<DailyActivity> listDAct = new List<DailyActivity>();
@@ -245,7 +247,7 @@ public class RajDataHandler : LabDataHandler
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Exception in GetTaskItemDetails method and details: '{ex.Message}'");
+            logger.LogError(ex, $"Exception in GetMobileActivityData method and details: '{ex.Message}'");
             throw;
         }
     }
