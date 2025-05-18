@@ -1,4 +1,5 @@
-﻿using ILab.Extensionss.Common;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -189,31 +190,38 @@ public class RajDataHandler : LabDataHandler
             var sDate = startDate.ToDateTime(TimeOnly.Parse("00:00 AM"));
             var eDate = endDate.ToDateTime(TimeOnly.Parse("00:00 AM")); ;
 
-            var activities = dbContext.Set<Activity>().Where(a => (a.ActualStartDate ?? a.StartDate) >= sDate &&
-            (a.ActualEndDate ?? a.EndDate) <= eDate && a.Type == "Main Task").ToList();
-            var activityTrackings = dbContext.Set<ActivityTracking>().Where(p => p.IsCuringDone == true).ToList();
-
-            var listData = activities
-                .GroupJoin(
-                    activityTrackings,
-                    ac => ac.Id,
-                    act => act.ActivityId,
-                    (ac, actGroup) => new { ac, actGroup }
+            var activities = dbContext.Set<Activity>()
+                .Where(a => (a.ActualStartDate ?? a.StartDate) >= sDate
+                            && (a.ActualEndDate ?? a.EndDate) <= eDate
+                            && a.Type == "Main Task")
+                .Select(x => new
+                {
+                    x.Id,
+                    x.Name,
+                    StartDate = x.ActualStartDate != null ? x.ActualStartDate.Value.Date : x.StartDate.Value.Date,
+                    EndDate = x.ActualEndDate != null ? x.ActualEndDate.Value.Date : x.EndDate.Value.Date,
+                })
+                .Where(x=>
+                    x.StartDate > sDate
+                    && x.EndDate < eDate
                 )
-                .SelectMany(
-                    x => x.actGroup.DefaultIfEmpty(), // Left join: if no matching act, act will be null
-                    (x, act) => new
-                    {
-                        x.ac.Id,
-                        x.ac.Name,
-                        StartDate = x.ac.ActualStartDate != null ? x.ac.ActualStartDate.Value.Date : x.ac.StartDate.Value.Date,
-                        EndDate = x.ac.ActualEndDate != null ? x.ac.ActualEndDate.Value.Date : x.ac.EndDate.Value.Date,
-                        IsCuringDone = act != null ? act.IsCuringDone : false
-                    }
-                )
-                .OrderByDescending(a => a.StartDate)
-                .Distinct().ToList();
+                .Distinct()
+                .ToList();
 
+            var curingDate = dbContext.Set<Activity>()
+                .Join(dbContext.Set<Activity>(),
+                    main => main.Id,
+                    sub => sub.ParentId,
+                    (main, sub) => new { main, sub })
+                .Join(dbContext.Set<ActivityTracking>(),
+                    act => act.sub.Id,
+                    tr => tr.ActivityId,
+                    (act, tr) => new { Id = act.main.Id, Date = tr.Date, IsCuringDone=tr.IsCuringDone })
+                .Where(x=>x.IsCuringDone == true
+                    && x.Date > sDate
+                    && x.Date < eDate
+                )
+                .ToList();
 
             var result = new List<DateWiseActivity>();
             var lastDays = DateTime.DaysInMonth(endDate.Year, endDate.Month);
@@ -221,9 +229,8 @@ public class RajDataHandler : LabDataHandler
             for (int i = 0; i < lastDays; i++)
             {
                 var date = new DateTime(startDate.Year, startDate.Month, i + 1);
-                var newactivities = listData.Where(a => a.StartDate <= date && a.EndDate >= date).ToList();
-                var isCurring = newactivities.Where(a => a.IsCuringDone == true).FirstOrDefault();
-
+                var newactivities = activities.Where(a => a.StartDate <= date && a.EndDate >= date).ToList();
+                var isCuring = curingDate.Exists(x => DateOnly.FromDateTime(x.Date.Value) == DateOnly.FromDateTime(date));
                 List<DailyActivity> listDAct = new List<DailyActivity>();
 
                 foreach (var item in newactivities)
@@ -238,7 +245,7 @@ public class RajDataHandler : LabDataHandler
                 {
                     Date = DateOnly.FromDateTime(date),
                     Activities = listDAct,
-                    IsCuringDone = isCurring != null ? isCurring.IsCuringDone : false
+                    IsCuringDone = isCuring
                 });
 
             }
