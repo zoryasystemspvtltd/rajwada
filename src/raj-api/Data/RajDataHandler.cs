@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
 using System.Data;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RajApi.Data;
 
@@ -183,7 +184,7 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public dynamic GetMobileActivityData(DateOnly startDate, DateOnly endDate)
+    public dynamic GetMobileActivityData(DateOnly startDate, DateOnly endDate, string member)
     {
         try
         {
@@ -206,6 +207,10 @@ public class RajDataHandler : LabDataHandler
                 .Distinct()
                 .ToList();
 
+            var activityIds = GetAllAssignedActivities(member);            
+
+            var assignedActivities = activities.Where(a => activityIds.Contains(a.Id));
+            
             var curingDate = dbContext.Set<Activity>()
                 .Join(dbContext.Set<Activity>(),
                     main => main.Id,
@@ -227,7 +232,7 @@ public class RajDataHandler : LabDataHandler
             for (int i = 0; i < lastDays; i++)
             {
                 var date = new DateTime(startDate.Year, startDate.Month, i + 1);
-                var newactivities = activities.Where(a => a.StartDate <= date && a.EndDate >= date).ToList();
+                var newactivities = assignedActivities.Where(a => a.StartDate <= date && a.EndDate >= date).ToList();
                 var isCuring = curingDate.Exists(x => DateOnly.FromDateTime(x.Date.Value) == DateOnly.FromDateTime(date));
                 List<DailyActivity> listDAct = new List<DailyActivity>();
 
@@ -245,10 +250,10 @@ public class RajDataHandler : LabDataHandler
                     Activities = listDAct,
                     IsCuringDone = isCuring
                 });
-
             }
 
             return result;
+
         }
         catch (Exception ex)
         {
@@ -316,6 +321,35 @@ public class RajDataHandler : LabDataHandler
                     .Distinct();
 
         return result;
+    }
+    private List<long> GetAllAssignedActivities(string member)
+    {
+        var query = "select distinct act.Id from [Activities] act" +
+             " cross apply(" +
+                 " select top 1 ActivityType,Member,Date from[dbo].[ApplicationLogs] apl" +
+                 " where apl.EntityId = act.id and Name='Activity' and apl.Member = '" + member + "' order by Date desc" +
+            ") x" +
+            " WHERE x.ActivityType != -3 ";
+
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var entities = new List<long>();
+
+                while (result.Read())
+                {
+                    entities.Add(result.GetInt64("Id"));
+                }
+
+                return entities;
+            }
+        }
     }
 
     public List<IdNamePair> GetAllAssignedProjects(string member)
