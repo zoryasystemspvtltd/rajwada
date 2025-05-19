@@ -189,12 +189,12 @@ namespace ILab.Data
             }
         }
 
-        internal dynamic GetMobileActivityData(DateOnly startDate, DateOnly endDate)
+        internal dynamic GetMobileActivityData(DateOnly startDate, DateOnly endDate,string member)
         {
             try
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetMobileActivityData));
-                object[] parameters = [startDate, endDate];
+                object[] parameters = [startDate, endDate, member];
                 return method?.Invoke(handler, parameters);
             }
             catch (Exception ex)

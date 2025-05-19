@@ -43,53 +43,15 @@ public class ReportController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet("{startDate}/{endDate}")]
-    public async Task<dynamic> Get(DateOnly startDate, DateOnly endDate)
+    public dynamic Get(DateOnly startDate, DateOnly endDate)
     {
         try
         {
-            //var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-            //var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-            //dataService.Identity = new ModuleIdentity(member, key);
-
-           /* var result = new List<DateWiseActivity>();
-
-            DateTime date = DateTime.Now;
-
-            Random rnd = new Random();
-            Random rnd2 = new Random();
-
-            for (int i = 0; i < 31; i++)
-            {
-                var d = new DateTime(date.Year, date.Month, i + 1);
-                var activities = new List<DailyActivity>();
-                activities.Add(new DailyActivity()
-                {
-                    Id = 40055,
-                    Name = "Plumbing Work-Tower E-Floor 1-Flat 1",
-                });
-
-                var r = rnd2.Next(0, 10);
-                for (int j = 0; j < r; j++)
-                {
-                    activities.Add(new DailyActivity
-                    {
-                        Id = j,
-                        Name = "Random Test " + j,
-                    });
-                }
-
-                result.Add(new DateWiseActivity
-                {
-                    Date = DateOnly.FromDateTime(d),
-                    Activities = activities,
-                    IsCuringDone = i % 2 == 0 ? true : false
-                });
-
-            }*/
-
-            var item = dataService.GetMobileActivityData(startDate, endDate);
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+            var item = dataService.GetMobileActivityData(startDate, endDate, member);
             return item;
-            //return result;
         }
         catch (Exception ex)
         {
