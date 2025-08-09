@@ -168,7 +168,7 @@ const IUIPictureUpload = (props) => {
                                 onChange={handleChange}
                                 disabled={props.readonly || false}
                                 ref={fileRef}
-                                accept="image/gif, image/jpeg, image/png"
+                                accept="image/gif, image/jpeg, image/png, application/pdf"
                             ></Form.Control>
                         </div>
                     </div>

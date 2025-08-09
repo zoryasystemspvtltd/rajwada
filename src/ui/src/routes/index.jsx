@@ -43,6 +43,7 @@ import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { AddRoomMapping, EditRoomMapping, ViewRoomMapping } from "../pages/app/schema/RoomMappings";
 import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
+import IUIPdfSample from "../pages/common/IUIPdfSample";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -493,6 +494,10 @@ const Routes = () => {
                     path: "/flats/:flatId/roommappings/add",
                     element: <AddRoomMapping />
                 },
+                {
+                    path: "/pdf-view",
+                    element: <IUIPdfSample />
+                }
             ],
         },
     ];

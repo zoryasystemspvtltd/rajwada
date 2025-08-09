@@ -44,7 +44,7 @@ const Dashboard = () => {
                     api.getData({ module: 'activity', options: activityPageOptions }),
                     api.getData({ module: 'activity', options: mainActivityPageOptions }),
                 ]);
-
+                console.log(projectData);
                 setProjects(projectData?.data);
 
                 const updatedActivities = await Promise.all(
@@ -238,7 +238,8 @@ const Dashboard = () => {
                                             style={{ flex: 1, maxWidth: '200px' }}
                                         >
                                             <option value="">Select a Project</option>
-                                            {projects.map(project => (
+                                            {console.log(projects)}
+                                            {projects?.map(project => (
                                                 <option key={project.id} value={project.id}>
                                                     {project.name}
                                                 </option>
