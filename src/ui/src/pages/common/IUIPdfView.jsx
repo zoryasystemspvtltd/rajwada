@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Layer, Line, Path, Rect, Stage } from 'react-konva';
 import { Document, Page, pdfjs } from 'react-pdf';
 import pencilMarkerIcon from '../canvas-helper/assets/pencil.png';
@@ -18,8 +18,10 @@ const LocationDotIcon = ({ x, y, size = 24, color = 'red' }) => {
 
 pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.js`;
 
-const IUIPdf = () => {
+const IUIPdf = (props) => {
     const [file, setFile] = useState(null);
+    const width = props?.width;
+    const height = props?.height;
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [tool, setTool] = useState(null);
@@ -30,12 +32,12 @@ const IUIPdf = () => {
     const [strokeWidth, setStrokeWidth] = useState(2); // default thin
     const stageRef = useRef();
 
-
-    const handleFileChange = e => setFile(e.target.files[0]);
-
+    useEffect(() => {
+        if (props?.file)
+            setFile(props?.file);
+    }, [props?.file]);
 
     const onDocumentLoadSuccess = ({ numPages }) => setNumPages(numPages);
-
 
     const addAnnotation = (page, ann) => {
         setAnnotations(prev => ({
@@ -117,41 +119,38 @@ const IUIPdf = () => {
 
     return (
         <div className="container-fluid py-3">
-            <div className="d-flex flex-wrap gap-2 mb-3">
-                <input type="file" className="form-control" accept="application/pdf" onChange={handleFileChange} />
-            </div>
-
-
             {file && (
                 <>
                     <div className="d-flex flex-wrap gap-2 mb-3">
-                        <button className={`btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm ${tool === 'rect' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setTool('rect')}><i className="bi bi-bounding-box fs-6" title="Rectangle Marker"></i></button>
-                        <button className={`btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm ${tool === 'pen' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setTool('pen')}><i className="bi bi-pencil fs-6" title="Pencil Marker"></i></button>
-                        <button className={`btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm ${tool === 'dot' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setTool('dot')}> <i className="fa-solid fa-location-dot fa-md" title="Balloon Marker"></i></button>
-                        <button className="btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm btn-warning" onClick={undoLast}>Undo</button>
-                        <button className="btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm btn-danger" onClick={clearPage}>Clear Page</button>
-                        <button className="btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm btn-danger" onClick={clearAll}>Clear All</button>
-                        {/* Color Picker */}
-                        <div className="d-flex flex-column align-items-center justify-content-center">
-                            <input
-                                type="color"
-                                value={selectedColor}
-                                onChange={(e) => setSelectedColor(e.target.value)}
-                                style={{ width: 20, height: 20, padding: 0, border: 'none', cursor: 'pointer' }}
-                            />
-                        </div>
+                        <div className={props?.displayToolbar ? '' : 'd-none'}>
+                            <button className={`btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm ${tool === 'rect' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setTool('rect')}><i className="bi bi-bounding-box fs-6" title="Rectangle Marker"></i></button>
+                            <button className={`btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm ${tool === 'pen' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setTool('pen')}><i className="bi bi-pencil fs-6" title="Pencil Marker"></i></button>
+                            <button className={`btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm ${tool === 'dot' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setTool('dot')}> <i className="fa-solid fa-location-dot fa-md" title="Balloon Marker"></i></button>
+                            <button className="btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm btn-warning" onClick={undoLast}>Undo</button>
+                            <button className="btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm btn-danger" onClick={clearPage}>Clear Page</button>
+                            <button className="btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm btn-danger" onClick={clearAll}>Clear All</button>
+                            {/* Color Picker */}
+                            <div className="d-flex flex-column align-items-center justify-content-center">
+                                <input
+                                    type="color"
+                                    value={selectedColor}
+                                    onChange={(e) => setSelectedColor(e.target.value)}
+                                    style={{ width: 20, height: 20, padding: 0, border: 'none', cursor: 'pointer' }}
+                                />
+                            </div>
 
 
-                        {/* Stroke Width Controller */}
-                        <div className="d-flex flex-column align-items-center justify-content-center">
-                            <input
-                                type="range"
-                                min="1"
-                                max="20"
-                                value={strokeWidth}
-                                onChange={(e) => setStrokeWidth(Number(e.target.value))}
-                                style={{ width: 100 }}
-                            />
+                            {/* Stroke Width Controller */}
+                            <div className="d-flex flex-column align-items-center justify-content-center">
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max="20"
+                                    value={strokeWidth}
+                                    onChange={(e) => setStrokeWidth(Number(e.target.value))}
+                                    style={{ width: 100 }}
+                                />
+                            </div>
                         </div>
                         <div className="ms-auto d-flex align-items-center gap-2">
                             <button className="btn btn-wide btn-pill btn-shadow btn-hover-shine bn-sm btn-secondary" disabled={pageNumber <= 1} onClick={() => setPageNumber(p => p - 1)}>Prev</button>
@@ -162,11 +161,11 @@ const IUIPdf = () => {
                     <div className="d-flex justify-content-center">
                         <div style={{ position: 'relative' }}>
                             <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
-                                <Page pageNumber={pageNumber} width={800} renderTextLayer={false} renderAnnotationLayer={false} />
+                                <Page pageNumber={pageNumber} width={width || 800} renderTextLayer={false} renderAnnotationLayer={false} />
                             </Document>
                             <Stage
-                                width={800}
-                                height={1100}
+                                width={width || 800}
+                                height={height || 1100}
                                 style={{ position: 'absolute', top: 0, left: 0, cursor: tool === 'pen' ? `url(${pencilMarkerIcon}) 0 49,auto` : tool === 'rect' ? 'crosshair' : tool === 'dot' ? 'pointer' : 'default' }}
                                 // style={{ position: 'absolute', top: 0, left: 0, cursor: tool === 'pen' ? `url(${pencilMarkerIcon}) 0 49,auto` : tool === 'rect' ? 'crosshair' : tool === 'dot' ? `url(${markerIcon}) 30 49,auto` : 'default' }}
                                 ref={stageRef}
