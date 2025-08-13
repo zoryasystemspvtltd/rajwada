@@ -1,11 +1,17 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using ILab.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Pkcs;
 using RajApi.Data;
 using RajApi.Data.Models;
+using System.Data;
+using System.Reflection;
 
 namespace RajApi.Controllers;
 
@@ -70,10 +76,10 @@ public class ReportController : ControllerBase
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
             var finalData = dataService.GetWorkerStatusReport(request);
-            if (finalData != null)
-            {
-                finalData = CalculateWorkStatus(finalData);
-            }
+           
+            //if (request.IsDownload)
+            //    return GenerateExcelFile(finalData);
+            //else
             return finalData;
         }
         catch (Exception ex)
@@ -82,84 +88,59 @@ public class ReportController : ControllerBase
             throw;
         }
     }
-    /// <summary>
-    /// Status Type: Draft = 0, Modified = 1,QCAssigned = 2,Assigned = 3,Approved = 4,Hold = 5,Rejected = 6,HODAssigned = 7
-    /// </summary>
-    /// <param name="rawlist"></param>
-    /// <returns></returns>
-    private static List<WorkerStatusReport>? CalculateWorkStatus(dynamic? rawlist)
-    {
-        List<WorkerStatusReport> newlist = [];
-        if (rawlist != null)
-        {
-            var currentDate = DateTime.Now;
-            foreach (var item in rawlist)
-            {
-                var status = "";
-                if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate == null)
-                {
-                    status = "Not Started";
-                }
-                if (item.StartDate != null && item.StartDate < currentDate && item.EndDate != null
-                    && item.EndDate > currentDate && item.ActualStartDate != null)
-                {
-                    status = "In Progress";
-                }
-                if (item.EndDate != null && item.ActualEndDate == null
-                    && item.EndDate < currentDate && item.ActualStartDate != null)
-                {
-                    status = "Delayed";
-                }
-                if (item.StartDate != null && item.EndDate != null && item.StartDate < currentDate
-                    && currentDate < item.EndDate && item.IsOnHold != null && item.IsOnHold == true)
-                {
-                    status = "On Hold";
-                }
-                if (item.IsQCApproved == null && item.IsCompleted != null
-                    && item.IsCompleted == true && item.Status == StatusType.QCAssigned) // QC Assigened but not approved
-                {
-                    status = "Pending QC Approval";
-                }
-                if (item.ActualEndDate <= item.EndDate && item.ActualStartDate >= item.StartDate
-                    && item.IsCompleted != null && item.IsCompleted == true)
-                {
-                    status = "Closed";
-                }
-                if (item.IsCancelled != null && item.IsCancelled == true)
-                {
-                    status = "Cancelled";
-                }
-                if (item.IsCompleted != null && item.IsCompleted == true
-                  && item.IsQCApproved != null && item.IsQCApproved == true)// QC Approved
-                {
-                    status = "Inspection Passed";
-                }
-                if (item.IsCompleted != null && item.IsCompleted == true
-                    && item.IsQCApproved != null && item.IsQCApproved == false) //QC is rejected
-                {
-                    status = "Inspection Failed/Rework Required";
-                }
-                if (item.IsCompleted != null && item.IsCompleted == true && item.IsQCApproved != null
-                    && item.IsQCApproved == true && item.IsApproved == null && item.Status == StatusType.HODAssigned) //HOD Assigend but not approved
-                {
-                    status = "Pending HOD Approval";
-                }
-                if (item.IsCompleted == true && item.IsAbandoned == true)//Is Abanndoned
-                {
-                    status = "Short Closed/Abandoned";
-                }
 
-                WorkerStatusReport obj = new()
-                {
-                    ActivityStatus = status,
-                    Id = item.Id,
-                    ActivityName = item.Name
-                };
-                newlist.Add(obj);
+   
+    private dynamic GenerateExcelFile(List<WorkerStatusReport>? items)
+    {
+        DataTable dataTable = new DataTable(typeof(WorkerStatusReport).Name);
+        PropertyInfo[] props = typeof(WorkerStatusReport).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        // Create columns in the DataTable from the object properties
+        foreach (PropertyInfo prop in props)
+        {
+            dataTable.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+        }
+
+        // Populate rows in the DataTable with values from the list
+        foreach (WorkerStatusReport item in items)
+        {
+            var values = new object[props.Length];
+            for (int i = 0; i < props.Length; i++)
+            {
+                values[i] = props[i].GetValue(item, null);
+            }
+            dataTable.Rows.Add(values);
+        }
+
+        //Generate Excelsheet
+        string base64String;
+        using (var wb = new XLWorkbook())
+        {
+            var sheet = wb.AddWorksheet(dataTable, "WorkerStatusReport");
+
+            // Apply font color to columns 1 to 5
+            sheet.Columns(1, 5).Style.Font.FontColor = XLColor.Black;
+
+            using (var ms = new MemoryStream())
+            {
+                wb.SaveAs(ms);
+
+                // Convert the Excel workbook to a base64-encoded string
+                base64String = Convert.ToBase64String(ms.ToArray());
             }
         }
-        return newlist;
+
+        // Return a CreatedResult with the base64-encoded Excel data
+        return new CreatedResult(string.Empty, new
+        {
+            Code = 200,
+            Status = true,
+            Message = "Template generated successfully",
+            Data = base64String
+        });
+
     }
+    
 }
 
 

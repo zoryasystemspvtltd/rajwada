@@ -208,7 +208,7 @@ namespace ILab.Data
         {
             try
             {
-                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetWorkerStatusReport));
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.DownloadWorkerStatusReport));
                 object[] parameters = [request.ProjectId, request.TowerId, request.FloorId, request.FlatId];
                 return method?.Invoke(handler, parameters);
             }
