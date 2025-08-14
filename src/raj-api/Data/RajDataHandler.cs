@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Pkcs;
 using RajApi.Data.Models;
 using System.Data;
+using Comment = RajApi.Data.Models.Comment;
 
 
 namespace RajApi.Data;
@@ -275,7 +276,7 @@ public class RajDataHandler : LabDataHandler
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
             }
-            var table = GenerateDataTable(activities);
+            var table = GenerateDataTable(activities,false);
 
             return activities;
         }
@@ -286,7 +287,29 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    private DataTable GenerateDataTable(List<Activity> activities)
+    public dynamic DownloadWorkerChatReport(long projectId, long towerId, long floorId, long flatId)
+    {
+        try
+        {
+            var activities = dbContext.Set<Activity>()
+                     .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
+                     && l.TowerId == towerId && l.FloorId == floorId
+                     && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
+            if (flatId > 0)
+            {
+                activities = activities.Where(l => l.FlatId == flatId).ToList();
+            }
+            var table = GenerateDataTable(activities,true);
+
+            return activities;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkerStatusReport method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+    private DataTable GenerateDataTable(List<Activity> activities,bool flag)
     {
         var item = activities[0];
 
@@ -311,7 +334,12 @@ public class RajDataHandler : LabDataHandler
         table.Columns.Add("Status");
         table.Columns.Add("ActualStartDate");
         table.Columns.Add("ActualEndDate");
-       
+        if (flag)
+        {
+            table.Columns.Add("Comment");
+            table.Columns.Add("CommentDate");
+
+        }
         var resources = dbContext.Set<Resource>().Where(a => a.PlanId == item.FlatId).ToList();
 
         foreach (var rec in resources)
@@ -336,6 +364,13 @@ public class RajDataHandler : LabDataHandler
                 row["EndDate"] = activity?.EndDate;
                 row["ActualStartDate"] = activity?.ActualStartDate;
                 row["ActualEndDate"] = activity?.ActualEndDate;
+                if (flag)
+                {
+                    var comments = dbContext.Set<Comment>().Where(a => a.Id== filteredActivities.Id).FirstOrDefault();
+
+                    row["Comment"] = comments?.Remarks;
+                    row["CommentDate"] = comments?.Date;
+                }
                 table.Rows.Add(row);
             }
         }

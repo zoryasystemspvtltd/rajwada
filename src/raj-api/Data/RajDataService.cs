@@ -220,7 +220,7 @@ namespace ILab.Data
                 return 0;
             }
         }
-
+        
         internal dynamic DownloadWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
         {
             try
@@ -236,7 +236,21 @@ namespace ILab.Data
                 return 0;
             }
         }
+        internal dynamic DownloadWorkerChatReport(long projectId, long towerId, long floorId, long flatId)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.DownloadWorkerChatReport));
 
+                object[] parameters = [projectId, towerId, floorId, flatId];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetWorkerStatusReport method and details: " + ex.Message);
+                return 0;
+            }
+        }
         internal dynamic GetAllAssignedUsers(string module, long id)
         {
             try

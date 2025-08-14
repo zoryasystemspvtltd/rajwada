@@ -67,8 +67,8 @@ public class ReportController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-            var finalData = dataService.GetWorkerStatusReport(request);           
-            
+            var finalData = dataService.GetWorkerStatusReport(request);
+
             return finalData;
         }
         catch (Exception ex)
@@ -79,10 +79,14 @@ public class ReportController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("{projectId}/{towerId}/{floorId}/{flatId}")]
-    public IActionResult Get(long projectId, long towerId, long floorId, long flatId)
+    [HttpGet("{projectId}/{towerId}/{floorId}/{flatId}/{isChat}")]
+    public IActionResult Get(long projectId, long towerId, long floorId, long flatId, bool isChat)
     {
-        var finalData = dataService.DownloadWorkerStatusReport( projectId,  towerId,  floorId,  flatId);
+        dynamic finalData;
+        if (isChat)
+            finalData = dataService.DownloadWorkerStatusReport(projectId, towerId, floorId, flatId);
+        else
+            finalData = dataService.DownloadWorkerChatReport(projectId, towerId, floorId, flatId);
 
         string base64String;
         using (var wb = new XLWorkbook())
@@ -110,8 +114,7 @@ public class ReportController : ControllerBase
             Data = base64String
         });
     }
-    
-    
+
 }
 
 
