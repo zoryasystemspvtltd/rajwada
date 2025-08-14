@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Pkcs;
 using RajApi.Data.Models;
 using System.Data;
-using System.Linq;
+
 
 namespace RajApi.Data;
 
@@ -275,7 +275,7 @@ public class RajDataHandler : LabDataHandler
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
             }
-           var table= GenerateDataTable(activities);
+            var table = GenerateDataTable(activities);
 
             return activities;
         }
@@ -295,15 +295,15 @@ public class RajDataHandler : LabDataHandler
         var floor = dbContext.Set<Plan>().Where(a => a.Id == item.FloorId && a.Type == "floor").FirstOrDefault(); // Ex- Floor 1
         var flat = dbContext.Set<Plan>().Where(a => a.Id == item.FlatId && a.Type == "flat").FirstOrDefault(); // Ex- Flat 1
 
-        var statuslist= CalculateWorkStatus(activities);
+        var statuslist = CalculateWorkStatus(activities);
 
         DataTable table = new DataTable();
-       
+
         table.Columns.Add("Room Name");
         table.Columns.Add("Project Name");
         table.Columns.Add("Tower Name");
         table.Columns.Add("Floor Name");
-        table.Columns.Add("Flat Name");  
+        table.Columns.Add("Flat Name");
         table.Columns.Add("Name");
         table.Columns.Add("ProgressPercentage");
         table.Columns.Add("StartDate");
@@ -311,26 +311,35 @@ public class RajDataHandler : LabDataHandler
         table.Columns.Add("Status");
         table.Columns.Add("ActualStartDate");
         table.Columns.Add("ActualEndDate");
+       
+        var resources = dbContext.Set<Resource>().Where(a => a.PlanId == item.FlatId).ToList();
 
-        foreach (Activity activity in activities)
+        foreach (var rec in resources)
         {
-            var status = statuslist.Where(a => a.Id == item.Id).FirstOrDefault().ActivityStatus;
+            var room = dbContext.Set<Room>().Where(a => a.Id == rec.RoomId).FirstOrDefault(); // Ex- Bedroom
+            for (int index = 1; index <= rec.Quantity; index++)
+            {
+                DataRow row = table.NewRow();
+                var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
+                var filteredActivities = statuslist?.Where(a => a.ActivityName.Contains(roomName) && a.ActivityName.Contains(table.Columns[index].ColumnName)).FirstOrDefault();
+                var activity = activities?.Where(a => a.Id== filteredActivities.Id).FirstOrDefault();
 
-            DataRow row = table.NewRow();
-            row["Room Name"] = activity.Name;
-            row["Project Name"] = project?.Name;
-            row["Tower Name"] = tower?.Name;
-            row["Floor Name"] = floor?.Name;
-            row["Flat Name"] = flat?.Name;
-            row["Name"] = activity.Name;
-            row["ProgressPercentage"] = activity.ProgressPercentage;
-            row["StartDate"] = activity.StartDate;
-            row["EndDate"] = activity.EndDate;
-            row["Status"] = status;
-            row["ActualStartDate"] = activity.ActualStartDate;
-            row["ActualEndDate"] = activity.ActualEndDate;
-            table.Rows.Add(row);
+                row["Project Name"] = project?.Name;
+                row["Tower Name"] = tower?.Name;
+                row["Floor Name"] = floor?.Name;
+                row["Flat Name"] = flat?.Name;
+                row["Name"] = filteredActivities?.ActivityName;
+                row["RoomName"] = roomName;
+                row["Status"] = filteredActivities?.ActivityStatus;
+                row["ProgressPercentage"] = filteredActivities?.ProgressPercentage;
+                row["StartDate"] = activity?.StartDate;
+                row["EndDate"] = activity?.EndDate;
+                row["ActualStartDate"] = activity?.ActualStartDate;
+                row["ActualEndDate"] = activity?.ActualEndDate;
+                table.Rows.Add(row);
+            }
         }
+        
         return table;
     }
 
@@ -348,14 +357,14 @@ public class RajDataHandler : LabDataHandler
             }
 
             var finallist = CalculateWorkStatus(activities);
-            
-            //List<string> dpendencies = GetDependency(activities[0].DependencyId);
 
-            // var table = ConvertDependencytoTable(dpendencies);
+            List<string> dpendencies = GetDependency(activities[0].DependencyId);
 
-            // var finaltable = GetRoomNames(flatId, table, activities);
+            var table = ConvertDependencytoTable(dpendencies);
 
-            return finallist;
+            var finaltable = GetRoomNames(flatId, table, finallist);
+
+            return finaltable;
         }
         catch (Exception ex)
         {
@@ -435,14 +444,15 @@ public class RajDataHandler : LabDataHandler
                 {
                     ActivityStatus = status,
                     Id = item.Id,
-                    ActivityName = item.Name
+                    ActivityName = item.Name,
+                    ProgressPercentage=item.ProgressPercentage
                 };
                 newlist.Add(obj);
             }
         }
         return newlist;
     }
-    private DataTable GetRoomNames(long flatId, DataTable table, List<Activity> activities)
+    private DataTable GetRoomNames(long flatId, DataTable table, List<WorkerStatusReport> activities)
     {
         var resources = dbContext.Set<Resource>().Where(a => a.PlanId == flatId).ToList();
 
@@ -453,9 +463,10 @@ public class RajDataHandler : LabDataHandler
             {
                 DataRow row = table.NewRow();
                 var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
-                row["Room Name"] = roomName;
-                //var filteredActivities = activities.Where(a => a.Name.Contains(roomName)&& a.Name.Contains(table.Columns[index].ColumnName)).FirstOrDefault();
-                //row[table.Columns[index].ColumnName] = filteredActivities;
+                row["RoomName"] = roomName;
+                var filteredActivities = activities.Where(a => a.ActivityName.Contains(roomName)&& a.ActivityName.Contains(table.Columns[index].ColumnName)).FirstOrDefault();
+                row[table.Columns[index].ColumnName] = filteredActivities?.ActivityStatus;
+                row["ProgressPercentage"] = filteredActivities?.ProgressPercentage ; 
                 table.Rows.Add(row);
             }
         }
@@ -464,43 +475,19 @@ public class RajDataHandler : LabDataHandler
         return table;
     }
 
-    private List<string> GetRooms(long? flatId)
-    {
-        var query = "SELECT ro.Name FROM [dbo].[Resources] as re inner join Rooms as ro on re.RoomId=ro.Id  where PlanId=" + flatId;
-
-        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
-        {
-            command.CommandText = query;
-            command.CommandType = CommandType.Text;
-
-            dbContext.Database.OpenConnection();
-
-            using (var result = command.ExecuteReader())
-            {
-                var entities = new List<string>();
-
-                while (result.Read())
-                {
-                    entities.Add(result.GetString("label"));
-                }
-
-                return entities;
-            }
-        }
-    }
     private DataTable ConvertDependencytoTable(List<string> dpendencies)
     {
         // Create a new DataTable
         DataTable table = new DataTable();
 
         DataRow row = table.NewRow();
-        table.Columns.Add("Room Name");
+        table.Columns.Add("RoomName");
 
         for (int i = 0; i < dpendencies.Count; i++)
         {
             table.Columns.Add(dpendencies[i], typeof(string));
         }
-
+        table.Columns.Add("ProgressPercentage"); 
         return table;
     }
 

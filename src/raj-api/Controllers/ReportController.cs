@@ -1,17 +1,9 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.InkML;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
 using ILab.Data;
-using ILab.Extensionss.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Pkcs;
 using RajApi.Data;
 using RajApi.Data.Models;
-using System.Data;
-using System.Reflection;
 
 namespace RajApi.Controllers;
 
@@ -75,11 +67,8 @@ public class ReportController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-            var finalData = dataService.GetWorkerStatusReport(request);
-           
-            //if (request.IsDownload)
-            //    return GenerateExcelFile(finalData);
-            //else
+            var finalData = dataService.GetWorkerStatusReport(request);           
+            
             return finalData;
         }
         catch (Exception ex)
@@ -89,37 +78,19 @@ public class ReportController : ControllerBase
         }
     }
 
-   
-    private dynamic GenerateExcelFile(List<WorkerStatusReport>? items)
+    [AllowAnonymous]
+    [HttpGet("{projectId}/{towerId}/{floorId}/{flatId}")]
+    public IActionResult Get(long projectId, long towerId, long floorId, long flatId)
     {
-        DataTable dataTable = new DataTable(typeof(WorkerStatusReport).Name);
-        PropertyInfo[] props = typeof(WorkerStatusReport).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        var finalData = dataService.DownloadWorkerStatusReport( projectId,  towerId,  floorId,  flatId);
 
-        // Create columns in the DataTable from the object properties
-        foreach (PropertyInfo prop in props)
-        {
-            dataTable.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
-        }
-
-        // Populate rows in the DataTable with values from the list
-        foreach (WorkerStatusReport item in items)
-        {
-            var values = new object[props.Length];
-            for (int i = 0; i < props.Length; i++)
-            {
-                values[i] = props[i].GetValue(item, null);
-            }
-            dataTable.Rows.Add(values);
-        }
-
-        //Generate Excelsheet
         string base64String;
         using (var wb = new XLWorkbook())
         {
-            var sheet = wb.AddWorksheet(dataTable, "WorkerStatusReport");
+            var sheet = wb.AddWorksheet(finalData, "Worker Status Report");
 
             // Apply font color to columns 1 to 5
-            sheet.Columns(1, 5).Style.Font.FontColor = XLColor.Black;
+            sheet.Columns(1, 12).Style.Font.FontColor = XLColor.Black;
 
             using (var ms = new MemoryStream())
             {
@@ -135,11 +106,11 @@ public class ReportController : ControllerBase
         {
             Code = 200,
             Status = true,
-            Message = "Template generated successfully",
+            Message = "Report generated successfully",
             Data = base64String
         });
-
     }
+    
     
 }
 
