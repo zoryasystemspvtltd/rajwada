@@ -180,12 +180,13 @@ namespace RajApi.Data.Models
         public long TowerId { get; set; }
         public long FloorId { get; set; }
         public long FlatId { get; set; }
-
+       // public bool IsDownload { get; set; }
     }
     public class WorkerStatusReport
     {
         public long? Id { get; set; }
         public string? ActivityName { get; set; }
-        public string? ActivityStatus { get; set; } 
+        public string? ActivityStatus { get; set; }
+        public  int? ProgressPercentage { get; set; }
     }
 }
