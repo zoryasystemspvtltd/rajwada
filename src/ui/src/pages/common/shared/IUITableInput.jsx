@@ -170,43 +170,53 @@ const IUITableInput = (props) => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!props?.readonly) {
-            setDirty(true);
-            const error = validate(data, schema?.fields)
-            setErrors(error);
-            //console.log(data)
-            //console.log(error)
-            setIsNewAdd(true);
-            if (Object.keys(error).length === 0) {
-                if (!data)
-                    return
-                setDisabled(true)
-                //console.log(data)
-                if (editingIndex !== null) {
-                    const updatedData = [...dataArray];
-                    updatedData[editingIndex] = data;
-                    setDataArray(updatedData);
-                    setEditingIndex(null);
-                }
+        if (props?.readonly) return;
 
-                else {
-                    setDataArray([...dataArray, data]);
-                }
-            }
-            setData({});
-            setErrors({});
-            setIsNewAdd(true);
-            const modifiedEvent = {
-                target: {
-                    id: props?.id,
-                    value: JSON.stringify([...dataArray, data])
-                },
-                preventDefault: function () { }
-            };
-            props.onChange(modifiedEvent);
-            // console.log(dataArray)
+        setDirty(true);
+
+        const error = validate(data, schema?.fields);
+        setErrors(error);
+
+        // Stop if validation failed
+        if (Object.keys(error).length > 0) {
+            return; // No reset, so user can correct errors
         }
+
+        // Additional hard check for empty strings
+        const requiredFields = schema?.fields?.map(f => f.field) || [];
+        const hasEmptyField = requiredFields.some(field => !data[field] || data[field].toString().trim() === "");
+        if (hasEmptyField) {
+            notify("error", "All fields are required.");
+            return;
+        }
+
+        setDisabled(true);
+
+        let updatedArray = [...dataArray];
+        if (editingIndex !== null) {
+            updatedArray[editingIndex] = data;
+            setEditingIndex(null);
+        } else {
+            updatedArray.push(data);
+        }
+        setDataArray(updatedArray);
+
+        // Reset form
+        setData({});
+        setErrors({});
+        setIsNewAdd(true);
+
+        // Fire parent change event
+        const modifiedEvent = {
+            target: {
+                id: props?.id,
+                value: JSON.stringify(updatedArray)
+            },
+            preventDefault: function () { }
+        };
+        props.onChange(modifiedEvent);
     };
+
 
     const savePageValue = (e) => {
         e.preventDefault();
@@ -290,7 +300,7 @@ const IUITableInput = (props) => {
                                             {
                                                 (dataArray.length > 0) && (
                                                     <Row className='mt-2'>
-                                                        <Table responsive>
+                                                        <Table size="sm" className="scrollable-table" responsive>
                                                             <thead>
                                                                 <tr>
                                                                     {schema?.fields?.map((fld, f) => (
@@ -337,8 +347,8 @@ const IUITableInput = (props) => {
                                                                                 ))}
                                                                                 {
                                                                                     (!schema?.readonly) && (<td>
-                                                                                        <button className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-warning btn-s mr-2' onClick={(e) => handleEdit(e, i)}>Edit</button>
-                                                                                        <button className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm' onClick={(e) => handleDelete(e, i)}>Delete</button>
+                                                                                        <button className='btn btn-pill btn-shadow btn-hover-shine btn btn-warning btn-sm mr-2' onClick={(e) => handleEdit(e, i)}>Edit</button>
+                                                                                        <button className='btn btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm' onClick={(e) => handleDelete(e, i)}>Delete</button>
                                                                                     </td>)
                                                                                 }
                                                                             </tr>

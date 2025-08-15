@@ -177,13 +177,6 @@
                 "icon": "vector-square",
                 "path": "/site-material-approvals",
                 "access": "levelSetup"
-            },
-            {
-                "name": "pdfTool",
-                "text": "Pdf Tool",
-                "icon": "file",
-                "path": "/pdf-view",
-                "access": "activity"
             }
         ],
         "report": [

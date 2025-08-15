@@ -19,6 +19,14 @@ const IUIActivityWizard = (props) => {
         height: 'auto',
         overflow: 'visible'
     };
+    const [unitOfWorkSchema, setUnitOfWorkSchema] = useState({
+        parentId: -1,
+        parent: {
+            module: 'plan',
+            filter: 'planId',
+        },
+        module: 'unitOfWork'
+    });
 
     const customNextStepLogic = () => {
         // Custom logic goes here
@@ -46,8 +54,36 @@ const IUIActivityWizard = (props) => {
         return true;
     };
 
-    const activityCallback = (creationStatus) => {
-        setIsCreationSuccessful(creationStatus);
+    const updateUnit = async (unit, newActivityId) => {
+        if (unit?.activityId === null) {
+            const payload = { ...unit, activityId: parseInt(newActivityId) };
+            await api.editData({ module: unitOfWorkSchema?.module, data: payload });
+            return;
+        }
+    };
+
+    const updateUnitsOfWork = async (newActivityId) => {
+        const pageOptions = { recordPerPage: 0 };
+        const response = await api.getData({
+            module: unitOfWorkSchema?.module,
+            options: pageOptions,
+        });
+
+        const items = response?.data?.items || [];
+        const filteredUnits = items.filter(
+            (item) => item?.[unitOfWorkSchema?.parent?.filter] === parseInt(unitOfWorkSchema?.parentId)
+        );
+
+        const updatePromises = filteredUnits.map((unit) => updateUnit(unit, newActivityId));
+        await Promise.all(updatePromises);
+        return;
+    }
+
+    const activityCallback = async (callbackResponse) => {
+        setIsCreationSuccessful(callbackResponse?.status);
+        if (callbackResponse?.id !== -1) {
+            await updateUnitsOfWork(callbackResponse?.id);
+        }
     };
 
     const baseQueryConstructor = (data) => {
@@ -73,6 +109,7 @@ const IUIActivityWizard = (props) => {
                     }
                 }
             };
+            setUnitOfWorkSchema({ ...unitOfWorkSchema, parentId: parseInt(data?.towerId) })
         }
         else if (data?.dependencyId && data?.projectId && data?.towerId && data?.floorId && !data?.flatId) {
             baseQuery = {
@@ -95,6 +132,7 @@ const IUIActivityWizard = (props) => {
                     }
                 }
             };
+            setUnitOfWorkSchema({ ...unitOfWorkSchema, parentId: parseInt(data?.floorId) })
         }
         else {
             baseQuery = {
@@ -117,6 +155,7 @@ const IUIActivityWizard = (props) => {
                     }
                 }
             };
+            setUnitOfWorkSchema({ ...unitOfWorkSchema, parentId: parseInt(data?.flatId) })
         }
         return baseQuery;
     }

@@ -398,7 +398,7 @@ const IUIPage = (props) => {
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
                             if (module === 'activity') {
-                                props?.activityCallback(true);
+                                props?.activityCallback({status: true, id: response?.data});
                                 notify('success', `Activity ${data?.name} created successfully!`);
                                 return;
                             }
@@ -423,7 +423,7 @@ const IUIPage = (props) => {
                     } catch (e) {
                         // TODO
                         if (module === 'activity') {
-                            props?.activityCallback(false);
+                            props?.activityCallback({status: false, id: -1});
                             return;
                         }
                     }

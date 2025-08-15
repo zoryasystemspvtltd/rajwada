@@ -91,39 +91,39 @@ export const ViewTower = () => {
 
                 ]
             },
-            // {
-            //     type: "area", width: 12
-            //     , fields: [
-            //         { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect' },
-            //     ]
-            // },
             {
                 type: "area", width: 12
                 , fields: [
-                    {
-                        text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
-                        schema: {
-                            readonly: true,
-                            upload: false,
-                            save: false,
-                            parentId: id,
-                            parent: {
-                                module: 'plan',
-                                filter: 'planId',
-                            },
-                            controls: {
-                                balloon: false,
-                                rectangle: false,
-                                pencil: false,
-                                camera: false,
-                                delete: false,
-                                reset: false
-                            },
-                            module: 'unitOfWork'
-                        }
-                    },
+                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect' },
                 ]
             },
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         {
+            //             text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+            //             schema: {
+            //                 readonly: true,
+            //                 upload: false,
+            //                 save: false,
+            //                 parentId: id,
+            //                 parent: {
+            //                     module: 'plan',
+            //                     filter: 'planId',
+            //                 },
+            //                 controls: {
+            //                     balloon: false,
+            //                     rectangle: false,
+            //                     pencil: false,
+            //                     camera: false,
+            //                     delete: false,
+            //                     reset: false
+            //                 },
+            //                 module: 'unitOfWork'
+            //             }
+            //         },
+            //     ]
+            // },
             {
                 type: "area", width: 12
                 , fields: [
@@ -177,40 +177,40 @@ export const EditTower = () => {
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
             },
-            // {
-            //     type: "area", width: 12
-            //     , fields: [
-            //         { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
-            //     ]
-            // },
             {
                 type: "area", width: 12
                 , fields: [
-                    {
-                        text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
-                        schema: {
-                            readonly: false,
-                            upload: true,
-                            save: true,
-                            parentId: id,
-                            parent: {
-                                module: 'plan',
-                                filter: 'planId',
-                                path: 'towers'
-                            },
-                            controls: {
-                                balloon: true,
-                                rectangle: true,
-                                pencil: true,
-                                camera: false,
-                                delete: true,
-                                reset: true
-                            },
-                            module: 'unitOfWork'
-                        }
-                    },
+                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
                 ]
             },
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         {
+            //             text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+            //             schema: {
+            //                 readonly: false,
+            //                 upload: true,
+            //                 save: true,
+            //                 parentId: id,
+            //                 parent: {
+            //                     module: 'plan',
+            //                     filter: 'planId',
+            //                     path: 'towers'
+            //                 },
+            //                 controls: {
+            //                     balloon: true,
+            //                     rectangle: true,
+            //                     pencil: true,
+            //                     camera: false,
+            //                     delete: true,
+            //                     reset: true
+            //                 },
+            //                 module: 'unitOfWork'
+            //             }
+            //         },
+            //     ]
+            // },
             { field: 'type', type: 'hidden-filter', value: "tower" }
         ]
     }

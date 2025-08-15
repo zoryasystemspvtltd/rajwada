@@ -15,6 +15,7 @@ import { notify } from "../../store/notification";
 import IUIImageGallery from './shared/IUIImageGallery';
 import ILab from '../canvas-helper/Ilab-Canvas';
 import IUITableInput from './shared/IUITableInput';
+import IUIPdfTool from '../pdf-helper/IUIPdfTool';
 
 
 
@@ -461,7 +462,7 @@ const Calendar = () => {
                     ...canvasSchema,
                     schema: {
                         ...canvasSchema.schema,
-                        parentId: parseInt(task.id),
+                        parentId: parseInt(task?.parentId ? task.parentId : task.id),
                         readonly: true,
                         save: false,
                         controls: {
@@ -493,7 +494,7 @@ const Calendar = () => {
                     ...canvasSchema,
                     schema: {
                         ...canvasSchema.schema,
-                        parentId: parseInt(task.id),
+                        parentId: parseInt(task?.parentId ? task.parentId : task.id),
                         readonly: false,
                         save: true,
                         controls: {
@@ -1143,13 +1144,25 @@ const Calendar = () => {
                                         }
                                     </Form.Label>
 
-                                    <ILab.MarkerCanvas
-                                        id={canvasSchema.field}
-                                        value={blueprint || []}
-                                        schema={canvasSchema.schema}
-                                        onChange={handleBlueprintChange}
-                                        readonly={canvasSchema.readonly || !isSameDay(selectedDate, startOfToday())}
-                                    />
+                                    {
+                                        (blueprint?.split(';')[0] !== "data:application/pdf") ?
+                                            <ILab.MarkerCanvas
+                                                id={canvasSchema.field}
+                                                value={blueprint || []}
+                                                schema={canvasSchema.schema}
+                                                onChange={handleBlueprintChange}
+                                                readonly={canvasSchema.readonly || !isSameDay(selectedDate, startOfToday())}
+                                            /> :
+                                            <IUIPdfTool
+                                                displayToolbar={!canvasSchema.readonly || isSameDay(selectedDate, startOfToday())}
+                                                height={800}
+                                                id={canvasSchema.field}
+                                                file={blueprint || []}
+                                                schema={canvasSchema.schema}
+                                                onChange={handleBlueprintChange}
+                                                readonly={canvasSchema.readonly || !isSameDay(selectedDate, startOfToday())}
+                                            />
+                                    }
                                 </div>
                             </div>
 

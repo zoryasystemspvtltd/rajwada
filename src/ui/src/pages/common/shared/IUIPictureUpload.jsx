@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../../store/api-service'
 import Form from 'react-bootstrap/Form';
 import { notify } from '../../../store/notification';
-import IUIPdf from '../IUIPdfView';
+import IUIPdfView from '../../pdf-helper/IUIPdfView';
 
 const IUIPictureUpload = (props) => {
     const schema = props?.schema;
@@ -211,7 +211,7 @@ const IUIPictureUpload = (props) => {
                                         ref={fileRef}
                                         accept="image/gif, image/jpeg, image/png, application/pdf"
                                     ></Form.Control>
-                                    <IUIPdf file={file} displayToolbar={false} height={100} />
+                                    <IUIPdfView file={file} displayToolbar={false} height={100} />
                                 </>
                             )
                         }
