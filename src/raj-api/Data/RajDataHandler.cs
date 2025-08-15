@@ -1,10 +1,15 @@
-﻿using ILab.Extensionss.Common;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Mysqlx.Crud;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Pkcs;
 using RajApi.Data.Models;
 using System.Data;
+using Comment = RajApi.Data.Models.Comment;
+
 
 namespace RajApi.Data;
 
@@ -42,7 +47,7 @@ public class RajDataHandler : LabDataHandler
             .Where(x => x.Log != null && x.Log.ActivityType != StatusType.UnAssigned && x.data.Status != StatusType.Deleted)
             .Select(x => x.data)
             .AsQueryable();
-            
+
             return query;
         }
 
@@ -181,6 +186,198 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
+
+    public dynamic GetMobileActivityData(DateOnly startDate, DateOnly endDate, string member)
+    {
+        try
+        {
+            var sDate = startDate.ToDateTime(TimeOnly.Parse("00:00 AM"));
+            var eDate = endDate.ToDateTime(TimeOnly.Parse("00:00 AM")); ;
+
+            var tDate = DateTime.Now;
+            var activities = dbContext.Set<Activity>()
+                .Where(a => a.Type == "Main Task"
+                             && (a.ActualStartDate ?? a.StartDate) <= tDate
+                             && (a.ActualEndDate == null || a.ActualEndDate <= eDate)
+                            )
+                .Select(x => new
+                {
+                    x.Id,
+                    x.Name,
+                    StartDate = x.ActualStartDate != null ? x.ActualStartDate.Value.Date : x.StartDate.Value.Date,
+                    EndDate = x.ActualEndDate != null ? x.ActualEndDate.Value.Date : DateTime.Now,
+                })
+                .Distinct()
+                .ToList();
+
+            var activityIds = GetAllAssignedActivities(member);
+
+            var assignedActivities = activities.Where(a => activityIds.Contains(a.Id));
+
+            var curingDate = dbContext.Set<Activity>()
+                .Join(dbContext.Set<Activity>(),
+                    main => main.Id,
+                    sub => sub.ParentId,
+                    (main, sub) => new { main, sub })
+                .Join(dbContext.Set<ActivityTracking>(),
+                    act => act.sub.Id,
+                    tr => tr.ActivityId,
+                    (act, tr) => new { Id = act.main.Id, Date = tr.Date, IsCuringDone = tr.IsCuringDone })
+                .Where(x => x.IsCuringDone == true
+                    && x.Date > sDate
+                    && x.Date < eDate
+                )
+                .ToList();
+
+            var result = new List<DateWiseActivity>();
+            var lastDays = DateTime.DaysInMonth(endDate.Year, endDate.Month);
+
+            for (int i = 0; i < lastDays; i++)
+            {
+                var date = new DateTime(startDate.Year, startDate.Month, i + 1);
+                var newactivities = assignedActivities.Where(a => a.StartDate <= date && a.EndDate >= date).ToList();
+                var isCuring = curingDate.Exists(x => DateOnly.FromDateTime(x.Date.Value) == DateOnly.FromDateTime(date));
+                List<DailyActivity> listDAct = new List<DailyActivity>();
+
+                foreach (var item in newactivities)
+                {
+                    listDAct.Add(new DailyActivity
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                    });
+                }
+                result.Add(new DateWiseActivity
+                {
+                    Date = DateOnly.FromDateTime(date),
+                    Activities = listDAct,
+                    IsCuringDone = isCuring
+                });
+            }
+
+            return result;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetMobileActivityData method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+    public dynamic DownloadWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
+    {
+        try
+        {
+            var activities = dbContext.Set<Activity>()
+                     .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
+                     && l.TowerId == towerId && l.FloorId == floorId
+                     && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
+            if (flatId > 0)
+            {
+                activities = activities.Where(l => l.FlatId == flatId).ToList();
+            }
+            var table = GenerateDataTable(activities,false);
+
+            return activities;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkerStatusReport method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    public dynamic DownloadWorkerChatReport(long projectId, long towerId, long floorId, long flatId)
+    {
+        try
+        {
+            var activities = dbContext.Set<Activity>()
+                     .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
+                     && l.TowerId == towerId && l.FloorId == floorId
+                     && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
+            if (flatId > 0)
+            {
+                activities = activities.Where(l => l.FlatId == flatId).ToList();
+            }
+            var table = GenerateDataTable(activities,true);
+
+            return activities;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkerStatusReport method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+    private DataTable GenerateDataTable(List<Activity> activities,bool flag)
+    {
+        var item = activities[0];
+
+        var project = dbContext.Set<Project>().Where(a => a.Id == item.ProjectId).FirstOrDefault(); // Ex- Project 1
+        var tower = dbContext.Set<Plan>().Where(a => a.Id == item.TowerId && a.Type == "tower").FirstOrDefault(); // Ex- Tower 1       
+        var floor = dbContext.Set<Plan>().Where(a => a.Id == item.FloorId && a.Type == "floor").FirstOrDefault(); // Ex- Floor 1
+        var flat = dbContext.Set<Plan>().Where(a => a.Id == item.FlatId && a.Type == "flat").FirstOrDefault(); // Ex- Flat 1
+
+        var statuslist = CalculateWorkStatus(activities);
+
+        DataTable table = new DataTable();
+
+        table.Columns.Add("Room Name");
+        table.Columns.Add("Project Name");
+        table.Columns.Add("Tower Name");
+        table.Columns.Add("Floor Name");
+        table.Columns.Add("Flat Name");
+        table.Columns.Add("Name");
+        table.Columns.Add("ProgressPercentage");
+        table.Columns.Add("StartDate");
+        table.Columns.Add("EndDate");
+        table.Columns.Add("Status");
+        table.Columns.Add("ActualStartDate");
+        table.Columns.Add("ActualEndDate");
+        if (flag)
+        {
+            table.Columns.Add("Comment");
+            table.Columns.Add("CommentDate");
+
+        }
+        var resources = dbContext.Set<Resource>().Where(a => a.PlanId == item.FlatId).ToList();
+
+        foreach (var rec in resources)
+        {
+            var room = dbContext.Set<Room>().Where(a => a.Id == rec.RoomId).FirstOrDefault(); // Ex- Bedroom
+            for (int index = 1; index <= rec.Quantity; index++)
+            {
+                DataRow row = table.NewRow();
+                var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
+                var filteredActivities = statuslist?.Where(a => a.ActivityName.Contains(roomName) && a.ActivityName.Contains(table.Columns[index].ColumnName)).FirstOrDefault();
+                var activity = activities?.Where(a => a.Id== filteredActivities.Id).FirstOrDefault();
+
+                row["Project Name"] = project?.Name;
+                row["Tower Name"] = tower?.Name;
+                row["Floor Name"] = floor?.Name;
+                row["Flat Name"] = flat?.Name;
+                row["Name"] = filteredActivities?.ActivityName;
+                row["RoomName"] = roomName;
+                row["Status"] = filteredActivities?.ActivityStatus;
+                row["ProgressPercentage"] = filteredActivities?.ProgressPercentage;
+                row["StartDate"] = activity?.StartDate;
+                row["EndDate"] = activity?.EndDate;
+                row["ActualStartDate"] = activity?.ActualStartDate;
+                row["ActualEndDate"] = activity?.ActualEndDate;
+                if (flag)
+                {
+                    var comments = dbContext.Set<Comment>().Where(a => a.Id== filteredActivities.Id).FirstOrDefault();
+
+                    row["Comment"] = comments?.Remarks;
+                    row["CommentDate"] = comments?.Date;
+                }
+                table.Rows.Add(row);
+            }
+        }
+        
+        return table;
+    }
+
     public dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
     {
         try
@@ -194,7 +391,15 @@ public class RajDataHandler : LabDataHandler
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
             }
 
-            return activities;
+            var finallist = CalculateWorkStatus(activities);
+
+            List<string> dpendencies = GetDependency(activities[0].DependencyId);
+
+            var table = ConvertDependencytoTable(dpendencies);
+
+            var finaltable = GetRoomNames(flatId, table, finallist);
+
+            return finaltable;
         }
         catch (Exception ex)
         {
@@ -202,6 +407,152 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
+
+    /// <summary>
+    /// Status Type: Draft = 0, Modified = 1,QCAssigned = 2,Assigned = 3,Approved = 4,Hold = 5,Rejected = 6,HODAssigned = 7
+    /// </summary>
+    /// <param name="rawlist"></param>
+    /// <returns></returns>
+    private static List<WorkerStatusReport>? CalculateWorkStatus(dynamic? rawlist)
+    {
+        List<WorkerStatusReport> newlist = [];
+        if (rawlist != null)
+        {
+            var currentDate = DateTime.Now;
+            foreach (var item in rawlist)
+            {
+                var status = "";
+                if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate == null)
+                {
+                    status = "Not Started";
+                }
+                if (item.StartDate != null && item.StartDate < currentDate && item.EndDate != null
+                    && item.EndDate > currentDate && item.ActualStartDate != null)
+                {
+                    status = "In Progress";
+                }
+                if (item.EndDate != null && item.ActualEndDate == null
+                    && item.EndDate < currentDate && item.ActualStartDate != null)
+                {
+                    status = "Delayed";
+                }
+                if (item.StartDate != null && item.EndDate != null && item.StartDate < currentDate
+                    && currentDate < item.EndDate && item.IsOnHold != null && item.IsOnHold == true)
+                {
+                    status = "On Hold";
+                }
+                if (item.IsQCApproved == null && item.IsCompleted != null
+                    && item.IsCompleted == true && item.Status == StatusType.QCAssigned) // QC Assigened but not approved
+                {
+                    status = "Pending QC Approval";
+                }
+                if (item.ActualEndDate <= item.EndDate && item.ActualStartDate >= item.StartDate
+                    && item.IsCompleted != null && item.IsCompleted == true)
+                {
+                    status = "Closed";
+                }
+                if (item.IsCancelled != null && item.IsCancelled == true)
+                {
+                    status = "Cancelled";
+                }
+                if (item.IsCompleted != null && item.IsCompleted == true
+                  && item.IsQCApproved != null && item.IsQCApproved == true)// QC Approved
+                {
+                    status = "Inspection Passed";
+                }
+                if (item.IsCompleted != null && item.IsCompleted == true
+                    && item.IsQCApproved != null && item.IsQCApproved == false) //QC is rejected
+                {
+                    status = "Inspection Failed/Rework Required";
+                }
+                if (item.IsCompleted != null && item.IsCompleted == true && item.IsQCApproved != null
+                    && item.IsQCApproved == true && item.IsApproved == null && item.Status == StatusType.HODAssigned) //HOD Assigend but not approved
+                {
+                    status = "Pending HOD Approval";
+                }
+                if (item.IsCompleted == true && item.IsAbandoned == true)//Is Abanndoned
+                {
+                    status = "Short Closed/Abandoned";
+                }
+
+                WorkerStatusReport obj = new()
+                {
+                    ActivityStatus = status,
+                    Id = item.Id,
+                    ActivityName = item.Name,
+                    ProgressPercentage=item.ProgressPercentage
+                };
+                newlist.Add(obj);
+            }
+        }
+        return newlist;
+    }
+    private DataTable GetRoomNames(long flatId, DataTable table, List<WorkerStatusReport> activities)
+    {
+        var resources = dbContext.Set<Resource>().Where(a => a.PlanId == flatId).ToList();
+
+        foreach (var item in resources)
+        {
+            var room = dbContext.Set<Room>().Where(a => a.Id == item.RoomId).FirstOrDefault(); // Ex- Bedroom
+            for (int index = 1; index <= item.Quantity; index++)
+            {
+                DataRow row = table.NewRow();
+                var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
+                row["RoomName"] = roomName;
+                var filteredActivities = activities.Where(a => a.ActivityName.Contains(roomName)&& a.ActivityName.Contains(table.Columns[index].ColumnName)).FirstOrDefault();
+                row[table.Columns[index].ColumnName] = filteredActivities?.ActivityStatus;
+                row["ProgressPercentage"] = filteredActivities?.ProgressPercentage ; 
+                table.Rows.Add(row);
+            }
+        }
+
+
+        return table;
+    }
+
+    private DataTable ConvertDependencytoTable(List<string> dpendencies)
+    {
+        // Create a new DataTable
+        DataTable table = new DataTable();
+
+        DataRow row = table.NewRow();
+        table.Columns.Add("RoomName");
+
+        for (int i = 0; i < dpendencies.Count; i++)
+        {
+            table.Columns.Add(dpendencies[i], typeof(string));
+        }
+        table.Columns.Add("ProgressPercentage"); 
+        return table;
+    }
+
+    private List<string> GetDependency(long? DependencyId)
+    {
+        var query = "SELECT distinct JSON_VALUE(node.value, '$.data.label') AS label FROM Workflows " +
+                    " CROSS APPLY OPENJSON(data, '$.nodes') AS node " +
+                    " where id =" + DependencyId;
+
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var entities = new List<string>();
+
+                while (result.Read())
+                {
+                    entities.Add(result.GetString("label"));
+                }
+
+                return entities;
+            }
+        }
+    }
+
     public dynamic GetResourceDetails(long planId)
     {
         var rooms = dbContext.Set<Room>()
@@ -227,7 +578,8 @@ public class RajDataHandler : LabDataHandler
         var result = dbContext.Set<ApplicationLog>()
                     .Select(p => new
                     {
-                        p.Member,p.EntityId,
+                        p.Member,
+                        p.EntityId,
                         data = dbContext.Set<ApplicationLog>()
                             .Where(apl => apl.EntityId == id && apl.Name.Equals(module) &&
                             apl.EntityId == p.EntityId && apl.Name == p.Name && apl.Member == p.Member)
@@ -240,6 +592,35 @@ public class RajDataHandler : LabDataHandler
                     .Distinct();
 
         return result;
+    }
+    private List<long> GetAllAssignedActivities(string member)
+    {
+        var query = "select distinct act.Id from [Activities] act" +
+             " cross apply(" +
+                 " select top 1 ActivityType,Member,Date from[dbo].[ApplicationLogs] apl" +
+                 " where apl.EntityId = act.id and Name='Activity' and apl.Member = '" + member + "' order by Date desc" +
+            ") x" +
+            " WHERE x.ActivityType != -3 ";
+
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var entities = new List<long>();
+
+                while (result.Read())
+                {
+                    entities.Add(result.GetInt64("Id"));
+                }
+
+                return entities;
+            }
+        }
     }
 
     public List<IdNamePair> GetAllAssignedProjects(string member)

@@ -173,39 +173,51 @@ public class BulkDataUploadController : ControllerBase
         {
             for (int i = 4; i < dataRow.Table.Columns.Count; i++)
             {
-                if (dataRow[i] != null && Convert.ToDecimal(dataRow[i]) > 0)
+                string rommName = dataRow.Table.Columns[i].ToString();
+                try
                 {
-                    string rommName = dataRow.Table.Columns[i].ToString();
-                    //Get Room details
-                    var room = GetModuleDetails("Room", "Name", rommName, null, 0);
-                    if (room != null)
+                    if (string.IsNullOrEmpty(dataRow[i].ToString()))
                     {
-                        //Duplicate checking
-                        var resource = GetModuleDetails("Resource", "RoomId", room.Id.ToString(), "room", planId);
-                        if (resource == null)
+                        response.FailureData.Add(rommName + ": value is blank!");
+                    }                    
+                    else if (dataRow[i] != null && Convert.ToInt32(dataRow[i]) > 0)
+                    {
+                        //Get Room details
+                        var room = GetModuleDetails("Room", "Name", rommName, null, 0);
+                        if (room != null)
                         {
-                            response.SuccessData.Add(rommName + ", quantity:" + dataRow[i] + " resource added!");
-                            Resource rec = new()
+                            //Duplicate checking
+                            var resource = GetModuleDetails("Resource", "RoomId", room.Id.ToString(), "room", planId);
+                            if (resource == null)
                             {
-                                Date = DateTime.Now,
-                                Member = member,
-                                Key = key,
-                                Type = "room",
-                                RoomId = room.Id,
-                                Quantity = Convert.ToDecimal(dataRow[i]),
-                                PlanId = planId
-                            };
-                            listResources.Add(rec);
+                                response.SuccessData.Add(rommName + ", quantity:" + dataRow[i] + " resource added!");
+                                Resource rec = new()
+                                {
+                                    Date = DateTime.Now,
+                                    Member = member,
+                                    Key = key,
+                                    Type = "room",
+                                    RoomId = room.Id,
+                                    Quantity = Convert.ToInt32(dataRow[i]),
+                                    PlanId = planId
+                                };
+                                listResources.Add(rec);
+                            }
+                            else
+                            {
+                                response.FailureData.Add(room.Name + ": Resource already exist!");
+                            }
                         }
                         else
                         {
-                            response.FailureData.Add(room.Name + ": Resource already exist!");
+                            response.FailureData.Add(rommName + ": Room name not exist!");
                         }
                     }
-                    else
-                    {
-                        response.FailureData.Add(rommName + ": Room name not exist!");
-                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Error to save room data:" + ex.Message);
+                    response.FailureData?.Add(rommName + ":" + ex.Message);
                 }
             }
             return (listResources, response);

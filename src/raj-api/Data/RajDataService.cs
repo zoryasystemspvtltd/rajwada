@@ -1,4 +1,6 @@
-﻿using ILab.Extensionss.Data;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
+using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
@@ -188,6 +190,22 @@ namespace ILab.Data
                 return 0;
             }
         }
+
+        internal dynamic GetMobileActivityData(DateOnly startDate, DateOnly endDate,string member)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetMobileActivityData));
+                object[] parameters = [startDate, endDate, member];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetTaskItemDetails method and details: " + ex.Message);
+                return 0;
+            }
+        }
+        
         internal dynamic GetWorkerStatusReport(WorkerReportRequestPayload request)
         {
             try
@@ -202,7 +220,37 @@ namespace ILab.Data
                 return 0;
             }
         }
+        
+        internal dynamic DownloadWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.DownloadWorkerStatusReport));
+               
+                object[] parameters = [projectId, towerId, floorId, flatId];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetWorkerStatusReport method and details: " + ex.Message);
+                return 0;
+            }
+        }
+        internal dynamic DownloadWorkerChatReport(long projectId, long towerId, long floorId, long flatId)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.DownloadWorkerChatReport));
 
+                object[] parameters = [projectId, towerId, floorId, flatId];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetWorkerStatusReport method and details: " + ex.Message);
+                return 0;
+            }
+        }
         internal dynamic GetAllAssignedUsers(string module, long id)
         {
             try

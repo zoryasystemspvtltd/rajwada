@@ -180,5 +180,10 @@ api.getMyProject = async (action) => {
     const response = await api.get(url);
     return response;
 }
+api.mobileReport = async (action) => {
+    const url = `/report/${action.startDate}/${action.endDate}`;
+    const response = await api.get(url);
+    return response;
+}
 export default api;
 
