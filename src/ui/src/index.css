@@ -111,3 +111,61 @@ input:checked+.Slider:before {
 .react-flow__attribution {
     display: none !important;
 }
+
+.pdf-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+.pdf-page {
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 576px) {
+    .pdf-container {
+        padding: 0 5px;
+    }
+}
+
+/* Keep header fixed, body scrollable */
+.scrollable-table {
+    border-collapse: separate;
+}
+
+.scrollable-table thead,
+.scrollable-table tbody {
+    display: block;
+}
+
+.scrollable-table tbody {
+    max-height: 75px;
+    /* Scroll area height */
+    overflow-y: auto;
+}
+
+.scrollable-table thead tr,
+.scrollable-table tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* Make header sticky at the top */
+.scrollable-table thead th {
+    position: sticky;
+    top: 0;
+    background: white;
+    /* Match Bootstrap table bg */
+    z-index: 2;
+}
+
+/* Reduce row height */
+.scrollable-table td,
+.scrollable-table th {
+    padding: 0.18rem 0.5rem;
+    /* Tighter spacing */
+    line-height: 1.1;
+}

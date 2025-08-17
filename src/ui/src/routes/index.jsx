@@ -23,26 +23,26 @@ import ChangePasswordSuccess from "../pages/app/ChangePasswordSuccess";
 import Dashboard from "../pages/app/Dashboard";
 import { EditProfile, ViewProfile } from "../pages/app/Profile";
 import { AddActivity, EditActivity, ListActivity, ViewActivity } from "../pages/app/schema/Activities";
-import { EditReport, ListReport, ViewReport, ListReportTrack } from "../pages/app/schema/Report";
 import { AddDepartment, EditDepartment, ListDepartment, ViewDepartment } from "../pages/app/schema/Departments";
 import { AddWorkItem, EditWorkItem, ListWorkItem, ViewWorkItem } from "../pages/app/schema/Dependencies";
 import { AddItemType, EditItemType, ListItemType, ViewItemType } from "../pages/app/schema/ItemType";
+import { ListReport } from "../pages/app/schema/Report";
 
 import { AddUOM, EditUOM, ListUOM, ViewUOM } from "../pages/app/schema/UOMs";
 import { AddWorkflow, EditWorkflow, ListWorkflow, ViewWorkflow } from "../pages/app/schema/Workflows";
 import { useAuth } from "../provider/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 
+import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
+import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
+import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
 import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
-import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
+import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
 import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/Mouzas";
 import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from "../pages/app/schema/NameMasters";
+import { AddRoomMapping, EditRoomMapping } from "../pages/app/schema/RoomMappings";
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
-import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
-import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
-import { AddRoomMapping, EditRoomMapping, ViewRoomMapping } from "../pages/app/schema/RoomMappings";
-import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
-import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
+import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -496,7 +496,7 @@ const Routes = () => {
                 {
                     path: "/flats/:flatId/roommappings/add",
                     element: <AddRoomMapping />
-                },
+                }
             ],
         },
     ];

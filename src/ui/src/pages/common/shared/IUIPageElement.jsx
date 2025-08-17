@@ -24,6 +24,7 @@ import IUIListMapping from '../IUIListMapping';
 import { formatStringDate } from '../../../store/datetime-formatter';
 import IUIImageGallery from './IUIImageGallery';
 import { FaImage } from 'react-icons/fa';
+import IUIPdfTool from '../../pdf-helper/IUIPdfTool';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -605,14 +606,27 @@ const IUIPageElement = (props) => {
                                             }
                                         </Form.Label>
 
-                                        <ILab.MarkerCanvas
-                                            id={fld.field}
-                                            value={data[fld.field] || []}
-                                            className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                            schema={fld.schema}
-                                            onChange={handleChange}
-                                            readonly={props.readonly || fld.readonly || false}
-                                        />
+                                        {
+                                            (data[fld.field]?.split(';')[0] !== "data:application/pdf") ?
+                                                <ILab.MarkerCanvas
+                                                    id={fld.field}
+                                                    value={data[fld.field] || []}
+                                                    className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                    schema={fld.schema}
+                                                    onChange={handleChange}
+                                                    readonly={props.readonly || fld.readonly || false}
+                                                /> :
+                                                <IUIPdfTool
+                                                    displayToolbar={!props.readonly || !fld.schema.readonly || false}
+                                                    height={800}
+                                                    id={fld.field}
+                                                    file={data[fld.field] || []}
+                                                    className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                    schema={fld.schema}
+                                                    onChange={handleChange}
+                                                    readonly={props.readonly || fld.readonly || false}
+                                                />
+                                        }
                                         <p className="text-danger mt-2">{errors[fld.field]}</p>
                                         <br />
                                     </>

@@ -7,6 +7,7 @@ import {
     ArcElement, BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { notify } from "../../store/notification";
 
 // Register Chart.js components and the datalabels plugin
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, ChartDataLabels);
@@ -44,7 +45,7 @@ const Dashboard = () => {
                     api.getData({ module: 'activity', options: activityPageOptions }),
                     api.getData({ module: 'activity', options: mainActivityPageOptions }),
                 ]);
-
+                // console.log(projectData);
                 setProjects(projectData?.data);
 
                 const updatedActivities = await Promise.all(
@@ -63,7 +64,7 @@ const Dashboard = () => {
                             const childActivitiesResponse = await api.getData({ module: 'activity', options: pageOptions });
                             childActivities = childActivitiesResponse.data.items || [];
                         } catch (error) {
-                            console.error('Error fetching child activities:', error);
+                            notify("error", 'Error fetching child activities');
                         }
 
                         const data = {
@@ -139,7 +140,7 @@ const Dashboard = () => {
                     },
                 }));
             } catch (error) {
-                console.error("Error fetching data:", error);
+                notify("error", 'Error fetching data');
             }
         }
 
@@ -167,8 +168,8 @@ const Dashboard = () => {
                 const totalFloors = projectDataFloor?.data?.items.length;
                 const totalFlats = projectDataFlat?.data?.items.length;
 
-                console.log(projectDataTower, projectDataFloor, projectDataFlat);
-                console.log("Selected Project ID:", selectedProject);
+                // console.log(projectDataTower, projectDataFloor, projectDataFlat);
+                // console.log("Selected Project ID:", selectedProject);
 
                 setMetrics((prevMetrics) => ({
                     ...prevMetrics,
@@ -177,7 +178,7 @@ const Dashboard = () => {
                     flats: { total: totalFlats },
                 }));
             } catch (error) {
-                console.error("Error fetching project data:", error);
+                notify("error", 'Error fetching project data');
             }
         }
 
@@ -238,7 +239,8 @@ const Dashboard = () => {
                                             style={{ flex: 1, maxWidth: '200px' }}
                                         >
                                             <option value="">Select a Project</option>
-                                            {projects.map(project => (
+                                            {/* {console.log(projects)} */}
+                                            {projects?.map(project => (
                                                 <option key={project.id} value={project.id}>
                                                     {project.name}
                                                 </option>

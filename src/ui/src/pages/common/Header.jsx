@@ -138,10 +138,11 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                                 onChange={handleThemeChange}
                             >
                                 <option value="red">Red</option>
-                                <option value="light">Light</option>
+                                <option value="brown">Light</option>
                                 <option value="dark">Dark</option>
                                 <option value="blue">Blue</option>
-                                <option value="purple">Purple</option>
+                                <option value="green">Green</option>
+                                <option value="orange">Orange</option>
                                 {/* Add more themes as needed */}
                             </select>
                         </div>

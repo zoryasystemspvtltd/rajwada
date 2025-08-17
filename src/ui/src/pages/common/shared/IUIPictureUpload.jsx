@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../../store/api-service'
 import Form from 'react-bootstrap/Form';
+import { notify } from '../../../store/notification';
+import IUIPdfView from '../../pdf-helper/IUIPdfView';
 
 const IUIPictureUpload = (props) => {
     const schema = props?.schema;
     const shape = props?.shape;
     const [file, setFile] = useState([]);
+    const [fileType, setFileType] = useState(null);
     const [baseFilter, setBaseFilter] = useState({});
     const [parentData, setParentData] = useState([]);
     const fileRef = React.createRef()
@@ -67,7 +70,7 @@ const IUIPictureUpload = (props) => {
                     });
                 }
             } catch (error) {
-                console.error("Error fetching picture data:", error);
+                notify("error", "Error loading file!");
             }
         }
 
@@ -77,14 +80,33 @@ const IUIPictureUpload = (props) => {
     }, [props?.parentId]);
 
     useEffect(() => {
-        if (props?.value)
+        if (props?.value) {
+            if (props?.value?.length > 0) {
+                let type = props?.value?.split(';')[0];
+                (type === "data:application/pdf") ? setFileType("pdf") : setFileType("image");
+            }
             setFile(props?.value);
+        }
     }, [props?.value]);
 
     const handleChange = async (e) => {
         e.preventDefault();
-        const imageContent = await convertBase64(e.target.files[0])
+        const selectedFile = e.target.files[0];
+        if (!selectedFile) return;
+
+        const imageContent = await convertBase64(selectedFile);
         setFile(imageContent);
+        const type = selectedFile?.type;
+
+        if (type === "image/png" || type === "image/jpeg") {
+            setFileType("image");
+        } else if (type === "application/pdf") {
+            setFileType("pdf");
+        } else {
+            notify("error", "Unsupported file type!");
+            setFileType(null);
+            setFile(null);
+        }
 
         const event = { target: { id: e.target.id, value: imageContent }, preventDefault: function () { } }
 
@@ -121,11 +143,11 @@ const IUIPictureUpload = (props) => {
                             <button className="btn top-0 end-0" onClick={triggerClick}>
                                 {/* <i className="metismenu-icon fa-solid fa-cogs"></i> */}
                                 {
-                                    (file.length > 0) && <img src={file} style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }} title={props?.placeholder} alt={props?.placeholder} />
+                                    (file.length > 0) && (fileType === "image") && <img src={file} style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }} title={props?.placeholder} alt={props?.placeholder} />
                                 }
                                 {
                                     (file.length === 0) && <span className="profile-pic-upload-text">
-                                        <i className="fa-solid fa-cloud-arrow-up" title="Upload Image"></i> {`Upload ${props?.text}`}
+                                        <i className="fa-solid fa-cloud-arrow-up" title="Upload File"></i> {`Upload ${props?.text}`}
                                     </span>
                                 }
                             </button>
@@ -146,32 +168,55 @@ const IUIPictureUpload = (props) => {
             }
             {
                 (shape === "rect") && (
-                    <div className="card position-relative" style={{ width: "50rem", height: "30rem", margin: "auto" }}>
-                        <div className={`card-body form-control ${props.className}`} style={cardBodyStyle}>
-                            <button className="btn top-0 end-0 btn-info" onClick={triggerClick}>
-                                {/* <i className="metismenu-icon fa-solid fa-cogs"></i> */}
-                                {
-                                    (file.length > 0) && <img src={file} style={{ width: "50rem", height: "30rem", margin: "auto" }} title={props?.placeholder} alt={props?.placeholder} />
-                                }
-                                {
-                                    (file.length === 0) && <span className="profile-pic-upload-text">
-                                        <i className="fa-solid fa-cloud-arrow-up" title="Upload Image"></i> {`Upload ${props?.text}`}
-                                    </span>
-                                }
-                            </button>
+                    <>
+                        {
+                            (file && fileType !== "pdf") && (
+                                <div className="card position-relative" style={{ width: "50rem", height: "30rem", margin: "auto" }}>
+                                    <div className={`card-body form-control ${props.className}`} style={cardBodyStyle}>
+                                        <button className="btn top-0 end-0 btn-info" onClick={triggerClick}>
+                                            {/* <i className="metismenu-icon fa-solid fa-cogs"></i> */}
+                                            {
+                                                (file.length > 0) && (fileType === "image") && <img src={file} style={{ width: "50rem", height: "30rem", margin: "auto" }} title={props?.placeholder} alt={props?.placeholder} />
+                                            }
+                                            {
+                                                (file.length === 0) && <span className="profile-pic-upload-text">
+                                                    <i className="fa-solid fa-cloud-arrow-up" title="Upload Image"></i> {`Upload ${props?.text}`}
+                                                </span>
+                                            }
+                                        </button>
 
 
-                            <Form.Control
-                                className='d-none'
-                                id={props?.id}
-                                type="file"
-                                onChange={handleChange}
-                                disabled={props.readonly || false}
-                                ref={fileRef}
-                                accept="image/gif, image/jpeg, image/png"
-                            ></Form.Control>
-                        </div>
-                    </div>
+                                        <Form.Control
+                                            className='d-none'
+                                            id={props?.id}
+                                            type="file"
+                                            onChange={handleChange}
+                                            disabled={props.readonly || false}
+                                            ref={fileRef}
+                                            accept="image/gif, image/jpeg, image/png, application/pdf"
+                                        ></Form.Control>
+                                    </div>
+                                </div>
+                            )
+                        }
+                        {
+                            (file.length > 0) && (fileType === "pdf") && (
+                                <>
+                                    <Form.Control
+                                        className={props.readonly ? 'd-none' : 'mt-2'}
+                                        id={props?.id}
+                                        type="file"
+                                        onChange={handleChange}
+                                        disabled={props.readonly || false}
+                                        ref={fileRef}
+                                        accept="image/gif, image/jpeg, image/png, application/pdf"
+                                    ></Form.Control>
+                                    <IUIPdfView file={file} displayToolbar={false} height={100} />
+                                </>
+                            )
+                        }
+                        <p className='text-center mt-2'>Supported file types: .jpg, .png, .pdf</p>
+                    </>
                 )
             }
         </>

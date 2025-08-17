@@ -43,21 +43,21 @@ const IUIActivityCreate = (props) => {
             {
                 text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true,
                 schema: {
-                    readonly: true,
-                    upload: true,
+                    readonly: false,
+                    upload: false,
                     parentId: -1,
-                    save: false,
+                    save: true,
                     parent: {
                         module: 'plan',
                         filter: 'planId',
                     },
                     controls: {
-                        balloon: false,
-                        rectangle: false,
-                        pencil: false,
-                        camera: false,
-                        delete: false,
-                        reset: false
+                        balloon: true,
+                        rectangle: true,
+                        pencil: true,
+                        camera: true,
+                        delete: true,
+                        reset: true
                     },
                     module: 'unitOfWork'
                 }
@@ -167,8 +167,8 @@ const IUIActivityCreate = (props) => {
 
     const assignPageValue = async (e, email) => {
         e.preventDefault();
-         //status :3 means assigned
-        const action = { module: module, data: { id: id, member: email ,status: 3} }
+        //status :3 means assigned
+        const action = { module: module, data: { id: id, member: email, status: 3 } }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }))
