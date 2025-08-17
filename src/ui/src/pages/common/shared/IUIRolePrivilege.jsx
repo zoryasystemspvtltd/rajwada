@@ -12,6 +12,7 @@ const IUIRolePrivilege = (props) => {
 
     // There is no server module privilege - this is fixed 
     const privileges = [
+        { id: -1, name: "public" },
         { id: 0, name: "list" },
         { id: 1, name: "view" },
         { id: 2, name: "add" },

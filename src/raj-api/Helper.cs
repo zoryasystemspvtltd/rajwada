@@ -60,8 +60,14 @@ public class HasPrivilegesFilter : IAuthorizationFilter
              })
              .ToList();
 
-            var hasClaim = privileges.Exists(p => p.Module.Equals($"{module}", StringComparison.OrdinalIgnoreCase)
-            && p.Name.Equals(_privilege.Name, StringComparison.OrdinalIgnoreCase));
+
+            var hasClaim = privileges
+                .Exists(p => p.Module.Equals($"{module}", StringComparison.OrdinalIgnoreCase)
+                            && (_privilege.Name.Equals("list", StringComparison.OrdinalIgnoreCase) 
+                                    && (p.Name.Equals("public", StringComparison.OrdinalIgnoreCase))
+                            || p.Name.Equals(_privilege.Name, StringComparison.OrdinalIgnoreCase)));
+
+
             if (!context.HttpContext.User.IsInRole("root") && !hasClaim)
             {
                 context.Result = new ForbidResult();

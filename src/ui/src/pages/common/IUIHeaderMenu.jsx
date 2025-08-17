@@ -22,11 +22,12 @@ const IUIHeaderMenu = (props) => {
             s.master.forEach(item => {
                 item.visible = filterMasterMenu(item);
             })
+           
             return s.master.some(sch => sch.visible)
         }
 
         if (s.access) {
-            if (privileges?.some(p => p.module === s.access)) {
+            if (privileges?.filter(p => p.name !== 'public')?.some(p => p.module === s.access)) {
                 return true;
             }
             else {
