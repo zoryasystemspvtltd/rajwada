@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using ILab.Data;
-using RajApi.Data;
-using ILab.Extensionss.Data;
-using RajApi.Data.Models;
-using ILab.Extensionss.Common;
-using System.Data;
+﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using ILab.Data;
+using ILab.Extensionss.Common;
+using ILab.Extensionss.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using RajApi.Data;
+using RajApi.Data.Models;
+using System.Data;
 
 namespace RajApi.Controllers;
 
@@ -74,38 +75,47 @@ public class BulkDataUploadController : ControllerBase
         try
         {
             DataTable dt = new();
-            using (SpreadsheetDocument spreadSheetDocument = SpreadsheetDocument.Open(filePath, true))
+            // Open the Excel file using ClosedXML.
+            // Keep in mind the Excel file cannot be open when trying to read it
+            using (XLWorkbook workBook = new XLWorkbook(filePath))
             {
-                WorkbookPart workbookPart = spreadSheetDocument.WorkbookPart;
-                Sheet sheet = workbookPart.Workbook.Sheets.GetFirstChild<Sheet>();
-                WorksheetPart worksheetPart = (WorksheetPart)workbookPart.GetPartById(sheet.Id);
+                //Read the first Sheet from Excel file.
+                IXLWorksheet workSheet = workBook.Worksheet(1); ;
 
-                Worksheet workSheet = worksheetPart.Worksheet;
-                SheetData sheetData = workSheet.GetFirstChild<SheetData>();
-                IEnumerable<Row> rows = sheetData.Descendants<Row>();
-
-                foreach (Cell cell in rows.ElementAt(0))
+                //Loop through the Worksheet rows.
+                bool firstRow = true;
+                foreach (IXLRow row in workSheet.Rows())
                 {
-                    dt.Columns.Add(GetCellValue(spreadSheetDocument, cell));
-                }
-
-                foreach (Row row in rows) //this will also include your header row...
-                {
-                    DataRow tempRow = dt.NewRow();
-                    for (int i = 0; i < row.Descendants<Cell>().Count(); i++)
+                    //Use the first row to add columns to DataTable.
+                    if (firstRow)
                     {
-                        tempRow[i] = GetCellValue(spreadSheetDocument, row.Descendants<Cell>().ElementAt(i));
+                        foreach (IXLCell cell in row.Cells())
+                        {
+                            dt.Columns.Add(cell.Value.ToString());
+                        }
+                        firstRow = false;
                     }
-                    dt.Rows.Add(tempRow);
-                }
-            }
-            dt.Rows.RemoveAt(0); //...so i'm taking it out here.
+                    else
+                    {
+                        //Add rows to DataTable.
+                        dt.Rows.Add();
+                        int i = 0;
 
-            // Save DataTable to database
-            if (dt.Rows.Count > 0)
-                response = await SaveToDatabase(dataModel, dt, response, token);
-            else
-                response.FailureData?.Add("No data in excelsheet");
+                        foreach (IXLCell cell in row.Cells(row.FirstCellUsed().Address.ColumnNumber, row.LastCellUsed().Address.ColumnNumber))
+                        {
+                            dt.Rows[dt.Rows.Count - 1][i] = cell.Value.ToString();
+                            i++;
+                        }
+                    }
+                }
+
+
+                // Save DataTable to database
+                if (dt.Rows.Count > 0)
+                    response = await SaveToDatabase(dataModel, dt, response, token);
+                else
+                    response.FailureData?.Add("No data in excelsheet");
+            }
         }
         catch (Exception ex)
         {
