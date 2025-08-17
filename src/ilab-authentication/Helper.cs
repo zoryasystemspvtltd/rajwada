@@ -42,7 +42,11 @@ public class HasPrivilegesFilter : IAuthorizationFilter
          })
          .ToList();
 
-        var hasClaim = privileges.Exists(p => p.Module == _privilege.Module && p.Name == _privilege.Name);
+        var hasClaim = privileges
+            .Exists(p => p.Module == _privilege.Module 
+                    && ((_privilege.Name == "list" && p.Name == "public")
+                        || p.Name == _privilege.Name));
+
         if (!context.HttpContext.User.IsInRole("root") && !hasClaim)
         {
             context.Result = new UnauthorizedResult();

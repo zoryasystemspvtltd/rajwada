@@ -34,7 +34,7 @@ const IUIList = (props) => {
     }, []);
 
     useEffect(() => {
-        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
+        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.filter(p=> p.name !== 'public')?.map(p => p.name);
         let access = {};
         modulePrivileges.forEach(p => {
             access = { ...access, ...{ [p]: true } }
@@ -139,12 +139,14 @@ const IUIList = (props) => {
                     <div className="row">
                         <div className="col-md-12">
                             <div className="main-card mb-3 card">
+                                {privileges.list && 
                                 <div className="card-body">
                                     {/* <Row>
                                         <Col md={12} className='mb-3'>
                                             <IUIBreadcrumb schema={{type: 'list', module: module, displayText: schema?.title}} />
                                         </Col>
                                     </Row> */}
+                                    
                                     <Row>
                                         <Col md={8} className='mb-3'>
                                             {schema.adding &&
@@ -300,6 +302,7 @@ const IUIList = (props) => {
                                         </Col>
                                     </Row>
                                 </div>
+                                }
                             </div>
                         </div>
                     </div>
