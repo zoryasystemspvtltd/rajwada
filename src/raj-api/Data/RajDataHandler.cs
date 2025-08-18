@@ -278,7 +278,7 @@ public class RajDataHandler : LabDataHandler
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
             }
-            var table = GenerateDataTable(activities,false);
+            var table = GenerateDataTable(activities, false);
 
             return activities;
         }
@@ -301,7 +301,7 @@ public class RajDataHandler : LabDataHandler
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
             }
-            var table = GenerateDataTable(activities,true);
+            var table = GenerateDataTable(activities, true);
 
             return activities;
         }
@@ -311,7 +311,7 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
-    private DataTable GenerateDataTable(List<Activity> activities,bool flag)
+    private DataTable GenerateDataTable(List<Activity> activities, bool flag)
     {
         var item = activities[0];
 
@@ -352,7 +352,7 @@ public class RajDataHandler : LabDataHandler
                 DataRow row = table.NewRow();
                 var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
                 var filteredActivities = statuslist?.Where(a => a.ActivityName.Contains(roomName) && a.ActivityName.Contains(table.Columns[index].ColumnName)).FirstOrDefault();
-                var activity = activities?.Where(a => a.Id== filteredActivities.Id).FirstOrDefault();
+                var activity = activities?.Where(a => a.Id == filteredActivities.Id).FirstOrDefault();
 
                 row["Project Name"] = project?.Name;
                 row["Tower Name"] = tower?.Name;
@@ -368,7 +368,7 @@ public class RajDataHandler : LabDataHandler
                 row["ActualEndDate"] = activity?.ActualEndDate;
                 if (flag)
                 {
-                    var comments = dbContext.Set<Comment>().Where(a => a.Id== filteredActivities.Id).FirstOrDefault();
+                    var comments = dbContext.Set<Comment>().Where(a => a.Id == filteredActivities.Id).FirstOrDefault();
 
                     row["Comment"] = comments?.Remarks;
                     row["CommentDate"] = comments?.Date;
@@ -376,7 +376,7 @@ public class RajDataHandler : LabDataHandler
                 table.Rows.Add(row);
             }
         }
-        
+
         return table;
     }
 
@@ -459,7 +459,8 @@ public class RajDataHandler : LabDataHandler
             var currentDate = DateTime.Now;
             foreach (var item in rawlist)
             {
-                var status = "";
+                string status = "";
+
                 if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate == null)
                 {
                     status = "Not Started";
@@ -513,12 +514,29 @@ public class RajDataHandler : LabDataHandler
                     status = "Short Closed/Abandoned";
                 }
 
+                int duration = 0;
+                if (item.ActualStartDate != null && item.ActualEndDate == null)
+                {
+                    TimeSpan difference = currentDate - item.ActualStartDate;
+                    duration = difference.Days;
+                }
+                else if (item.ActualStartDate != null && item.ActualEndDate != null)
+                {
+                    TimeSpan difference = item.ActualEndDate - item.ActualStartDate;
+                    duration = difference.Days;
+                }
+                else
+                {
+                    duration = 0;
+                }
+
                 WorkerStatusReport obj = new()
                 {
                     ActivityStatus = status,
                     Id = item.Id,
                     ActivityName = item.Name,
-                    ProgressPercentage=item.ProgressPercentage
+                    ProgressPercentage = item.ProgressPercentage,
+                    Duration = duration
                 };
                 newlist.Add(obj);
             }
@@ -537,13 +555,18 @@ public class RajDataHandler : LabDataHandler
                 DataRow row = table.NewRow();
                 var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
                 row["RoomName"] = roomName;
-                var filteredActivities = activities.Where(a => a.ActivityName.Contains(roomName)&& a.ActivityName.Contains(table.Columns[index].ColumnName)).FirstOrDefault();
-                row[table.Columns[index].ColumnName] = filteredActivities?.ActivityStatus;
-                row["ProgressPercentage"] = filteredActivities?.ProgressPercentage ; 
+
+                for (int j = 1; j < table.Columns.Count; j += 3)
+                {
+                    var filteredActivities = activities.Where(a => a.ActivityName.Contains(roomName) && a.ActivityName.Contains(table.Columns[j].ColumnName)).FirstOrDefault();
+                    row[table.Columns[j].ColumnName] = filteredActivities?.ActivityStatus;
+                    row[table.Columns[j + 1].ColumnName] = filteredActivities?.ProgressPercentage;
+                    row[table.Columns[j + 2].ColumnName] = filteredActivities?.Duration;
+                }
+
                 table.Rows.Add(row);
             }
         }
-
 
         return table;
     }
@@ -559,8 +582,10 @@ public class RajDataHandler : LabDataHandler
         for (int i = 0; i < dpendencies.Count; i++)
         {
             table.Columns.Add(dpendencies[i], typeof(string));
+            table.Columns.Add(dpendencies[i] + "_ProgressPercentage", typeof(string));
+            table.Columns.Add(dpendencies[i] + "_Duration", typeof(string));
         }
-        table.Columns.Add("ProgressPercentage"); 
+
         return table;
     }
 

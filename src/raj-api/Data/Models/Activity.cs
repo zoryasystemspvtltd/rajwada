@@ -188,5 +188,6 @@ namespace RajApi.Data.Models
         public string? ActivityName { get; set; }
         public string? ActivityStatus { get; set; }
         public  int? ProgressPercentage { get; set; }
+        public int? Duration { get; set; }
     }
 }
