@@ -322,18 +322,18 @@ public class RajDataHandler : LabDataHandler
 
         var statuslist = CalculateWorkStatus(activities);
 
-        DataTable table = new DataTable();
-
-        table.Columns.Add("Room Name");
+        DataTable table = new();       
         table.Columns.Add("Project Name");
         table.Columns.Add("Tower Name");
         table.Columns.Add("Floor Name");
         table.Columns.Add("Flat Name");
-        table.Columns.Add("Name");
+        table.Columns.Add("Room Name");
+        table.Columns.Add("Activity Name");
+        table.Columns.Add("Activity Status");
         table.Columns.Add("ProgressPercentage");
+        table.Columns.Add("Duration");
         table.Columns.Add("StartDate");
-        table.Columns.Add("EndDate");
-        table.Columns.Add("Status");
+        table.Columns.Add("EndDate");        
         table.Columns.Add("ActualStartDate");
         table.Columns.Add("ActualEndDate");
         if (flag)
@@ -348,32 +348,36 @@ public class RajDataHandler : LabDataHandler
         {
             var room = dbContext.Set<Room>().Where(a => a.Id == rec.RoomId).FirstOrDefault(); // Ex- Bedroom
             for (int index = 1; index <= rec.Quantity; index++)
-            {
-                DataRow row = table.NewRow();
+            {                
                 var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
-                var filteredActivities = statuslist?.Where(a => a.ActivityName.Contains(roomName) && a.ActivityName.Contains(table.Columns[index].ColumnName)).FirstOrDefault();
-                var activity = activities?.Where(a => a.Id == filteredActivities.Id).FirstOrDefault();
-
-                row["Project Name"] = project?.Name;
-                row["Tower Name"] = tower?.Name;
-                row["Floor Name"] = floor?.Name;
-                row["Flat Name"] = flat?.Name;
-                row["Name"] = filteredActivities?.ActivityName;
-                row["RoomName"] = roomName;
-                row["Status"] = filteredActivities?.ActivityStatus;
-                row["ProgressPercentage"] = filteredActivities?.ProgressPercentage;
-                row["StartDate"] = activity?.StartDate;
-                row["EndDate"] = activity?.EndDate;
-                row["ActualStartDate"] = activity?.ActualStartDate;
-                row["ActualEndDate"] = activity?.ActualEndDate;
-                if (flag)
+                var filteredActivities = statuslist?.Where(a => a.ActivityName.Contains(roomName)).ToList();
+                foreach (var fact in filteredActivities)
                 {
-                    var comments = dbContext.Set<Comment>().Where(a => a.Id == filteredActivities.Id).FirstOrDefault();
+                    var activity = activities?.Where(a => a.Id == fact.Id).FirstOrDefault();
+                    DataRow row = table.NewRow();
+                    row["Project Name"] = project?.Name;
+                    row["Tower Name"] = tower?.Name;
+                    row["Floor Name"] = floor?.Name;
+                    row["Flat Name"] = flat?.Name;
+                    row["Room Name"] = roomName;
+                    row["Activity Name"] = fact?.ActivityName;
+                    row["Activity Status"] = fact?.ActivityStatus;
+                    row["ProgressPercentage"] = fact?.ProgressPercentage;
+                    row["Duration"] = fact?.Duration;
+                    row["StartDate"] = activity?.StartDate;
+                    row["EndDate"] = activity?.EndDate;
+                    row["ActualStartDate"] = activity?.ActualStartDate;
+                    row["ActualEndDate"] = activity?.ActualEndDate;
+                    if (flag)
+                    {
+                        var comments = dbContext.Set<Comment>().Where(a => a.Id == fact.Id).FirstOrDefault();
 
-                    row["Comment"] = comments?.Remarks;
-                    row["CommentDate"] = comments?.Date;
+                        row["Comment"] = comments?.Remarks;
+                        row["CommentDate"] = comments?.Date;
+                    }
+                    table.Rows.Add(row);
                 }
-                table.Rows.Add(row);
+               
             }
         }
 
@@ -417,7 +421,7 @@ public class RajDataHandler : LabDataHandler
     public dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
     {
         try
-        {
+        {            
             var activities = dbContext.Set<Activity>()
                      .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
                      && l.TowerId == towerId && l.FloorId == floorId
