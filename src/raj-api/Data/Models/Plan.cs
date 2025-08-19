@@ -106,7 +106,7 @@ public class Plan : LabModel, IAssignable
     public virtual long? ProjectId { get; set; }
     [JsonIgnore]
     public virtual Project? Project { get; set; }
-    [JsonIgnore]
+    [NotMapped]
     public virtual string? ProjectName { get; set; }
     /// <summary>
     /// Plan is also a collection of other plans
@@ -131,6 +131,9 @@ public class Plan : LabModel, IAssignable
     public virtual ICollection<Plan>? Plans { get; set; }
 
     [JsonIgnore]
+    public virtual ICollection<Parking>? Parkings { get; set; }
+
+    [NotMapped]
     public virtual long? NoOfFloors { get; set; }
     #endregion
 }

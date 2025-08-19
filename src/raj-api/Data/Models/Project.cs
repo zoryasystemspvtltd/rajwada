@@ -126,6 +126,9 @@ namespace RajApi.Data.Models
 
         [JsonIgnore]
         public virtual ICollection<Plan>? Plans { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<Parking>? Parkings { get; set; }
         #endregion
     }
 }
