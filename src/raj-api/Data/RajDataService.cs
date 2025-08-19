@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
-using ILab.Extensionss.Data;
+﻿using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;

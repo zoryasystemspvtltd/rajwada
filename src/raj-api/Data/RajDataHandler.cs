@@ -737,31 +737,9 @@ public class RajDataHandler : LabDataHandler
         }
         try
         {
-            long id = 0;
-            var module = typeof(T);
-            if (module.Name == "Plan")
-            {
-                var nameProperty = item.GetType().GetProperty("Type");
-                if (nameProperty != null)
-                {
-                    var itemName = nameProperty.GetValue(item)?.ToString();
+            var id = await base.AddAsync(item, cancellationToken);
+            await LogLabModelLog(item, StatusType.Draft, cancellationToken);
 
-                    if (itemName?.ToLower() == "tower")
-                    {
-                        id = SaveTowerData(item, cancellationToken);
-                    }
-                    else
-                    {
-                        id = await base.AddAsync(item, cancellationToken);
-                        await LogLabModelLog(item, StatusType.Draft, cancellationToken);
-                    }
-                }
-            }
-            else
-            {
-                id = await base.AddAsync(item, cancellationToken);
-                await LogLabModelLog(item, StatusType.Draft, cancellationToken);
-            }
             return id;
         }
         catch (Exception ex)
@@ -769,12 +747,7 @@ public class RajDataHandler : LabDataHandler
             logger.LogError(ex, $"Exception in AddAsync method and details: '{ex.Message}'");
             throw;
         }
-    }
-
-    private long SaveTowerData<T>(T item, CancellationToken cancellationToken) where T : LabModel
-    {
-        throw new NotImplementedException();
-    }
+    }   
 
     public override async Task<long> EditAsync<T>(T item, CancellationToken cancellationToken)
     {
