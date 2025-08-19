@@ -7,6 +7,7 @@ using Mysqlx.Crud;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Pkcs;
 using RajApi.Data.Models;
+using Serilog;
 using System.Data;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
@@ -40,13 +41,13 @@ public class RajDataHandler : LabDataHandler
             .Select(act => new
             {
                 data = act,
-                Log = dbContext.Set<ApplicationLog>()
+                Log = dbContext.Set<MemberOwner>()
                     .Where(apl => apl.EntityId == act.Id && apl.Member.Equals(Identity.Member) && apl.Name.Equals(name))
                     .OrderByDescending(apl => apl.Date)
-                    .Select(apl => new { apl.ActivityType, apl.Member, apl.Date })
+                    .Select(apl => new { apl.Member, apl.Date })
                     .FirstOrDefault()
             })
-            .Where(x => x.Log != null && x.Log.ActivityType != StatusType.UnAssigned && x.data.Status != StatusType.Deleted)
+            .Where(x => x.Log != null && x.data.Status != StatusType.Deleted)
             .Select(x => x.data)
             .AsQueryable();
 
@@ -642,29 +643,17 @@ public class RajDataHandler : LabDataHandler
 
     public dynamic GetAllAssignedUsers(string module, long id)
     {
-        var result = dbContext.Set<ApplicationLog>()
-                    .Select(p => new
-                    {
-                        p.Member,
-                        p.EntityId,
-                        data = dbContext.Set<ApplicationLog>()
-                            .Where(apl => apl.EntityId == id && apl.Name.Equals(module) &&
-                            apl.EntityId == p.EntityId && apl.Name == p.Name && apl.Member == p.Member)
-                            .OrderByDescending(apl => apl.Date)
-                            .Select(apl => new { apl.ActivityType, apl.Member, apl.Date })
-                            .FirstOrDefault()
-                    })
-                    .Where(x => x.data != null && x.data.ActivityType != StatusType.UnAssigned)
-                    .Select(a => new { a.EntityId, a.Member })
-                    .Distinct();
+        var result = dbContext.Set<MemberOwner>()
+            .Where(p => p.EntityId == id && p.Name.Equals(module))
+            .Select(a => new { a.EntityId, a.Member });
 
         return result;
     }
     private List<long> GetAllAssignedActivities(string member)
     {
-        var query = "select distinct act.Id from [Activities] act" +
+        var query = "select distinct act.Id from [Activities] act" + 
              " cross apply(" +
-                 " select top 1 ActivityType,Member,Date from[dbo].[ApplicationLogs] apl" +
+                 " select top 1 ActivityType,Member,Date from[dbo].[MemberOwner] apl" +
                  " where apl.EntityId = act.id and Name='Activity' and apl.Member = '" + member + "' order by Date desc" +
             ") x" +
             " WHERE x.ActivityType != -3 ";
@@ -691,10 +680,10 @@ public class RajDataHandler : LabDataHandler
     }
 
     public List<IdNamePair> GetAllAssignedProjects(string member)
-    {
+    { 
         var query = "select distinct pr.Id,pr.Name from Plans as p inner join dbo.Projects pr on pr.Id = p.ProjectId" +
             " cross apply(" +
-                " select top 1 ActivityType,Member,Date from[dbo].[ApplicationLogs] apl" +
+                " select top 1 ActivityType,Member,Date from[dbo].[MemberOwner] apl" +
                 " where apl.EntityId = p.id and apl.Member = '" + member + "' order by Date desc" +
             ") x" +
            " WHERE x.ActivityType != -3 ";
@@ -725,7 +714,8 @@ public class RajDataHandler : LabDataHandler
         item.Date = DateTime.UtcNow;
         item.Member = Identity.Member;
         item.Key = Identity.Key;
-
+        var module = typeof(T);
+        
         if (typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
         {
             var assignableItem = (IAssignable)item;
@@ -737,6 +727,7 @@ public class RajDataHandler : LabDataHandler
         try
         {
             var id = await base.AddAsync(item, cancellationToken);
+            await AssignUnassignOwner(item, module.Name, cancellationToken);
             await LogLabModelLog(item, StatusType.Draft, cancellationToken);
 
             return id;
@@ -839,19 +830,14 @@ public class RajDataHandler : LabDataHandler
         item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
         item.Date = DateTime.UtcNow;
         //item.Key = Identity.Key; Not changing key anymore
+
         try
         {
             await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);
 
-            if (item.Status.Equals(StatusType.UnAssigned))
-            {
-                var data = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == item.Id && l.Name.Equals(module)
-                && l.ActivityType.Equals(StatusType.Draft)).FirstOrDefault();
-
-                item.Status = StatusType.Draft;
-                item.Member = data?.Member;
-            }
             var id = await base.EditAsync(item, cancellationToken);
+
+            await AssignUnassignOwner(item, module, cancellationToken);
 
             return id;
         }
@@ -859,6 +845,33 @@ public class RajDataHandler : LabDataHandler
         {
             logger.LogError(ex, $"Exception in AssignAsync method and details: '{ex.Message}'");
             throw;
+        }
+    }
+
+    private async Task AssignUnassignOwner<T>(T item, string module,  CancellationToken cancellationToken) where T : LabModel
+    {
+        var existingOwner = await dbContext.Set<MemberOwner>()
+                                .FirstOrDefaultAsync(p => p.EntityId == item.Id && p.Name == module && p.Member == item.Member);
+
+        if (existingOwner == null)
+        {
+            var sharedMember = new MemberOwner()
+            {
+                EntityId = item.Id,
+                Name = module,
+                Member = item.Member,
+                Date = DateTime.UtcNow,
+                Key = item.Key
+            };
+
+            dbContext.Set<MemberOwner>().Add(sharedMember);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        if((StatusType)item.Status == StatusType.UnAssigned && existingOwner != null)
+        {
+            dbContext.Set<MemberOwner>().Remove(existingOwner);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 
@@ -886,6 +899,7 @@ public class RajDataHandler : LabDataHandler
             Key = item.Key,
             ContentHistory = jitem
         };
+
         try
         {
             dbContext.Set<ApplicationLog>().Add(log);

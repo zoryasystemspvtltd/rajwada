@@ -97,6 +97,37 @@ public class ApplicationDbContext : DbContext
                 ActivityType = StatusType.Draft,
                 EntityId = 2,
             });
+        builder.Entity<MemberOwner>().HasData(
+           new MemberOwner()
+           {
+               Id = 1,
+               Key = rootKey,
+               Name = "Company",
+               Date = DateTime.UtcNow,
+               Status = StatusType.Draft,
+               Member = "super@rajwada.com",
+               EntityId = 1,
+           },
+           new MemberOwner()
+           {
+               Id = 2,
+               Key = rootKey,
+               Name = "Department",
+               Date = DateTime.UtcNow,
+               Status = StatusType.Draft,
+               Member = "super@rajwada.com",
+               EntityId = 1,
+           },
+           new MemberOwner()
+           {
+               Id = 3,
+               Key = rootKey,
+               Name = "Department",
+               Date = DateTime.UtcNow,
+               Status = StatusType.Draft,
+               Member = "super@rajwada.com",
+               EntityId = 2,
+           });
         builder.Entity<AssetType>().HasData(
             new AssetType()
             {
@@ -130,6 +161,8 @@ public class ApplicationDbContext : DbContext
     }
 
     public virtual DbSet<ApplicationLog> ApplicationLogs { get; set; }
+
+    public virtual DbSet<MemberOwner> MemberOwner { get; set; }
 
     public virtual DbSet<Company> Companys { get; set; }
     public virtual DbSet<Project> Projects { get; set; }
