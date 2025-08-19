@@ -131,6 +131,7 @@ public class ApplicationDbContext : DbContext
 
     public virtual DbSet<ApplicationLog> ApplicationLogs { get; set; }
 
+    #region Transactions
     public virtual DbSet<Company> Companys { get; set; }
     public virtual DbSet<Project> Projects { get; set; }
     public virtual DbSet<Plan> Plans { get; set; }
@@ -141,8 +142,12 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Asset> Assets { get; set; }
     public virtual DbSet<AssetType> AssetTypes { get; set; }
     public virtual DbSet<Resource> Resources { get; set; }
+    public virtual DbSet<LevelSetupDetails> LevelSetupDetails { get; set; }
     public virtual DbSet<Comment> Comments { get; set; }
     public virtual DbSet<Attachment> Attachments { get; set; }
+    public virtual DbSet<Parking> Parkings { get; set; }
+    public virtual DbSet<FlatTemplate> FlatTemplates { get; set; }
+    #endregion
 
     #region Masters
     public virtual DbSet<Department> Departments { get; set; }
@@ -155,10 +160,10 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Room> Rooms { get; set; }
     public virtual DbSet<Contractor> Contractors { get; set; }
     public virtual DbSet<Supplier> Suppliers { get; set; }
-    public virtual DbSet<LevelSetup> LevelSetup { get; set; }
-    public virtual DbSet<LevelSetupDetails> LevelSetupDetails { get; set; }
+    public virtual DbSet<LevelSetup> LevelSetup { get; set; }    
     public virtual DbSet<UnitOfWork> UnitOfWorks { get; set; }
-
+    public virtual DbSet<FlatType> FlatTypes { get; set; }
+    public virtual DbSet<ParkingType> ParkingTypes { get; set; }
     #endregion
 
 }
