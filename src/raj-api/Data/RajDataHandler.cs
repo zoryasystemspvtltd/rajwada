@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Pkcs;
 using RajApi.Data.Models;
 using System.Data;
+using System.Reflection;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
 
@@ -322,7 +323,7 @@ public class RajDataHandler : LabDataHandler
 
         var statuslist = CalculateWorkStatus(activities);
 
-        DataTable table = new();       
+        DataTable table = new();
         table.Columns.Add("Project Name");
         table.Columns.Add("Tower Name");
         table.Columns.Add("Floor Name");
@@ -333,7 +334,7 @@ public class RajDataHandler : LabDataHandler
         table.Columns.Add("ProgressPercentage");
         table.Columns.Add("Duration");
         table.Columns.Add("StartDate");
-        table.Columns.Add("EndDate");        
+        table.Columns.Add("EndDate");
         table.Columns.Add("ActualStartDate");
         table.Columns.Add("ActualEndDate");
         if (flag)
@@ -348,7 +349,7 @@ public class RajDataHandler : LabDataHandler
         {
             var room = dbContext.Set<Room>().Where(a => a.Id == rec.RoomId).FirstOrDefault(); // Ex- Bedroom
             for (int index = 1; index <= rec.Quantity; index++)
-            {                
+            {
                 var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
                 var filteredActivities = statuslist?.Where(a => a.ActivityName.Contains(roomName)).ToList();
                 foreach (var fact in filteredActivities)
@@ -377,7 +378,7 @@ public class RajDataHandler : LabDataHandler
                     }
                     table.Rows.Add(row);
                 }
-               
+
             }
         }
 
@@ -421,7 +422,7 @@ public class RajDataHandler : LabDataHandler
     public dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
     {
         try
-        {            
+        {
             var activities = dbContext.Set<Activity>()
                      .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
                      && l.TowerId == towerId && l.FloorId == floorId
@@ -746,7 +747,7 @@ public class RajDataHandler : LabDataHandler
             logger.LogError(ex, $"Exception in AddAsync method and details: '{ex.Message}'");
             throw;
         }
-    }
+    }   
 
     public override async Task<long> EditAsync<T>(T item, CancellationToken cancellationToken)
     {

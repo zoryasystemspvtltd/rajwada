@@ -57,10 +57,96 @@ public class LabModelController : ControllerBase
         var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
         var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
         dataService.Identity = new ModuleIdentity(member, key);
-        var activityId = await dataService.AddAsync(module, data, token);
+        long activityId = await dataService.AddAsync(module, data, token);
+
+        Type? type = dataService?.GetType(module);
+        if (type == null)
+        {
+            return -1L;
+        }
+
+        dynamic jsonString = data.ToString();
+        var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+
+        if (jsonData.Type?.ToLower() == "tower" && module.Equals("PLAN", StringComparison.CurrentCultureIgnoreCase))
+        {
+            activityId = await SaveFloorData(jsonData, activityId, token);
+            await SaveParkingData(jsonData, activityId, token);
+        }
         if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
         {
             await SaveSubTaskAsync(module, activityId, token);
+        }
+        return activityId;
+    }
+
+    /// <summary>
+    /// Save parking data
+    /// </summary>
+    /// <param name="jsonData">Tower data</param>
+    /// <param name="towerId">tower Id</param>
+    /// <param name="token">Token</param>
+    /// <returns></returns>
+    private async Task SaveParkingData(dynamic jsonData, long towerId, CancellationToken token)
+    {
+        var parkingData = jsonData.Parkings;
+        foreach (var item in parkingData)
+        {
+            for (int i = 0; i < item.NoOfParking; i++)
+            {
+                string name = jsonData.ProjectName + "_" + jsonData.Name + "_Parking" + i;
+
+                Parking parking = new()
+                {
+                    ParkingTypeId = item.ParkingTypeId,
+                    TowerId = towerId,
+                    ProjectId = item.ProjectId,
+                    Name = name,
+                };
+
+                await dataService.SaveDataAsync("Parking", parking, token);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Save Floor data from NoOfFloors
+    /// </summary>
+    /// <param name="jsonData">Tower data</param>
+    /// <param name="TowerId">Tower Id</param>
+    /// <param name="token">Token</param>
+    /// <returns></returns>
+    private async Task<long> SaveFloorData(dynamic jsonData, long towerId, CancellationToken token)
+    {
+        long activityId = 0;
+        try
+        {
+            for (int i = 0; i < jsonData.NoOfFloors; i++)
+            {
+                string floorName = "", description = "";
+                if (i == 0)
+                {
+                    floorName = jsonData.ProjectName + "_" + jsonData.Name + "_FloorG";
+                    description = jsonData.ProjectName + "_" + jsonData.Description + "_FloorG";
+                }
+                else
+                {
+                    floorName = jsonData.ProjectName + "_" + jsonData.Name + "_Floor" + i;
+                    description = jsonData.ProjectName + "_" + jsonData.Description + "_Floor" + i;
+                }
+
+                jsonData.Type = "floor";
+                jsonData.Name = floorName;
+                jsonData.Description = description;
+                jsonData.ParrentId = towerId;
+                var data = JsonConvert.SerializeObject(jsonData);
+                activityId = await dataService.AddAsync("Plan", data, token);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in SaveFloorData method and details: '{ex.Message}'");
+            throw;
         }
         return activityId;
     }
@@ -174,7 +260,7 @@ public class LabModelController : ControllerBase
             jsonData.ActualEndDate = DateTime.Now;
         }
 
-        return JsonConvert.SerializeObject(jsonData); ;
+        return JsonConvert.SerializeObject(jsonData);
     }
     private async Task SavaDataIntoDataBase(dynamic lists, string model, Activity main, CancellationToken token)
     {
