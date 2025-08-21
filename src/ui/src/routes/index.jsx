@@ -43,6 +43,7 @@ import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from ".
 import { AddRoomMapping, EditRoomMapping } from "../pages/app/schema/RoomMappings";
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
 import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
+import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } from "../pages/app/schema/ParkingTypes";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -496,7 +497,23 @@ const Routes = () => {
                 {
                     path: "/flats/:flatId/roommappings/add",
                     element: <AddRoomMapping />
-                }
+                },
+                {
+                    path: "/parking-types",
+                    element: <ListParkingType />
+                },
+                {
+                    path: "/parking-types/:id",
+                    element: <ViewParkingType />
+                },
+                {
+                    path: "/parking-types/:id/edit",
+                    element: <EditParkingType />
+                },
+                {
+                    path: "/parking-types/add",
+                    element: <AddParkingType />
+                },
             ],
         },
     ];

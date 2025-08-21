@@ -143,6 +143,13 @@
                 "icon": "vector-square",
                 "path": "/dependencies",
                 "access": "workflow"
+            },
+            {
+                "name": "parkingType",
+                "text": "Parking",
+                "icon": "cubes-stacked",
+                "path": "/parking-types",
+                "access": "parkingType"
             }
         ],
         "transaction": [
