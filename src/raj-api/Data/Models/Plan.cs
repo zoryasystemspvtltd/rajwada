@@ -125,6 +125,11 @@ public class Plan : LabModel, IAssignable
         }
         private set { /* needed for EF */ }
     }
+       
+    [ForeignKey("FlatTemplate")]
+    public virtual long? FlatTemplateId { get; set; }
+    [JsonIgnore]
+    public virtual FlatTemplateDetails? FlatTemplate { get; set; }
 
     [JsonIgnore]
     public virtual ICollection<Plan>? Plans { get; set; }
@@ -132,9 +137,11 @@ public class Plan : LabModel, IAssignable
     [NotMapped]
     public string? Parkings { get; set; }
 
-
     [NotMapped]
     public long? NoOfFloors { get; set; }
+    
+    [NotMapped]
+    public string? FlatTemplates { get; set; }
     #endregion
 }
 

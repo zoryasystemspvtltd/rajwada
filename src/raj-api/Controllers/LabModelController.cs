@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
 using ILab.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +6,6 @@ using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
-using RajApi.Migrations;
 
 namespace RajApi.Controllers;
 
@@ -62,7 +60,15 @@ public class LabModelController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-            long activityId = await dataService.AddAsync(module, data, token);
+            long activityId = 0;
+            //if (module.Equals("FLATTEMPLATE", StringComparison.CurrentCultureIgnoreCase))
+            //{
+            //    activityId = await SaveFlatTemplateData(module, data, token);
+            //}
+            //else
+            //{
+            activityId = await dataService.AddAsync(module, data, token);
+            //}
 
             if (module.Equals("PLAN", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -85,6 +91,7 @@ public class LabModelController : ControllerBase
             {
                 await SaveSubTaskAsync(module, activityId, token);
             }
+
             return activityId;
 
         }
@@ -95,11 +102,53 @@ public class LabModelController : ControllerBase
         }
     }
 
+    ///// <summary>
+    ///// Save Flat Template data
+    ///// </summary>
+    ///// <param name="module"> Module</param>
+    ///// <param name="data"> Raw JSON data</param>
+    ///// <param name="token"> CancellationToken</param>
+    ///// <returns>Flat Id</returns>
+    //private async Task<long> SaveFlatTemplateData(string module, dynamic data, CancellationToken token)
+    //{
+    //    long activityId = 0;
+    //    try
+    //    {
+    //        Type? type = dataService?.GetType(module);
+    //        if (type == null)
+    //        {
+    //            return -1L;
+    //        }
+
+    //        dynamic jsonString = data.ToString();
+    //        var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+    //        foreach (var item in jsonData)
+    //        {
+    //            FlatTemplateDetails template = new()
+    //            {
+    //                FlatTemplateId = item.FlatTemplateId,
+    //                RoomId = item?.RoomId,
+    //                RoomCount = item?.RoomCount
+    //            };
+
+    //            activityId = await dataService.SaveDataAsync("FlatTemplate", template, token);
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        logger.LogError(ex, $"Exception in SaveFlatTemplateData method and details: '{ex.Message}'");
+    //        throw;
+    //    }
+
+    //    return activityId;
+    //}
+
     /// <summary>
     /// Save parking data
     /// </summary>
     /// <param name="jsonData">Tower data</param>
     /// <param name="towerId">tower Id</param>
+    /// <param name="projectName">Project Name</param>
     /// <param name="token">Token</param>
     /// <returns></returns>
     private async Task SaveParkingData(dynamic jsonData, long towerId, string projectName, CancellationToken token)
@@ -140,7 +189,8 @@ public class LabModelController : ControllerBase
     /// Save Floor data from NoOfFloors
     /// </summary>
     /// <param name="jsonData">Tower data</param>
-    /// <param name="TowerId">Tower Id</param>
+    /// <param name="towerId">Tower Id</param>
+    /// <param name="projectName">Project Name</param>
     /// <param name="token">Token</param>
     /// <returns></returns>
     private async Task<long> SaveFloorData(dynamic jsonData, long towerId, string projectName, CancellationToken token)
@@ -196,7 +246,21 @@ public class LabModelController : ControllerBase
                 data = UpdateAcutualDate(module, data);
             }
             var activityId = await dataService.EditAsync(module, id, data, token);
+            if (module.Equals("PLAN", StringComparison.CurrentCultureIgnoreCase))
+            {
+                Type? type = dataService?.GetType(module);
+                if (type == null)
+                {
+                    return -1L;
+                }
 
+                dynamic jsonString = data.ToString();
+                var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+                if (jsonData != null && jsonData?.Type?.ToLower() == "floor")
+                {
+                    activityId = await SaveFlatData(jsonData, id, token);
+                }
+            }
             return activityId;
         }
         catch (Exception ex)
@@ -204,6 +268,67 @@ public class LabModelController : ControllerBase
             logger.LogError(ex, $"Exception in PutAsync module: '{module}' message:'{ex.Message}'");
             throw;
         }
+    }
+
+    /// <summary>
+    /// Save Flat data
+    /// </summary>
+    /// <param name="jsonData">Raw Flat data</param>
+    /// <param name="floorId">Floor id</param>
+    /// <param name="token">Token</param>
+    /// <returns></returns>
+    private async Task<long> SaveFlatData(dynamic? jsonData, long floorId, CancellationToken token)
+    {
+        long activityId = 0;
+        try
+        {
+            var data = jsonData?.FlatTemplates;
+            List<FlatTemplateRawData> templateList = JsonConvert.DeserializeObject<List<FlatTemplateRawData>>(data);
+
+            var project = Get("Project", jsonData?.ProjectId);
+            if (project == null)
+                return 0;
+
+            var tower = Get("Plan", jsonData?.ParentId);
+            if (tower == null)
+                return 0;
+
+
+            for (int i = 0; i < templateList.Count; i++)
+            {
+                var flatType = Get("FlatTemplate", templateList[i].FlatTemplateId);
+                if (flatType == null)
+                    return 0;
+
+                for (int j = 1; j <= templateList[i].NoOfFlats; j++)
+                {
+                    string flatName = "", description = "";
+
+                    flatName = project.Result.Name + "_" + tower.Result.Name + "_" + jsonData?.Name + "_" + flatType.Result.Name + "Flat" + j;
+                    description = project.Result.Description + "_" + tower.Result.Description + "_" + jsonData?.Description + "_" + flatType.Result.DescriptionName + "Flat" + j;
+
+                    Plan plan = new()
+                    {
+                        Type = "flat",
+                        Name = flatName,
+                        Description = description,
+                        ParentId = floorId,
+                        ProjectId = jsonData?.ProjectId,
+                        FlatTemplateId = templateList[i].FlatTemplateId,
+                        Blueprint = jsonData?.Blueprint,
+                    };
+
+                    activityId = await dataService.SaveDataAsync("Plan", plan, token);
+
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in SaveFloorData method and details: '{ex.Message}'");
+            throw;
+        }
+        return activityId;
     }
 
     // [HasPrivileges("edit")]

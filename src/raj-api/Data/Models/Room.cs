@@ -8,5 +8,5 @@ public class Room : LabModel, IGlobal
     public string? Code { get; set; }
     public string? Description { get; set; }
     [JsonIgnore]
-    public virtual ICollection<FlatTemplate>? FlatTemplates { get; set; }
+    public virtual ICollection<FlatTemplateDetails>? FlatTemplates { get; set; }
 }
