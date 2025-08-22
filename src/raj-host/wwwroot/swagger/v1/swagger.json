@@ -2168,7 +2168,13 @@
 "FlatTemplate": {
 "type": "object",
 "properties": {
+"Description": {
+"type": "string",
+},
 "FlatTemplateDetails": {
+"type": "string",
+},
+"TemplateDetails": {
 "type": "string",
 },
 "Id": {
@@ -2922,9 +2928,6 @@
 "NoOfFloors": {
 "type": "string",
 "nullable": true
-},
-"FlatTemplates": {
-"type": "string",
 },
 "Id": {
 "type": "string",

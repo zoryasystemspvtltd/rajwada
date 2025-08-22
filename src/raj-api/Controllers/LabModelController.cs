@@ -61,14 +61,12 @@ public class LabModelController : ControllerBase
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
             long activityId = 0;
-            //if (module.Equals("FLATTEMPLATE", StringComparison.CurrentCultureIgnoreCase))
-            //{
-            //    activityId = await SaveFlatTemplateData(module, data, token);
-            //}
-            //else
-            //{
+
             activityId = await dataService.AddAsync(module, data, token);
-            //}
+            if (module.Equals("FLATTEMPLATE", StringComparison.CurrentCultureIgnoreCase))
+            {
+                await SaveFlatTemplateData(module, data, activityId, token);
+            }
 
             if (module.Equals("PLAN", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -102,46 +100,39 @@ public class LabModelController : ControllerBase
         }
     }
 
-    ///// <summary>
-    ///// Save Flat Template data
-    ///// </summary>
-    ///// <param name="module"> Module</param>
-    ///// <param name="data"> Raw JSON data</param>
-    ///// <param name="token"> CancellationToken</param>
-    ///// <returns>Flat Id</returns>
-    //private async Task<long> SaveFlatTemplateData(string module, dynamic data, CancellationToken token)
-    //{
-    //    long activityId = 0;
-    //    try
-    //    {
-    //        Type? type = dataService?.GetType(module);
-    //        if (type == null)
-    //        {
-    //            return -1L;
-    //        }
+    /// <summary>
+    /// Save Flat Template data
+    /// </summary>
+    /// <param name="module"> Module</param>
+    /// <param name="data"> Raw JSON data</param>
+    /// <param name="token"> CancellationToken</param>
+    private async Task SaveFlatTemplateData(string module, dynamic data, long templateId, CancellationToken token)
+    {
+        try
+        {
+            Type? type = dataService?.GetType(module);
 
-    //        dynamic jsonString = data.ToString();
-    //        var jsonData = JsonConvert.DeserializeObject(jsonString, type);
-    //        foreach (var item in jsonData)
-    //        {
-    //            FlatTemplateDetails template = new()
-    //            {
-    //                FlatTemplateId = item.FlatTemplateId,
-    //                RoomId = item?.RoomId,
-    //                RoomCount = item?.RoomCount
-    //            };
+            dynamic jsonString = data.ToString();
+            var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+            List<FlatTemplateDetails> templatList = JsonConvert.DeserializeObject<List<FlatTemplateDetails>>(jsonData.TemplateDetails);
+            foreach (var item in templatList)
+            {
+                FlatTemplateDetails details = new()
+                {
+                    FlatTemplateId = templateId,
+                    RoomId = item?.RoomId,
+                    RoomCount = item?.RoomCount
+                };
 
-    //            activityId = await dataService.SaveDataAsync("FlatTemplate", template, token);
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        logger.LogError(ex, $"Exception in SaveFlatTemplateData method and details: '{ex.Message}'");
-    //        throw;
-    //    }
-
-    //    return activityId;
-    //}
+                await dataService.SaveDataAsync("FlatTemplateDetails", details, token);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in SaveFlatTemplateDetailsData method and details: '{ex.Message}'");
+            throw;
+        }
+    }
 
     /// <summary>
     /// Save parking data
