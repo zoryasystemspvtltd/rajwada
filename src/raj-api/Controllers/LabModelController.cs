@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using RajApi.Helpers;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Wordprocessing;
 using ILab.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
-using Newtonsoft.Json;
+using RajApi.Helpers;
+using RajApi.Migrations;
 
 namespace RajApi.Controllers;
 
@@ -54,30 +57,42 @@ public class LabModelController : ControllerBase
     [HttpPost("{module}")]
     public async Task<long> PostAsync(string module, dynamic data, CancellationToken token)
     {
-        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-        dataService.Identity = new ModuleIdentity(member, key);
-        long activityId = await dataService.AddAsync(module, data, token);
-
-        Type? type = dataService?.GetType(module);
-        if (type == null)
+        try
         {
-            return -1L;
-        }
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+            long activityId = await dataService.AddAsync(module, data, token);
 
-        dynamic jsonString = data.ToString();
-        var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+            if (module.Equals("PLAN", StringComparison.CurrentCultureIgnoreCase))
+            {
+                Type? type = dataService?.GetType(module);
+                if (type == null)
+                {
+                    return -1L;
+                }
 
-        if (jsonData.Type?.ToLower() == "tower" && module.Equals("PLAN", StringComparison.CurrentCultureIgnoreCase))
-        {
-            activityId = await SaveFloorData(jsonData, activityId, token);
-            await SaveParkingData(jsonData, activityId, token);
+                dynamic jsonString = data.ToString();
+                var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+                if (jsonData != null && jsonData?.Type?.ToLower() == "tower")
+                {
+                    var project = Get("Project", jsonData?.ProjectId);
+                    activityId = await SaveFloorData(jsonData, activityId, project.Result.Name, token);
+                    await SaveParkingData(jsonData, activityId, project.Result.Name, token);
+                }
+            }
+            if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
+            {
+                await SaveSubTaskAsync(module, activityId, token);
+            }
+            return activityId;
+
         }
-        if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
+        catch (Exception ex)
         {
-            await SaveSubTaskAsync(module, activityId, token);
+            logger.LogError(ex, $"Exception in SaveData method and details: '{ex.Message}'");
+            throw;
         }
-        return activityId;
     }
 
     /// <summary>
@@ -87,25 +102,37 @@ public class LabModelController : ControllerBase
     /// <param name="towerId">tower Id</param>
     /// <param name="token">Token</param>
     /// <returns></returns>
-    private async Task SaveParkingData(dynamic jsonData, long towerId, CancellationToken token)
+    private async Task SaveParkingData(dynamic jsonData, long towerId, string projectName, CancellationToken token)
     {
-        var parkingData = jsonData.Parkings;
-        foreach (var item in parkingData)
+        try
         {
-            for (int i = 0; i < item.NoOfParking; i++)
+            var parkingData = jsonData.Parkings;
+            List<ParkingRawData> parkingsList = JsonConvert.DeserializeObject<List<ParkingRawData>>(parkingData);
+            foreach (var item in parkingsList)
             {
-                string name = jsonData.ProjectName + "_" + jsonData.Name + "_Parking" + i;
-
-                Parking parking = new()
+                var parkingType = Get("ParkingType", item.ParkingTypeId);
+                for (int i = 1; i <= item.NoOfParking; i++)
                 {
-                    ParkingTypeId = item.ParkingTypeId,
-                    TowerId = towerId,
-                    ProjectId = item.ProjectId,
-                    Name = name,
-                };
+                    string name = projectName + "_" + jsonData?.Name + "_Parking_" + parkingType.Result.Name + i;
 
-                await dataService.SaveDataAsync("Parking", parking, token);
+                    Parking parking = new()
+                    {
+                        ParkingTypeId = item.ParkingTypeId,
+                        TowerId = towerId,
+                        ProjectId = jsonData?.ProjectId,
+                        Name = name,
+                    };
+
+                    await dataService.SaveDataAsync("Parking", parking, token);
+                }
             }
+
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in SaveParkingData method and details: '{ex.Message}'");
+            throw;
         }
     }
 
@@ -116,7 +143,7 @@ public class LabModelController : ControllerBase
     /// <param name="TowerId">Tower Id</param>
     /// <param name="token">Token</param>
     /// <returns></returns>
-    private async Task<long> SaveFloorData(dynamic jsonData, long towerId, CancellationToken token)
+    private async Task<long> SaveFloorData(dynamic jsonData, long towerId, string projectName, CancellationToken token)
     {
         long activityId = 0;
         try
@@ -126,21 +153,25 @@ public class LabModelController : ControllerBase
                 string floorName = "", description = "";
                 if (i == 0)
                 {
-                    floorName = jsonData.ProjectName + "_" + jsonData.Name + "_FloorG";
-                    description = jsonData.ProjectName + "_" + jsonData.Description + "_FloorG";
+                    floorName = projectName + "_" + jsonData.Name + "_FloorG";
+                    description = projectName + "_" + jsonData.Description + "_FloorG";
                 }
                 else
                 {
-                    floorName = jsonData.ProjectName + "_" + jsonData.Name + "_Floor" + i;
-                    description = jsonData.ProjectName + "_" + jsonData.Description + "_Floor" + i;
+                    floorName = projectName + "_" + jsonData.Name + "_Floor" + i;
+                    description = projectName + "_" + jsonData.Description + "_Floor" + i;
                 }
+                Plan plan = new()
+                {
+                    Type = "floor",
+                    Name = floorName,
+                    Description = description,
+                    ParentId = towerId,
+                    ProjectId = jsonData.ProjectId,
+                    Blueprint = jsonData.Blueprint,
+                };
 
-                jsonData.Type = "floor";
-                jsonData.Name = floorName;
-                jsonData.Description = description;
-                jsonData.ParrentId = towerId;
-                var data = JsonConvert.SerializeObject(jsonData);
-                activityId = await dataService.AddAsync("Plan", data, token);
+                activityId = await dataService.SaveDataAsync("Plan", plan, token);
             }
         }
         catch (Exception ex)

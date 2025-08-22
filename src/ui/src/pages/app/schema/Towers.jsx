@@ -198,7 +198,7 @@ export const AddTower = () => {
                         schema: { module: 'project' }
                     },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 6 },
-                    { text: 'Floor Count', field: 'floorCount', placeholder: 'Floor count here...', type: 'number', required: true, width: 6 },
+                    { text: 'Floor Count', field: 'noOfFloors', placeholder: 'Floor count here...', type: 'number', required: true, width: 6 },
                 ]
             },
             {
@@ -218,7 +218,7 @@ export const AddTower = () => {
                                     text: 'Parking', field: 'parkingTypeId', type: 'lookup', required: true, width: 6,
                                     schema: { module: 'parkingType' }
                                 },
-                                { text: 'Count', field: 'parkingCount', placeholder: 'Parking count here...', type: 'number', width: 6, required: true }
+                                { text: 'Count', field: 'noOfParking', placeholder: 'Parking count here...', type: 'number', width: 6, required: true }
                             ]
                         }
                     },

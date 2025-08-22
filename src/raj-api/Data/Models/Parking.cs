@@ -21,8 +21,6 @@ public class Parking : LabModel, IGlobal
     public virtual long? TowerId { get; set; }
     [JsonIgnore]
     public virtual Plan? Plan { get; set; }
-    [NotMapped]
-    public int? NoOfParking { get; set; }
 
     /// <summary>
     /// ParkingTypeId belongs to ParkingType
@@ -31,4 +29,10 @@ public class Parking : LabModel, IGlobal
     public virtual long? ParkingTypeId { get; set; }
     [JsonIgnore]
     public virtual ParkingType? ParkingType { get; set; }
+}
+
+public class ParkingRawData
+{
+    public long ParkingTypeId { get; set; }
+    public int? NoOfParking { get; set; }
 }

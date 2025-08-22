@@ -15,10 +15,11 @@ public class FlatTemplate : LabModel, IGlobal
     public virtual long? FlatTypeId { get; set; }
     [JsonIgnore]
     public virtual FlatType? FlatType { get; set; }
-    public virtual int? NoBedRooms { get; set; }
-    public virtual int? NoKitchens { get; set; }
-    public virtual int? NoBathRooms { get; set; }
-    public virtual int? NoLivingRooms { get; set; }
-    public virtual int? NoBalcony { get; set; }
-    public virtual int? NoOthers { get; set; }
+    /// <summary>
+    /// RoomId belongs to Room
+    /// </summary>
+    [ForeignKey("Room")]    
+    public virtual long? RoomId { get; set; }
+    public virtual Room? Room { get; set; }
+    public virtual int? RoomCount { get; set; }
 }

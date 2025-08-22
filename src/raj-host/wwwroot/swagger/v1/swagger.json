@@ -2178,27 +2178,14 @@
 "FlatType": {
 "type": "string",
 },
-"NoBedRooms": {
+"RoomId": {
 "type": "string",
 "nullable": true
 },
-"NoKitchens": {
+"Room": {
 "type": "string",
-"nullable": true
 },
-"NoBathRooms": {
-"type": "string",
-"nullable": true
-},
-"NoLivingRooms": {
-"type": "string",
-"nullable": true
-},
-"NoBalcony": {
-"type": "string",
-"nullable": true
-},
-"NoOthers": {
+"RoomCount": {
 "type": "string",
 "nullable": true
 },
@@ -2252,6 +2239,9 @@
 "type": "object",
 "properties": {
 "Code": {
+"type": "string",
+},
+"FlatTemplates": {
 "type": "string",
 },
 "Id": {
@@ -2709,19 +2699,22 @@
 "Parking": {
 "type": "object",
 "properties": {
+"Code": {
+"type": "string",
+},
+"ProjectId": {
+"type": "string",
+"nullable": true
+},
+"Project": {
+"type": "string",
+},
 "TowerId": {
 "type": "string",
 "nullable": true
 },
 "Plan": {
 "type": "string",
-},
-"Code": {
-"type": "string",
-},
-"NoOfParking": {
-"type": "string",
-"nullable": true
 },
 "ParkingTypeId": {
 "type": "string",
@@ -2780,6 +2773,9 @@
 "type": "object",
 "properties": {
 "Code": {
+"type": "string",
+},
+"Parkings": {
 "type": "string",
 },
 "Id": {
@@ -2915,6 +2911,9 @@
 "type": "string",
 },
 "Plans": {
+"type": "string",
+},
+"Parkings": {
 "type": "string",
 },
 "NoOfFloors": {
@@ -3076,6 +3075,9 @@
 "Plans": {
 "type": "string",
 },
+"Parkings": {
+"type": "string",
+},
 "Id": {
 "type": "string",
 },
@@ -3209,6 +3211,9 @@
 "type": "string",
 },
 "Description": {
+"type": "string",
+},
+"FlatTemplates": {
 "type": "string",
 },
 "Id": {
