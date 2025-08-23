@@ -336,7 +336,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 8, 22, 9, 50, 37, 120, DateTimeKind.Utc).AddTicks(6348),
+                            Date = new DateTime(2025, 8, 23, 17, 18, 50, 506, DateTimeKind.Utc).AddTicks(9096),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -347,7 +347,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 8, 22, 9, 50, 37, 120, DateTimeKind.Utc).AddTicks(6351),
+                            Date = new DateTime(2025, 8, 23, 17, 18, 50, 506, DateTimeKind.Utc).AddTicks(9099),
                             EntityId = 1L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -358,7 +358,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             ActivityType = 0,
-                            Date = new DateTime(2025, 8, 22, 9, 50, 37, 120, DateTimeKind.Utc).AddTicks(6354),
+                            Date = new DateTime(2025, 8, 23, 17, 18, 50, 506, DateTimeKind.Utc).AddTicks(9102),
                             EntityId = 2L,
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
@@ -500,7 +500,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "FA",
-                            Date = new DateTime(2025, 8, 22, 9, 50, 37, 120, DateTimeKind.Utc).AddTicks(6386),
+                            Date = new DateTime(2025, 8, 23, 17, 18, 50, 506, DateTimeKind.Utc).AddTicks(9150),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Fixed Asset",
@@ -510,7 +510,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "CB",
-                            Date = new DateTime(2025, 8, 22, 9, 50, 37, 120, DateTimeKind.Utc).AddTicks(6388),
+                            Date = new DateTime(2025, 8, 23, 17, 18, 50, 506, DateTimeKind.Utc).AddTicks(9152),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Consumption Base",
@@ -520,7 +520,7 @@ namespace RajApi.Migrations
                         {
                             Id = 3L,
                             Code = "SA",
-                            Date = new DateTime(2025, 8, 22, 9, 50, 37, 120, DateTimeKind.Utc).AddTicks(6390),
+                            Date = new DateTime(2025, 8, 23, 17, 18, 50, 506, DateTimeKind.Utc).AddTicks(9154),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Service Assets",
@@ -728,7 +728,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "RE",
-                            Date = new DateTime(2025, 8, 22, 9, 50, 37, 120, DateTimeKind.Utc).AddTicks(6147),
+                            Date = new DateTime(2025, 8, 23, 17, 18, 50, 506, DateTimeKind.Utc).AddTicks(8616),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Rajwara",
@@ -834,7 +834,7 @@ namespace RajApi.Migrations
                         {
                             Id = 1L,
                             Code = "CI",
-                            Date = new DateTime(2025, 8, 22, 9, 50, 37, 120, DateTimeKind.Utc).AddTicks(6318),
+                            Date = new DateTime(2025, 8, 23, 17, 18, 50, 506, DateTimeKind.Utc).AddTicks(9045),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Civil",
@@ -844,7 +844,7 @@ namespace RajApi.Migrations
                         {
                             Id = 2L,
                             Code = "LE",
-                            Date = new DateTime(2025, 8, 22, 9, 50, 37, 120, DateTimeKind.Utc).AddTicks(6322),
+                            Date = new DateTime(2025, 8, 23, 17, 18, 50, 506, DateTimeKind.Utc).AddTicks(9049),
                             Key = "1536B022-C5C9-4358-BB6A-466F2075B7D4",
                             Member = "super@rajwada.com",
                             Name = "Legal",
