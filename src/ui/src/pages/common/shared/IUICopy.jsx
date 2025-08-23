@@ -47,7 +47,7 @@ const IUICopy = (props) => {
                 </InputGroup>
             </Form.Group>
             {
-                (isCopy && allItems.length > 0) && (
+                (isCopy && allItems?.length > 0) && (
                     <Form.Group className="position-relative form-group">
                         <Form.Label className='text-uppercase mb-2'>
                             Select a {module}

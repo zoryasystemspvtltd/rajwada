@@ -188,6 +188,7 @@ export const AddTower = () => {
         title: 'Tower',
         path: 'towers',
         back: true,
+        copy: true,
         fields: [
             {
                 type: "area", width: 12
