@@ -44,6 +44,7 @@ import { AddRoomMapping, EditRoomMapping } from "../pages/app/schema/RoomMapping
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
 import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
 import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } from "../pages/app/schema/ParkingTypes";
+import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate } from "../pages/app/schema/FlatTemplates";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -513,6 +514,22 @@ const Routes = () => {
                 {
                     path: "/parking-types/add",
                     element: <AddParkingType />
+                },
+                {
+                    path: "/flat-templates",
+                    element: <ListFlatTemplate />
+                },
+                {
+                    path: "/flat-templates/:id",
+                    element: <ViewFlatTemplate />
+                },
+                {
+                    path: "/flat-templates/:id/edit",
+                    element: <EditFlatTemplate />
+                },
+                {
+                    path: "/flat-templates/add",
+                    element: <AddFlatTemplate />
                 },
             ],
         },
