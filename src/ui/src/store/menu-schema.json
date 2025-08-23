@@ -102,6 +102,13 @@
                 "path": "/item-masters",
                 "access": "asset"
             },
+             {
+                "name": "flatTemplateManagement",
+                "text": "Flat Template",
+                "icon": "vector-square",
+                "path": "/flat-templates",
+                "access": "flatTemplate"
+            },
             {
                 "name": "towerManagement",
                 "text": "Tower",
