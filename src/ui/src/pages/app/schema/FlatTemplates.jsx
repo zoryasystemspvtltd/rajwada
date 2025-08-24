@@ -45,7 +45,7 @@ export const ViewFlatTemplate = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Room Details', field: 'flatTemplateDetails', width: 12, type: 'table-input', readonly: true,
+                        text: 'Room Details', field: 'templateDetails', width: 12, type: 'table-input', readonly: true,
                         schema: {
                             readonly: true,
                             title: 'Rooms',
@@ -91,7 +91,7 @@ export const EditFlatTemplate = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Room Details', field: 'flatTemplateDetails', width: 12, type: 'table-input', required: true,
+                        text: 'Room Details', field: 'templateDetails', width: 12, type: 'table-input', required: true,
                         schema: {
                             title: 'Rooms',
                             module: 'flatTemplateDetails',
@@ -136,7 +136,7 @@ export const AddFlatTemplate = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Room Details', field: 'flatTemplateDetails', width: 12, type: 'table-input', required: true,
+                        text: 'Room Details', field: 'templateDetails', width: 12, type: 'table-input', required: true,
                         schema: {
                             title: 'Rooms',
                             module: 'flatTemplateDetails',

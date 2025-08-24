@@ -2929,6 +2929,9 @@
 "type": "string",
 "nullable": true
 },
+"FlatTemplates": {
+"type": "string",
+},
 "Id": {
 "type": "string",
 },
