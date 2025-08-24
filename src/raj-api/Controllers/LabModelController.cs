@@ -81,7 +81,7 @@ public class LabModelController : ControllerBase
                 if (jsonData != null && jsonData?.Type?.ToLower() == "tower")
                 {
                     var project = Get("Project", jsonData?.ProjectId);
-                    activityId = await SaveFloorData(jsonData, activityId, project.Result.Name, token);
+                    await SaveFloorData(jsonData, activityId, project.Result.Name, token);
                     await SaveParkingData(jsonData, activityId, project.Result.Name, token);
                 }
             }

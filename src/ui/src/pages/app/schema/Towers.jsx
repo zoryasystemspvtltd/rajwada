@@ -107,6 +107,32 @@ export const ViewTower = () => {
             {
                 type: "area", width: 12
                 , fields: [
+                    {
+                        type: 'module-mapping',
+                        schema: {
+                            title: 'Parking', // title of child
+                            module: 'parking', // module for child
+                            relationKey: "towerId", // foreign key field in child schema
+                            parentPath: 'towers', //
+                            childPath: 'parking-mappings',
+                            paging: true,
+                            searching: true,
+                            editing: false,
+                            adding: false,
+                            fields: [
+                                {
+                                    text: 'Parking', field: 'parkingTypeId', type: 'lookup', required: true, width: 6,
+                                    schema: { module: 'parkingType' }
+                                },
+                                { text: 'Count', field: 'noOfParking', placeholder: 'Parking count here...', type: 'number', width: 6, required: true }
+                            ]
+                        },
+                    }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
                     { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect' },
                 ]
             },
@@ -189,6 +215,11 @@ export const AddTower = () => {
         path: 'towers',
         back: true,
         copy: true,
+        copySchema: {
+            module: 'plan',
+            filterKey: 'type',
+            filterValue: 'tower'
+        },
         fields: [
             {
                 type: "area", width: 12

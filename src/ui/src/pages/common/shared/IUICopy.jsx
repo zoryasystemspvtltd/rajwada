@@ -3,15 +3,23 @@ import { Form, InputGroup } from "react-bootstrap";
 import api from '../../../store/api-service';
 
 const IUICopy = (props) => {
-    const module = props?.module;
+    const schema = props?.schema;
+    const module = schema?.module;
     const [isCopy, setIsCopy] = useState(false);
     const [allItems, setAllItems] = useState([]);
     const [selectedOption, setSelectedOption] = useState(0);
 
     useEffect(() => {
         async function fetchData() {
-            const pageOptions = {
+            let pageOptions = {
                 recordPerPage: 0
+            }
+            if (props?.schema?.filterKey) {
+                pageOptions.searchCondition = {
+                    name: props?.schema?.filterKey,
+                    value: props?.schema?.filterValue
+                    //operator: 'likelihood' // Default value is equal
+                }
             }
 
             const response = await api.getData({ module: module, options: pageOptions });
@@ -19,7 +27,7 @@ const IUICopy = (props) => {
         }
 
         fetchData();
-    }, [module]);
+    }, [module, props?.schema]);
 
     const handleCheckBoxChange = (e) => {
         setIsCopy(e.target.checked);
@@ -54,20 +62,20 @@ const IUICopy = (props) => {
                         </Form.Label>
                         <div>
                             <div className="row">
-                            {
-                                allItems?.map((item, index) => (
-                                    <div className='col' key={`${module}-item-${index}`}>
-                                        <Form.Check className='text-capitalize form-check-inline'
-                                            type="radio"
-                                            value={item.id}
-                                            checked={selectedOption == item.id}
-                                            onChange={handleItemSelection}
-                                            label={item.name}
-                                        />
-                                        <br />
-                                    </div>
-                                ))
-                            }
+                                {
+                                    allItems?.map((item, index) => (
+                                        <div className='col' key={`${module}-item-${index}`}>
+                                            <Form.Check className='text-capitalize form-check-inline'
+                                                type="radio"
+                                                value={item.id}
+                                                checked={selectedOption == item.id}
+                                                onChange={handleItemSelection}
+                                                label={item.name}
+                                            />
+                                            <br />
+                                        </div>
+                                    ))
+                                }
                             </div>
                         </div>
                     </Form.Group>

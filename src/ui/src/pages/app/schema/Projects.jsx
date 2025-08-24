@@ -140,7 +140,7 @@ export const AddProject = () => {
                     { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'date', required: false },
                     { text: 'Completion Certificate Date', field: 'completionCertificateDate', width: 4, type: 'date', required: false },
                     {
-                        text: 'Belongs To', field: 'companyId', nameField: 'companyName', width: 4, type: 'lookup', required: false,
+                        text: 'Belongs To', field: 'companyId', nameField: 'companyName', width: 4, type: 'lookup', required: true,
                         schema: { module: 'company' }
                     },
                     { text: 'Zone', field: 'zone', placeholder: 'Zone here...', width: 4, type: 'text', required: false },

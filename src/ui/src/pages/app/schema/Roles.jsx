@@ -58,6 +58,9 @@ export const AddRole = () => {
         path: 'roles',
         back: true,
         copy: true,
+        copySchema: {
+            module: 'role'
+        },
         fields: [
             { text: 'Role Name', field: 'name', fieldIcon: 'circle-user', placeholder: 'Role Name here...', type: 'text', required: true, width: 6 },
             { text: 'Privileges', field: 'privileges', type: 'user-privileges', width: 12 },
