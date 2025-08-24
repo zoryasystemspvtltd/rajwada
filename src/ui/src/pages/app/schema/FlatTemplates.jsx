@@ -1,5 +1,6 @@
 import IUIList from "../../common/IUIList";
-import IUIPage from "../../common/IUIPage"
+import IUIPage from "../../common/IUIPage";
+import { useParams } from "react-router-dom";
 
 
 export const ListFlatTemplate = () => {
@@ -23,6 +24,8 @@ export const ListFlatTemplate = () => {
 
 
 export const ViewFlatTemplate = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'flatTemplate',
         title: 'Flat Template',
@@ -45,26 +48,28 @@ export const ViewFlatTemplate = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Room Details', field: 'templateDetails', width: 12, type: 'table-input', readonly: true,
+                        type: 'module-mapping',
                         schema: {
-                            readonly: true,
-                            title: 'Rooms',
-                            module: 'flatTemplateDetails',
+                            title: 'Rooms', // title of child
+                            module: 'flatTemplateDetails', // module for child
+                            relationKey: "flatTemplateId", // foreign key field in child schema
+                            parentPath: 'flat-templates', //
+                            childPath: 'flat-template-mappings',
                             paging: true,
                             searching: true,
-                            editing: true,
-                            adding: true,
+                            editing: false,
+                            adding: false,
                             fields: [
                                 {
                                     text: 'Type', field: 'roomId', type: 'lookup', required: true, width: 6,
                                     schema: { module: 'room' }
                                 },
-                                { text: 'Count', field: 'roomCount', placeholder: 'Room count here...', type: 'number', width: 6, required: true }
+                                { text: 'Count', field: 'roomCount', type: 'text', width: 6, required: true },
                             ]
-                        }
-                    },
+                        },
+                    }
                 ]
-            },
+            }
         ]
     }
 
@@ -144,6 +149,7 @@ export const AddFlatTemplate = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            save: false,
                             fields: [
                                 {
                                     text: 'Type', field: 'roomId', type: 'lookup', required: true, width: 6,

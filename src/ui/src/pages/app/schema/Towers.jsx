@@ -75,7 +75,6 @@ export const TowerDashboard = () => {
 export const ViewTower = () => {
     const { id } = useParams();
 
-
     const schema = {
         module: 'plan',
         title: 'Tower',
@@ -96,8 +95,6 @@ export const ViewTower = () => {
                         text: 'Project', field: 'projectId', type: 'lookup-link', required: false, width: 4,
                         schema: { module: 'project', path: 'projects' }
                     },
-                    // { text: 'Planned Start Date', field: 'planStartDate', width: 4, type: 'label-date' },
-                    // { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'label-date' },
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'h5', required: true, width: 12 },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'p', required: true, width: 12 },
 
@@ -115,6 +112,7 @@ export const ViewTower = () => {
                             relationKey: "towerId", // foreign key field in child schema
                             parentPath: 'towers', //
                             childPath: 'parking-mappings',
+                            duplicateKey: 'parkingTypeId',
                             paging: true,
                             searching: true,
                             editing: false,
@@ -124,7 +122,17 @@ export const ViewTower = () => {
                                     text: 'Parking', field: 'parkingTypeId', type: 'lookup', required: true, width: 6,
                                     schema: { module: 'parkingType' }
                                 },
-                                { text: 'Count', field: 'noOfParking', placeholder: 'Parking count here...', type: 'number', width: 6, required: true }
+                                {
+                                    text: 'Count', field: 'noOfParking', type: 'lookup-count', width: 6, required: true,
+                                    schema: {
+                                        module: 'parking',
+                                        keyField: 'parkingTypeId',
+                                        filter: {
+                                            'towerId': parseInt(id),
+                                            'parkingTypeId': null
+                                        }
+                                    }
+                                }
                             ]
                         },
                     }
@@ -245,6 +253,7 @@ export const AddTower = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            save: false,
                             fields: [
                                 {
                                     text: 'Parking', field: 'parkingTypeId', type: 'lookup', required: true, width: 6,

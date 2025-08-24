@@ -365,7 +365,7 @@ const IUITableInput = (props) => {
                                             }
                                             <Row className='mt-2'>
                                                 <Col>
-                                                    {!schema?.readonly &&
+                                                    {!schema?.readonly && schema?.save &&
                                                         <>
 
                                                             <Button variant="contained"
