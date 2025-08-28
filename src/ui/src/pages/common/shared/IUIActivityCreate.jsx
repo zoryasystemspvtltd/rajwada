@@ -408,29 +408,34 @@ const IUIActivityCreate = (props) => {
                                             <Row className={isSetupComplete ? "d-none" : ""}>
                                                 {
                                                     (dependencySelectParams.projectId !== null && filteredDependencies.length > 0) && (
-                                                        <Form.Group className="position-relative form-group">
-                                                            <Form.Label className='text-uppercase mb-2'>
-                                                                Select a Dependency Label Setting
-                                                            </Form.Label>
-                                                            <div>
-                                                                {
-                                                                    filteredDependencies?.map((dependency, index) => (
-                                                                        <div key={`dep-${index}`}>
-                                                                            <Form.Check className='text-capitalize form-check-inline'
-                                                                                type="radio"
-                                                                                value={dependency.id}
-                                                                                checked={selectedOption == dependency.id}
-                                                                                onChange={handleDependencySelection}
-                                                                                label={dependency.name}
-                                                                            />
-                                                                            <br />
-                                                                        </div>
-                                                                    ))
-                                                                }
+                                                        <div className="row">
+                                                            <div className="col-sm-12 col-md-6 col-lg-6">
+                                                                <Form.Group className="position-relative form-group">
+                                                                    <Form.Label className='text-uppercase mb-2'>
+                                                                        Select a Dependency Label Setting
+                                                                    </Form.Label>
+                                                                    <div>
+                                                                        < select
+                                                                            aria-label={`select-dependency-for-work`}
+                                                                            id={`select-dependency-for-work`}
+                                                                            value={selectedOption}
+                                                                            data-name={props.nameField}
+                                                                            name='select'
+                                                                            className={`form-control ${props.className}`}
+                                                                            disabled={props.readonly || false}
+                                                                            onChange={handleDependencySelection}>
+                                                                            <option>--Select--</option>
+                                                                            {filteredDependencies?.map((item, i) => (
+                                                                                <option key={i} value={item.id}>{item.name}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+                                                                </Form.Group>
                                                             </div>
-                                                        </Form.Group>
+                                                        </div>
                                                     )
                                                 }
+
                                                 {
                                                     (dependencySelectParams.projectId !== null && filteredDependencies.length === 0) && (
                                                         <Form.Group className="position-relative form-group">
@@ -443,7 +448,7 @@ const IUIActivityCreate = (props) => {
                                             </Row>
 
                                             {
-                                                (selectedOption && !isSetupComplete) ?
+                                                (selectedOption && !isSetupComplete && filteredDependencies.length !== 0) ?
                                                     <Row>
                                                         <FlowchartInit
                                                             readonly={true}

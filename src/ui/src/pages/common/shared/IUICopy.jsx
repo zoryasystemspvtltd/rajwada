@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Form, InputGroup } from "react-bootstrap";
 import api from '../../../store/api-service';
 
+
 const IUICopy = (props) => {
     const schema = props?.schema;
     const module = schema?.module;
     const [isCopy, setIsCopy] = useState(false);
     const [allItems, setAllItems] = useState([]);
     const [selectedOption, setSelectedOption] = useState(0);
+
 
     useEffect(() => {
         async function fetchData() {
@@ -22,16 +24,20 @@ const IUICopy = (props) => {
                 }
             }
 
+
             const response = await api.getData({ module: module, options: pageOptions });
             setAllItems(response?.data?.items);
         }
 
+
         fetchData();
     }, [module, props?.schema]);
+
 
     const handleCheckBoxChange = (e) => {
         setIsCopy(e.target.checked);
     }
+
 
     const handleItemSelection = async (event) => {
         event.preventDefault();
@@ -42,6 +48,7 @@ const IUICopy = (props) => {
         const customEvent = { target: { id: parseInt(event.target.value), value: copiedData }, preventDefault: function () { } };
         props.onChange(customEvent);
     };
+
 
     return (
         <>
@@ -58,33 +65,36 @@ const IUICopy = (props) => {
             </Form.Group>
             {
                 (isCopy && allItems?.length > 0) && (
-                    <Form.Group className="position-relative form-group">
-                        <Form.Label className='text-uppercase mb-2'>
-                            Select a {module}
-                        </Form.Label>
-                        <div>
-                            <div className="row">
-                                {
-                                    allItems?.map((item, index) => (
-                                        <div className='col' key={`${module}-item-${index}`}>
-                                            <Form.Check className='text-capitalize form-check-inline'
-                                                type="radio"
-                                                value={item.id}
-                                                checked={selectedOption == item.id}
-                                                onChange={handleItemSelection}
-                                                label={item.name}
-                                            />
-                                            <br />
-                                        </div>
-                                    ))
-                                }
-                            </div>
+                    <div className="row">
+                        <div className="col-sm-12 col-md-6 col-lg-6">
+                            <Form.Group className="position-relative form-group">
+                                <Form.Label className='text-uppercase mb-2'>
+                                    Select a {module}
+                                </Form.Label>
+
+                                < select
+                                    aria-label={`copy-${module}`}
+                                    id={`copy-select-${module}`}
+                                    value={selectedOption}
+                                    data-name={props.nameField}
+                                    name='select'
+                                    className={`form-control ${props.className}`}
+                                    disabled={props.readonly || false}
+                                    onChange={(e) => handleItemSelection(e)}>
+                                    <option>--Select--</option>
+                                    {allItems?.map((item, i) => (
+                                        <option key={i} value={item.id}>{item.name}</option>
+                                    ))}
+                                </select>
+
+                            </Form.Group >
                         </div>
-                    </Form.Group>
+                    </div>
                 )
             }
         </>
     )
 }
+
 
 export default IUICopy;
