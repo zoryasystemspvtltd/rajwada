@@ -429,17 +429,24 @@ public class RajDataHandler : LabDataHandler
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
             }
 
-            var finallist = CalculateWorkStatus(activities);
+            if (activities.Count > 0)
+            {
+                var finallist = CalculateWorkStatus(activities);
 
-            List<string> dpendencies = GetDependency(activities[0].DependencyId);
+                List<string> dpendencies = GetDependency(activities[0].DependencyId);
 
-            var table = ConvertDependencytoTable(dpendencies);
+                var table = ConvertDependencytoTable(dpendencies);
 
-            var finaltable = GetRoomNames(flatId, table, finallist);
+                var finaltable = GetRoomNames(flatId, table, finallist);
 
-            var tableJson = DataTableToJSON(finaltable);
+                var tableJson = DataTableToJSON(finaltable);
 
-            return tableJson;
+                return tableJson;
+            }
+            else
+            {
+                return null;
+            }
         }
         catch (Exception ex)
         {
@@ -744,7 +751,7 @@ public class RajDataHandler : LabDataHandler
             logger.LogError(ex, $"Exception in AddAsync method and details: '{ex.Message}'");
             throw;
         }
-    }   
+    }
 
     public override async Task<long> EditAsync<T>(T item, CancellationToken cancellationToken)
     {
