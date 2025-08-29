@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Wordprocessing;
 using ILab.Data;
+using ILab.Extensionss.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -81,8 +82,8 @@ public class LabModelController : ControllerBase
                 if (jsonData != null && jsonData?.Type?.ToLower() == "tower")
                 {
                     var project = Get("Project", jsonData?.ProjectId);
-                    await SaveFloorData(jsonData, activityId, project.Result.Name, token);
-                    await SaveParkingData(jsonData, activityId, project.Result.Name, token);
+                    await SaveFloorData(jsonData, activityId, project.Result.Name, project.Result.Code, token);
+                    await SaveParkingData(jsonData, activityId, project.Result.Name, project.Result.Code, token);
                 }
             }
             if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
@@ -140,9 +141,10 @@ public class LabModelController : ControllerBase
     /// <param name="jsonData">Tower data</param>
     /// <param name="towerId">tower Id</param>
     /// <param name="projectName">Project Name</param>
+    /// <param name="projectCode">Project Code</param>
     /// <param name="token">Token</param>
     /// <returns></returns>
-    private async Task SaveParkingData(dynamic jsonData, long towerId, string projectName, CancellationToken token)
+    private async Task SaveParkingData(dynamic jsonData, long towerId, string projectName, string projectCode, CancellationToken token)
     {
         try
         {
@@ -153,7 +155,7 @@ public class LabModelController : ControllerBase
                 var parkingType = Get("ParkingType", item.ParkingTypeId);
                 for (int i = 1; i <= item.NoOfParking; i++)
                 {
-                    string name = projectName + "_" + jsonData?.Name + "_Parking_" + parkingType.Result.Name + i;
+                    string name = projectName + "/" + jsonData?.Name + "/Parking/" + parkingType.Result.Name + i;
 
                     Parking parking = new()
                     {
@@ -182,9 +184,10 @@ public class LabModelController : ControllerBase
     /// <param name="jsonData">Tower data</param>
     /// <param name="towerId">Tower Id</param>
     /// <param name="projectName">Project Name</param>
+    /// <param name="projectCode">Project Code</param>
     /// <param name="token">Token</param>
     /// <returns></returns>
-    private async Task<long> SaveFloorData(dynamic jsonData, long towerId, string projectName, CancellationToken token)
+    private async Task<long> SaveFloorData(dynamic jsonData, long towerId, string projectName, string projectCode, CancellationToken token)
     {
         long activityId = 0;
         try
@@ -194,13 +197,13 @@ public class LabModelController : ControllerBase
                 string floorName = "", description = "";
                 if (i == 0)
                 {
-                    floorName = projectName + "_" + jsonData.Name + "_FloorG";
-                    description = projectName + "_" + jsonData.Description + "_FloorG";
+                    floorName = projectCode + "/" + jsonData.Code + "/FloorG";
+                    description = projectName + "/" + jsonData.Name + "/FloorG";
                 }
                 else
                 {
-                    floorName = projectName + "_" + jsonData.Name + "_Floor" + i;
-                    description = projectName + "_" + jsonData.Description + "_Floor" + i;
+                    floorName = projectCode + "/" + jsonData.Code + "/Floor" + i;
+                    description = projectName + "/" + jsonData.Name + "/Floor" + i;
                 }
                 Plan plan = new()
                 {
@@ -270,24 +273,20 @@ public class LabModelController : ControllerBase
     /// <returns></returns>
     private async Task<long> SaveFlatData(dynamic? jsonData, long floorId, CancellationToken token)
     {
-        long activityId = 0;
+        long flatId = 0;
         try
         {
             var data = jsonData?.FlatTemplates;
             List<FlatTemplateRawData> templateList = JsonConvert.DeserializeObject<List<FlatTemplateRawData>>(data);
 
-            var project = Get("Project", jsonData?.ProjectId);
-            if (project == null)
-                return 0;
-
-            var tower = Get("Plan", jsonData?.ParentId);
-            if (tower == null)
-                return 0;
-
+            var str = jsonData?.Name.split('/');
+            string floorName = str[0] + "/" + str[1] + "/" + str[2].SubString(4, 1);
+            int flatNo = 1;
 
             for (int i = 0; i < templateList.Count; i++)
             {
-                var flatType = Get("FlatTemplate", templateList[i].FlatTemplateId);
+                long templateId = templateList[i].FlatTemplateId;
+                var flatType = Get("FlatTemplate", templateId);
                 if (flatType == null)
                     return 0;
 
@@ -295,8 +294,8 @@ public class LabModelController : ControllerBase
                 {
                     string flatName = "", description = "";
 
-                    flatName = project.Result.Name + "_" + tower.Result.Name + "_" + jsonData?.Name + "_" + flatType.Result.Name + "Flat" + j;
-                    description = project.Result.Description + "_" + tower.Result.Description + "_" + jsonData?.Description + "_" + flatType.Result.DescriptionName + "Flat" + j;
+                    flatName = floorName + "_" + flatNo;
+                    description = jsonData?.Description + "_" + flatType.Result.Name + flatNo;
 
                     Plan plan = new()
                     {
@@ -305,21 +304,53 @@ public class LabModelController : ControllerBase
                         Description = description,
                         ParentId = floorId,
                         ProjectId = jsonData?.ProjectId,
-                        FlatTemplateId = templateList[i].FlatTemplateId,
+                        FlatTemplateId = templateId,
                         Blueprint = jsonData?.Blueprint,
                     };
 
-                    activityId = await dataService.SaveDataAsync("Plan", plan, token);
+                    //Save Flat 
+                    flatId = await dataService.SaveDataAsync("Plan", plan, token);
 
+                    //Save Resource
+                    await SaveResource(templateId, flatId, token);
+
+                    flatNo++;
                 }
             }
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Exception in SaveFloorData method and details: '{ex.Message}'");
+            logger.LogError(ex, $"Exception in SaveFlatData method and details: '{ex.Message}'");
             throw;
         }
-        return activityId;
+        return flatId;
+    }
+
+    private async Task SaveResource(long templateId, long flatId, CancellationToken token)    {
+        
+        var option = this.GetApiOption();
+        var con = new Condition()
+        {
+            Name = "FlatTemplateId",
+            Value = templateId,
+            Operator = OperatorType.InEquality,
+        };
+        option.SearchCondition = con;
+
+        var ftDetails = dataService.Get("FlatTemplateDetails", option);
+
+        foreach (var item in ftDetails)
+        {
+            Resource rec = new()
+            {
+                Type = "room",
+                Name = item.RoomId,
+                Quantity = item.RoomCount,
+                PlanId = flatId
+            };
+
+            await dataService.SaveDataAsync("Resource", rec, token);
+        }
     }
 
     // [HasPrivileges("edit")]
