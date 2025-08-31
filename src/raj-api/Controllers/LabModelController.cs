@@ -250,7 +250,7 @@ public class LabModelController : ControllerBase
 
                 dynamic jsonString = data.ToString();
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);
-                if (jsonData != null && jsonData?.Type?.ToLower() == "floor")
+                if (jsonData != null && jsonData?.Type?.ToLower() == "floor" && jsonData?.FlatTemplates != null)
                 {
                     activityId = await SaveFlatData(jsonData, id, token);
                 }
