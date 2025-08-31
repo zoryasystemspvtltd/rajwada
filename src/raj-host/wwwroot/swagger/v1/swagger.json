@@ -2932,6 +2932,10 @@
 "FlatTemplates": {
 "type": "string",
 },
+"FlatTemplateDetailsId": {
+"type": "string",
+"nullable": true
+},
 "Id": {
 "type": "string",
 },

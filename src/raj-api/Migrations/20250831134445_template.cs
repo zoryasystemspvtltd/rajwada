@@ -101,10 +101,6 @@ namespace RajApi.Migrations
                 name: "IX_Plans_FlatTemplateDetailsId",
                 table: "Plans");
 
-            migrationBuilder.DropColumn(
-                name: "FlatTemplateDetailsId",
-                table: "Plans");
-
             migrationBuilder.UpdateData(
                 table: "ApplicationLogs",
                 keyColumn: "Id",
