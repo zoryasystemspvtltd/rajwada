@@ -278,9 +278,9 @@ public class LabModelController : ControllerBase
         {
             var data = jsonData?.FlatTemplates;
             List<FlatTemplateRawData> templateList = JsonConvert.DeserializeObject<List<FlatTemplateRawData>>(data);
-
-            var str = jsonData?.Name.split('/');
-            string floorName = str[0] + "/" + str[1] + "/" + str[2].SubString(4, 1);
+            var data1 = jsonData as Plan;
+            var str = data1?.Name?.Split('/');
+            string floorName = str?[0] + "/" + str?[1] + "/" + (str?[2]).Substring(5,1);
             int flatNo = 1;
 
             for (int i = 0; i < templateList.Count; i++)
@@ -292,9 +292,9 @@ public class LabModelController : ControllerBase
 
                 for (int j = 1; j <= templateList[i].NoOfFlats; j++)
                 {
-                    string flatName = "", description = "";
+                    string flatName = string.Empty, description = string.Empty;
 
-                    flatName = floorName + "_" + flatNo;
+                    flatName = floorName + "-" + flatNo;
                     description = jsonData?.Description + "_" + flatType.Result.Name + flatNo;
 
                     Plan plan = new()
@@ -326,8 +326,9 @@ public class LabModelController : ControllerBase
         return flatId;
     }
 
-    private async Task SaveResource(long templateId, long flatId, CancellationToken token)    {
-        
+    private async Task SaveResource(long templateId, long flatId, CancellationToken token)
+    {
+
         var option = this.GetApiOption();
         var con = new Condition()
         {
