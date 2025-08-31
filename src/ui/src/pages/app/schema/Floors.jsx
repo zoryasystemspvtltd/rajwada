@@ -156,7 +156,7 @@ export const EditFloor = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Flat List', field: 'plans', width: 12, type: 'table-input', required: true,
+                        text: 'Flat List', field: 'flatTemplates', width: 12, type: 'table-input', required: true,
                         schema: {
                             title: 'Flats',
                             module: 'flatTemplate',
