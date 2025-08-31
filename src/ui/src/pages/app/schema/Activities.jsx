@@ -246,8 +246,16 @@ export const EditActivity = () => {
                     //     text: 'Assign To', field: 'userId', width: 4, type: 'lookup', required: true,
                     //     schema: { module: 'user', path: 'users' }
                     // },
+                    // {
+                    //     text: 'Contractor Name', field: 'contractorId', nameField: 'contractorName', type: 'lookup', required: true, width: 4,
+                    //     schema: { module: 'contractor' }
+                    // },
                     {
-                        text: 'Contractor Name', field: 'contractorId', nameField: 'contractorName', type: 'lookup', required: true, width: 4,
+                        text: 'Labour Provided By', field: 'labourProvidedBy', nameField: 'labourProvidedBy', type: 'lookup', required: true, width: 4,
+                        schema: { module: 'contractor' }
+                    },
+                    {
+                        text: 'Material Provided By', field: 'materialProvidedBy', nameField: 'materialProvidedBy', type: 'lookup', required: true, width: 4,
                         schema: { module: 'contractor' }
                     },
                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false },
