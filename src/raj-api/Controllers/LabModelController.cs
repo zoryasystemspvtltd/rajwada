@@ -168,8 +168,6 @@ public class LabModelController : ControllerBase
                     await dataService.SaveDataAsync("Parking", parking, token);
                 }
             }
-
-
         }
         catch (Exception ex)
         {
@@ -194,15 +192,15 @@ public class LabModelController : ControllerBase
         {
             for (int i = 0; i < jsonData.NoOfFloors; i++)
             {
-                string floorName = "", description = "";
+                string floorName = string.Empty, description = string.Empty;
                 if (i == 0)
                 {
-                    floorName = projectCode + "/" + jsonData.Code + "/FloorG";
+                    floorName = projectCode + "/" + jsonData.Name + "/FloorG";
                     description = projectName + "/" + jsonData.Name + "/FloorG";
                 }
                 else
                 {
-                    floorName = projectCode + "/" + jsonData.Code + "/Floor" + i;
+                    floorName = projectCode + "/" + jsonData.Name + "/Floor" + i;
                     description = projectName + "/" + jsonData.Name + "/Floor" + i;
                 }
                 Plan plan = new()
@@ -280,8 +278,8 @@ public class LabModelController : ControllerBase
             List<FlatTemplateRawData> templateList = JsonConvert.DeserializeObject<List<FlatTemplateRawData>>(data);
             var data1 = jsonData as Plan;
             var str = data1?.Name?.Split('/');
-            string floorName = str?[0] + "/" + str?[1] + "/" + (str?[2]).Substring(5,1);
-            int flatNo = 1;
+            string floorName = str?[0] + "/" + str?[1] + "/" + (str?[2]).Substring(5, 1);
+            char c = 'A';
 
             for (int i = 0; i < templateList.Count; i++)
             {
@@ -294,8 +292,8 @@ public class LabModelController : ControllerBase
                 {
                     string flatName = string.Empty, description = string.Empty;
 
-                    flatName = floorName + "-" + flatNo;
-                    description = jsonData?.Description + "_" + flatType.Result.Name + flatNo;
+                    flatName = floorName + "-" + c;
+                    description = jsonData?.Description + "_" + flatType.Result.Name + c;
 
                     Plan plan = new()
                     {
@@ -312,9 +310,8 @@ public class LabModelController : ControllerBase
                     flatId = await dataService.SaveDataAsync("Plan", plan, token);
 
                     //Save Resource
-                    await SaveResource(templateId, flatId, token);
-
-                    flatNo++;
+                    await SaveResource(templateId, flatName, flatId, token);
+                    c++;
                 }
             }
         }
@@ -326,31 +323,43 @@ public class LabModelController : ControllerBase
         return flatId;
     }
 
-    private async Task SaveResource(long templateId, long flatId, CancellationToken token)
+    private async Task SaveResource(long templateId, string flatName, long flatId, CancellationToken token)
     {
-
-        var option = this.GetApiOption();
-        var con = new Condition()
+        try
         {
-            Name = "FlatTemplateId",
-            Value = templateId,
-            Operator = OperatorType.InEquality,
-        };
-        option.SearchCondition = con;
-
-        var ftDetails = dataService.Get("FlatTemplateDetails", option);
-
-        foreach (var item in ftDetails)
-        {
-            Resource rec = new()
+            var option = this.GetApiOption();
+            var con = new Condition()
             {
-                Type = "room",
-                Name = item.RoomId,
-                Quantity = item.RoomCount,
-                PlanId = flatId
+                Name = "FlatTemplateId",
+                Value = templateId,
+                Operator = OperatorType.InEquality,
             };
+            option.SearchCondition = con;
 
-            await dataService.SaveDataAsync("Resource", rec, token);
+            var ftDetails = dataService.Get("FlatTemplateDetails", option);
+
+            foreach (var item in ftDetails.Items)
+            {
+                var roomDetails = Get("Room", item.RoomId);
+                var roomName = flatName + "/" + roomDetails.Result.Code;
+
+                Resource rec = new()
+                {
+                    Type = "room",
+                    RoomId = item.RoomId,
+                    Quantity = item.RoomCount,
+                    PlanId = flatId,
+                    Name = roomName
+                };
+
+                await dataService.SaveDataAsync("Resource", rec, token);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in SaveResource method and details: '{ex.Message}'");
+            throw;
         }
     }
 

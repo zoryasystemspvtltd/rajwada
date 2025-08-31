@@ -129,7 +129,7 @@ public class Plan : LabModel, IAssignable
     [ForeignKey("FlatTemplate")]
     public virtual long? FlatTemplateId { get; set; }
     [JsonIgnore]
-    public virtual FlatTemplateDetails? FlatTemplate { get; set; }
+    public virtual FlatTemplate? FlatTemplate { get; set; }
 
     [JsonIgnore]
     public virtual ICollection<Plan>? Plans { get; set; }
