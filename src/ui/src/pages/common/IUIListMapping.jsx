@@ -200,7 +200,6 @@ const IUIListMapping = (props) => {
                                         </thead>
                                         {
                                             <tbody>
-                                                {console.log(dataSet?.items)}
                                                 {
                                                     (schema?.duplicateKey ? removeDuplicatesByKey(dataSet?.items, schema?.duplicateKey) : dataSet?.items)?.map((item, i) => (
                                                         <tr key={i} >

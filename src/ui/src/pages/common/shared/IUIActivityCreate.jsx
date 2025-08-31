@@ -10,7 +10,7 @@ import IUIBreadcrumb from './IUIBreadcrumb';
 import IUIPageElement from './IUIPageElement';
 import IUIModuleMessage from './IUIModuleMessage';
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
-import { bfsTraversal } from '../../flowchart-helper/GraphHelper';
+import { bfsTraversal, findSourceNodes } from '../../flowchart-helper/GraphHelper';
 import IUIActivityWizard from './IUIActivityWizard';
 
 const IUIActivityCreate = (props) => {
@@ -249,7 +249,8 @@ const IUIActivityCreate = (props) => {
         e.preventDefault();
         const selectedDependency = allDependencies?.filter((dependency) => dependency.id === parseInt(selectedOption))[0];
         const dependencyGraph = JSON.parse(selectedDependency?.data);
-        const result = bfsTraversal(dependencyGraph?.nodes, dependencyGraph?.edges, 'node_0');
+        const sourceNodes = findSourceNodes(dependencyGraph);
+        const result = bfsTraversal(dependencyGraph?.nodes, dependencyGraph?.edges, sourceNodes[0]?.id);
         const item = (selectedDependency?.flatId !== null) ? await api.getSingleData({ module: 'plan', id: selectedDependency?.flatId }) : await api.getSingleData({ module: 'project', id: selectedDependency?.projectId });
         setDependencySelectParams({
             ...dependencySelectParams,
@@ -274,7 +275,7 @@ const IUIActivityCreate = (props) => {
         let tempImage = { ...imageField };
         tempImage.fields[0].schema.parentId = activityParentId;
         setImageField(tempImage);
-        setBfsSequence(result.map(node => node.data.label));
+        setBfsSequence(result?.filter(node => node !== undefined)?.map(node => node?.data?.label));
         setIsSetupComplete(true);
     };
 
