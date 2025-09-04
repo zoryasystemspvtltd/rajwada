@@ -142,7 +142,6 @@ public class Plan : LabModel, IAssignable
 
     [NotMapped]
     public string? FlatTemplates { get; set; }
-
     public virtual long? FlatTemplateDetailsId { get; set; }
     #endregion
 }

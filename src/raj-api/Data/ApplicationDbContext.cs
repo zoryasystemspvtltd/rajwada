@@ -25,6 +25,9 @@ public class ApplicationDbContext : DbContext
         builder.Entity<Plan>()
            .Property(p => p.TotalCost).HasDefaultValue(0.0);
         SeedData(builder);
+        builder.Entity<Contractor>()
+        .Property(e => e.Type)
+        .HasDefaultValue("Contractor");
     }
     private void SeedData(ModelBuilder builder)
     {
