@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Wordprocessing;
 using ILab.Data;
 using ILab.Extensionss.Common;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,9 @@ using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
+using RajApi.Migrations;
+using System.Linq;
+using System.Text;
 
 namespace RajApi.Controllers;
 
@@ -64,6 +68,11 @@ public class LabModelController : ControllerBase
             long activityId = 0;
 
             activityId = await dataService.AddAsync(module, data, token);
+            if (module.Equals("PROJECT", StringComparison.CurrentCultureIgnoreCase))
+            {
+                await SaveProjectDocNoTrackingData(activityId, token);
+            }
+
             if (module.Equals("FLATTEMPLATE", StringComparison.CurrentCultureIgnoreCase))
             {
                 await SaveFlatTemplateData(module, data, activityId, token);
@@ -99,6 +108,18 @@ public class LabModelController : ControllerBase
             logger.LogError(ex, $"Exception in SaveData method and details: '{ex.Message}'");
             throw;
         }
+    }
+
+    private async Task SaveProjectDocNoTrackingData(long projectId, CancellationToken token)
+    {
+        ProjectDocNoTracking details = new()
+        {
+            ProjectId = projectId,
+            LastDocumentNo = 0,
+            LastDocumentNoGenerated = DateTime.Now
+        };
+
+        await dataService.SaveDataAsync("ProjectDocNoTracking", details, token);
     }
 
     /// <summary>
@@ -331,8 +352,7 @@ public class LabModelController : ControllerBase
             var con = new Condition()
             {
                 Name = "FlatTemplateId",
-                Value = templateId,
-                Operator = OperatorType.InEquality,
+                Value = templateId
             };
             option.SearchCondition = con;
 
@@ -408,19 +428,18 @@ public class LabModelController : ControllerBase
             {
                 if (subact.FlatId != null)
                 {
-                    var flats = GetResourceDetails("Resource", subact.FlatId, token);
-                    await SavaDataIntoDataBase(flats, model, subact, token);
+                    await SavaDataIntoDataBase(model, subact, token);
                 }
-                else if (subact.FloorId != null)
-                {
-                    var floors = GetResourceDetails("Resource", subact.FloorId, token);
-                    await SavaDataIntoDataBase(floors, model, subact, token);
-                }
-                else if (subact.TowerId != null)
-                {
-                    var towers = GetResourceDetails("Resource", subact.TowerId, token);
-                    await SavaDataIntoDataBase(towers, model, subact, token);
-                }
+                //else if (subact.FloorId != null)
+                //{
+                //    var floors = GetResourceDetails("Resource", subact.FloorId, token);
+                //    await SavaDataIntoDataBase(floors, model, subact, token);
+                //}
+                //else if (subact.TowerId != null)
+                //{
+                //    var towers = GetResourceDetails("Resource", subact.TowerId, token);
+                //    await SavaDataIntoDataBase(towers, model, subact, token);
+                //}
             }
         }
         catch (Exception ex)
@@ -450,18 +469,27 @@ public class LabModelController : ControllerBase
 
         return JsonConvert.SerializeObject(jsonData);
     }
-    private async Task SavaDataIntoDataBase(dynamic lists, string model, Activity main, CancellationToken token)
+    private async Task SavaDataIntoDataBase(string model, Activity main, CancellationToken token)
     {
         try
         {
+            var option = this.GetApiOption();
+            var con = new Condition()
+            {
+                Name = "PlanId",
+                Value = main.FlatId
+            };
+            option.SearchCondition = con;
+
+            var lists = dataService.Get("Resource", option);
             if (lists != null)
             {
-                foreach (var item in lists)
+                foreach (var item in lists.Items)
                 {
                     int quantity = (int)item.Quantity;
-                    for (int i = 0; i < quantity; i++)
+                    for (int index = 1; index <= quantity; index++)
                     {
-                        var desc = string.Concat(item.Name, "-", i + 1);
+                        var desc = string.Concat(item.Name, "-", index);
                         Activity activity = new()
                         {
                             Type = "Sub Task",
@@ -475,13 +503,14 @@ public class LabModelController : ControllerBase
                             EndDate = main.EndDate,
                             Items = main.Items,
                             ContractorId = main.ContractorId,
-                            PhotoUrl = main.PhotoUrl,
+                            PhotoUrl = main.PhotoUrl
                         };
                         if (main.FlatId != null)
                         {
                             activity.TowerId = main.TowerId;
                             activity.FloorId = main.FloorId;
                             activity.FlatId = main.FlatId;
+                            activity.WorkId = GetWorkId(item.Name, index, main.DependencyId, main.ProjectId, token);
                         }
                         else if (main.FloorId != null)
                         {
@@ -505,19 +534,41 @@ public class LabModelController : ControllerBase
         }
     }
 
-    private dynamic GetResourceDetails(string model, long id, CancellationToken token)
+    private string? GetWorkId(string name, int index, long? dependencyId, long? projectId, CancellationToken token)
     {
-        var data = dataService.GetDetails(id, token);
+        //Work Id formate
+        //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
+        var dependency = Get("Workflow", (long)dependencyId);
+        var docno = Get("ProjectDocNoTracking", (long)projectId);
 
-        if (data != null)
+        int year = DateTime.Now.Year;
+        if (dependency != null && docno != null)
         {
-            return data;
+            int newNo = docno.Result.LastDocumentNo + 1;
+            UpdateProjcetDocNoTracing(docno.Result, newNo, token);
+
+            string nextDocNo = newNo.ToString("D3");
+            StringBuilder workId = new();
+            workId.Append(name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>
+            workId.Append("-");
+            workId.Append(index); //<Room-Count-Index>
+            workId.Append("/");
+            workId.Append(dependency.Result.Code); //<Activity_Type_Alias>
+            workId.Append("/");
+            workId.Append(nextDocNo); //<Document_Number>
+            workId.Append("/");
+            workId.Append(year); //<Year>
+            return workId.ToString();
         }
         else
-        {
-            logger.LogError("No data retrive from backend for " + model + "  name:" + id);
-            return null;
-        }
+        { return null; }
+    }
+
+    private void UpdateProjcetDocNoTracing(dynamic data, int newNo, CancellationToken token)
+    {
+        data.LastDocumentNoGenerated = DateTime.Now;
+        data.LastDocumentNo = newNo;
+        PutAsync("ProjectDocNoTracking", data.Id, data, token); //Update the doc with latest no
     }
 }
 

@@ -3,6 +3,7 @@ using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
+using System.Reflection;
 
 namespace ILab.Data
 {
@@ -126,21 +127,6 @@ namespace ILab.Data
             catch (Exception ex)
             {
                 logger.LogError("Exception in SaveDataAsync method and details: " + ex.Message);
-                return 0;
-            }
-        }
-
-        public virtual dynamic GetDetails(long planId, CancellationToken token)
-        {
-            try
-            {
-                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetResourceDetails));
-                object[] parameters = [planId];
-                return method?.Invoke(handler, parameters);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Exception in GetDetails method and details: " + ex.Message);
                 return 0;
             }
         }
