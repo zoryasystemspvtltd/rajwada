@@ -5,7 +5,7 @@ export const ListRoom = () => {
 
     const schema = {
         module: 'room',
-        title: 'Room',
+        title: 'Room Type',
         path: 'rooms',
         paging: true,
         searching: true,
@@ -24,7 +24,7 @@ export const ListRoom = () => {
 export const ViewRoom = () => {
     const schema = {
         module: 'room',
-        title: 'Room',
+        title: 'Room Type',
         path: 'rooms',
         showBreadcrumbs: true,
         editing: true,
@@ -50,7 +50,7 @@ export const ViewRoom = () => {
 export const EditRoom = () => {
     const schema = {
         module: 'room',
-        title: 'Room',
+        title: 'Room Type',
         path: 'rooms',
         back: false,
         fields: [
@@ -71,7 +71,7 @@ export const EditRoom = () => {
 export const AddRoom = () => {
     const schema = {
         module: 'room',
-        title: 'Room',
+        title: 'Room Type',
         path: 'rooms',
         back: true,
         fields: [

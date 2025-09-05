@@ -1,6 +1,7 @@
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage";
 
+
 export const ListWorkItem = () => {
 
     const schema = {
@@ -15,11 +16,11 @@ export const ListWorkItem = () => {
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Code', field: 'code', type: 'text', sorting: false, searching: false },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
-            { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false }
         ]
     }
     return (<IUIList schema={schema} />)
 }
+
 
 export const ViewWorkItem = () => {
     const schema = {
@@ -39,13 +40,13 @@ export const ViewWorkItem = () => {
                     { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Code', field: 'code', type: 'text', required: true, width: 6 },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'text', required: true, width: 6 },
-                    { text: 'Type', field: 'type', placeholder: 'Type here...', type: 'text', required: true, width: 6 }
                 ]
             },
         ]
     }
     return (<IUIPage schema={schema} />)
 }
+
 
 export const EditWorkItem = () => {
     const schema = {
@@ -61,21 +62,22 @@ export const EditWorkItem = () => {
                     { text: 'Code', field: 'code', placeholder: 'Code here...', type: 'text', required: true, width: 6 },
                     { text: 'Description', field: 'description', type: 'text', required: true, width: 6 },
                     {
-                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 6,
-                        schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'Inside' },
-                                { name: 'Outside' }
-                            ]
-                        }
+                        text: 'Parent', field: 'parentId', type: 'lookup', required: false, width: 6,
+                        schema: { module: 'dependency' }
+                    },
+                    {
+                        text: 'Belongs To', field: 'belongsTo', type: 'lookup-filter', required: false, width: 6,
+                        schema: { module: 'dependency', filter: 'parentId', value: null }
                     }
                 ]
             },
         ]
     }
 
+
     return (<IUIPage schema={schema} />)
 }
+
 
 export const AddWorkItem = () => {
     const schema = {
@@ -91,18 +93,18 @@ export const AddWorkItem = () => {
                     { text: 'Code', field: 'code', placeholder: 'Code here...', type: 'text', required: true, width: 6 },
                     { text: 'Description', field: 'description', type: 'text', required: true, width: 6 },
                     {
-                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 6,
-                        schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'Inside' },
-                                { name: 'Outside' }
-                            ]
-                        }
-                    }
+                        text: 'Parent', field: 'parentId', type: 'lookup', required: false, width: 6,
+                        schema: { module: 'dependency' }
+                    },
+                    {
+                        text: 'Belongs To', field: 'belongsTo', type: 'lookup-filter', required: false, width: 6,
+                        schema: { module: 'dependency', filter: 'parentId', value: null }
+                    },
                 ]
             },
         ]
     }
+
 
     return (<IUIPage schema={schema} />)
 }

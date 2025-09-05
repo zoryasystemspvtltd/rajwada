@@ -132,7 +132,7 @@
             },
             {
                 "name": "roomManagement",
-                "text": "Room",
+                "text": "Room Type",
                 "icon": "cubes",
                 "path": "/rooms",
                 "access": "plan"
