@@ -251,11 +251,11 @@ export const EditActivity = () => {
                     //     schema: { module: 'contractor' }
                     // },
                     {
-                        text: 'Labour Provided By', field: 'labourProvidedBy', nameField: 'labourProvidedBy', type: 'lookup', required: true, width: 4,
+                        text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup', required: true, width: 4,
                         schema: { module: 'contractor' }
                     },
                     {
-                        text: 'Material Provided By', field: 'materialProvidedBy', nameField: 'materialProvidedBy', type: 'lookup', required: true, width: 4,
+                        text: 'Material Provided By', field: 'materialProvidedBy', type: 'lookup', required: true, width: 4,
                         schema: { module: 'contractor' }
                     },
                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false },
@@ -490,11 +490,11 @@ export const AddActivity = () => {
                     //     schema: { module: 'contractor' }
                     // },
                     {
-                        text: 'Labour Provided By', field: 'labourProvidedBy', nameField: 'labourProvidedBy', type: 'lookup', required: true, width: 4,
+                        text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup', required: true, width: 4,
                         schema: { module: 'contractor' }
                     },
                     {
-                        text: 'Material Provided By', field: 'materialProvidedBy', nameField: 'materialProvidedBy', type: 'lookup', required: true, width: 4,
+                        text: 'Material Provided By', field: 'materialProvidedBy', type: 'lookup', required: true, width: 4,
                         schema: { module: 'contractor' }
                     },
                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false },

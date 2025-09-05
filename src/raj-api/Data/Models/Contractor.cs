@@ -13,4 +13,5 @@ public class Contractor : LabModel, IGlobal
     public DateTime? EffectiveStartDate { get; set; }
     public DateTime? EffectiveEndDate { get; set; }
     public string? SPOC { get; set; }
+    public required string Type { get; set; }
 }

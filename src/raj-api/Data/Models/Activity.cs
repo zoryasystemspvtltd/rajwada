@@ -61,6 +61,7 @@ namespace RajApi.Data.Models
         #endregion
                 
         public string? ActualItems { get; set; }
+        public string? WorkId { get; set; }
 
         #region Workflow
         /// <summary>
@@ -171,6 +172,18 @@ namespace RajApi.Data.Models
 
         [JsonIgnore]
         public virtual Contractor? Contractor { get; set; }
+
+        [ForeignKey("LabourProvided")]
+        public virtual long? LabourProvidedBy { get; set; }
+
+        [JsonIgnore]
+        public virtual Contractor? LabourProvided { get; set; }
+
+        [ForeignKey("MaterialProvided")]
+        public virtual long? MaterialProvidedBy { get; set; }
+
+        [JsonIgnore]
+        public virtual Contractor? MaterialProvided { get; set; }
         #endregion
     }
 

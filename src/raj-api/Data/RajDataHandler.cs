@@ -625,26 +625,6 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public dynamic GetResourceDetails(long planId)
-    {
-        var rooms = dbContext.Set<Room>()
-                 .ToList();
-        var res = dbContext.Set<Resource>()
-            .Where(l => l.PlanId == planId)
-            .ToList();
-
-        var final = res.Join(rooms,
-                r => r.RoomId,
-                rm => rm.Id,
-                (r, rm) => new
-                {
-                    r.Quantity,
-                    rm.Name
-                });
-
-        return final;
-    }
-
     public dynamic GetAllAssignedUsers(string module, long id)
     {
         var result = dbContext.Set<ApplicationLog>()

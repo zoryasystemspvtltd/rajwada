@@ -25,6 +25,9 @@ public class ApplicationDbContext : DbContext
         builder.Entity<Plan>()
            .Property(p => p.TotalCost).HasDefaultValue(0.0);
         SeedData(builder);
+        builder.Entity<Contractor>()
+        .Property(e => e.Type)
+        .HasDefaultValue("Contractor");
     }
     private void SeedData(ModelBuilder builder)
     {
@@ -160,10 +163,11 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Room> Rooms { get; set; }
     public virtual DbSet<Contractor> Contractors { get; set; }
     public virtual DbSet<Supplier> Suppliers { get; set; }
-    public virtual DbSet<LevelSetup> LevelSetup { get; set; }    
+    public virtual DbSet<LevelSetup> LevelSetup { get; set; }
     public virtual DbSet<UnitOfWork> UnitOfWorks { get; set; }
     public virtual DbSet<FlatTemplate> FlatTemplates { get; set; }
     public virtual DbSet<ParkingType> ParkingTypes { get; set; }
+    public virtual DbSet<ProjectDocNoTracking> ProjectDocNoTrackings { get; set; }
     #endregion
 
 }
