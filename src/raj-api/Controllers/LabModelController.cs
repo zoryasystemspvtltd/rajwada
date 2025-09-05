@@ -1,15 +1,14 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml.Drawing.Diagrams;
 using ILab.Data;
 using ILab.Extensionss.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Mysqlx.Crud;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
-using RajApi.Migrations;
-using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace RajApi.Controllers;
@@ -65,17 +64,18 @@ public class LabModelController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-            long activityId = 0;
+            long Id = 0;
 
-            activityId = await dataService.AddAsync(module, data, token);
+            Id = await dataService.AddAsync(module, data, token);
+
             if (module.Equals("PROJECT", StringComparison.CurrentCultureIgnoreCase))
             {
-                await SaveProjectDocNoTrackingData(activityId, token);
+                await SaveProjectDocNoTrackingData(Id, token);
             }
-
+            
             if (module.Equals("FLATTEMPLATE", StringComparison.CurrentCultureIgnoreCase))
             {
-                await SaveFlatTemplateData(module, data, activityId, token);
+                await SaveFlatTemplateData(module, data, Id, token);
             }
 
             if (module.Equals("PLAN", StringComparison.CurrentCultureIgnoreCase))
@@ -91,16 +91,16 @@ public class LabModelController : ControllerBase
                 if (jsonData != null && jsonData?.Type?.ToLower() == "tower")
                 {
                     var project = Get("Project", jsonData?.ProjectId);
-                    await SaveFloorData(jsonData, activityId, project.Result.Name, project.Result.Code, token);
-                    await SaveParkingData(jsonData, activityId, project.Result.Name, project.Result.Code, token);
+                    await SaveFloorData(jsonData, Id, project.Result.Name, project.Result.Code, token);
+                    await SaveParkingData(jsonData, Id, project.Result.Name, project.Result.Code, token);
                 }
             }
             if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
             {
-                await SaveSubTaskAsync(module, activityId, token);
+                await SaveSubTaskAsync(module, Id, token);
             }
 
-            return activityId;
+            return Id;
 
         }
         catch (Exception ex)
@@ -108,7 +108,7 @@ public class LabModelController : ControllerBase
             logger.LogError(ex, $"Exception in SaveData method and details: '{ex.Message}'");
             throw;
         }
-    }
+    }    
 
     private async Task SaveProjectDocNoTrackingData(long projectId, CancellationToken token)
     {

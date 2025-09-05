@@ -184,6 +184,9 @@ namespace RajApi.Data.Models
 
         [JsonIgnore]
         public virtual Contractor? MaterialProvided { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<ActivityAmendment>? ActivityAmendments { get; set; }
         #endregion
     }
 

@@ -24,10 +24,18 @@ public class ApplicationDbContext : DbContext
           .Property(p => p.BudgetAllocationAmount).HasDefaultValue(0.0);
         builder.Entity<Plan>()
            .Property(p => p.TotalCost).HasDefaultValue(0.0);
-        SeedData(builder);
+
         builder.Entity<Contractor>()
-        .Property(e => e.Type)
-        .HasDefaultValue("Contractor");
+       .Property(e => e.Type).HasDefaultValue("Contractor");
+
+        builder.Entity<ActivityAmendment>()
+       .Property(e => e.RejectedByQC).HasDefaultValue(0);
+
+        builder.Entity<ActivityAmendment>()
+       .Property(e => e.AmendmentStatus).HasDefaultValue(0);
+
+        SeedData(builder);
+       
     }
     private void SeedData(ModelBuilder builder)
     {
