@@ -9,10 +9,10 @@ import ReactFlow, {
     getTransformForBounds,
     MiniMap,
     ReactFlowProvider,
-    updateEdge,
     useEdgesState,
     useNodesState,
-    useReactFlow
+    useReactFlow,
+    reconnectEdge
 } from "reactflow";
 import CustomNode from "./CustomNode";
 import "reactflow/dist/style.css";
@@ -21,18 +21,23 @@ import api from "../../store/api-service";
 import ContextMenu from "./ContextMenu";
 import "./styles.css";
 
+
 function downloadImage(dataUrl) {
     const a = document.createElement("a");
+
 
     a.setAttribute("download", "flowchart.png");
     a.setAttribute("href", dataUrl);
     a.click();
 }
 
+
 const imageWidth = 1024;
 const imageHeight = 768;
 
+
 const nodeTypes = { customNode: CustomNode };
+
 
 const Content = (props) => {
     const module = 'dependency';
@@ -53,6 +58,7 @@ const Content = (props) => {
     const [id, setId] = useState(0);
     const ref = useRef(null);
 
+
     useEffect(() => {
         async function fetchData() {
             const pageOptions = {
@@ -61,8 +67,10 @@ const Content = (props) => {
 
             const response = await api.getData({ module: module, options: pageOptions });
 
+
             let nodeTemplates = response?.data?.items?.map((item) => {
                 return {
+                    ...item,
                     data: { label: item?.name },
                     type: 'customNode',
                     color: getRandomLightColor(),
@@ -72,8 +80,11 @@ const Content = (props) => {
             localStorage.removeItem("dependency-flow");
         }
 
+
         fetchData();
     }, [module]);
+
+
 
 
     useEffect(() => {
@@ -85,6 +96,7 @@ const Content = (props) => {
         }
     }, [props?.value, setNodes, setEdges]);
 
+
     useEffect(() => {
         // Update localStorage whenever nodes or edges change
         if (reactFlowInstance) {
@@ -92,6 +104,7 @@ const Content = (props) => {
             localStorage.setItem(flowKey, JSON.stringify(flow));
         }
     }, [nodes, edges, reactFlowInstance]);
+
 
     const [newNodeInput, setNewNodeInput] = useState({
         id: "",
@@ -101,6 +114,7 @@ const Content = (props) => {
     });
     const { setViewport } = useReactFlow();
     const { getNodes } = useReactFlow();
+
 
     const download = (event) => {
         // we calculate a transform for the nodes so that all nodes are visible
@@ -116,6 +130,7 @@ const Content = (props) => {
             2
         );
 
+
         toPng(document.querySelector(".react-flow__viewport"), {
             backgroundColor: "#eef",
             width: imageWidth,
@@ -127,6 +142,7 @@ const Content = (props) => {
             },
         }).then(downloadImage);
     };
+
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge({
@@ -144,28 +160,34 @@ const Content = (props) => {
         [setEdges]
     );
 
+
     const getRandomLightColor = () => {
         // Generate random RGB values
         const r = Math.floor(Math.random() * 256);
         const g = Math.floor(Math.random() * 256);
         const b = Math.floor(Math.random() * 256);
 
+
         // Adjust brightness to ensure the color is light
         const adjustedR = Math.min(r + 100, 255);
         const adjustedG = Math.min(g + 100, 255);
         const adjustedB = Math.min(b + 100, 255);
 
+
         // Convert RGB values to hex and format them as a string
         const hexColor = `#${((1 << 24) + (adjustedR << 16) + (adjustedG << 8) + adjustedB).toString(16).slice(1).toUpperCase()}`;
 
+
         return hexColor;
     };
+
 
     // Handle the context menu (right-click) to select the edge
     const handleEdgeContextMenu = (event, edge) => {
         event.preventDefault(); // Prevent default right-click behavior
         setSelectedEdge(edge);  // Store the selected edge
     };
+
 
     // Handle the keyboard delete key event
     const handleDeleteEdge = useCallback(() => {
@@ -176,6 +198,7 @@ const Content = (props) => {
         }
     }, [selectedEdge, setEdges]);
 
+
     // Listen for the Delete key press
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -184,8 +207,10 @@ const Content = (props) => {
             }
         };
 
+
         // Attach the keydown event listener
         window.addEventListener('keydown', handleKeyDown);
+
 
         // Clean up the event listener on unmount
         return () => {
@@ -193,15 +218,18 @@ const Content = (props) => {
         };
     }, [handleDeleteEdge]);
 
+
     const getId = useCallback(() => {
         setId((prevId) => prevId + 1);
         return `node_${id}`;
     }, [id]);
 
+
     const onNodeContextMenu = useCallback(
         (event, node) => {
             // Prevent native context menu from showing
             event.preventDefault();
+
 
             // Calculate position of the context menu. We want to make sure it
             // doesn't get positioned off-screen.
@@ -223,8 +251,10 @@ const Content = (props) => {
         [setMenu, isSidebarOpen]
     );
 
+
     // Close the context menu if it's open whenever the window is clicked.
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+
 
     // Handle node click
     const onNodeClick = useCallback((event, node) => {
@@ -235,28 +265,37 @@ const Content = (props) => {
         setNodeColor(node.style.background);
     }, []);
 
+
     const onEdgeUpdateStart = useCallback(() => {
         edgeUpdateSuccessful.current = false;
     }, []);
 
+
     const onEdgeUpdate = useCallback(
         (oldEdge, newConnection) => {
             edgeUpdateSuccessful.current = true;
-            setEdges((els) => updateEdge(oldEdge, newConnection, els));
+
+            // Condition check added when updating edge connection on left to edge connection on top
+            if (oldEdge && newConnection) {
+                setEdges((els) => reconnectEdge(oldEdge, newConnection, els));
+            }
         },
         [setEdges]
     );
 
+
     const onEdgeUpdateEnd = useCallback(
         (_, edge) => {
-            if (!edgeUpdateSuccessful.current) {
+            if (edge && !edgeUpdateSuccessful.current) {
                 setEdges((eds) => eds.filter((e) => e.id !== edge.id));
             }
+
 
             edgeUpdateSuccessful.current = true;
         },
         [setEdges]
     );
+
 
     const handleCreateNode = (event) => {
         event.preventDefault();
@@ -302,13 +341,17 @@ const Content = (props) => {
         }
     }, [nodeName, nodeColor, selectedElements, setNodes]);
 
+
     const handleUpdateNode = (event) => {
         const { name, value } = event.target;
 
+
         // Update the corresponding state based on the input name
+
 
         if (name === "name") setNodeName(value);
         else if (name === "background") setNodeColor(value.background);
+
 
         // Find the selected node and update its data
         setNodes((prevNodes) =>
@@ -327,15 +370,18 @@ const Content = (props) => {
         );
     };
 
+
     const onDragStart = (event, nodeDetails) => {
         event.dataTransfer.setData("application/reactflow", JSON.stringify(nodeDetails));
         event.dataTransfer.effectAllowed = "move";
     };
 
+
     const onDragOver = useCallback((event) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = "move";
     }, []);
+
 
     const onDrop = useCallback(
         (event) => {
@@ -348,6 +394,7 @@ const Content = (props) => {
                 return;
             }
 
+
             // reactFlowInstance.project was renamed to reactFlowInstance.screenToFlowPosition
             // and you don't need to subtract the reactFlowBounds.left/top anymore
             // details: https://reactflow.dev/whats-new/2023-11-10
@@ -355,24 +402,89 @@ const Content = (props) => {
                 x: event.clientX,
                 y: event.clientY,
             });
-            const newNode = {
-                id: getId(),
+
+
+            // Only Root Nodes will be allowed
+            // Traverse starting from this node, find all childs and then construct nodes and edges
+
+
+            const { newNodes, newEdges } = buildTree(node.id, defaultNodeTemplates, position);
+
+
+            // const newNode = {
+            //     id: getId(),
+            //     node,
+            //     position,
+            //     type: 'customNode',
+            //     data: { label: `${node.data.label}` },
+            //     style: {
+            //         background: node.color,
+            //         borderRadius: "25px"
+            //     },
+            // };
+
+
+            // setNodes((nds) => nds.concat(newNode));
+            setNodes(nds => [...nds, ...newNodes]);
+            setEdges(edgs => [...edgs, ...newEdges]);
+        },
+        [reactFlowInstance, getId, setNodes, defaultNodeTemplates, setEdges]
+    );
+
+
+    const flowKey = "dependency-flow";
+
+
+    // Function which constructs tree whenever a root node is dragged and dropped
+    const buildTree = (rootId, data, position) => {
+        let newNodes = [];
+        const newEdges = [];
+
+        const traverse = (nodeId, x = 0, y = 0) => {
+            const node = data.find(n => n.id === nodeId);
+            if (!node) return;
+
+
+            // Create reactflow node
+            newNodes.push({
+                id: `node_${node.id}`,
                 node,
-                position,
                 type: 'customNode',
                 data: { label: `${node.data.label}` },
                 style: {
                     background: node.color,
                     borderRadius: "25px"
                 },
-            };
+                position: { x, y }
+            });
 
-            setNodes((nds) => nds.concat(newNode));
-        },
-        [reactFlowInstance, getId, setNodes]
-    );
 
-    const flowKey = "dependency-flow";
+            // Find children
+            const children = data.filter(n => n.parentId === node.id);
+            children.forEach((child, index) => {
+                // Create edge
+                newEdges.push({
+                    id: `e${node.id}-${child.id}`,
+                    source: `node_${node.id}`,
+                    target: `node_${child.id}`,
+                });
+
+
+                // Recursive traversal
+                traverse(child.id, x + 200, y + index * 100);
+            });
+        }
+
+        traverse(rootId, position.x, position.y);
+
+        // Apply same color for all nodes of the same group
+        const parentNodeColor = newNodes?.find(node => node?.node?.parentId === null && node?.node?.belongsTo === null)?.style?.background;
+        newNodes = newNodes?.map(node => ({ ...node, node: { ...node.node, color: parentNodeColor }, style: { ...node.style, background: parentNodeColor } }));
+        return { newNodes, newEdges };
+    }
+
+
+
 
     const onSave = useCallback((event) => {
         // event.preventDefault();
@@ -382,9 +494,11 @@ const Content = (props) => {
         }
     }, [reactFlowInstance]);
 
+
     const onRestore = useCallback((event) => {
         const restoreFlow = async () => {
             const flow = JSON.parse(localStorage.getItem(flowKey));
+
 
             if (flow) {
                 const { x = 0, y = 0, zoom = 1 } = flow.viewport;
@@ -393,12 +507,14 @@ const Content = (props) => {
                 setViewport({ x, y, zoom });
             }
 
+
             setEdges([]);
             setNodes([]);
         };
         event.preventDefault();
         restoreFlow();
     }, [setNodes, setViewport, setEdges]);
+
 
     return (
         <div className="flow-container">
@@ -417,7 +533,7 @@ const Content = (props) => {
                         </div>
                         <div className="flex flex-col p-1 space-y-3 rounded outline outline-2">
                             {
-                                defaultNodeTemplates?.map((node, index) => {
+                                defaultNodeTemplates?.filter(item => item?.parentId === null)?.map((node, index) => {
                                     return (
                                         <div
                                             key={`node_${node.data.label}_${index}`}
@@ -571,14 +687,17 @@ const Content = (props) => {
     );
 };
 
+
 const ReactFlowProviderContent = (props) => {
     const [value, setValue] = useState("");
+
 
     useEffect(() => {
         if (props?.value) {
             setValue(props?.value);
         }
     }, [props?.value]);
+
 
     return (
         <ReactFlowProvider>

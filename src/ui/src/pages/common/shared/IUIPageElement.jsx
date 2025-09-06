@@ -25,6 +25,7 @@ import { formatStringDate } from '../../../store/datetime-formatter';
 import IUIImageGallery from './IUIImageGallery';
 import { FaImage } from 'react-icons/fa';
 import IUIPdfTool from '../../pdf-helper/IUIPdfTool';
+import IUILookUpMultiColumn from './IUILookUpMultiColumn';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -463,6 +464,29 @@ const IUIPageElement = (props) => {
                                         <p className="text-danger">{errors[fld.field]}</p>
                                     </>
                                 }
+                                 {fld.type === 'lookup-multi-column' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+                                            <IUILookUpMultiColumn
+                                                value={fld?.defaultValue || data[fld.field]}
+                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                id={fld.field}
+                                                clearFields={fld?.reset || false}
+                                                nameField={fld.nameField}
+                                                schema={fld.schema}
+                                                onChange={handleChange}
+                                                readonly={props.readonly || fld.readonly || defaultFields?.includes(fld.field) || false}
+                                            />
+
+                                        </Form.Group>
+                                        <p className="text-danger">{errors[fld.field]}</p>
+                                    </>
+                                }
                                 {fld.type === 'doc-upload' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
@@ -567,9 +591,9 @@ const IUIPageElement = (props) => {
                                                         {fld.required &&
                                                             <span className="text-danger">*</span>
                                                         }
-                                                        {(fld?.exclusionCondition && data[fld?.exclusionCondition?.field] === fld?.exclusionCondition?.value) &&
+                                                        {/* {(fld?.exclusionCondition && data[fld?.exclusionCondition?.field] === fld?.exclusionCondition?.value) &&
                                                             <span className="text-danger">*</span>
-                                                        }
+                                                        } */}
                                                     </Form.Label>
 
                                                     <IUILookUpRelation

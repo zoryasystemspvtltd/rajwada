@@ -59,6 +59,10 @@ export const AddRole = () => {
         back: true,
         copy: true,
         copySchema: {
+            copyLabel: 'Role',
+            module: 'role'
+        },
+        copySchema: {
             module: 'role'
         },
         fields: [
