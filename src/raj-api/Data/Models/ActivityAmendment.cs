@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RajApi.Data.Models
 {
-    public class ActivityAmendment : LabModel
+    public class ActivityAmendment : LabModel, IActivityAmendment
     {
         [StringLength(50)]
         public string? Code { get; set; }        
@@ -22,5 +22,13 @@ namespace RajApi.Data.Models
         public virtual long? ActivityId { get; set; }
         [JsonIgnore]
         public virtual Activity? Activity { get; set; }
+
+        /// <summary>
+        /// ActivityAmendment is also a collection of other ActivityAmendment
+        /// </summary>
+        [ForeignKey("Parent")]
+        public virtual long? ParentId { get; set; }
+        [JsonIgnore]
+        public virtual ActivityAmendment? Parent { get; set; }
     }
 }
