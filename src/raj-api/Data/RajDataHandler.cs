@@ -882,6 +882,13 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
+
+    public string? GetFinancialYear(object code)
+    {
+        DateTime filterDate = DateTime.Now;
+        var data = dbContext.Set<FinancialYear>().Where(e => filterDate >= e.StartDate && filterDate <= e.EndDate).FirstOrDefault();
+        return data?.FinYear;
+    }
 }
 
 public class ModuleIdentity

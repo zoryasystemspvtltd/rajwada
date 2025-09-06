@@ -660,6 +660,7 @@
 "/api/Contractor":{"get":{"tags":["Contractor"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ContractorItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ContractorItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ContractorItemList"}}}}}},"post":{"tags":["Contractor"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Contractor"}},"text/json":{"schema":{"$ref":"#/components/schemas/Contractor"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Contractor"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Contractor/{id}":{"get":{"tags":["Contractor"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Contractor"}},"application/json":{"schema":{"$ref":"#/components/schemas/Contractor"}},"text/json":{"schema":{"$ref":"#/components/schemas/Contractor"}}}}}},"put":{"tags":["Contractor"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Contractor"}},"text/json":{"schema":{"$ref":"#/components/schemas/Contractor"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Contractor"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Contractor"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Department":{"get":{"tags":["Department"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/DepartmentItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/DepartmentItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/DepartmentItemList"}}}}}},"post":{"tags":["Department"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Department"}},"text/json":{"schema":{"$ref":"#/components/schemas/Department"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Department"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Department/{id}":{"get":{"tags":["Department"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Department"}},"application/json":{"schema":{"$ref":"#/components/schemas/Department"}},"text/json":{"schema":{"$ref":"#/components/schemas/Department"}}}}}},"put":{"tags":["Department"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Department"}},"text/json":{"schema":{"$ref":"#/components/schemas/Department"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Department"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Department"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Dependency":{"get":{"tags":["Dependency"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/DependencyItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/DependencyItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/DependencyItemList"}}}}}},"post":{"tags":["Dependency"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Dependency"}},"text/json":{"schema":{"$ref":"#/components/schemas/Dependency"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Dependency"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Dependency/{id}":{"get":{"tags":["Dependency"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Dependency"}},"application/json":{"schema":{"$ref":"#/components/schemas/Dependency"}},"text/json":{"schema":{"$ref":"#/components/schemas/Dependency"}}}}}},"put":{"tags":["Dependency"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Dependency"}},"text/json":{"schema":{"$ref":"#/components/schemas/Dependency"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Dependency"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Dependency"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/FinancialYear":{"get":{"tags":["FinancialYear"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FinancialYearItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/FinancialYearItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/FinancialYearItemList"}}}}}},"post":{"tags":["FinancialYear"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"text/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/FinancialYear/{id}":{"get":{"tags":["FinancialYear"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"application/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"text/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}}}}}},"put":{"tags":["FinancialYear"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"text/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["FinancialYear"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/FlatTemplate":{"get":{"tags":["FlatTemplate"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FlatTemplateItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateItemList"}}}}}},"post":{"tags":["FlatTemplate"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/FlatTemplate/{id}":{"get":{"tags":["FlatTemplate"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}}}}}},"put":{"tags":["FlatTemplate"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["FlatTemplate"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/FlatTemplateDetails":{"get":{"tags":["FlatTemplateDetails"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetailsItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetailsItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetailsItemList"}}}}}},"post":{"tags":["FlatTemplateDetails"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/FlatTemplateDetails/{id}":{"get":{"tags":["FlatTemplateDetails"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}}}}}},"put":{"tags":["FlatTemplateDetails"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["FlatTemplateDetails"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/ApplicationLog":{"get":{"tags":["ApplicationLog"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ApplicationLogItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ApplicationLogItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ApplicationLogItemList"}}}}}},"post":{"tags":["ApplicationLog"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApplicationLog"}},"text/json":{"schema":{"$ref":"#/components/schemas/ApplicationLog"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ApplicationLog"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/ApplicationLog/{id}":{"get":{"tags":["ApplicationLog"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ApplicationLog"}},"application/json":{"schema":{"$ref":"#/components/schemas/ApplicationLog"}},"text/json":{"schema":{"$ref":"#/components/schemas/ApplicationLog"}}}}}},"put":{"tags":["ApplicationLog"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApplicationLog"}},"text/json":{"schema":{"$ref":"#/components/schemas/ApplicationLog"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ApplicationLog"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["ApplicationLog"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
@@ -1386,6 +1387,13 @@
 "nullable": true
 },
 "Activity": {
+"type": "string",
+},
+"ParentId": {
+"type": "string",
+"nullable": true
+},
+"Parent": {
 "type": "string",
 },
 "Id": {
@@ -2283,6 +2291,67 @@
 "type": "array",
 "items": {
 "$ref": "#/components/schemas/Dependency"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
+"FinancialYear": {
+"type": "object",
+"properties": {
+"Code": {
+"type": "string",
+},
+"StartDate": {
+"type": "string",
+},
+"EndDate": {
+"type": "string",
+},
+"FinYear": {
+"type": "string",
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+},
+"additionalProperties": false
+},
+"FinancialYearItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/FinancialYear"
 },
 "nullable": true
 }
