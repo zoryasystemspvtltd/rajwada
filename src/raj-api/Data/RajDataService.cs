@@ -1,4 +1,5 @@
-﻿using ILab.Extensionss.Data;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
@@ -175,7 +176,7 @@ namespace ILab.Data
             }
         }
 
-        internal dynamic GetMobileActivityData(DateOnly startDate, DateOnly endDate,string member)
+        internal dynamic GetMobileActivityData(DateOnly startDate, DateOnly endDate, string member)
         {
             try
             {
@@ -189,7 +190,7 @@ namespace ILab.Data
                 return 0;
             }
         }
-        
+
         internal dynamic GetWorkerStatusReport(WorkerReportRequestPayload request)
         {
             try
@@ -204,13 +205,13 @@ namespace ILab.Data
                 return 0;
             }
         }
-        
+
         internal dynamic DownloadWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
         {
             try
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.DownloadWorkerStatusReport));
-               
+
                 object[] parameters = [projectId, towerId, floorId, flatId];
                 return method?.Invoke(handler, parameters);
             }
@@ -260,6 +261,21 @@ namespace ILab.Data
             catch (Exception ex)
             {
                 logger.LogError("Exception in GetAllAssignedProjects method and details: " + ex.Message);
+                return 0;
+            }
+        }
+
+        internal dynamic GetFinancialYear()
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetFinancialYear));
+                object[] parameters = [DateTime.Now];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetFinancialYear method and details: " + ex.Message);
                 return 0;
             }
         }

@@ -176,6 +176,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<FlatTemplate> FlatTemplates { get; set; }
     public virtual DbSet<ParkingType> ParkingTypes { get; set; }
     public virtual DbSet<ProjectDocNoTracking> ProjectDocNoTrackings { get; set; }
+    public virtual DbSet<FinancialYear> FinancialYears { get; set; }
     #endregion
 
 }

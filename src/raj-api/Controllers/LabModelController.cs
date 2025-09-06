@@ -1,14 +1,11 @@
-﻿using DocumentFormat.OpenXml.Drawing.Diagrams;
-using ILab.Data;
+﻿using ILab.Data;
 using ILab.Extensionss.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Mysqlx.Crud;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
-using System.Reflection;
 using System.Text;
 
 namespace RajApi.Controllers;
@@ -541,7 +538,7 @@ public class LabModelController : ControllerBase
         var dependency = Get("Workflow", (long)dependencyId);
         var docno = Get("ProjectDocNoTracking", (long)projectId);
 
-        int year = DateTime.Now.Year;
+        string year = dataService.GetFinancialYear();
         if (dependency != null && docno != null)
         {
             int newNo = docno.Result.LastDocumentNo + 1;
