@@ -1301,6 +1301,13 @@
 "MaterialProvided": {
 "type": "string",
 },
+"DependencyId": {
+"type": "string",
+"nullable": true
+},
+"Dependency": {
+"type": "string",
+},
 "ActivityAmendments": {
 "type": "string",
 },
@@ -2249,6 +2256,9 @@
 "nullable": true
 },
 "Belongs": {
+"type": "string",
+},
+"Activity": {
 "type": "string",
 },
 "Id": {

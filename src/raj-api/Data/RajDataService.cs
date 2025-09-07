@@ -146,6 +146,21 @@ namespace ILab.Data
                 return 0;
             }
         }
+
+        public dynamic GetDocumentNo(long projectId)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetDocumentNo));
+                object[] parameters = [projectId];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetChallanReport method and details: " + ex.Message);
+                return 0;
+            }
+        }
         public dynamic GetChallanReportDateWise(DateTime startDate, DateTime endDate)
         {
             try

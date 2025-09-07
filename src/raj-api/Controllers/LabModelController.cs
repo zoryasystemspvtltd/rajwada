@@ -1,4 +1,5 @@
-﻿using ILab.Data;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using ILab.Data;
 using ILab.Extensionss.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -537,14 +538,15 @@ public class LabModelController : ControllerBase
         {
             //Work Id formate
             //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
-            var dependency = Get("Workflow", (long)workflowId);
-            var docno = Get("ProjectDocNoTracking", (long)projectId);
+            var workflow = Get("Workflow", (long)workflowId);
+
+            var docno = dataService.GetDocumentNo((long)projectId);
 
             string year = dataService.GetFinancialYear();
-            if (dependency != null && docno != null)
+            if (workflow != null && docno != null)
             {
-                int newNo = docno.Result.LastDocumentNo + 1;
-                UpdateProjcetDocNoTracing(docno.Result, newNo, token);
+                int newNo = docno.LastDocumentNo + 1;
+                UpdateProjcetDocNoTracing(docno, newNo, token);
 
                 string nextDocNo = newNo.ToString("D3");
                 StringBuilder workId = new();
@@ -552,7 +554,7 @@ public class LabModelController : ControllerBase
                 workId.Append("-");
                 workId.Append(index); //<Room-Count-Index>
                 workId.Append("/");
-                workId.Append(dependency.Result.Code); //<Activity_Type_Alias>
+                workId.Append(workflow.Result.Code); //<Activity_Type_Alias>
                 workId.Append("/");
                 workId.Append(nextDocNo); //<Document_Number>
                 workId.Append("/");

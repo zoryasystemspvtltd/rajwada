@@ -889,6 +889,12 @@ public class RajDataHandler : LabDataHandler
         var data = dbContext.Set<FinancialYear>().Where(e => filterDate >= e.StartDate && filterDate <= e.EndDate).FirstOrDefault();
         return data?.FinYear;
     }
+
+    public dynamic? GetDocumentNo(long projectId)
+    {
+        var data = dbContext.Set<ProjectDocNoTracking>().Where(e => e.ProjectId == projectId).FirstOrDefault();
+        return data;
+    }
 }
 
 public class ModuleIdentity

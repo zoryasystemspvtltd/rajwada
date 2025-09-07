@@ -190,6 +190,11 @@ namespace RajApi.Data.Models
         [JsonIgnore]
         public virtual Contractor? MaterialProvided { get; set; }
 
+        [ForeignKey("Dependency")]
+        public virtual long? DependencyId { get; set; }
+
+        [JsonIgnore]
+        public virtual Dependency? Dependency { get; set; }
         [JsonIgnore]
         public virtual ICollection<ActivityAmendment>? ActivityAmendments { get; set; }
         #endregion
