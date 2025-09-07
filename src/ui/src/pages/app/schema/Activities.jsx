@@ -24,7 +24,7 @@ export const ListActivity = () => {
                 schema: { module: 'project' }
             },
             {
-                text: 'Dependency', field: 'dependencyId', type: 'lookup', sorting: false, searching: false,
+                text: 'Dependency', field: 'workflowId', type: 'lookup', sorting: false, searching: false,
                 schema: { module: 'workflow' }
             }
         ]
@@ -188,7 +188,7 @@ export const EditActivity = () => {
                         schema: { module: 'project' }
                     },
                     {
-                        text: 'Dependency', field: 'dependencyId', width: 4, type: 'lookup', required: true, readonly: true,
+                        text: 'Dependency', field: 'workflowId', width: 4, type: 'lookup', required: true, readonly: true,
                         schema: { module: 'workflow' }
                     },
                     {
@@ -379,7 +379,7 @@ export const AddActivity = () => {
                 type: "lookup"
             },
             {
-                field: "dependencyId",
+                field: "workflowId",
                 type: "lookup"
             },
             {
@@ -419,7 +419,7 @@ export const AddActivity = () => {
                         schema: { module: 'project' }
                     },
                     {
-                        text: 'Dependency', field: 'dependencyId', width: 4, type: 'lookup', required: true,
+                        text: 'Dependency', field: 'workflowId', width: 4, type: 'lookup', required: true,
                         schema: { module: 'workflow' }
                     },
                     {

@@ -20,7 +20,7 @@ const IUIActivityCreate = (props) => {
     const module = setupSchema?.module;
     const dependencyModule = 'workflow';
     const flowchartKey = "dependency-flow";
-    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, dependencyId: null, photoUrl: null };
+    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, workflowId: null, photoUrl: null };
     // Parameter
     const { id } = useParams();
     // console.log(parentId)
@@ -132,7 +132,7 @@ const IUIActivityCreate = (props) => {
 
     const handleDependencySelection = (event) => {
         setSelectedOption(parseInt(event.target.value));
-        setDependencySelectParams({ ...dependencySelectParams, dependencyId: event.target.value });
+        setDependencySelectParams({ ...dependencySelectParams, workflowId: event.target.value });
     };
 
     const validate = (values, fields) => {

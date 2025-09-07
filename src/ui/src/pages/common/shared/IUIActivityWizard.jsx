@@ -88,10 +88,10 @@ const IUIActivityWizard = (props) => {
 
     const baseQueryConstructor = (data) => {
         let baseQuery = {};
-        if (data?.dependencyId && data?.projectId && data?.towerId && !data?.floorId && !data?.flatId) {
+        if (data?.workflowId && data?.projectId && data?.towerId && !data?.floorId && !data?.flatId) {
             baseQuery = {
-                name: 'dependencyId',
-                value: parseInt(data?.dependencyId),
+                name: 'workflowId',
+                value: parseInt(data?.workflowId),
                 and: {
                     name: 'projectId',
                     value: parseInt(data?.projectId),
@@ -111,10 +111,10 @@ const IUIActivityWizard = (props) => {
             };
             setUnitOfWorkSchema({ ...unitOfWorkSchema, parentId: parseInt(data?.towerId) })
         }
-        else if (data?.dependencyId && data?.projectId && data?.towerId && data?.floorId && !data?.flatId) {
+        else if (data?.workflowId && data?.projectId && data?.towerId && data?.floorId && !data?.flatId) {
             baseQuery = {
-                name: 'dependencyId',
-                value: parseInt(data?.dependencyId),
+                name: 'workflowId',
+                value: parseInt(data?.workflowId),
                 and: {
                     name: 'projectId',
                     value: parseInt(data?.projectId),
@@ -136,8 +136,8 @@ const IUIActivityWizard = (props) => {
         }
         else {
             baseQuery = {
-                name: 'dependencyId',
-                value: parseInt(data?.dependencyId),
+                name: 'workflowId',
+                value: parseInt(data?.workflowId),
                 and: {
                     name: 'projectId',
                     value: parseInt(data?.projectId),
