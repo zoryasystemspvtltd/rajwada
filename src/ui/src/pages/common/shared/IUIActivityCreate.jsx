@@ -20,7 +20,7 @@ const IUIActivityCreate = (props) => {
     const module = setupSchema?.module;
     const dependencyModule = 'workflow';
     const flowchartKey = "dependency-flow";
-    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, workflowId: null, photoUrl: null };
+    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, workflowId: null, dependencyId: null, photoUrl: null };
     // Parameter
     const { id } = useParams();
     // console.log(parentId)
@@ -275,7 +275,7 @@ const IUIActivityCreate = (props) => {
         let tempImage = { ...imageField };
         tempImage.fields[0].schema.parentId = activityParentId;
         setImageField(tempImage);
-        setBfsSequence(result?.filter(node => node !== undefined)?.map(node => node?.data?.label));
+        setBfsSequence(result?.filter(node => node !== undefined)?.map(node => ({ label: node?.data?.label, activityId: node?.node?.id })));
         setIsSetupComplete(true);
     };
 

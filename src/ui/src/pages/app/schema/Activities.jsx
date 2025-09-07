@@ -53,6 +53,12 @@ export const ViewActivity = () => {
             {
                 type: "area", width: 12
                 , fields: [
+                    { text: 'Work ID', field: 'workId', width: 4, type: 'label' },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
                     { text: 'Name', field: 'name', width: 4, type: 'label' },
                     { text: 'Description', field: 'description', width: 4, type: 'label' },
                     {
@@ -104,7 +110,15 @@ export const ViewActivity = () => {
                         text: 'Assigned To', field: 'member', width: 4, type: 'label',
                         schema: { module: 'user', path: 'users' }
                     },
-                    { text: 'Notes', field: 'notes', width: 12, type: 'label' }
+                    { text: 'Notes', field: 'notes', width: 4, type: 'label' },
+                    {
+                        text: 'Labour Provided By', field: 'labourProvidedBy', width: 4, type: 'lookup-link',
+                        schema: { module: 'contractor', path: 'contractors' }
+                    },
+                    {
+                        text: 'Material Provided By', field: 'materialProvidedBy', width: 4, type: 'lookup-link',
+                        schema: { module: 'contractor', path: 'contractors' }
+                    }
                 ]
             },
             {
@@ -273,8 +287,22 @@ export const EditActivity = () => {
                     //     schema: { module: 'contractor' }
                     // },
                     {
-                        text: 'Material Provided By', field: 'materialProvidedBy', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'contractor' }
+                        text: 'Material Provided By', field: 'materialProvidedBy', type: 'lookup-multi-column', required: true, width: 4,
+                        schema: {
+                            nameField: "name",
+                            module: "contractor",
+                            selectLabel: "Contractor",
+                            columns: [
+                                {
+                                    name: "name",
+                                    width: "50%"
+                                },
+                                {
+                                    name: "type",
+                                    width: "50%"
+                                }
+                            ]
+                        }
                     },
                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false },
                 ]
@@ -395,6 +423,10 @@ export const AddActivity = () => {
                 type: "lookup"
             },
             {
+                field: "dependencyId",
+                type: "lookup"
+            },
+            {
                 field: "photoUrl",
                 type: "photo"
             }
@@ -422,9 +454,13 @@ export const AddActivity = () => {
                         text: 'Dependency', field: 'workflowId', width: 4, type: 'lookup', required: true,
                         schema: { module: 'workflow' }
                     },
+                    // {
+                    //     text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false,
+                    //     schema: { module: 'activity' }
+                    // },
                     {
-                        text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false,
-                        schema: { module: 'activity' }
+                        text: 'Activity', field: 'dependencyId', width: 4, type: 'lookup', required: false,
+                        schema: { module: 'dependency' }
                     },
                     {
                         text: 'Tower', field: 'towerId', type: 'lookup-filter', required: true, width: 4,

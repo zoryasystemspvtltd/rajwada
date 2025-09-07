@@ -267,7 +267,7 @@ const IUIActivityWizard = (props) => {
                                     <li className="nav-item" key={`li-${activity}-${index}`}>
                                         <a className="nav-link" href={`#step-${index + 1}`}>
                                             <div className="num">{index + 1}</div>
-                                            {activity}
+                                            {activity?.label}
                                         </a>
                                     </li>
                                 ))
@@ -277,8 +277,8 @@ const IUIActivityWizard = (props) => {
                         <div className="tab-content" style={tabContentStyle}>
                             {
                                 sequence?.map((activity, index) => (
-                                    <div id={`step-${index + 1}`} className="tab-pane" role="tabpanel" aria-labelledby={`step-${index + 1}`} key={`tab-${activity}-${index}`}>
-                                        <IUIPage schema={schema} activityCallback={activityCallback} defaultValues={dependencyData} />
+                                    <div id={`step-${index + 1}`} className="tab-pane" role="tabpanel" aria-labelledby={`step-${index + 1}`} key={`tab-${activity?.label}-${index}`}>
+                                        <IUIPage schema={schema} activityCallback={activityCallback} defaultValues={{ ...dependencyData, dependencyId: activity?.activityId }} />
                                     </div>
                                 ))
                             }
