@@ -56,7 +56,7 @@ const IUICopy = (props) => {
                 <InputGroup>
                     <Form.Check
                         type="checkbox"
-                        label={`Copy From Existing ${module}`}
+                        label={`Copy From Existing ${schema?.copyLabel}`}
                         className="d-flex align-items-center mr-2"
                         checked={isCopy}
                         onChange={(e) => handleCheckBoxChange(e)}
@@ -69,7 +69,7 @@ const IUICopy = (props) => {
                         <div className="col-sm-12 col-md-6 col-lg-6">
                             <Form.Group className="position-relative form-group">
                                 <Form.Label className='text-uppercase mb-2'>
-                                    Select a {module}
+                                    Select a {schema?.copyLabel}
                                 </Form.Label>
 
                                 < select

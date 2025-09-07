@@ -160,6 +160,11 @@ export const AddWorkflow = () => {
         module: 'workflow',
         title: 'Dependency',
         path: 'dependencies',
+        copy: true,
+        copySchema: {
+            copyLabel: 'Dependency',
+            module: 'workflow'
+        },
         back: true,
         fields: [
             {
@@ -189,10 +194,10 @@ export const AddWorkflow = () => {
                         type: 'lookup-relation',
                         parent: 'projectId',
                         field: 'towerId',
-                        exclusionCondition:{
-                            field: 'type',
-                            value: 'Inside'
-                        },
+                        // exclusionCondition:{
+                        //     field: 'type',
+                        //     value: 'Inside'
+                        // },
                         text: 'Tower',
                         width: 3,
                         schema: {
@@ -205,10 +210,10 @@ export const AddWorkflow = () => {
                         type: 'lookup-relation',
                         parent: 'towerId',
                         field: 'floorId',
-                        exclusionCondition:{
-                            field: 'type',
-                            value: 'Inside'
-                        },
+                        // exclusionCondition:{
+                        //     field: 'type',
+                        //     value: 'Inside'
+                        // },
                         text: 'Floor',
                         width: 3,
                         schema: {
@@ -221,10 +226,10 @@ export const AddWorkflow = () => {
                         type: 'lookup-relation',
                         parent: 'floorId',
                         field: 'flatId',
-                        exclusionCondition:{
-                            field: 'type',
-                            value: 'Inside'
-                        },
+                        // exclusionCondition:{
+                        //     field: 'type',
+                        //     value: 'Inside'
+                        // },
                         text: 'Flat',
                         width: 3,
                         schema: {

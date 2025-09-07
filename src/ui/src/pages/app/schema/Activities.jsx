@@ -251,9 +251,27 @@ export const EditActivity = () => {
                     //     schema: { module: 'contractor' }
                     // },
                     {
-                        text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'contractor' }
+                        text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup-multi-column', required: true, width: 4,
+                        schema: {
+                            nameField: "name",
+                            module: "contractor",
+                            selectLabel: "Contractor",
+                            columns: [
+                                {
+                                    name: "name",
+                                    width: "50%"
+                                },
+                                {
+                                    name: "type",
+                                    width: "50%"
+                                }
+                            ]
+                        }
                     },
+                    // {
+                    //     text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup', required: true, width: 4,
+                    //     schema: { module: 'contractor' }
+                    // },
                     {
                         text: 'Material Provided By', field: 'materialProvidedBy', type: 'lookup', required: true, width: 4,
                         schema: { module: 'contractor' }
@@ -490,12 +508,40 @@ export const AddActivity = () => {
                     //     schema: { module: 'contractor' }
                     // },
                     {
-                        text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'contractor' }
+                        text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup-multi-column', required: true, width: 4,
+                        schema: {
+                            nameField: "name",
+                            module: "contractor",
+                            selectLabel: "Contractor",
+                            columns: [
+                                {
+                                    name: "name",
+                                    width: "50%"
+                                },
+                                {
+                                    name: "type",
+                                    width: "50%"
+                                }
+                            ]
+                        }
                     },
                     {
-                        text: 'Material Provided By', field: 'materialProvidedBy', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'contractor' }
+                        text: 'Material Provided By', field: 'materialProvidedBy', type: 'lookup-multi-column', required: true, width: 4,
+                        schema: {
+                            nameField: "name",
+                            module: "contractor",
+                            selectLabel: "Contractor",
+                            columns: [
+                                {
+                                    name: "name",
+                                    width: "50%"
+                                },
+                                {
+                                    name: "type",
+                                    width: "50%"
+                                }
+                            ]
+                        }
                     },
                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false },
                 ]

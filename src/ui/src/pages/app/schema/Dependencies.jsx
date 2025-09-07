@@ -67,7 +67,7 @@ export const EditWorkItem = () => {
                     },
                     {
                         text: 'Belongs To', field: 'belongsTo', type: 'lookup-filter', required: false, width: 6,
-                        schema: { module: 'dependency', filter: 'parentId', value: null }
+                        schema: { module: 'dependency', filter: 'parent', value: null }
                     }
                 ]
             },
@@ -98,7 +98,7 @@ export const AddWorkItem = () => {
                     },
                     {
                         text: 'Belongs To', field: 'belongsTo', type: 'lookup-filter', required: false, width: 6,
-                        schema: { module: 'dependency', filter: 'parentId', value: null }
+                        schema: { module: 'dependency', filter: 'parent', value: null }
                     },
                 ]
             },
