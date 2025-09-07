@@ -69,7 +69,7 @@ public class LabModelController : ControllerBase
             {
                 await SaveProjectDocNoTrackingData(Id, token);
             }
-            
+
             if (module.Equals("FLATTEMPLATE", StringComparison.CurrentCultureIgnoreCase))
             {
                 await SaveFlatTemplateData(module, data, Id, token);
@@ -105,7 +105,7 @@ public class LabModelController : ControllerBase
             logger.LogError(ex, $"Exception in SaveData method and details: '{ex.Message}'");
             throw;
         }
-    }    
+    }
 
     private async Task SaveProjectDocNoTrackingData(long projectId, CancellationToken token)
     {
@@ -492,7 +492,7 @@ public class LabModelController : ControllerBase
                             Type = "Sub Task",
                             ParentId = main.Id,
                             ProjectId = main.ProjectId,
-                            DependencyId = main.DependencyId,
+                            WorkflowId = main.WorkflowId,
                             UserId = main.UserId,
                             Name = string.Concat(main.Name, "-", desc),
                             Description = string.Concat(main.Description, "-", desc),
@@ -507,7 +507,7 @@ public class LabModelController : ControllerBase
                             activity.TowerId = main.TowerId;
                             activity.FloorId = main.FloorId;
                             activity.FlatId = main.FlatId;
-                            activity.WorkId = GetWorkId(item.Name, index, main.DependencyId, main.ProjectId, token);
+                            activity.WorkId = GetWorkId(item.Name, index, main.WorkflowId, main.ProjectId, token);
                         }
                         else if (main.FloorId != null)
                         {
@@ -531,34 +531,43 @@ public class LabModelController : ControllerBase
         }
     }
 
-    private string? GetWorkId(string name, int index, long? dependencyId, long? projectId, CancellationToken token)
+    private string? GetWorkId(string name, int index, long? workflowId, long? projectId, CancellationToken token)
     {
-        //Work Id formate
-        //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
-        var dependency = Get("Workflow", (long)dependencyId);
-        var docno = Get("ProjectDocNoTracking", (long)projectId);
-
-        string year = dataService.GetFinancialYear();
-        if (dependency != null && docno != null)
+        try
         {
-            int newNo = docno.Result.LastDocumentNo + 1;
-            UpdateProjcetDocNoTracing(docno.Result, newNo, token);
+            //Work Id formate
+            //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
+            var dependency = Get("Workflow", (long)workflowId);
+            var docno = Get("ProjectDocNoTracking", (long)projectId);
 
-            string nextDocNo = newNo.ToString("D3");
-            StringBuilder workId = new();
-            workId.Append(name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>
-            workId.Append("-");
-            workId.Append(index); //<Room-Count-Index>
-            workId.Append("/");
-            workId.Append(dependency.Result.Code); //<Activity_Type_Alias>
-            workId.Append("/");
-            workId.Append(nextDocNo); //<Document_Number>
-            workId.Append("/");
-            workId.Append(year); //<Year>
-            return workId.ToString();
+            string year = dataService.GetFinancialYear();
+            if (dependency != null && docno != null)
+            {
+                int newNo = docno.Result.LastDocumentNo + 1;
+                UpdateProjcetDocNoTracing(docno.Result, newNo, token);
+
+                string nextDocNo = newNo.ToString("D3");
+                StringBuilder workId = new();
+                workId.Append(name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>
+                workId.Append("-");
+                workId.Append(index); //<Room-Count-Index>
+                workId.Append("/");
+                workId.Append(dependency.Result.Code); //<Activity_Type_Alias>
+                workId.Append("/");
+                workId.Append(nextDocNo); //<Document_Number>
+                workId.Append("/");
+                workId.Append(year); //<Year>
+                return workId.ToString();
+            }
+            else
+            { return null; }
+
         }
-        else
-        { return null; }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+            throw;
+        }
     }
 
     private void UpdateProjcetDocNoTracing(dynamic data, int newNo, CancellationToken token)

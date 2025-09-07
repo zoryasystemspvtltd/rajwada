@@ -1252,11 +1252,11 @@
 "ParentName": {
 "type": "string",
 },
-"DependencyId": {
+"WorkflowId": {
 "type": "string",
 "nullable": true
 },
-"Dependency": {
+"Workflow": {
 "type": "string",
 },
 "TowerId": {
@@ -3927,6 +3927,9 @@
 "nullable": true
 },
 "Flat": {
+"type": "string",
+},
+"Activity": {
 "type": "string",
 },
 "Id": {

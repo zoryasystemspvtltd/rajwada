@@ -433,7 +433,7 @@ public class RajDataHandler : LabDataHandler
             {
                 var finallist = CalculateWorkStatus(activities);
 
-                List<string> dpendencies = GetDependency(activities[0].DependencyId);
+                List<string> dpendencies = GetDependency(activities[0].WorkflowId);
 
                 var table = ConvertDependencytoTable(dpendencies);
 

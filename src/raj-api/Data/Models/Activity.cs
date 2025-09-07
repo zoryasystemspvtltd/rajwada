@@ -148,19 +148,24 @@ namespace RajApi.Data.Models
             }
             private set { /* needed for EF */ }
         }
-        public virtual long? DependencyId { get; set; }
+        
+        [ForeignKey("Workflow")]
+        public virtual long? WorkflowId { get; set; }
 
         [JsonIgnore]
-        public virtual Workflow? Dependency { get; set; }
+        public virtual Workflow? Workflow { get; set; }
+
+        [ForeignKey("Tower")]
         public virtual long? TowerId { get; set; }
 
         [JsonIgnore]
         public virtual Plan? Tower { get; set; }
+
         [ForeignKey("Floor")]
         public virtual long? FloorId { get; set; }
-
         [JsonIgnore]
         public virtual Plan? Floor { get; set; }
+
         [ForeignKey("Flat")]
         public virtual long? FlatId { get; set; }
 
