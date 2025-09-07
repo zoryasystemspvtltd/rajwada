@@ -501,14 +501,15 @@ public class LabModelController : ControllerBase
                             EndDate = main.EndDate,
                             Items = main.Items,
                             ContractorId = main.ContractorId,
-                            PhotoUrl = main.PhotoUrl
+                            PhotoUrl = main.PhotoUrl,
+                            DependencyId = main.DependencyId,
                         };
                         if (main.FlatId != null)
                         {
                             activity.TowerId = main.TowerId;
                             activity.FloorId = main.FloorId;
                             activity.FlatId = main.FlatId;
-                            activity.WorkId = GetWorkId(item.Name, index, main.WorkflowId, main.ProjectId, token);
+                            activity.WorkId = GetWorkId(item.Name, index, main.DependencyId, main.ProjectId, token);
                         }
                         else if (main.FloorId != null)
                         {
@@ -532,18 +533,18 @@ public class LabModelController : ControllerBase
         }
     }
 
-    private string? GetWorkId(string name, int index, long? workflowId, long? projectId, CancellationToken token)
+    private string? GetWorkId(string name, int index, long? DependencyId, long? projectId, CancellationToken token)
     {
         try
         {
             //Work Id formate
             //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
-            var workflow = Get("Workflow", (long)workflowId);
+            var dependency = Get("Dependency", (long)DependencyId);
 
             var docno = dataService.GetDocumentNo((long)projectId);
 
             string year = dataService.GetFinancialYear();
-            if (workflow != null && docno != null)
+            if (dependency != null && docno != null)
             {
                 int newNo = docno.LastDocumentNo + 1;
                 UpdateProjcetDocNoTracing(docno, newNo, token);
@@ -554,7 +555,7 @@ public class LabModelController : ControllerBase
                 workId.Append("-");
                 workId.Append(index); //<Room-Count-Index>
                 workId.Append("/");
-                workId.Append(workflow.Result.Code); //<Activity_Type_Alias>
+                workId.Append(dependency.Result.Code); //<Activity_Type_Alias>
                 workId.Append("/");
                 workId.Append(nextDocNo); //<Document_Number>
                 workId.Append("/");
