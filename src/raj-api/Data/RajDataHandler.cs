@@ -895,6 +895,98 @@ public class RajDataHandler : LabDataHandler
         var data = dbContext.Set<ProjectDocNoTracking>().Where(e => e.ProjectId == projectId).FirstOrDefault();
         return data;
     }
+
+    public dynamic GetCopyData(long id, string type)
+    {
+        dynamic entities;
+        if (type.Equals("tower", StringComparison.CurrentCultureIgnoreCase))
+        {
+            entities = GetTowerData(id);
+        }
+        else
+        {
+            entities = GetFlatData(id);
+        }
+        return entities;
+    }
+    internal dynamic GetTowerData(long id)
+    {
+        var query = "SELECT p.Id,p.Name,p.Description,p.Blueprint,p.ProjectId,ISNULL(pl.FlCount, 0) AS FloorCount," +
+                       " pc.ParkingTypeId,ISNULL(pc.PKCount, 0) AS ParkingCount " +
+                       "FROM Plans p " +
+                       "LEFT JOIN(SELECT TowerId, ParkingTypeId, COUNT(ParkingTypeId) AS PKCount " +
+                           "FROM Parkings WHERE TowerId = " + id + " GROUP BY TowerId, ParkingTypeId " +
+                       " ) pc ON p.Id = pc.TowerId " +
+                       "LEFT JOIN(SELECT ParentId, count(ParentId) as FlCount " +
+                         "FROM Plans where ParentId = " + id + " and Type = 'floor' group by ParentId " +
+                       ") pl ON p.Id = pl.ParentId " +
+                       "WHERE p.Type = 'tower' AND p.Id = " + id;
+
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var entities = new Plan();
+                var parkingList = new List<ParkingRawData>();
+                while (result.Read())
+                {
+                    parkingList.Add(new ParkingRawData()
+                    {
+                        ParkingTypeId = result.GetInt64("ParkingTypeId"),
+                        NoOfParking = result.GetInt32("ParkingCount")
+                    });
+
+                    entities.Id = result.GetInt64("Id");
+                    entities.Name = result.GetString("Name");
+                    entities.Description = result.GetString("Description");
+                    entities.Blueprint = result.GetString("Blueprint");
+                    entities.ProjectId = result.GetInt64("ProjectId");
+                    entities.NoOfFloors = result.GetInt32("FloorCount");
+                    entities.Parkings = parkingList.ToString();
+                }
+               
+                return entities;
+            }
+        }
+    }
+    internal dynamic GetFlatData(long id)
+    {
+        var query = "SELECT pl.FlatTemplateId,ISNULL(pl.TCount, 0) AS FlatCount " +
+                    "  FROM[Plans] p " +
+                     " LEFT JOIN( SELECT FlatTemplateId, ParentId, COUNT(FlatTemplateId) as TCount " +
+                     " FROM[Plans] where ParentId = " + id + " and Type = 'flat'  group by FlatTemplateId, ParentId " +
+                   " ) pl ON  p.Id = pl.ParentId " +
+                   " where p.TYPE = 'floor' and p.id =" + id;
+
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var FlatTemplates = new List<FlatTemplateRawData>();
+                while (result.Read())
+                {
+                    FlatTemplates.Add(new FlatTemplateRawData()
+                    {
+                        FlatTemplateId = result.GetInt64("FlatTemplateId"),
+                        NoOfFlats = result.GetInt32("FlatCount")
+                    });
+
+                }
+
+                return FlatTemplates;
+            }
+        }
+    }
 }
 
 public class ModuleIdentity

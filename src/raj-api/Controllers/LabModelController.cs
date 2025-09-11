@@ -503,6 +503,8 @@ public class LabModelController : ControllerBase
                             ContractorId = main.ContractorId,
                             PhotoUrl = main.PhotoUrl,
                             DependencyId = main.DependencyId,
+                            MaterialProvidedBy = main.MaterialProvidedBy,
+                            LabourProvidedBy = main.LabourProvidedBy
                         };
                         if (main.FlatId != null)
                         {
