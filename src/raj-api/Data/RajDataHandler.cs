@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using ILab.Extensionss.Common;
+﻿using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -723,7 +722,7 @@ public class RajDataHandler : LabDataHandler
         {
             var id = await base.AddAsync(item, cancellationToken);
             await LogLabModelLog(item, StatusType.Draft, cancellationToken);
-
+            await SaveAuditLogs(item, StatusType.Draft, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -808,7 +807,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.ModuleDeleted, cancellationToken);
-
+            await SaveAuditLogs(item, (StatusType)item.Status, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -827,7 +826,7 @@ public class RajDataHandler : LabDataHandler
         try
         {
             await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);
-
+            await SaveAuditLogs(item, (StatusType)item.Status, cancellationToken);
             if (item.Status.Equals(StatusType.UnAssigned))
             {
                 var data = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == item.Id && l.Name.Equals(module)
@@ -852,8 +851,6 @@ public class RajDataHandler : LabDataHandler
     {
         var module = typeof(T);
 
-
-
         var jitem = JsonConvert.SerializeObject(item,
         Newtonsoft.Json.Formatting.None,
         new JsonSerializerSettings()
@@ -874,6 +871,49 @@ public class RajDataHandler : LabDataHandler
         try
         {
             dbContext.Set<ApplicationLog>().Add(log);
+            return await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    private async Task<long> SaveAuditLogs<T>(T item, StatusType activityType, CancellationToken cancellationToken)
+    where T : LabModel
+    {
+        var module = typeof(T);
+        var jitem = JsonConvert.SerializeObject(item,
+        Newtonsoft.Json.Formatting.None,
+        new JsonSerializerSettings()
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
+
+        var log = new AuditLog
+        {
+            Date = DateTime.UtcNow,
+            EntityId = item.Id,
+            Name = module.Name,
+            ActionType = activityType.ToString(),
+            Member = item.Member,
+            Key = item.Key
+        };
+        if (activityType == StatusType.Draft)
+        {
+            log.NewValues = jitem;
+        }
+        else
+        {
+            log.OldValues = null;
+            log.NewValues = jitem;
+            log.ModifiedDate = DateTime.UtcNow;
+            log.ModifiedBy = item.Member;           
+        }       
+        try
+        {
+            dbContext.Set<AuditLog>().Add(log);
             return await dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (Exception ex)
@@ -949,7 +989,7 @@ public class RajDataHandler : LabDataHandler
                     entities.NoOfFloors = result.GetInt32("FloorCount");
                     entities.Parkings = parkingList.ToString();
                 }
-               
+
                 return entities;
             }
         }
