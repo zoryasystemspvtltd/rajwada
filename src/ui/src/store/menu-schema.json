@@ -102,6 +102,13 @@
                 "path": "/item-masters",
                 "access": "asset"
             },
+             {
+                "name": "flatTemplateManagement",
+                "text": "Flat Template",
+                "icon": "vector-square",
+                "path": "/flat-templates",
+                "access": "flatTemplate"
+            },
             {
                 "name": "towerManagement",
                 "text": "Tower",
@@ -125,7 +132,7 @@
             },
             {
                 "name": "roomManagement",
-                "text": "Room",
+                "text": "Room Type",
                 "icon": "cubes",
                 "path": "/rooms",
                 "access": "plan"
@@ -143,6 +150,13 @@
                 "icon": "vector-square",
                 "path": "/dependencies",
                 "access": "workflow"
+            },
+            {
+                "name": "parkingType",
+                "text": "Parking",
+                "icon": "cubes-stacked",
+                "path": "/parking-types",
+                "access": "parkingType"
             }
         ],
         "transaction": [

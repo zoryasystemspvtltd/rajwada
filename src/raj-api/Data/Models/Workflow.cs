@@ -34,5 +34,7 @@ namespace RajApi.Data.Models
 
         [JsonIgnore]
         public virtual Plan? Flat { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Activity>? Activity { get; set; }
     }
 }

@@ -2,7 +2,9 @@ import { useParams } from "react-router-dom";
 import IUIListFilter from "../../common/IUIListFilter";
 import IUIPage from "../../common/IUIPage"
 
+
 export const ListFloor = () => {
+
 
     const schema = {
         module: 'plan',
@@ -25,10 +27,14 @@ export const ListFloor = () => {
     }
 
 
+
+
     return (<IUIListFilter schema={schema} filter="floor" />)
 }
 
+
 export const FloorDashboard = () => {
+
 
     const schema = {
         module: 'plan',
@@ -46,15 +52,20 @@ export const FloorDashboard = () => {
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true, width: 100, },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
 
+
         ]
     }
+
+
 
 
     return (<IUIListFilter schema={schema} filter="floor" />)
 }
 
+
 export const ViewFloor = () => {
     const { id } = useParams();
+
 
     const schema = {
         module: 'plan',
@@ -80,37 +91,10 @@ export const ViewFloor = () => {
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'p', required: true, width: 12 }
                 ]
             },
-            // {
-            //     type: "area", width: 12
-            //     , fields: [
-            //         { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect' },
-            //     ]
-            // },
             {
                 type: "area", width: 12
                 , fields: [
-                    {
-                        text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
-                        schema: {
-                            readonly: true,
-                            upload: false,
-                            save: false,
-                            parentId: id,
-                            parent: {
-                                module: 'plan',
-                                filter: 'planId',
-                            },
-                            controls: {
-                                balloon: false,
-                                rectangle: false,
-                                pencil: false,
-                                camera: false,
-                                delete: false,
-                                reset: false
-                            },
-                            module: 'unitOfWork'
-                        }
-                    },
+                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect' },
                 ]
             },
             {
@@ -133,6 +117,7 @@ export const ViewFloor = () => {
                                 { text: 'Flat', field: 'name', type: 'link', sorting: true, searching: true, width: 100, },
                                 { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
 
+
                             ]
                         },
                     }
@@ -141,11 +126,14 @@ export const ViewFloor = () => {
         ]
     }
 
+
     return (<IUIPage schema={schema} />)
 }
 
+
 export const EditFloor = () => {
     const { id } = useParams();
+
 
     const schema = {
         module: 'plan',
@@ -168,36 +156,68 @@ export const EditFloor = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        text: 'Flat List', field: 'flatTemplates', width: 12, type: 'table-input', required: false,
                         schema: {
-                            readonly: false,
-                            upload: true,
-                            save: true,
-                            parentId: id,
-                            parent: {
-                                module: 'plan',
-                                filter: 'planId',
-                                path: 'floors'
-                            },
-                            controls: {
-                                balloon: true,
-                                rectangle: true,
-                                pencil: true,
-                                camera: false,
-                                delete: true,
-                                reset: true
-                            },
-                            module: 'unitOfWork'
+                            title: 'Flats',
+                            module: 'flatTemplate',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            save: false,
+                            fields: [
+                                {
+                                    text: 'Flat Template', field: 'flatTemplateId', type: 'lookup', required: true, width: 6,
+                                    schema: { module: 'flatTemplate' }
+                                },
+                                { text: 'Flat Count', field: 'noOfFlats', placeholder: 'Flat count here...', type: 'number', width: 6, required: true }
+                            ]
                         }
                     },
+                ]
+            },
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         {
+            //             text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+            //             schema: {
+            //                 readonly: false,
+            //                 upload: true,
+            //                 save: true,
+            //                 parentId: id,
+            //                 parent: {
+            //                     module: 'plan',
+            //                     filter: 'planId',
+            //                     path: 'floors'
+            //                 },
+            //                 controls: {
+            //                     balloon: true,
+            //                     rectangle: true,
+            //                     pencil: true,
+            //                     camera: false,
+            //                     delete: true,
+            //                     reset: true
+            //                 },
+            //                 module: 'unitOfWork'
+            //             }
+            //         },
+            //     ]
+            // },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "floor" }
         ]
     }
 
+
     return (<IUIPage schema={schema} />)
 }
+
 
 export const AddFloor = () => {
     const schema = {
@@ -221,6 +241,30 @@ export const AddFloor = () => {
                 type: "area", width: 12
                 , fields: [
                     {
+                        text: 'Flat List', field: 'plans', width: 12, type: 'table-input', required: true,
+                        schema: {
+                            title: 'Flats',
+                            module: 'plan',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            save: false,
+                            fields: [
+                                {
+                                    text: 'Flat Template', field: 'flatTemplateId', type: 'lookup', required: true, width: 6,
+                                    schema: { module: 'flatTemplate' }
+                                },
+                                { text: 'Flat Count', field: 'noOfFlats', placeholder: 'Flat count here...', type: 'number', width: 6, required: true }
+                            ]
+                        }
+                    },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
                         text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true,
                         parent: 'parentId',
                         schema: {
@@ -237,5 +281,7 @@ export const AddFloor = () => {
         ]
     }
 
+
     return (<IUIPage schema={schema} />)
 }
+

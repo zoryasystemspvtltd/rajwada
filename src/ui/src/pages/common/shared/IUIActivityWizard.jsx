@@ -88,10 +88,10 @@ const IUIActivityWizard = (props) => {
 
     const baseQueryConstructor = (data) => {
         let baseQuery = {};
-        if (data?.dependencyId && data?.projectId && data?.towerId && !data?.floorId && !data?.flatId) {
+        if (data?.workflowId && data?.projectId && data?.towerId && !data?.floorId && !data?.flatId) {
             baseQuery = {
-                name: 'dependencyId',
-                value: parseInt(data?.dependencyId),
+                name: 'workflowId',
+                value: parseInt(data?.workflowId),
                 and: {
                     name: 'projectId',
                     value: parseInt(data?.projectId),
@@ -111,10 +111,10 @@ const IUIActivityWizard = (props) => {
             };
             setUnitOfWorkSchema({ ...unitOfWorkSchema, parentId: parseInt(data?.towerId) })
         }
-        else if (data?.dependencyId && data?.projectId && data?.towerId && data?.floorId && !data?.flatId) {
+        else if (data?.workflowId && data?.projectId && data?.towerId && data?.floorId && !data?.flatId) {
             baseQuery = {
-                name: 'dependencyId',
-                value: parseInt(data?.dependencyId),
+                name: 'workflowId',
+                value: parseInt(data?.workflowId),
                 and: {
                     name: 'projectId',
                     value: parseInt(data?.projectId),
@@ -136,8 +136,8 @@ const IUIActivityWizard = (props) => {
         }
         else {
             baseQuery = {
-                name: 'dependencyId',
-                value: parseInt(data?.dependencyId),
+                name: 'workflowId',
+                value: parseInt(data?.workflowId),
                 and: {
                     name: 'projectId',
                     value: parseInt(data?.projectId),
@@ -267,7 +267,7 @@ const IUIActivityWizard = (props) => {
                                     <li className="nav-item" key={`li-${activity}-${index}`}>
                                         <a className="nav-link" href={`#step-${index + 1}`}>
                                             <div className="num">{index + 1}</div>
-                                            {activity}
+                                            {activity?.label}
                                         </a>
                                     </li>
                                 ))
@@ -277,8 +277,8 @@ const IUIActivityWizard = (props) => {
                         <div className="tab-content" style={tabContentStyle}>
                             {
                                 sequence?.map((activity, index) => (
-                                    <div id={`step-${index + 1}`} className="tab-pane" role="tabpanel" aria-labelledby={`step-${index + 1}`} key={`tab-${activity}-${index}`}>
-                                        <IUIPage schema={schema} activityCallback={activityCallback} defaultValues={dependencyData} />
+                                    <div id={`step-${index + 1}`} className="tab-pane" role="tabpanel" aria-labelledby={`step-${index + 1}`} key={`tab-${activity?.label}-${index}`}>
+                                        <IUIPage schema={schema} activityCallback={activityCallback} defaultValues={{ ...dependencyData, dependencyId: activity?.activityId }} />
                                     </div>
                                 ))
                             }

@@ -3,7 +3,9 @@ import IUIListFilter from "../../common/IUIListFilter";
 import IUIListRelation from "../../common/IUIListRelation";
 import IUIPage from "../../common/IUIPage"
 
+
 export const ListTower = () => {
+
 
     const schema = {
         module: 'plan',
@@ -29,10 +31,14 @@ export const ListTower = () => {
     }
 
 
+
+
     return (<IUIListFilter schema={schema} filter='tower' />)
 }
 
+
 export const TowerDashboard = () => {
+
 
     const schema = {
         module: 'plan',
@@ -53,17 +59,22 @@ export const TowerDashboard = () => {
             { text: 'Tower', field: 'name', type: 'link', sorting: true, searching: true, width: 100, },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
 
+
         ]
     }
+
+
 
 
     return (<IUIListFilter schema={schema} filter='tower' />)
 }
 
 
+
+
 export const ViewTower = () => {
     const { id } = useParams();
-    
+
     const schema = {
         module: 'plan',
         title: 'Tower',
@@ -84,11 +95,47 @@ export const ViewTower = () => {
                         text: 'Project', field: 'projectId', type: 'lookup-link', required: false, width: 4,
                         schema: { module: 'project', path: 'projects' }
                     },
-                    // { text: 'Planned Start Date', field: 'planStartDate', width: 4, type: 'label-date' },
-                    // { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'label-date' },
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'h5', required: true, width: 12 },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'p', required: true, width: 12 },
 
+
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        type: 'module-mapping',
+                        schema: {
+                            title: 'Parking', // title of child
+                            module: 'parking', // module for child
+                            relationKey: "towerId", // foreign key field in child schema
+                            parentPath: 'towers', //
+                            childPath: 'parking-mappings',
+                            duplicateKey: 'parkingTypeId',
+                            paging: true,
+                            searching: true,
+                            editing: false,
+                            adding: false,
+                            fields: [
+                                {
+                                    text: 'Parking', field: 'parkingTypeId', type: 'lookup', required: true, width: 6,
+                                    schema: { module: 'parkingType' }
+                                },
+                                {
+                                    text: 'Count', field: 'noOfParking', type: 'lookup-count', width: 6, required: true,
+                                    schema: {
+                                        module: 'parking',
+                                        keyField: 'parkingTypeId',
+                                        filter: {
+                                            'towerId': parseInt(id),
+                                            'parkingTypeId': null
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                    }
                 ]
             },
             {
@@ -97,33 +144,6 @@ export const ViewTower = () => {
                     { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect' },
                 ]
             },
-            // {
-            //     type: "area", width: 12
-            //     , fields: [
-            //         {
-            //             text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
-            //             schema: {
-            //                 readonly: true,
-            //                 upload: false,
-            //                 save: false,
-            //                 parentId: id,
-            //                 parent: {
-            //                     module: 'plan',
-            //                     filter: 'planId',
-            //                 },
-            //                 controls: {
-            //                     balloon: false,
-            //                     rectangle: false,
-            //                     pencil: false,
-            //                     camera: false,
-            //                     delete: false,
-            //                     reset: false
-            //                 },
-            //                 module: 'unitOfWork'
-            //             }
-            //         },
-            //     ]
-            // },
             {
                 type: "area", width: 12
                 , fields: [
@@ -136,13 +156,14 @@ export const ViewTower = () => {
                             path: 'floors',
                             paging: true,
                             searching: true,
-                            editing: true,
-                            adding: true,
-                            uploading: true,
-                            downloading: true,
+                            editing: false,
+                            adding: false,
+                            uploading: false,
+                            downloading: false,
                             fields: [
                                 { text: 'Floors', field: 'name', type: 'link', sorting: true, searching: true, width: 100, },
                                 { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
+
 
                             ]
                         },
@@ -152,11 +173,14 @@ export const ViewTower = () => {
         ]
     }
 
+
     return (<IUIPage schema={schema} />)
 }
 
+
 export const EditTower = () => {
     const { id } = useParams();
+
 
     const schema = {
         module: 'plan',
@@ -183,40 +207,14 @@ export const EditTower = () => {
                     { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
                 ]
             },
-            // {
-            //     type: "area", width: 12
-            //     , fields: [
-            //         {
-            //             text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'ilab-canvas', shape: 'rect',
-            //             schema: {
-            //                 readonly: false,
-            //                 upload: true,
-            //                 save: true,
-            //                 parentId: id,
-            //                 parent: {
-            //                     module: 'plan',
-            //                     filter: 'planId',
-            //                     path: 'towers'
-            //                 },
-            //                 controls: {
-            //                     balloon: true,
-            //                     rectangle: true,
-            //                     pencil: true,
-            //                     camera: false,
-            //                     delete: true,
-            //                     reset: true
-            //                 },
-            //                 module: 'unitOfWork'
-            //             }
-            //         },
-            //     ]
-            // },
             { field: 'type', type: 'hidden-filter', value: "tower" }
         ]
     }
 
+
     return (<IUIPage schema={schema} />)
 }
+
 
 export const AddTower = () => {
     const schema = {
@@ -224,6 +222,13 @@ export const AddTower = () => {
         title: 'Tower',
         path: 'towers',
         back: true,
+        copy: true,
+        copySchema: {
+            copyLabel: 'Tower',
+            module: 'plan',
+            filterKey: 'type',
+            filterValue: 'tower'
+        },
         fields: [
             {
                 type: "area", width: 12
@@ -233,7 +238,32 @@ export const AddTower = () => {
                         text: 'Project', field: 'projectId', type: 'lookup', required: false, width: 6,
                         schema: { module: 'project' }
                     },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 6 },
+                    { text: 'Floor Count', field: 'noOfFloors', placeholder: 'Floor count here...', type: 'number', required: true, width: 6 },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Parking List', field: 'parkings', width: 12, type: 'table-input', required: true,
+                        schema: {
+                            title: 'Parking',
+                            module: 'parking',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            save: false,
+                            fields: [
+                                {
+                                    text: 'Parking', field: 'parkingTypeId', type: 'lookup', required: true, width: 6,
+                                    schema: { module: 'parkingType' }
+                                },
+                                { text: 'Count', field: 'noOfParking', placeholder: 'Parking count here...', type: 'number', width: 6, required: true }
+                            ]
+                        }
+                    },
                 ]
             },
             {
@@ -254,5 +284,7 @@ export const AddTower = () => {
         ]
     }
 
+
     return (<IUIPage schema={schema} />)
 }
+

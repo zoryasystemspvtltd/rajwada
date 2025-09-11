@@ -106,8 +106,7 @@ public class Plan : LabModel, IAssignable
     public virtual long? ProjectId { get; set; }
     [JsonIgnore]
     public virtual Project? Project { get; set; }
-    [NotMapped]
-    public virtual string? ProjectName { get; set; }
+
     /// <summary>
     /// Plan is also a collection of other plans
     /// </summary>
@@ -127,14 +126,23 @@ public class Plan : LabModel, IAssignable
         private set { /* needed for EF */ }
     }
 
+    [ForeignKey("FlatTemplate")]
+    public virtual long? FlatTemplateId { get; set; }
+    [JsonIgnore]
+    public virtual FlatTemplate? FlatTemplate { get; set; }
+
     [JsonIgnore]
     public virtual ICollection<Plan>? Plans { get; set; }
 
-    [JsonIgnore]
-    public virtual ICollection<Parking>? Parkings { get; set; }
+    [NotMapped]
+    public string? Parkings { get; set; }
 
     [NotMapped]
-    public virtual long? NoOfFloors { get; set; }
+    public long? NoOfFloors { get; set; }
+
+    [NotMapped]
+    public string? FlatTemplates { get; set; }
+    public virtual long? FlatTemplateDetailsId { get; set; }
     #endregion
 }
 

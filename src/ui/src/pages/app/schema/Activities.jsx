@@ -24,7 +24,7 @@ export const ListActivity = () => {
                 schema: { module: 'project' }
             },
             {
-                text: 'Dependency', field: 'dependencyId', type: 'lookup', sorting: false, searching: false,
+                text: 'Dependency', field: 'workflowId', type: 'lookup', sorting: false, searching: false,
                 schema: { module: 'workflow' }
             }
         ]
@@ -50,6 +50,12 @@ export const ViewActivity = () => {
         back: true,
         readonly: true,
         fields: [
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Work ID', field: 'workId', width: 4, type: 'label' },
+                ]
+            },
             {
                 type: "area", width: 12
                 , fields: [
@@ -104,7 +110,15 @@ export const ViewActivity = () => {
                         text: 'Assigned To', field: 'member', width: 4, type: 'label',
                         schema: { module: 'user', path: 'users' }
                     },
-                    { text: 'Notes', field: 'notes', width: 12, type: 'label' }
+                    { text: 'Notes', field: 'notes', width: 4, type: 'label' },
+                    {
+                        text: 'Labour Provided By', field: 'labourProvidedBy', width: 4, type: 'lookup-link',
+                        schema: { module: 'contractor', path: 'contractors' }
+                    },
+                    {
+                        text: 'Material Provided By', field: 'materialProvidedBy', width: 4, type: 'lookup-link',
+                        schema: { module: 'contractor', path: 'contractors' }
+                    }
                 ]
             },
             {
@@ -188,7 +202,7 @@ export const EditActivity = () => {
                         schema: { module: 'project' }
                     },
                     {
-                        text: 'Dependency', field: 'dependencyId', width: 4, type: 'lookup', required: true, readonly: true,
+                        text: 'Dependency', field: 'workflowId', width: 4, type: 'lookup', required: true, readonly: true,
                         schema: { module: 'workflow' }
                     },
                     {
@@ -246,9 +260,49 @@ export const EditActivity = () => {
                     //     text: 'Assign To', field: 'userId', width: 4, type: 'lookup', required: true,
                     //     schema: { module: 'user', path: 'users' }
                     // },
+                    // {
+                    //     text: 'Contractor Name', field: 'contractorId', nameField: 'contractorName', type: 'lookup', required: true, width: 4,
+                    //     schema: { module: 'contractor' }
+                    // },
                     {
-                        text: 'Contractor Name', field: 'contractorId', nameField: 'contractorName', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'contractor' }
+                        text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup-multi-column', required: true, width: 4,
+                        schema: {
+                            nameField: "name",
+                            module: "contractor",
+                            selectLabel: "Contractor",
+                            columns: [
+                                {
+                                    name: "name",
+                                    width: "50%"
+                                },
+                                {
+                                    name: "type",
+                                    width: "50%"
+                                }
+                            ]
+                        }
+                    },
+                    // {
+                    //     text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup', required: true, width: 4,
+                    //     schema: { module: 'contractor' }
+                    // },
+                    {
+                        text: 'Material Provided By', field: 'materialProvidedBy', type: 'lookup-multi-column', required: true, width: 4,
+                        schema: {
+                            nameField: "name",
+                            module: "contractor",
+                            selectLabel: "Contractor",
+                            columns: [
+                                {
+                                    name: "name",
+                                    width: "50%"
+                                },
+                                {
+                                    name: "type",
+                                    width: "50%"
+                                }
+                            ]
+                        }
                     },
                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false },
                 ]
@@ -353,7 +407,7 @@ export const AddActivity = () => {
                 type: "lookup"
             },
             {
-                field: "dependencyId",
+                field: "workflowId",
                 type: "lookup"
             },
             {
@@ -366,6 +420,10 @@ export const AddActivity = () => {
             },
             {
                 field: "flatId",
+                type: "lookup"
+            },
+            {
+                field: "dependencyId",
                 type: "lookup"
             },
             {
@@ -393,12 +451,16 @@ export const AddActivity = () => {
                         schema: { module: 'project' }
                     },
                     {
-                        text: 'Dependency', field: 'dependencyId', width: 4, type: 'lookup', required: true,
+                        text: 'Dependency', field: 'workflowId', width: 4, type: 'lookup', required: true,
                         schema: { module: 'workflow' }
                     },
+                    // {
+                    //     text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false,
+                    //     schema: { module: 'activity' }
+                    // },
                     {
-                        text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false,
-                        schema: { module: 'activity' }
+                        text: 'Activity', field: 'dependencyId', width: 4, type: 'lookup', required: false,
+                        schema: { module: 'dependency' }
                     },
                     {
                         text: 'Tower', field: 'towerId', type: 'lookup-filter', required: true, width: 4,
@@ -477,9 +539,45 @@ export const AddActivity = () => {
                     //     text: 'Assign To', field: 'userId', width: 4, type: 'lookup', required: true,
                     //     schema: { module: 'user', path: 'users' }
                     // },
+                    // {
+                    //     text: 'Contractor Name', field: 'contractorId', nameField: 'contractorName', type: 'lookup', required: true, width: 4,
+                    //     schema: { module: 'contractor' }
+                    // },
                     {
-                        text: 'Contractor Name', field: 'contractorId', nameField: 'contractorName', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'contractor' }
+                        text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup-multi-column', required: true, width: 4,
+                        schema: {
+                            nameField: "name",
+                            module: "contractor",
+                            selectLabel: "Contractor",
+                            columns: [
+                                {
+                                    name: "name",
+                                    width: "50%"
+                                },
+                                {
+                                    name: "type",
+                                    width: "50%"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        text: 'Material Provided By', field: 'materialProvidedBy', type: 'lookup-multi-column', required: true, width: 4,
+                        schema: {
+                            nameField: "name",
+                            module: "contractor",
+                            selectLabel: "Contractor",
+                            columns: [
+                                {
+                                    name: "name",
+                                    width: "50%"
+                                },
+                                {
+                                    name: "type",
+                                    width: "50%"
+                                }
+                            ]
+                        }
                     },
                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false },
                 ]

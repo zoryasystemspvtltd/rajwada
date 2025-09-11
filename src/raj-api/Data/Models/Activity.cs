@@ -61,6 +61,7 @@ namespace RajApi.Data.Models
         #endregion
                 
         public string? ActualItems { get; set; }
+        public string? WorkId { get; set; }
 
         #region Workflow
         /// <summary>
@@ -147,19 +148,24 @@ namespace RajApi.Data.Models
             }
             private set { /* needed for EF */ }
         }
-        public virtual long? DependencyId { get; set; }
+        
+        [ForeignKey("Workflow")]
+        public virtual long? WorkflowId { get; set; }
 
         [JsonIgnore]
-        public virtual Workflow? Dependency { get; set; }
+        public virtual Workflow? Workflow { get; set; }
+
+        [ForeignKey("Tower")]
         public virtual long? TowerId { get; set; }
 
         [JsonIgnore]
         public virtual Plan? Tower { get; set; }
+
         [ForeignKey("Floor")]
         public virtual long? FloorId { get; set; }
-
         [JsonIgnore]
         public virtual Plan? Floor { get; set; }
+
         [ForeignKey("Flat")]
         public virtual long? FlatId { get; set; }
 
@@ -171,6 +177,26 @@ namespace RajApi.Data.Models
 
         [JsonIgnore]
         public virtual Contractor? Contractor { get; set; }
+
+        [ForeignKey("LabourProvided")]
+        public virtual long? LabourProvidedBy { get; set; }
+
+        [JsonIgnore]
+        public virtual Contractor? LabourProvided { get; set; }
+
+        [ForeignKey("MaterialProvided")]
+        public virtual long? MaterialProvidedBy { get; set; }
+
+        [JsonIgnore]
+        public virtual Contractor? MaterialProvided { get; set; }
+
+        [ForeignKey("Dependency")]
+        public virtual long? DependencyId { get; set; }
+
+        [JsonIgnore]
+        public virtual Dependency? Dependency { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<ActivityAmendment>? ActivityAmendments { get; set; }
         #endregion
     }
 

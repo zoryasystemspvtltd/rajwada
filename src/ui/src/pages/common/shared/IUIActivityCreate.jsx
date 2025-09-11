@@ -10,7 +10,7 @@ import IUIBreadcrumb from './IUIBreadcrumb';
 import IUIPageElement from './IUIPageElement';
 import IUIModuleMessage from './IUIModuleMessage';
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
-import { bfsTraversal } from '../../flowchart-helper/GraphHelper';
+import { bfsTraversal, findSourceNodes } from '../../flowchart-helper/GraphHelper';
 import IUIActivityWizard from './IUIActivityWizard';
 
 const IUIActivityCreate = (props) => {
@@ -20,7 +20,7 @@ const IUIActivityCreate = (props) => {
     const module = setupSchema?.module;
     const dependencyModule = 'workflow';
     const flowchartKey = "dependency-flow";
-    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, dependencyId: null, photoUrl: null };
+    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, workflowId: null, dependencyId: null, photoUrl: null };
     // Parameter
     const { id } = useParams();
     // console.log(parentId)
@@ -132,7 +132,7 @@ const IUIActivityCreate = (props) => {
 
     const handleDependencySelection = (event) => {
         setSelectedOption(parseInt(event.target.value));
-        setDependencySelectParams({ ...dependencySelectParams, dependencyId: event.target.value });
+        setDependencySelectParams({ ...dependencySelectParams, workflowId: event.target.value });
     };
 
     const validate = (values, fields) => {
@@ -249,7 +249,8 @@ const IUIActivityCreate = (props) => {
         e.preventDefault();
         const selectedDependency = allDependencies?.filter((dependency) => dependency.id === parseInt(selectedOption))[0];
         const dependencyGraph = JSON.parse(selectedDependency?.data);
-        const result = bfsTraversal(dependencyGraph?.nodes, dependencyGraph?.edges, 'node_0');
+        const sourceNodes = findSourceNodes(dependencyGraph);
+        const result = bfsTraversal(dependencyGraph?.nodes, dependencyGraph?.edges, sourceNodes[0]?.id);
         const item = (selectedDependency?.flatId !== null) ? await api.getSingleData({ module: 'plan', id: selectedDependency?.flatId }) : await api.getSingleData({ module: 'project', id: selectedDependency?.projectId });
         setDependencySelectParams({
             ...dependencySelectParams,
@@ -274,7 +275,7 @@ const IUIActivityCreate = (props) => {
         let tempImage = { ...imageField };
         tempImage.fields[0].schema.parentId = activityParentId;
         setImageField(tempImage);
-        setBfsSequence(result.map(node => node.data.label));
+        setBfsSequence(result?.filter(node => node !== undefined)?.map(node => ({ label: node?.data?.label, activityId: node?.node?.id })));
         setIsSetupComplete(true);
     };
 
@@ -408,29 +409,34 @@ const IUIActivityCreate = (props) => {
                                             <Row className={isSetupComplete ? "d-none" : ""}>
                                                 {
                                                     (dependencySelectParams.projectId !== null && filteredDependencies.length > 0) && (
-                                                        <Form.Group className="position-relative form-group">
-                                                            <Form.Label className='text-uppercase mb-2'>
-                                                                Select a Dependency Label Setting
-                                                            </Form.Label>
-                                                            <div>
-                                                                {
-                                                                    filteredDependencies?.map((dependency, index) => (
-                                                                        <div key={`dep-${index}`}>
-                                                                            <Form.Check className='text-capitalize form-check-inline'
-                                                                                type="radio"
-                                                                                value={dependency.id}
-                                                                                checked={selectedOption == dependency.id}
-                                                                                onChange={handleDependencySelection}
-                                                                                label={dependency.name}
-                                                                            />
-                                                                            <br />
-                                                                        </div>
-                                                                    ))
-                                                                }
+                                                        <div className="row">
+                                                            <div className="col-sm-12 col-md-6 col-lg-6">
+                                                                <Form.Group className="position-relative form-group">
+                                                                    <Form.Label className='text-uppercase mb-2'>
+                                                                        Select a Dependency Label Setting
+                                                                    </Form.Label>
+                                                                    <div>
+                                                                        < select
+                                                                            aria-label={`select-dependency-for-work`}
+                                                                            id={`select-dependency-for-work`}
+                                                                            value={selectedOption}
+                                                                            data-name={props.nameField}
+                                                                            name='select'
+                                                                            className={`form-control ${props.className}`}
+                                                                            disabled={props.readonly || false}
+                                                                            onChange={handleDependencySelection}>
+                                                                            <option>--Select--</option>
+                                                                            {filteredDependencies?.map((item, i) => (
+                                                                                <option key={i} value={item.id}>{item.name}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+                                                                </Form.Group>
                                                             </div>
-                                                        </Form.Group>
+                                                        </div>
                                                     )
                                                 }
+
                                                 {
                                                     (dependencySelectParams.projectId !== null && filteredDependencies.length === 0) && (
                                                         <Form.Group className="position-relative form-group">
@@ -443,7 +449,7 @@ const IUIActivityCreate = (props) => {
                                             </Row>
 
                                             {
-                                                (selectedOption && !isSetupComplete) ?
+                                                (selectedOption && !isSetupComplete && filteredDependencies.length !== 0) ?
                                                     <Row>
                                                         <FlowchartInit
                                                             readonly={true}

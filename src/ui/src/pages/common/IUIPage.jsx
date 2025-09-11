@@ -153,11 +153,11 @@ const IUIPage = (props) => {
         e.preventDefault();
         let action = {};
         if (module === 'activity') {
-            action = { module: module, data: { id: id, member: email, userId: userId ,status: 3} }
+            action = { module: module, data: { id: id, member: email, userId: userId, status: 3 } }
         }
         else {
             //status :3 means assigned
-            action = { module: module, data: { id: id, member: email ,status: 3} }
+            action = { module: module, data: { id: id, member: email, status: 3 } }
         }
         try {
             await api.editPartialData(action);
@@ -215,7 +215,7 @@ const IUIPage = (props) => {
                 action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: 3 } }
             }
             else {
-                 //status :3 means assigned
+                //status :3 means assigned
                 action = { module: module, data: { id: dataId, member: user.email, status: 3 } }
             }
             try {
@@ -270,8 +270,8 @@ const IUIPage = (props) => {
 
     const assignApprover = async (e, email) => {
         e.preventDefault();
-         //status :3 means assigned
-        const action = { module: module, data: { id: id, member: email ,status: 3} }
+        //status :3 means assigned
+        const action = { module: module, data: { id: id, member: email, status: 3 } }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
@@ -398,7 +398,7 @@ const IUIPage = (props) => {
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
                             if (module === 'activity') {
-                                props?.activityCallback({status: true, id: response?.data});
+                                props?.activityCallback({ status: true, id: response?.data });
                                 notify('success', `Activity ${data?.name} created successfully!`);
                                 return;
                             }
@@ -423,7 +423,7 @@ const IUIPage = (props) => {
                     } catch (e) {
                         // TODO
                         if (module === 'activity') {
-                            props?.activityCallback({status: false, id: -1});
+                            props?.activityCallback({ status: false, id: -1 });
                             return;
                         }
                     }
@@ -561,7 +561,10 @@ const IUIPage = (props) => {
                                                     <hr /> : null
                                             }
                                             {
-                                                schema?.copy && <IUICopy module={module} onChange={handleCopyChange} />
+                                                schema?.copy && <IUICopy
+                                                    schema={schema?.copySchema}
+                                                    onChange={handleCopyChange}
+                                                />
                                             }
                                             <Row>
                                                 {schema?.fields?.map((fld, f) => (

@@ -24,7 +24,18 @@ public class ApplicationDbContext : DbContext
           .Property(p => p.BudgetAllocationAmount).HasDefaultValue(0.0);
         builder.Entity<Plan>()
            .Property(p => p.TotalCost).HasDefaultValue(0.0);
+
+        builder.Entity<Contractor>()
+       .Property(e => e.Type).HasDefaultValue("Contractor");
+
+        builder.Entity<ActivityAmendment>()
+       .Property(e => e.RejectedByQC).HasDefaultValue(0);
+
+        builder.Entity<ActivityAmendment>()
+       .Property(e => e.AmendmentStatus).HasDefaultValue(0);
+
         SeedData(builder);
+       
     }
     private void SeedData(ModelBuilder builder)
     {
@@ -146,7 +157,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Comment> Comments { get; set; }
     public virtual DbSet<Attachment> Attachments { get; set; }
     public virtual DbSet<Parking> Parkings { get; set; }
-    public virtual DbSet<FlatTemplate> FlatTemplates { get; set; }
+    public virtual DbSet<FlatTemplateDetails> FlatTemplateDetails { get; set; }
     #endregion
 
     #region Masters
@@ -160,10 +171,12 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Room> Rooms { get; set; }
     public virtual DbSet<Contractor> Contractors { get; set; }
     public virtual DbSet<Supplier> Suppliers { get; set; }
-    public virtual DbSet<LevelSetup> LevelSetup { get; set; }    
+    public virtual DbSet<LevelSetup> LevelSetup { get; set; }
     public virtual DbSet<UnitOfWork> UnitOfWorks { get; set; }
-    public virtual DbSet<FlatType> FlatTypes { get; set; }
+    public virtual DbSet<FlatTemplate> FlatTemplates { get; set; }
     public virtual DbSet<ParkingType> ParkingTypes { get; set; }
+    public virtual DbSet<ProjectDocNoTracking> ProjectDocNoTrackings { get; set; }
+    public virtual DbSet<FinancialYear> FinancialYears { get; set; }
     #endregion
 
 }

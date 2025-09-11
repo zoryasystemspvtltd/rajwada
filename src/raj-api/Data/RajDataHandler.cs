@@ -3,12 +3,9 @@ using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Mysqlx.Crud;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Pkcs;
 using RajApi.Data.Models;
 using System.Data;
-using System.Reflection;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
 
@@ -432,17 +429,24 @@ public class RajDataHandler : LabDataHandler
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
             }
 
-            var finallist = CalculateWorkStatus(activities);
+            if (activities.Count > 0)
+            {
+                var finallist = CalculateWorkStatus(activities);
 
-            List<string> dpendencies = GetDependency(activities[0].DependencyId);
+                List<string> dpendencies = GetDependency(activities[0].WorkflowId);
 
-            var table = ConvertDependencytoTable(dpendencies);
+                var table = ConvertDependencytoTable(dpendencies);
 
-            var finaltable = GetRoomNames(flatId, table, finallist);
+                var finaltable = GetRoomNames(flatId, table, finallist);
 
-            var tableJson = DataTableToJSON(finaltable);
+                var tableJson = DataTableToJSON(finaltable);
 
-            return tableJson;
+                return tableJson;
+            }
+            else
+            {
+                return null;
+            }
         }
         catch (Exception ex)
         {
@@ -621,26 +625,6 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public dynamic GetResourceDetails(long planId)
-    {
-        var rooms = dbContext.Set<Room>()
-                 .ToList();
-        var res = dbContext.Set<Resource>()
-            .Where(l => l.PlanId == planId)
-            .ToList();
-
-        var final = res.Join(rooms,
-                r => r.RoomId,
-                rm => rm.Id,
-                (r, rm) => new
-                {
-                    r.Quantity,
-                    rm.Name
-                });
-
-        return final;
-    }
-
     public dynamic GetAllAssignedUsers(string module, long id)
     {
         var result = dbContext.Set<ApplicationLog>()
@@ -747,7 +731,7 @@ public class RajDataHandler : LabDataHandler
             logger.LogError(ex, $"Exception in AddAsync method and details: '{ex.Message}'");
             throw;
         }
-    }   
+    }
 
     public override async Task<long> EditAsync<T>(T item, CancellationToken cancellationToken)
     {
@@ -897,6 +881,19 @@ public class RajDataHandler : LabDataHandler
             logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
             throw;
         }
+    }
+
+    public string? GetFinancialYear(object code)
+    {
+        DateTime filterDate = DateTime.Now;
+        var data = dbContext.Set<FinancialYear>().Where(e => filterDate >= e.StartDate && filterDate <= e.EndDate).FirstOrDefault();
+        return data?.FinYear;
+    }
+
+    public dynamic? GetDocumentNo(long projectId)
+    {
+        var data = dbContext.Set<ProjectDocNoTracking>().Where(e => e.ProjectId == projectId).FirstOrDefault();
+        return data;
     }
 }
 
