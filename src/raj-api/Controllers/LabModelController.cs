@@ -256,6 +256,7 @@ public class LabModelController : ControllerBase
             {
                 data = UpdateAcutualDate(module, data);
             }
+           
             var activityId = await dataService.EditAsync(module, id, data, token);
             if (module.Equals("PLAN", StringComparison.CurrentCultureIgnoreCase))
             {

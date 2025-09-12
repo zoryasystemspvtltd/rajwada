@@ -8,23 +8,16 @@ using System.Data;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
 
-
-
 namespace RajApi.Data;
 
 public class RajDataHandler : LabDataHandler
 {
-
     public readonly LabDataHandler handler;
-    public RajDataHandler(DbContext dbContext,
-    ILogger<RajDataHandler> logger)
-        : base(dbContext, logger)
+    public RajDataHandler(DbContext dbContext, ILogger<RajDataHandler> logger) : base(dbContext, logger)
     {
-
     }
 
     public ModuleIdentity Identity { get; set; }
-
 
     public override IQueryable<T> FilterIdentity<T>(DbSet<T> dbSet)
     {
@@ -703,6 +696,7 @@ public class RajDataHandler : LabDataHandler
             }
         }
     }
+
     public override async Task<long> AddAsync<T>(T item, CancellationToken cancellationToken)
     {
         item.Status = StatusType.Draft;
@@ -753,7 +747,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.Modified, cancellationToken);
-
+            await SaveAuditLogs(item, StatusType.Modified, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -896,8 +890,8 @@ public class RajDataHandler : LabDataHandler
             Date = DateTime.UtcNow,
             EntityId = item.Id,
             Name = module.Name,
-            ActionType = activityType.ToString(),
             Member = item.Member,
+            ActionType = (activityType == StatusType.Draft ? "Insert" : activityType.ToString()),
             Key = item.Key
         };
         if (activityType == StatusType.Draft)
@@ -909,8 +903,9 @@ public class RajDataHandler : LabDataHandler
             log.OldValues = null;
             log.NewValues = jitem;
             log.ModifiedDate = DateTime.UtcNow;
-            log.ModifiedBy = item.Member;           
-        }       
+            log.ModifiedBy = item.Member;
+        }
+
         try
         {
             dbContext.Set<AuditLog>().Add(log);
