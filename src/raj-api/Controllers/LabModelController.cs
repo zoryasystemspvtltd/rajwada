@@ -171,14 +171,14 @@ public class LabModelController : ControllerBase
             List<ParkingRawData> parkingsList = JsonConvert.DeserializeObject<List<ParkingRawData>>(parkingData);
             foreach (var item in parkingsList)
             {
-                var parkingType = Get("ParkingType", item.ParkingTypeId);
-                for (int i = 1; i <= item.NoOfParking; i++)
+                var parkingType = Get("ParkingType", item.parkingTypeId);
+                for (int i = 1; i <= item.noOfParking; i++)
                 {
                     string name = projectName + "/" + jsonData?.Name + "/Parking/" + parkingType.Result.Name + i;
 
                     Parking parking = new()
                     {
-                        ParkingTypeId = item.ParkingTypeId,
+                        ParkingTypeId = item.parkingTypeId,
                         TowerId = towerId,
                         ProjectId = jsonData?.ProjectId,
                         Name = name,
@@ -303,12 +303,12 @@ public class LabModelController : ControllerBase
 
             for (int i = 0; i < templateList.Count; i++)
             {
-                long templateId = templateList[i].FlatTemplateId;
+                long templateId = templateList[i].flatTemplateId;
                 var flatType = Get("FlatTemplate", templateId);
                 if (flatType == null)
                     return 0;
 
-                for (int j = 1; j <= templateList[i].NoOfFlats; j++)
+                for (int j = 1; j <= templateList[i].noOfFlats; j++)
                 {
                     string flatName = string.Empty, description = string.Empty;
 

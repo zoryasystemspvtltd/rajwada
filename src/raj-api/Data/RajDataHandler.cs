@@ -972,8 +972,8 @@ public class RajDataHandler : LabDataHandler
                 {
                     parkingList.Add(new ParkingRawData()
                     {
-                        ParkingTypeId = result.GetInt64("ParkingTypeId"),
-                        NoOfParking = result.GetInt32("ParkingCount")
+                        parkingTypeId = result.GetInt64("ParkingTypeId"),
+                        noOfParking = result.GetInt32("ParkingCount")
                     });
 
                     entities.Id = result.GetInt64("Id");
@@ -1012,13 +1012,13 @@ public class RajDataHandler : LabDataHandler
                 {
                     list.Add(new FlatTemplateRawData()
                     {
-                        FlatTemplateId = result.GetInt64("FlatTemplateId"),
-                        NoOfFlats = result.GetInt32("FlatCount")
+                        flatTemplateId = result.GetInt64("FlatTemplateId"),
+                        noOfFlats = result.GetInt32("FlatCount")
                     });
 
                 }
                 // Wrap in FlatData
-                FlatData flatData = new FlatData
+                FlatData flatData = new()
                 {
                     FlatTemplates = list
                 };

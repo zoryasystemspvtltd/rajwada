@@ -28,6 +28,6 @@ public class FlatTemplateDetails : LabModel, IGlobal
 }
 public class FlatTemplateRawData
 {
-    public long FlatTemplateId { get; set; }
-    public int NoOfFlats { get; set; }
+    public long flatTemplateId { get; set; }
+    public int noOfFlats { get; set; }
 }
