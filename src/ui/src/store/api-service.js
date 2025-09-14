@@ -162,7 +162,7 @@ api.downloadAggregatedReport = async (action) => {
 
 api.workerReport = async (action) => {
     const url = `/report`;
-    const response =  await api.post(url, action.data);
+    const response = await api.post(url, action.data);
     return response;
 }
 api.assignedUsers = async (action) => {
@@ -184,6 +184,11 @@ api.mobileReport = async (action) => {
     const url = `/report/${action.startDate}/${action.endDate}`;
     const response = await api.get(url);
     return response;
+}
+api.getDataCopy = async (action) => {
+    //api.defaults.headers.common["Authorization"] = "Bearer " + loggedInUser?.accessToken;
+    const url = `/datacopy/${action.id}/${action.type}`;
+    return await api.get(url);
 }
 export default api;
 

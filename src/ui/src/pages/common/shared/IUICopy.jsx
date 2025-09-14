@@ -42,7 +42,13 @@ const IUICopy = (props) => {
     const handleItemSelection = async (event) => {
         event.preventDefault();
         setSelectedOption(parseInt(event.target.value));
-        const item = await api.getSingleData({ module: module, id: parseInt(event.target.value) });
+        let item = null;
+        if (schema?.dataCopy) {
+            item = await api.getDataCopy({ id: parseInt(event.target.value), type: props?.schema?.filterValue });
+        }
+        else {
+            item = await api.getSingleData({ module: module, id: parseInt(event.target.value) });
+        }
         let copiedData = item.data;
         delete copiedData.id;
         const customEvent = { target: { id: parseInt(event.target.value), value: copiedData }, preventDefault: function () { } };

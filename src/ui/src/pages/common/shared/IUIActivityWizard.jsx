@@ -1,10 +1,11 @@
 import $ from "jquery"; // Import jQuery
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "smartwizard/dist/css/smart_wizard_all.min.css"; // SmartWizard CSS
 import "smartwizard/dist/js/jquery.smartWizard.min.js"; // SmartWizard JS
 import api from '../../../store/api-service';
 import IUIPage from "../IUIPage";
+
 
 const IUIActivityWizard = (props) => {
     const wizardRef = useRef(null);
@@ -15,10 +16,6 @@ const IUIActivityWizard = (props) => {
     // console.log(dependencyData);
     const [isCreationSuccessful, setIsCreationSuccessful] = useState(true);
     const navigate = useNavigate();
-    const tabContentStyle = {
-        height: 'auto',
-        overflow: 'visible'
-    };
     const [unitOfWorkSchema, setUnitOfWorkSchema] = useState({
         parentId: -1,
         parent: {
@@ -27,6 +24,8 @@ const IUIActivityWizard = (props) => {
         },
         module: 'unitOfWork'
     });
+    const tabContentRef = useRef(null);
+    const [activeIndex, setActiveIndex] = useState(0);
 
     const customNextStepLogic = () => {
         // Custom logic goes here
@@ -37,6 +36,7 @@ const IUIActivityWizard = (props) => {
             return false;
         }
     };
+
 
     // Define the custom function to be triggered on step changing
     const handleStepChanging = (event, anchorObject, stepIndex, stepDirection, stepPosition) => {
@@ -54,6 +54,7 @@ const IUIActivityWizard = (props) => {
         return true;
     };
 
+
     const updateUnit = async (unit, newActivityId) => {
         if (unit?.activityId === null) {
             const payload = { ...unit, activityId: parseInt(newActivityId) };
@@ -62,6 +63,7 @@ const IUIActivityWizard = (props) => {
         }
     };
 
+
     const updateUnitsOfWork = async (newActivityId) => {
         const pageOptions = { recordPerPage: 0 };
         const response = await api.getData({
@@ -69,15 +71,18 @@ const IUIActivityWizard = (props) => {
             options: pageOptions,
         });
 
+
         const items = response?.data?.items || [];
         const filteredUnits = items.filter(
             (item) => item?.[unitOfWorkSchema?.parent?.filter] === parseInt(unitOfWorkSchema?.parentId)
         );
 
+
         const updatePromises = filteredUnits.map((unit) => updateUnit(unit, newActivityId));
         await Promise.all(updatePromises);
         return;
     }
+
 
     const activityCallback = async (callbackResponse) => {
         setIsCreationSuccessful(callbackResponse?.status);
@@ -85,6 +90,7 @@ const IUIActivityWizard = (props) => {
             await updateUnitsOfWork(callbackResponse?.id);
         }
     };
+
 
     const baseQueryConstructor = (data) => {
         let baseQuery = {};
@@ -160,10 +166,36 @@ const IUIActivityWizard = (props) => {
         return baseQuery;
     }
 
+
+
+
     // Filter out works items whose activity has already been created
     useEffect(() => {
+
+
+        // Function to filter out all grouping activities
+        async function filterGroupActivities() {
+            const item = await api.getSingleData({ module: 'workflow', id: props?.dependencyData?.workflowId });
+            let inputDependency = item.data;
+            const nodes = JSON.parse(inputDependency?.data)?.nodes;
+
+
+            const filtered = nodes.filter(node => {
+                if (node?.node?.parentId !== null) {
+                    // it's a child node
+                    return true;
+                } else {
+                    // check if node has children
+                    const hasChildren = nodes?.some(n => n?.node?.parentId === node?.node?.id);
+                    return !hasChildren; // include only if no children
+                }
+            })?.map(node => node?.data?.label);
+            return filtered;
+        }
+
         async function fetchActivities() {
             let baseQuery = baseQueryConstructor(props?.dependencyData);
+
 
             // console.log(props?.dependencyData)
             const pageOptions = {
@@ -173,30 +205,43 @@ const IUIActivityWizard = (props) => {
             const response = await api.getData({ module: 'activity', options: pageOptions });
             let activities = response?.data?.items || [];
 
+
             if (activities?.length > 0) {
                 // find already existing activities for workitems
                 let finalSequence = [];
+
+
+
+
+                // Check for already created activities for a selected Dependency
                 props?.sequence?.forEach((workItem) => {
-                    let existingActivities = activities?.filter((activity) => activity?.name?.includes(workItem) || activity?.description?.includes(workItem))
+                    let existingActivities = activities?.filter((activity) => activity?.name?.includes(workItem?.label) || activity?.description?.includes(workItem?.label))
                     if (existingActivities?.length === 0) {
                         finalSequence.push(workItem);
                     }
                 });
 
-                setSequence(finalSequence);
+
+                // Updated logic for no planning for group activities
+                const groupActivities = await filterGroupActivities();
+                setSequence(finalSequence?.filter(activity => groupActivities.includes(activity?.label)));
                 if (finalSequence?.length === 0) {
                     setAlreadyCreationNote("Activities have already been created for the selected Tower, Floor, Flat and Dependency details !");
                 }
             }
             else {
-                setSequence(props?.sequence);
+                // Updated logic for no planning for group activities
+                const groupActivities = await filterGroupActivities();
+                setSequence(props?.sequence?.filter(activity => groupActivities.includes(activity?.label)));
             }
         }
+
 
         if (props?.sequence && props?.dependencyData) {
             fetchActivities();
         }
     }, [props?.sequence, props?.dependencyData]);
+
 
     useEffect(() => {
         if (wizardRef.current) {
@@ -214,12 +259,15 @@ const IUIActivityWizard = (props) => {
                 },
             });
 
+
             // Handle step changes
             $(wizardRef.current).on("leaveStep", handleStepChanging);
+
 
             // Handle step visibility
             $(wizardRef.current).on("showStep", (e, anchorObject, stepNumber, stepDirection, stepPosition) => {
                 setIsCreationSuccessful(false); // Reset success state on step change
+                setActiveIndex(stepNumber)
 
                 if (stepPosition === "last") {
                     $(".sw-btn-next").hide(); // Hide Next button on last step
@@ -230,17 +278,20 @@ const IUIActivityWizard = (props) => {
                 }
             });
 
+
             // Style Next button
             $(".sw-btn-next")
                 .addClass("btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary")
                 .removeClass("sw-btn")
                 .prop("disabled", !isCreationSuccessful); // Initially disable Next button
 
+
             // Add Finish Button if not already present
             if (!$("#finish-btn").length) {
                 $(".sw-toolbar-elm").append(
                     `<button id="finish-btn" class="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-dark ml-2" disabled>Finish</button>`
                 );
+
 
                 $("#finish-btn").on("click", (e) => {
                     e.preventDefault();
@@ -250,11 +301,13 @@ const IUIActivityWizard = (props) => {
         }
     }, [navigate, schema?.path, sequence?.length, isCreationSuccessful]);  // Empty dependency array ensures it runs only once
 
+
     // Effect to update the button states dynamically
     useEffect(() => {
         $(".sw-btn-next").prop("disabled", !isCreationSuccessful); // Disable Next button if needed
         $("#finish-btn").prop("disabled", !isCreationSuccessful); // Disable Finish button if needed
     }, [isCreationSuccessful]);
+
 
     return (
         <div>
@@ -274,15 +327,33 @@ const IUIActivityWizard = (props) => {
                             }
                         </ul>
 
-                        <div className="tab-content" style={tabContentStyle}>
-                            {
-                                sequence?.map((activity, index) => (
-                                    <div id={`step-${index + 1}`} className="tab-pane" role="tabpanel" aria-labelledby={`step-${index + 1}`} key={`tab-${activity?.label}-${index}`}>
-                                        <IUIPage schema={schema} activityCallback={activityCallback} defaultValues={{ ...dependencyData, dependencyId: activity?.activityId }} />
-                                    </div>
-                                ))
-                            }
+
+                        <div
+                            className="tab-content"
+                            ref={tabContentRef}
+                            style={{
+                                overflowX: 'hidden',
+                                overflowY: 'auto', // optional if you want vertical scroll
+                            }}
+                        >
+                            {sequence?.map((activity, index) => (
+                                <div
+                                    id={`step-${index + 1}`}
+                                    className={`tab-pane ${index === activeIndex ? 'active' : ''}`}
+                                    role="tabpanel"
+                                    aria-labelledby={`step-${index + 1}`}
+                                    key={`tab-${activity?.label}-${index}`}
+                                >
+                                    <IUIPage
+                                        key={`activity-${activity?.activityId}`}
+                                        schema={schema}
+                                        activityCallback={activityCallback}
+                                        defaultValues={{ ...dependencyData, dependencyId: activity?.activityId }}
+                                    />
+                                </div>
+                            ))}
                         </div>
+
 
                         {/* style property added to middle align progress bar */}
                         <div className="progress" style={{ margin: "auto", width: "50%" }}>
@@ -298,5 +369,6 @@ const IUIActivityWizard = (props) => {
         </div>
     );
 };
+
 
 export default IUIActivityWizard;

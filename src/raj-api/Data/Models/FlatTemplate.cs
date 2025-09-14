@@ -16,5 +16,5 @@ public class FlatTemplate : LabModel, IGlobal
 
 public class FlatData
 {
-    public List<FlatTemplateRawData>? FlatTemplates { get; set; }
+    public List<FlatTemplateRawData>? flatTemplates { get; set; }
 }

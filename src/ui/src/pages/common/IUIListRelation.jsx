@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import Pagination from 'react-bootstrap/Pagination';
 import * as Icon from 'react-bootstrap-icons';
 import Table from 'react-bootstrap/Table';
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Col, Row, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from './shared/IUILookUp';
@@ -13,6 +13,9 @@ import { HiOutlineUpload } from 'react-icons/hi';
 import { RiDownload2Fill } from 'react-icons/ri';
 import * as XLSX from 'xlsx';
 import { formatStringDate } from '../../store/datetime-formatter';
+import api from '../../store/api-service';
+import { notify } from '../../store/notification';
+
 
 const IUIListRelation = (props) => {
     const schema = props.schema;
@@ -25,10 +28,28 @@ const IUIListRelation = (props) => {
     const navigate = useNavigate();
     const [message, setMessage] = useState("");
     const fileInputRef = useRef(null);
-    const [data, setData] = useState([]);
+    const [selectedValues, setSelectedValues] = useState([]);
+    const loggedInUser = useSelector((state) => state.api.loggedInUser);
+    const [privileges, setPrivileges] = useState({});
+
+
+    useEffect(() => {
+        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === schema.module)?.map(p => p.name);
+        let access = {};
+        modulePrivileges.forEach(p => {
+            access = { ...access, ...{ [p]: true } }
+        })
+        // console.log(access)
+        setPrivileges(access);
+        if (schema.module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
+    }, [loggedInUser, schema.module]);
+
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
+
 
         if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
             const reader = new FileReader();
@@ -38,8 +59,8 @@ const IUIListRelation = (props) => {
                 const sheetName = workbook.SheetNames[0]; // Assuming the first sheet is needed
                 const sheet = workbook.Sheets[sheetName];
                 const jsonData = XLSX.utils.sheet_to_json(sheet);
-                console.log(jsonData);
-                setData(jsonData);
+                // console.log(jsonData);
+                // setData(jsonData);
                 setMessage("File successfully uploaded!");
             };
             reader.readAsArrayBuffer(file);
@@ -48,9 +69,11 @@ const IUIListRelation = (props) => {
         }
     }
 
+
     const handleButtonClick = () => {
         fileInputRef.current.click(); // Trigger the file input click
     };
+
 
     useEffect(() => {
         if (props?.parentId) {
@@ -60,7 +83,9 @@ const IUIListRelation = (props) => {
                 //operator: 'likelihood' // Default value is equal
             }
 
+
             setBaseFilter(newBaseFilter)
+
 
             const pageOptions = {
                 ...dataSet?.options
@@ -70,6 +95,8 @@ const IUIListRelation = (props) => {
             dispatch(getData({ module: module, options: pageOptions }));
         }
     }, [props]);
+
+
 
 
     const pageChanges = async (e) => {
@@ -86,12 +113,15 @@ const IUIListRelation = (props) => {
             sortDirection: !dataSet?.options?.sortDirection
         }
 
+
         dispatch(getData({ module: module, options: sortOptions }));
     }
+
 
     const handleSearchChange = async (e) => {
         setSearch(e.target.value);
     }
+
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -101,11 +131,15 @@ const IUIListRelation = (props) => {
                 .map(fld => ({ name: fld.field, value: search, operator: 'likelihood' }));
 
 
+
+
             for (let i = 1; i < searchFields.length; i++) {
                 searchFields[i] = { ...searchFields[i], or: searchFields[i - 1] }
             }
 
+
             let condition = searchFields[searchFields.length - 1];
+
 
             const searchOptions = {
                 currentPage: 1,
@@ -123,6 +157,53 @@ const IUIListRelation = (props) => {
             dispatch(getData({ module: module, options: searchOptions }));
         }
     };
+
+
+    const handleIndividualChange = (e) => {
+        const { value, checked } = e.target;
+        let newValues = [];
+        if (checked) {
+            newValues = [...selectedValues, parseInt(value)];
+            setSelectedValues(newValues);
+
+
+        } else {
+            newValues = selectedValues.filter(v => v !== parseInt(value));
+            setSelectedValues(newValues);
+        }
+    };
+
+
+    const handleRowChange = (e) => {
+        if (e.target.checked) {
+            const newValue = [...dataSet?.items?.map(data => data?.id)];
+            setSelectedValues(newValue);
+        }
+        else {
+            setSelectedValues([]);
+        }
+    };
+
+
+    const deleteItem = async (itemId) => {
+        const response = await api.deleteData({ module: schema?.module, id: itemId });
+        return response.data;
+    }
+
+
+    const deleteSelected = async () => {
+        if (selectedValues.length > 0) {
+            const deletePromises = selectedValues.map(id => deleteItem(id));
+            await Promise.all(deletePromises);
+            notify("success", 'Deletion Successful!');
+            setSelectedValues([]);
+             window.location.reload();
+        }
+        else {
+            notify("info", `Kindly select ${schema?.module} to delete!`)
+        }
+    }
+
 
     return (
         <>
@@ -150,7 +231,7 @@ const IUIListRelation = (props) => {
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
                                             onClick={() => {
                                                 const excelFileUrl = '/templates/FloorDetails.xlsx';
-                                                console.log(excelFileUrl);
+                                                // console.log(excelFileUrl);
                                                 const link = document.createElement("a");
                                                 link.href = excelFileUrl;
                                                 link.download = "FloorDetails.xlsx";
@@ -180,11 +261,26 @@ const IUIListRelation = (props) => {
                                             Upload
                                         </Button>
                                     }
+                                    {schema?.delete &&
+                                        <>
+                                            {
+                                                privileges?.delete &&
+                                                <Button
+                                                    variant="contained"
+                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                                    onClick={() => deleteSelected()}
+                                                >
+                                                    Delete
+                                                </Button>
+                                            }
+                                        </>
+                                    }
                                     <IUIModuleMessage schema={props.schema} />
                                 </Col>
                                 <Col md={4}>
                                     {schema.searching &&
                                         <div className="input-group mb-2 justify-content-end " data-mdb-input-init>
+
 
                                             <input className="form-control"
                                                 type="text"
@@ -193,6 +289,7 @@ const IUIListRelation = (props) => {
                                                 value={search}
                                                 onChange={handleSearchChange}
                                             />
+
 
                                             <button
                                                 type="submit"
@@ -213,7 +310,16 @@ const IUIListRelation = (props) => {
                                                 {schema?.editing &&
                                                     <th>
                                                         <button type="submit" className="btn btn-link text-white p-0">#</button>
-
+                                                    </th>
+                                                }
+                                                {
+                                                    schema?.enableCheckBoxRow &&
+                                                    <th>
+                                                        <Form.Check className='text-capitalize'
+                                                            id={`${props.id}_Check_All`}
+                                                            checked={(selectedValues?.length === dataSet?.items?.length) || false}
+                                                            onChange={(e) => handleRowChange(e)}
+                                                        />
                                                     </th>
                                                 }
                                                 {schema?.fields?.map((fld, f) => (
@@ -242,9 +348,22 @@ const IUIListRelation = (props) => {
                                         {
                                             <tbody>
 
+
                                                 {
                                                     dataSet?.items?.map((item, i) => (
                                                         <tr key={i} >
+                                                            {
+                                                                schema?.enableCheckBoxRow &&
+                                                                <td>
+                                                                    <Form.Check className='text-capitalize'
+                                                                        id={item.id}
+                                                                        value={item.id}
+                                                                        checked={selectedValues.includes(item.id)}
+                                                                        onChange={(e) => handleIndividualChange(e)}
+                                                                        label={''}
+                                                                    />
+                                                                </td>
+                                                            }
                                                             {schema?.editing &&
                                                                 <td width={10}>
                                                                     <Link to={`/${schema?.path}/${item?.id}/edit/${props?.parentId}`} title='Edit'><i className="fa-solid fa-pencil"></i></Link>
@@ -291,7 +410,9 @@ const IUIListRelation = (props) => {
                                                 </tr>
                                             </tfoot>
 
+
                                         }
+
 
                                     </Table>
                                 </Col>
@@ -303,5 +424,6 @@ const IUIListRelation = (props) => {
         </>
     )
 }
+
 
 export default IUIListRelation

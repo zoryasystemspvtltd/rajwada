@@ -1020,7 +1020,7 @@ public class RajDataHandler : LabDataHandler
                 // Wrap in FlatData
                 FlatData flatData = new()
                 {
-                    FlatTemplates = list
+                    flatTemplates = list
                 };
                 return JsonConvert.SerializeObject(flatData);                
             }

@@ -1,4 +1,3 @@
-import { useParams } from "react-router-dom";
 import IUIListFilter from "../../common/IUIListFilter";
 import IUIPage from "../../common/IUIPage"
 
@@ -64,7 +63,7 @@ export const FloorDashboard = () => {
 
 
 export const ViewFloor = () => {
-    const { id } = useParams();
+    // const { id } = useParams();
 
 
     const schema = {
@@ -132,7 +131,7 @@ export const ViewFloor = () => {
 
 
 export const EditFloor = () => {
-    const { id } = useParams();
+    // const { id } = useParams();
 
 
     const schema = {
@@ -140,6 +139,14 @@ export const EditFloor = () => {
         title: 'Floor',
         path: 'floors',
         back: false,
+        copy: true,
+        copySchema: {
+            copyLabel: 'Floor',
+            module: 'plan',
+            filterKey: 'type',
+            filterValue: 'floor',
+            dataCopy: true
+        },
         fields: [
             {
                 type: "area", width: 12
@@ -237,30 +244,30 @@ export const AddFloor = () => {
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
             },
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        text: 'Flat List', field: 'plans', width: 12, type: 'table-input', required: true,
-                        schema: {
-                            title: 'Flats',
-                            module: 'plan',
-                            paging: true,
-                            searching: true,
-                            editing: true,
-                            adding: true,
-                            save: false,
-                            fields: [
-                                {
-                                    text: 'Flat Template', field: 'flatTemplateId', type: 'lookup', required: true, width: 6,
-                                    schema: { module: 'flatTemplate' }
-                                },
-                                { text: 'Flat Count', field: 'noOfFlats', placeholder: 'Flat count here...', type: 'number', width: 6, required: true }
-                            ]
-                        }
-                    },
-                ]
-            },
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         {
+            //             text: 'Flat List', field: 'plans', width: 12, type: 'table-input', required: true,
+            //             schema: {
+            //                 title: 'Flats',
+            //                 module: 'plan',
+            //                 paging: true,
+            //                 searching: true,
+            //                 editing: true,
+            //                 adding: true,
+            //                 save: false,
+            //                 fields: [
+            //                     {
+            //                         text: 'Flat Template', field: 'flatTemplateId', type: 'lookup', required: true, width: 6,
+            //                         schema: { module: 'flatTemplate' }
+            //                     },
+            //                     { text: 'Flat Count', field: 'noOfFlats', placeholder: 'Flat count here...', type: 'number', width: 6, required: true }
+            //                 ]
+            //             }
+            //         },
+            //     ]
+            // },
             {
                 type: "area", width: 12
                 , fields: [
