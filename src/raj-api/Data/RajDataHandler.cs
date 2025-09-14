@@ -982,9 +982,9 @@ public class RajDataHandler : LabDataHandler
                     entities.Blueprint = result.GetString("Blueprint");
                     entities.ProjectId = result.GetInt64("ProjectId");
                     entities.NoOfFloors = result.GetInt32("FloorCount");
-                    entities.Parkings = parkingList.ToString();
+                  
                 }
-
+                entities.Parkings = JsonConvert.SerializeObject(parkingList);
                 return entities;
             }
         }
@@ -1007,18 +1007,22 @@ public class RajDataHandler : LabDataHandler
 
             using (var result = command.ExecuteReader())
             {
-                var FlatTemplates = new List<FlatTemplateRawData>();
+                var list = new List<FlatTemplateRawData>();
                 while (result.Read())
                 {
-                    FlatTemplates.Add(new FlatTemplateRawData()
+                    list.Add(new FlatTemplateRawData()
                     {
                         FlatTemplateId = result.GetInt64("FlatTemplateId"),
                         NoOfFlats = result.GetInt32("FlatCount")
                     });
 
                 }
-
-                return FlatTemplates;
+                // Wrap in FlatData
+                FlatData flatData = new FlatData
+                {
+                    FlatTemplates = list
+                };
+                return JsonConvert.SerializeObject(flatData);                
             }
         }
     }
