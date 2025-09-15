@@ -39,7 +39,7 @@ const IUITableInput = (props) => {
         }
 
         fetchData();
-    }, [id]);
+    }, [id, module]);
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
@@ -55,7 +55,7 @@ const IUITableInput = (props) => {
             const error = validate(data, schema?.fields)
             setErrors(error);
         }
-    }, [data, dirty]);
+    }, [data, dirty, schema?.fields]);
 
     useEffect(() => {
         async function collateData() {
@@ -82,7 +82,7 @@ const IUITableInput = (props) => {
         }
 
         if (props?.value && !props?.collate) {
-            setDataArray(JSON.parse(props?.value));
+            (typeof props?.value === 'string') ? setDataArray(JSON.parse(props?.value)) : setDataArray(props?.value);
         }
         else if (props?.collate) {
             // Logic to collate

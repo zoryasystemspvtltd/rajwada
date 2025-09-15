@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using ILab.Extensionss.Common;
+﻿using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -9,23 +8,16 @@ using System.Data;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
 
-
-
 namespace RajApi.Data;
 
 public class RajDataHandler : LabDataHandler
 {
-
     public readonly LabDataHandler handler;
-    public RajDataHandler(DbContext dbContext,
-    ILogger<RajDataHandler> logger)
-        : base(dbContext, logger)
+    public RajDataHandler(DbContext dbContext, ILogger<RajDataHandler> logger) : base(dbContext, logger)
     {
-
     }
 
     public ModuleIdentity Identity { get; set; }
-
 
     public override IQueryable<T> FilterIdentity<T>(DbSet<T> dbSet)
     {
@@ -704,6 +696,7 @@ public class RajDataHandler : LabDataHandler
             }
         }
     }
+
     public override async Task<long> AddAsync<T>(T item, CancellationToken cancellationToken)
     {
         item.Status = StatusType.Draft;
@@ -723,7 +716,7 @@ public class RajDataHandler : LabDataHandler
         {
             var id = await base.AddAsync(item, cancellationToken);
             await LogLabModelLog(item, StatusType.Draft, cancellationToken);
-
+            await SaveAuditLogs(item, StatusType.Draft, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -754,7 +747,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.Modified, cancellationToken);
-
+            await SaveAuditLogs(item, StatusType.Modified, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -808,7 +801,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.ModuleDeleted, cancellationToken);
-
+            await SaveAuditLogs(item, (StatusType)item.Status, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -827,7 +820,7 @@ public class RajDataHandler : LabDataHandler
         try
         {
             await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);
-
+            await SaveAuditLogs(item, (StatusType)item.Status, cancellationToken);
             if (item.Status.Equals(StatusType.UnAssigned))
             {
                 var data = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == item.Id && l.Name.Equals(module)
@@ -851,8 +844,6 @@ public class RajDataHandler : LabDataHandler
     where T : LabModel
     {
         var module = typeof(T);
-
-
 
         var jitem = JsonConvert.SerializeObject(item,
         Newtonsoft.Json.Formatting.None,
@@ -883,6 +874,50 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
+    private async Task<long> SaveAuditLogs<T>(T item, StatusType activityType, CancellationToken cancellationToken)
+    where T : LabModel
+    {
+        var module = typeof(T);
+        var jitem = JsonConvert.SerializeObject(item,
+        Newtonsoft.Json.Formatting.None,
+        new JsonSerializerSettings()
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
+
+        var log = new AuditLog
+        {
+            Date = DateTime.UtcNow,
+            EntityId = item.Id,
+            Name = module.Name,
+            Member = item.Member,
+            ActionType = (activityType == StatusType.Draft ? "Insert" : activityType.ToString()),
+            Key = item.Key
+        };
+        if (activityType == StatusType.Draft)
+        {
+            log.NewValues = jitem;
+        }
+        else
+        {
+            log.OldValues = null;
+            log.NewValues = jitem;
+            log.ModifiedDate = DateTime.UtcNow;
+            log.ModifiedBy = item.Member;
+        }
+
+        try
+        {
+            dbContext.Set<AuditLog>().Add(log);
+            return await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
     public string? GetFinancialYear(object code)
     {
         DateTime filterDate = DateTime.Now;
@@ -894,6 +929,102 @@ public class RajDataHandler : LabDataHandler
     {
         var data = dbContext.Set<ProjectDocNoTracking>().Where(e => e.ProjectId == projectId).FirstOrDefault();
         return data;
+    }
+
+    public dynamic GetCopyData(long id, string type)
+    {
+        dynamic entities;
+        if (type.Equals("tower", StringComparison.CurrentCultureIgnoreCase))
+        {
+            entities = GetTowerData(id);
+        }
+        else
+        {
+            entities = GetFlatData(id);
+        }
+        return entities;
+    }
+    internal dynamic GetTowerData(long id)
+    {
+        var query = "SELECT p.Id,p.Name,p.Description,p.Blueprint,p.ProjectId,ISNULL(pl.FlCount, 0) AS FloorCount," +
+                       " pc.ParkingTypeId,ISNULL(pc.PKCount, 0) AS ParkingCount " +
+                       "FROM Plans p " +
+                       "LEFT JOIN(SELECT TowerId, ParkingTypeId, COUNT(ParkingTypeId) AS PKCount " +
+                           "FROM Parkings WHERE TowerId = " + id + " GROUP BY TowerId, ParkingTypeId " +
+                       " ) pc ON p.Id = pc.TowerId " +
+                       "LEFT JOIN(SELECT ParentId, count(ParentId) as FlCount " +
+                         "FROM Plans where ParentId = " + id + " and Type = 'floor' group by ParentId " +
+                       ") pl ON p.Id = pl.ParentId " +
+                       "WHERE p.Type = 'tower' AND p.Id = " + id;
+
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var entities = new Plan();
+                var parkingList = new List<ParkingRawData>();
+                while (result.Read())
+                {
+                    parkingList.Add(new ParkingRawData()
+                    {
+                        parkingTypeId = result.GetInt64("ParkingTypeId"),
+                        noOfParking = result.GetInt32("ParkingCount")
+                    });
+
+                    entities.Id = result.GetInt64("Id");
+                    entities.Name = result.GetString("Name");
+                    entities.Description = result.GetString("Description");
+                    entities.Blueprint = result.GetString("Blueprint");
+                    entities.ProjectId = result.GetInt64("ProjectId");
+                    entities.NoOfFloors = result.GetInt32("FloorCount");
+                    entities.Type = "tower";
+                }
+                entities.Parkings = JsonConvert.SerializeObject(parkingList);
+                return entities;
+            }
+        }
+    }
+    internal dynamic GetFlatData(long id)
+    {
+        var query = "SELECT pl.FlatTemplateId,ISNULL(pl.TCount, 0) AS FlatCount " +
+                    "  FROM[Plans] p " +
+                     " LEFT JOIN( SELECT FlatTemplateId, ParentId, COUNT(FlatTemplateId) as TCount " +
+                     " FROM[Plans] where ParentId = " + id + " and Type = 'flat'  group by FlatTemplateId, ParentId " +
+                   " ) pl ON  p.Id = pl.ParentId " +
+                   " where p.TYPE = 'floor' and p.id =" + id;
+
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var list = new List<FlatTemplateRawData>();
+                while (result.Read())
+                {
+                    list.Add(new FlatTemplateRawData()
+                    {
+                        flatTemplateId = result.GetInt64("FlatTemplateId"),
+                        noOfFlats = result.GetInt32("FlatCount")
+                    });
+
+                }
+                // Wrap in FlatData
+                FlatData flatData = new()
+                {
+                    flatTemplates = list
+                };
+                return JsonConvert.SerializeObject(flatData);                
+            }
+        }
     }
 }
 

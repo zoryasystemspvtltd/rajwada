@@ -294,5 +294,20 @@ namespace ILab.Data
                 return 0;
             }
         }
+
+        internal dynamic GetData(long id, string type)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetCopyData));
+                object[] parameters = [id, type];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetData method and details: " + ex.Message);
+                return 0;
+            }
+        }
     }
 }

@@ -33,6 +33,6 @@ public class Parking : LabModel, IGlobal
 
 public class ParkingRawData
 {
-    public long ParkingTypeId { get; set; }
-    public int? NoOfParking { get; set; }
+    public long parkingTypeId { get; set; }
+    public int? noOfParking { get; set; }
 }

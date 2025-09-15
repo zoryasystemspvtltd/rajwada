@@ -37,6 +37,7 @@ const IUIPage = (props) => {
     const [remarks, setRemarks] = useState('');
     const [approvalType, setApprovalType] = useState('');
     const [showRemarksModal, setShowRemarksModal] = useState(false);
+    const [oldData, setOldData] = useState({});
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -46,6 +47,7 @@ const IUIPage = (props) => {
             if (id) {
                 const item = await api.getSingleData({ module: module, id: id });
                 setData(item.data);
+                setOldData(item.data);
                 setApprovalStatus(item.data.status);
                 setApprovalBy(item.data.member);
             }
@@ -92,7 +94,8 @@ const IUIPage = (props) => {
 
     const handleCopyChange = (e) => {
         e.preventDefault();
-        setData(e.target.value);
+        const newData = { ...data, ...e.target.value }
+        setData(newData);
     }
 
     const handleRemarksChange = (event) => {
@@ -361,7 +364,7 @@ const IUIPage = (props) => {
                 setDisabled(true)
                 if (id != undefined)
                     try {
-                        await api.editData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
+                        await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: oldData, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: oldData } });
                         dispatch(setSave({ module: module }))
 
                         const timeId = setTimeout(() => {

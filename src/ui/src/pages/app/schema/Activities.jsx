@@ -162,8 +162,10 @@ export const ViewActivity = () => {
                             searching: true,
                             editing: false,
                             adding: false,
+                            delete: true,
+                            enableCheckBoxRow: true,
                             fields: [
-                                { text: 'Floors', field: 'name', type: 'link', sorting: true, searching: true, },
+                                { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true, },
                                 { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
                             ]
                         },

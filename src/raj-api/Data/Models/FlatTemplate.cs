@@ -13,3 +13,8 @@ public class FlatTemplate : LabModel, IGlobal
     [NotMapped]
     public string? TemplateDetails { get; set; }
 }
+
+public class FlatData
+{
+    public List<FlatTemplateRawData>? flatTemplates { get; set; }
+}

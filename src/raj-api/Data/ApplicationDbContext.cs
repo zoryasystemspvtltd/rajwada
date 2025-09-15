@@ -138,9 +138,10 @@ public class ApplicationDbContext : DbContext
                  Key = rootKey,
                  Member = "super@rajwada.com",
              });
-    }
-
+    }    
+        
     public virtual DbSet<ApplicationLog> ApplicationLogs { get; set; }
+    public virtual DbSet<AuditLog> AuditLogs { get; set; }
 
     #region Transactions
     public virtual DbSet<Company> Companys { get; set; }

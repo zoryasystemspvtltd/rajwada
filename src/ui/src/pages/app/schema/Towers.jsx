@@ -227,7 +227,8 @@ export const AddTower = () => {
             copyLabel: 'Tower',
             module: 'plan',
             filterKey: 'type',
-            filterValue: 'tower'
+            filterValue: 'tower',
+            dataCopy: true
         },
         fields: [
             {

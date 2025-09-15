@@ -654,6 +654,7 @@
 "/api/AssetGroup":{"get":{"tags":["AssetGroup"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetGroupItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroupItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroupItemList"}}}}}},"post":{"tags":["AssetGroup"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/AssetGroup/{id}":{"get":{"tags":["AssetGroup"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}}}}}},"put":{"tags":["AssetGroup"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["AssetGroup"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/AssetType":{"get":{"tags":["AssetType"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetTypeItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetTypeItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetTypeItemList"}}}}}},"post":{"tags":["AssetType"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssetType"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetType"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AssetType"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/AssetType/{id}":{"get":{"tags":["AssetType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetType"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetType"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetType"}}}}}},"put":{"tags":["AssetType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssetType"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetType"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AssetType"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["AssetType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Attachment":{"get":{"tags":["Attachment"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AttachmentItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/AttachmentItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/AttachmentItemList"}}}}}},"post":{"tags":["Attachment"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Attachment"}},"text/json":{"schema":{"$ref":"#/components/schemas/Attachment"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Attachment"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Attachment/{id}":{"get":{"tags":["Attachment"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Attachment"}},"application/json":{"schema":{"$ref":"#/components/schemas/Attachment"}},"text/json":{"schema":{"$ref":"#/components/schemas/Attachment"}}}}}},"put":{"tags":["Attachment"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Attachment"}},"text/json":{"schema":{"$ref":"#/components/schemas/Attachment"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Attachment"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Attachment"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/AuditLog":{"get":{"tags":["AuditLog"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AuditLogItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/AuditLogItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/AuditLogItemList"}}}}}},"post":{"tags":["AuditLog"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AuditLog"}},"text/json":{"schema":{"$ref":"#/components/schemas/AuditLog"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AuditLog"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/AuditLog/{id}":{"get":{"tags":["AuditLog"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AuditLog"}},"application/json":{"schema":{"$ref":"#/components/schemas/AuditLog"}},"text/json":{"schema":{"$ref":"#/components/schemas/AuditLog"}}}}}},"put":{"tags":["AuditLog"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AuditLog"}},"text/json":{"schema":{"$ref":"#/components/schemas/AuditLog"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AuditLog"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["AuditLog"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/BulkDataUpload":{"get":{"tags":["BulkDataUpload"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/BulkDataUploadItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/BulkDataUploadItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/BulkDataUploadItemList"}}}}}},"post":{"tags":["BulkDataUpload"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/BulkDataUpload"}},"text/json":{"schema":{"$ref":"#/components/schemas/BulkDataUpload"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/BulkDataUpload"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/BulkDataUpload/{id}":{"get":{"tags":["BulkDataUpload"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/BulkDataUpload"}},"application/json":{"schema":{"$ref":"#/components/schemas/BulkDataUpload"}},"text/json":{"schema":{"$ref":"#/components/schemas/BulkDataUpload"}}}}}},"put":{"tags":["BulkDataUpload"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/BulkDataUpload"}},"text/json":{"schema":{"$ref":"#/components/schemas/BulkDataUpload"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/BulkDataUpload"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["BulkDataUpload"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Comment":{"get":{"tags":["Comment"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/CommentItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/CommentItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/CommentItemList"}}}}}},"post":{"tags":["Comment"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Comment"}},"text/json":{"schema":{"$ref":"#/components/schemas/Comment"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Comment"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Comment/{id}":{"get":{"tags":["Comment"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Comment"}},"application/json":{"schema":{"$ref":"#/components/schemas/Comment"}},"text/json":{"schema":{"$ref":"#/components/schemas/Comment"}}}}}},"put":{"tags":["Comment"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Comment"}},"text/json":{"schema":{"$ref":"#/components/schemas/Comment"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Comment"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Comment"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Company":{"get":{"tags":["Company"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/CompanyItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/CompanyItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/CompanyItemList"}}}}}},"post":{"tags":["Company"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Company"}},"text/json":{"schema":{"$ref":"#/components/schemas/Company"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Company"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Company/{id}":{"get":{"tags":["Company"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Company"}},"application/json":{"schema":{"$ref":"#/components/schemas/Company"}},"text/json":{"schema":{"$ref":"#/components/schemas/Company"}}}}}},"put":{"tags":["Company"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Company"}},"text/json":{"schema":{"$ref":"#/components/schemas/Company"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Company"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Company"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
@@ -1841,6 +1842,91 @@
 "type": "array",
 "items": {
 "$ref": "#/components/schemas/Attachment"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
+"AuditLog": {
+"type": "object",
+"properties": {
+"EntityId": {
+"type": "string",
+},
+"ActionType": {
+"type": "string",
+"maxLength": 50,
+"minLength": 0,
+},
+"OldValues": {
+"type": "string",
+},
+"NewValues": {
+"type": "string",
+},
+"ChangeSummary": {
+"type": "string",
+},
+"ModifiedBy": {
+"type": "string",
+},
+"ModifiedDate": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"ReviewedBy": {
+"type": "string",
+},
+"ReviewedDate": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Remarks": {
+"type": "string",
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+},
+"additionalProperties": false
+},
+"AuditLogItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/AuditLog"
 },
 "nullable": true
 }

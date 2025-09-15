@@ -141,7 +141,7 @@ input:checked+.Slider:before {
 }
 
 .scrollable-table tbody {
-    max-height: 75px;
+    max-height: 150px;
     /* Scroll area height */
     overflow-y: auto;
 }
@@ -168,4 +168,20 @@ input:checked+.Slider:before {
     padding: 0.18rem 0.5rem;
     /* Tighter spacing */
     line-height: 1.1;
+}
+
+/* Prevent SmartWizard from using display: none on tab panes */
+.tab-pane {
+  display: block !important;
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.tab-pane.active {
+  visibility: visible;
+  position: relative;
+  z-index: 1;
 }
