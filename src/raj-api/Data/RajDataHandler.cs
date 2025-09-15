@@ -982,7 +982,7 @@ public class RajDataHandler : LabDataHandler
                     entities.Blueprint = result.GetString("Blueprint");
                     entities.ProjectId = result.GetInt64("ProjectId");
                     entities.NoOfFloors = result.GetInt32("FloorCount");
-                  
+                    entities.Type = "tower";
                 }
                 entities.Parkings = JsonConvert.SerializeObject(parkingList);
                 return entities;
