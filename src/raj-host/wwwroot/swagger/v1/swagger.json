@@ -1312,6 +1312,9 @@
 "ActivityAmendments": {
 "type": "string",
 },
+"OldValues": {
+"type": "string",
+},
 "Id": {
 "type": "string",
 },
@@ -1538,6 +1541,9 @@
 "nullable": true
 },
 "Item": {
+"type": "string",
+},
+"OldValues": {
 "type": "string",
 },
 "ActivityId": {
@@ -3225,6 +3231,9 @@
 "type": "string",
 "nullable": true
 },
+"OldValues": {
+"type": "string",
+},
 "Id": {
 "type": "string",
 },
@@ -3320,6 +3329,9 @@
 "type": "string",
 },
 "Blueprint": {
+"type": "string",
+},
+"OldValues": {
 "type": "string",
 },
 "status": {
@@ -3992,6 +4004,9 @@
 "type": "string",
 },
 "Data": {
+"type": "string",
+},
+"OldValues": {
 "type": "string",
 },
 "ProjectId": {

@@ -12,7 +12,7 @@ namespace RajApi.Data.Models
         public virtual bool RejectedByQC { get; set; }
         public virtual string? QCRemarks { get; set; }
         public virtual string? AmendmentReason { get; set; }
-        public virtual string? OldValues { get; set; }
+        public virtual string? OldData { get; set; }
         public virtual string? NewValues { get; set; }
         public virtual int AmendmentStatus { get; set; }
         [StringLength(255)]
