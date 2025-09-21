@@ -652,7 +652,7 @@ const Calendar = () => {
             let userList = allUsersResponse?.data?.filter(item => `${item?.member}`.toLowerCase().includes("qc"));
 
             for (let user of userList) {
-                const action = { module: "activity", data: { id: selectedTask?.id, member: user?.member, status: 2 } }
+                const action = { module: "activity", data: { id: selectedTask?.id, member: user?.member, status: 2, modifiedBy: loggedInUser?.email } }
                 try {
                     await api.editPartialData(action);
                     dispatch(setSave({ module: "activity" }))
@@ -683,8 +683,27 @@ const Calendar = () => {
         }
     }
 
+
     // Save task changes
+    // Need checks for activity amendment
+    // If activity present in amendment table, then don't modify data in actual activity table. Add the updated values to the newValues field of the amendment table
+    // If activity not present in amendment table, then update in the default way
     const handleSave = async () => {
+        // Check for data in amendment table
+        const newBaseFilter = {
+            name: 'activityId',
+            value: parseInt(selectedTask.id)
+        }
+
+        const pageOptions = {
+            recordPerPage: 0,
+            searchCondition: newBaseFilter
+        }
+
+        const response = await api.getData({ module: 'activityamendment', options: pageOptions });
+
+        let amendmentData = response?.data?.items;
+
         const updatedData_a = {
             ...selectedTask,
             actualCost: parseFloat(actualCost),
@@ -706,7 +725,38 @@ const Calendar = () => {
         };
 
         try {
-            await api.editData({ module: 'activity', data: updatedData_a });
+            if (amendmentData?.length > 0) {
+                // Amendment exists for activity
+
+                // Main amendment entry has parentId null. Find the main amendment
+                let mainAmendment = amendmentData?.find(amendment => amendment.parentId === null);
+                const sortedAmendmentData = amendmentData?.sort((t1, t2) => new Date(t2.date) - new Date(t1.date));
+                const lastAmendmentData = sortedAmendmentData[0];
+
+                let amendmentAction = {
+                    module: 'activityamendment',
+                    data: {
+                        code: lastAmendmentData?.code,
+                        rejectedByQC: lastAmendmentData?.rejectedByQC,
+                        qCRemarks: lastAmendmentData?.remarks,
+                        amendmentReason: lastAmendmentData?.amendmentReason,
+                        oldValues: lastAmendmentData?.newValues,
+                        newValues: JSON.stringify(updatedData_a),
+                        amendmentStatus: 1, // assuming status is 1 for re-submission
+                        reviewedBy: lastAmendmentData?.reviewedBy,
+                        activityId: lastAmendmentData?.activityId,
+                        parentId: mainAmendment?.id
+                    }
+                };
+
+                // Insert new Entry in Amendment table
+                await api.addData(amendmentAction);
+            }
+            else {
+                // Amendment does not exist and it is a fresh activity
+                await api.editData({ module: 'activity', data: updatedData_a });
+            }
+
             await api.addData({ module: 'activitytracking', data: updateData_b });
         } catch (error) {
             // console.error('Error saving data:', error);
@@ -727,6 +777,7 @@ const Calendar = () => {
             await fetchData();
         }
     };
+
 
     const handleCommentSubmit = async () => {
         if (newComment.trim()) {

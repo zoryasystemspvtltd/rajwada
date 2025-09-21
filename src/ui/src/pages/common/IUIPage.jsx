@@ -156,11 +156,11 @@ const IUIPage = (props) => {
         e.preventDefault();
         let action = {};
         if (module === 'activity') {
-            action = { module: module, data: { id: id, member: email, userId: userId, status: 3 } }
+            action = { module: module, data: { id: id, member: email, userId: userId, status: 3, modifiedBy: loggedInUser?.email } }
         }
         else {
             //status :3 means assigned
-            action = { module: module, data: { id: id, member: email, status: 3 } }
+            action = { module: module, data: { id: id, member: email, status: 3, modifiedBy: loggedInUser?.email } }
         }
         try {
             await api.editPartialData(action);
@@ -208,6 +208,7 @@ const IUIPage = (props) => {
         else {
             notify("error", "One or more assignments failed!");
         }
+         window.location.reload();
     }
 
     const multiUserAssignment = async (dataId, userList) => {
@@ -215,11 +216,11 @@ const IUIPage = (props) => {
         for (let user of userList) {
             let action = {};
             if (module === 'activity') {
-                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: 3 } }
+                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: 3, modifiedBy: loggedInUser?.email } }
             }
             else {
                 //status :3 means assigned
-                action = { module: module, data: { id: dataId, member: user.email, status: 3 } }
+                action = { module: module, data: { id: dataId, member: user.email, status: 3, modifiedBy: loggedInUser?.email } }
             }
             try {
                 await api.editPartialData(action);
@@ -239,10 +240,10 @@ const IUIPage = (props) => {
         for (let user of uncheckedUserList) {
             let action = {};
             if (module === 'activity') {
-                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: -3 } }
+                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: -3, modifiedBy: loggedInUser?.email } }
             }
             else {
-                action = { module: module, data: { id: dataId, member: user.email, status: -3 } }
+                action = { module: module, data: { id: dataId, member: user.email, status: -3, modifiedBy: loggedInUser?.email } }
             }
             try {
                 await api.editPartialData(action);
@@ -260,7 +261,7 @@ const IUIPage = (props) => {
     const assignDirect = async (userId) => {
         const user = await api.getSingleData({ module: "user", id: userId });
         let email = user.data.email;
-        const action = { module: module, data: { id: id, member: email, status: 2 } }
+        const action = { module: module, data: { id: id, member: email, status: 2, modifiedBy: loggedInUser?.email } }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }))
@@ -274,7 +275,7 @@ const IUIPage = (props) => {
     const assignApprover = async (e, email) => {
         e.preventDefault();
         //status :3 means assigned
-        const action = { module: module, data: { id: id, member: email, status: 3 } }
+        const action = { module: module, data: { id: id, member: email, status: 3, modifiedBy: loggedInUser?.email } }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
@@ -302,7 +303,7 @@ const IUIPage = (props) => {
         const current = new Date();
         const action = {
             module: module,
-            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, approvedRemarks: remarks }
+            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, approvedRemarks: remarks, modifiedBy: loggedInUser?.email }
         }
         try {
             await api.editPartialData(action);
