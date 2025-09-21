@@ -883,46 +883,40 @@ public class RajDataHandler : LabDataHandler
         new JsonSerializerSettings()
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-        });                
-       
-        string model = module.Name.ToUpper();
-        if (model == "ACTIVITY" || model == "ACTIVITYAMENDMENT" || model == "ACTIVITYTRACKING"
-            || model == "PLAN" || model == "PROJECT" || model == "WORKFLOW")
-        {
-            var log = new AuditLog
-            {
-                Date = DateTime.UtcNow,
-                EntityId = item.Id,
-                Name = module.Name,
-                Member = item.Member,
-                ActionType = (activityType == StatusType.Draft ? "Insert" : activityType.ToString()),
-                Key = item.Key
-            };
-            if (activityType == StatusType.Draft)
-            {
-                log.NewValues = jitem;
-            }
-            else
-            {
-                log.OldValues = item.OldValues;
-                log.NewValues = jitem;
-                log.ModifiedDate = DateTime.UtcNow;
-                log.ModifiedBy = item.Member;
-            }
+        });
 
-            try
-            {
-                dbContext.Set<AuditLog>().Add(log);
-                return await dbContext.SaveChangesAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
-                throw;
-            }
+
+        var log = new AuditLog
+        {
+            Date = DateTime.UtcNow,
+            EntityId = item.Id,
+            Name = module.Name,
+            Member = item.Member,
+            ActionType = (activityType == StatusType.Draft ? "Insert" : activityType.ToString()),
+            Key = item.Key
+        };
+        if (activityType == StatusType.Draft)
+        {
+            log.NewValues = jitem;
         }
         else
-            return 0;
+        {
+            log.OldValues = item.OldValues;
+            log.NewValues = jitem;
+            log.ModifiedDate = DateTime.UtcNow;
+            log.ModifiedBy = item.Member;
+        }
+
+        try
+        {
+            dbContext.Set<AuditLog>().Add(log);
+            return await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
+            throw;
+        }
     }
 
     public string? GetFinancialYear(object code)
