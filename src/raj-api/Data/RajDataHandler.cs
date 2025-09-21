@@ -716,7 +716,7 @@ public class RajDataHandler : LabDataHandler
         {
             var id = await base.AddAsync(item, cancellationToken);
             await LogLabModelLog(item, StatusType.Draft, cancellationToken);
-            await SaveAuditLogs(item, StatusType.Draft, cancellationToken);
+            await SaveAuditLogs(item, StatusType.Draft, "", cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -747,7 +747,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.Modified, cancellationToken);
-            await SaveAuditLogs(item, StatusType.Modified, cancellationToken);
+            await SaveAuditLogs(item, StatusType.Modified,"", cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -801,7 +801,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.ModuleDeleted, cancellationToken);
-            await SaveAuditLogs(item, (StatusType)item.Status, cancellationToken);
+            await SaveAuditLogs(item, (StatusType)item.Status,"", cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -811,7 +811,7 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public async Task<long> EditPartialAsync<T>(T item, string module, CancellationToken cancellationToken)
+    public async Task<long> EditPartialAsync<T>(T item, string module,string ?remarks, CancellationToken cancellationToken)
         where T : LabModel
     {
         item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
@@ -820,7 +820,7 @@ public class RajDataHandler : LabDataHandler
         try
         {
             await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);
-            await SaveAuditLogs(item, (StatusType)item.Status, cancellationToken);
+          
             if (item.Status.Equals(StatusType.UnAssigned))
             {
                 var data = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == item.Id && l.Name.Equals(module)
@@ -830,7 +830,7 @@ public class RajDataHandler : LabDataHandler
                 item.Member = data?.Member;
             }
             var id = await base.EditAsync(item, cancellationToken);
-
+            await SaveAuditLogs(item, (StatusType)item.Status, remarks, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -874,7 +874,7 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    private async Task<long> SaveAuditLogs<T>(T item, StatusType activityType, CancellationToken cancellationToken)
+    private async Task<long> SaveAuditLogs<T>(T item, StatusType activityType, string? remarks, CancellationToken cancellationToken)
     where T : LabModel
     {
         var module = typeof(T);
@@ -892,20 +892,37 @@ public class RajDataHandler : LabDataHandler
             EntityId = item.Id,
             Name = module.Name,
             Member = item.Member,
-            ActionType = (activityType == StatusType.Draft ? "Insert" : activityType.ToString()),
-            Key = item.Key
+            Key = item.Key,
+            Remarks = remarks
         };
-        if (activityType == StatusType.Draft)
+
+        switch (activityType)
         {
-            log.NewValues = jitem;
+            case StatusType.Draft:
+                log.ActionType = "Insert";
+                log.NewValues = jitem;
+                break;
+            case StatusType.Modified:
+            case StatusType.QCAssigned:
+            case StatusType.Assigned:
+            case StatusType.Approved:
+            case StatusType.Hold:
+            case StatusType.Rejected:
+            case StatusType.HODAssigned:
+                log.ActionType = activityType.ToString();
+                log.OldValues = item.OldValues;
+                log.ModifiedDate = DateTime.UtcNow;
+                log.ModifiedBy = item.Member;
+                log.NewValues = jitem;
+                break;
+            default:
+                log.OldValues = item.OldValues;
+                log.NewValues = jitem;
+                log.ModifiedDate = DateTime.UtcNow;
+                log.ModifiedBy = item.Member;
+                break;
         }
-        else
-        {
-            log.OldValues = item.OldValues;
-            log.NewValues = jitem;
-            log.ModifiedDate = DateTime.UtcNow;
-            log.ModifiedBy = item.Member;
-        }
+
 
         try
         {

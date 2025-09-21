@@ -47,6 +47,7 @@ namespace ILab.Data
             {
                 var type = GetType(module);
                 if (type == null) { return -1; }
+                string? remarks =string.Empty;
 
                 var jsonString = data.ToString();
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);
@@ -82,6 +83,7 @@ namespace ILab.Data
                         existingData.QCApprovedBy = jsonData?.QCApprovedBy;
                         existingData.QCApprovedDate = jsonData?.QCApprovedDate;
                         existingData.QCRemarks = jsonData?.QCRemarks;
+                        remarks= jsonData?.Remarks;
                     }
                     //When HOD Approved
                     if (jsonData != null && jsonData?.IsApproved != null)
@@ -90,12 +92,13 @@ namespace ILab.Data
                         existingData.ApprovedDate = jsonData?.ApprovedDate;
                         existingData.IsApproved = jsonData?.IsApproved;
                         existingData.HODRemarks = jsonData?.HODRemarks;
+                        remarks = jsonData?.HODRemarks;
                     }
                 }
 
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.EditPartialAsync));
                 var generic = method?.MakeGenericMethod(type);
-                object[] parameters = { existingData, module, token };
+                object[] parameters = { existingData, module, remarks, token };
                 var task = (Task<long>)generic.Invoke(handler, parameters);
 
                 var result = await task;
