@@ -22,8 +22,29 @@ const IUIHeaderMenu = (props) => {
             s.master.forEach(item => {
                 item.visible = filterMasterMenu(item);
             })
-           
+
             return s.master.some(sch => sch.visible)
+        }
+
+        if (s.access) {
+            if (privileges?.filter(p => p.name !== 'public')?.some(p => p.module === s.access)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    const filterReportsMenu = (s) => {
+        if (s?.report) {
+            s.report.forEach(item => {
+                item.visible = filterReportsMenu(item);
+            })
+
+            return s.report.some(sch => sch.visible)
         }
 
         if (s.access) {
@@ -41,6 +62,11 @@ const IUIHeaderMenu = (props) => {
     if (menuType === "master") {
         Object.keys(menuSchema).forEach(item => {
             menuSchema[item].visible = filterMasterMenu(menuSchema[item]);
+        })
+    }
+    else if (menuType === "reports") {
+        Object.keys(menuSchema).forEach(item => {
+            menuSchema[item].visible = filterReportsMenu(menuSchema[item]);
         })
     }
 
@@ -211,7 +237,7 @@ const IUIHeaderMenu = (props) => {
                                     <div className="grid-menu grid-menu-xl grid-menu-3col">
                                         <div className="no-gutters row">
                                             {
-                                                menuSchema[menuRole]?.report?.map((item, index) => {
+                                                menuSchema[menuRole]?.report?.filter(item => item?.visible)?.map((item, index) => {
                                                     return (
                                                         <div className="col-sm-6 col-xl-4" key={`${item.name}_${index}`}>
                                                             <Link to={item.path} onClick={() => setIsOpen((prev) => !prev)} className="btn-icon-vertical btn-square btn-transition btn btn-outline-link">

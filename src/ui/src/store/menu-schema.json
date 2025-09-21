@@ -50,9 +50,10 @@
         "report": [
             {
                 "name": "adminReport",
-                "text": "Admin",
+                "text": "Audit Log",
                 "icon": "vector-square",
-                "path": "/home"
+                "path": "/audit-logs",
+                "access": "auditLog"
             }
         ]
     },

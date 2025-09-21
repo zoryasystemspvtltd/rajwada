@@ -396,7 +396,7 @@ const IUIPage = (props) => {
                         //     console.log(data);
                         //     return;
                         // }
-                        let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
+                        let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: oldData, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: oldData } });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
