@@ -125,7 +125,30 @@ public class RajDataHandler : LabDataHandler
 
         return final;
     }
+    public dynamic GetResourceDetails(long flatId)
+    {
+        ListOptions option = new();
 
+        option.SearchCondition = new Condition()
+        {
+            Name = "PlanId",
+            Value = flatId
+        };
+        var resouces = Load<Resource>(option).Items.ToList();
+        return resouces;
+    }
+    public dynamic GetFlatTemplateDetails(long templateId)
+    {
+        ListOptions option = new();
+
+        option.SearchCondition = new Condition()
+        {
+            Name = "FlatTemplateId",
+            Value = templateId
+        };
+        var resouces = Load<FlatTemplateDetails>(option).Items.ToList();
+        return resouces;
+    }
     public dynamic GetTaskItemDetails(long id)
     {
         try
@@ -801,7 +824,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.ModuleDeleted, cancellationToken);
-            await SaveAuditLogs(item, (StatusType)item.Status,null, null, cancellationToken);
+            await SaveAuditLogs(item, (StatusType)item.Status, null, null, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -811,7 +834,7 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public async Task<long> EditPartialAsync<T>(T item, string module,string ?remarks, string? modifiedBy, CancellationToken cancellationToken)
+    public async Task<long> EditPartialAsync<T>(T item, string module, string? remarks, string? modifiedBy, CancellationToken cancellationToken)
         where T : LabModel
     {
         item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
@@ -831,7 +854,7 @@ public class RajDataHandler : LabDataHandler
                 item.Member = data?.Member;
             }
             var id = await base.EditAsync(item, cancellationToken);
-           
+
             return id;
         }
         catch (Exception ex)

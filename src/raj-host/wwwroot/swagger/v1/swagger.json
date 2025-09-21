@@ -1312,6 +1312,9 @@
 "ActivityAmendments": {
 "type": "string",
 },
+"ModifiedBy": {
+"type": "string",
+},
 "Id": {
 "type": "string",
 },
@@ -2741,6 +2744,9 @@
 "type": "string",
 },
 "ApprovedRemarks": {
+"type": "string",
+},
+"ModifiedBy": {
 "type": "string",
 },
 "Id": {
