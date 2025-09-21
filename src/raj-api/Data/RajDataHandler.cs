@@ -879,11 +879,12 @@ public class RajDataHandler : LabDataHandler
     {
         var module = typeof(T);
         var jitem = JsonConvert.SerializeObject(item,
-        Newtonsoft.Json.Formatting.None,
+            Formatting.None,
         new JsonSerializerSettings()
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         });
+
 
         var log = new AuditLog
         {
@@ -900,7 +901,7 @@ public class RajDataHandler : LabDataHandler
         }
         else
         {
-            log.OldValues = null;
+            log.OldValues = item.OldValues;
             log.NewValues = jitem;
             log.ModifiedDate = DateTime.UtcNow;
             log.ModifiedBy = item.Member;
@@ -1022,7 +1023,7 @@ public class RajDataHandler : LabDataHandler
                 {
                     flatTemplates = list
                 };
-                return JsonConvert.SerializeObject(flatData);                
+                return JsonConvert.SerializeObject(flatData);
             }
         }
     }
