@@ -364,7 +364,7 @@ const IUIPage = (props) => {
                 setDisabled(true)
                 if (id != undefined)
                     try {
-                        await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: oldData, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: oldData } });
+                        await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: JSON.stringify(oldData), data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: JSON.stringify(oldData) } });
                         dispatch(setSave({ module: module }))
 
                         const timeId = setTimeout(() => {
@@ -396,7 +396,7 @@ const IUIPage = (props) => {
                         //     console.log(data);
                         //     return;
                         // }
-                        let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: oldData, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: oldData } });
+                        let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
