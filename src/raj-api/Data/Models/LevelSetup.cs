@@ -1,4 +1,5 @@
 ﻿using ILab.Extensionss.Data.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RajApi.Data.Models;
 
@@ -18,6 +19,8 @@ public class LevelSetup : LabModel, IApproval
     public DateTime? ApprovedDate { get; set; }
     public string? ApprovedBy { get; set; }
     public string? ApprovedRemarks { get; set; }
+    [NotMapped]
+    public string? ModifiedBy { get; set; }
 }
 
 public class ChallanReport

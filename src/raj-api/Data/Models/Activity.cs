@@ -198,6 +198,9 @@ namespace RajApi.Data.Models
         [JsonIgnore]
         public virtual ICollection<ActivityAmendment>? ActivityAmendments { get; set; }
         #endregion
+
+        [NotMapped]
+        public string? ModifiedBy { get; set; }
     }
 
     public class WorkerReportRequestPayload

@@ -47,7 +47,8 @@ namespace ILab.Data
             {
                 var type = GetType(module);
                 if (type == null) { return -1; }
-                string? remarks =string.Empty;
+                string? remarks = string.Empty;
+                string? modifiedBy = string.Empty;
 
                 var jsonString = data.ToString();
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);
@@ -68,6 +69,7 @@ namespace ILab.Data
                         existingData.ApprovedDate = jsonData?.ApprovedDate;
                         existingData.IsApproved = jsonData?.IsApproved;
                         existingData.ApprovedRemarks = jsonData?.ApprovedRemarks;
+                        modifiedBy = jsonData?.ModifiedBy;
                     }
                 }
                 if (type == typeof(Activity))
@@ -75,6 +77,7 @@ namespace ILab.Data
                     if (jsonData != null && jsonData?.Status != null)
                     {
                         existingData.Status = jsonData?.Status;
+                        modifiedBy = jsonData?.ModifiedBy;
                     }
                     //When QC Approved
                     if (jsonData != null && jsonData?.IsQCApproved != null)
@@ -83,7 +86,7 @@ namespace ILab.Data
                         existingData.QCApprovedBy = jsonData?.QCApprovedBy;
                         existingData.QCApprovedDate = jsonData?.QCApprovedDate;
                         existingData.QCRemarks = jsonData?.QCRemarks;
-                        remarks= jsonData?.Remarks;
+                        remarks = jsonData?.Remarks;
                     }
                     //When HOD Approved
                     if (jsonData != null && jsonData?.IsApproved != null)
@@ -98,7 +101,7 @@ namespace ILab.Data
 
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.EditPartialAsync));
                 var generic = method?.MakeGenericMethod(type);
-                object[] parameters = { existingData, module, remarks, token };
+                object[] parameters = { existingData, module, remarks, modifiedBy, token };
                 var task = (Task<long>)generic.Invoke(handler, parameters);
 
                 var result = await task;
