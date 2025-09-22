@@ -194,9 +194,12 @@ namespace RajApi.Data.Models
         public virtual long? DependencyId { get; set; }
 
         [JsonIgnore]
-        public virtual Dependency? Dependency { get; set; }
+        public virtual Dependency? Dependency { get; set; }        
+               
+        [ForeignKey("Amendments")]
+        public virtual long? AmendmentId { get; set; }
         [JsonIgnore]
-        public virtual ICollection<ActivityAmendment>? ActivityAmendments { get; set; }
+        public virtual ActivityAmendment? Amendments { get; set; }
         #endregion
 
         [NotMapped]
