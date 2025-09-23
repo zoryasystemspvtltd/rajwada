@@ -46,6 +46,7 @@ import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/
 import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } from "../pages/app/schema/ParkingTypes";
 import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate } from "../pages/app/schema/FlatTemplates";
 import { ListAuditLog, ViewAuditLog } from "../pages/app/reports/AuditLog";
+import { ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -327,6 +328,18 @@ const Routes = () => {
                 {
                     path: "/approvals",
                     element: <ListActivityApproval />
+                },
+                {
+                    path: "/approvals/:id",
+                    element: <ViewActivityApproval />
+                },
+                {
+                    path: "/amendments",
+                    element: <ListAmendment />
+                },
+                {
+                    path: "/amendments/:id",
+                    element: <ViewAmendment />
                 },
                 {
                     path: "/approvals/:id",

@@ -10,25 +10,22 @@ import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUIPageElement from './shared/IUIPageElement';
 
-
-const IUIApprovalPage = (props) => {
+const IUIAmendmentPage = (props) => {
     // Properties
     const schema = props?.schema;
     const module = schema?.module;
     const [defaultValues, setDefaultValues] = useState({});
     // Parameter
-    const { id } = useParams();
-    const { parentId } = useParams();
+    const id = schema?.id;
     // console.log(parentId)
     // Global State
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
     // const selectedDataId = useSelector((state) => state.api[module]?.selectedItemId)
-    const [dirty, setDirty] = useState(false)
     // Local State
     const [data, setData] = useState({});
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
-    const [approvalStatus, setApprovalStatus] = useState({});
+    const [amendmentStatus, setAmendmentStatus] = useState({});
     const [displayApprovalButtons, setDisplayApprovalButtons] = useState(false);
     const [remarks, setRemarks] = useState('');
     const [approvalType, setApprovalType] = useState('');
@@ -37,35 +34,38 @@ const IUIApprovalPage = (props) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-
     useEffect(() => {
         async function fetchData() {
             if (id) {
                 const item = await api.getSingleData({ module: module, id: id });
                 setData(item.data);
-                setApprovalStatus(item.data.status);
+                setAmendmentStatus(item.data.amendmentStatus); // check whether extra status tracking is required
+                // Display the approve/reject iff the following conditions are satisfied
+                // 1. Item is a main amendment item i.e parentId is null
+                // 2. Item has rejectedByQC = false
+                // 3. Item has amendmentStatus = 1 i.e amendment has been resubmitted atleast once
+                // 4. Role of loggedIn user is QC
                 if (loggedInUser?.roles?.includes("Quality Engineer")) {
-                    if (item.data?.isQCApproved) {
-                        setDisplayApprovalButtons(false);
-                    }
-                    else {
+                    if (item?.data?.parentId === null && item.data?.rejectedByQC && item.data?.amendmentStatus === 1) {
                         setDisplayApprovalButtons(true);
                     }
-                }
-                else {
-                    if (item.data?.isApproved) {
+                    else {
                         setDisplayApprovalButtons(false);
                     }
-                    else {
-                        setDisplayApprovalButtons(true);
-                    }
                 }
+                // else {
+                //     if (item.data?.amendmentStatus === 1) {
+                //         setDisplayApprovalButtons(true);
+                //     }
+                //     else {
+                //         setDisplayApprovalButtons(false);
+                //     }
+                // }
             }
         }
 
         fetchData();
     }, [id, loggedInUser]);
-
 
     useEffect(() => {
         if (props?.defaultValues) {
@@ -77,7 +77,6 @@ const IUIApprovalPage = (props) => {
             setData(newData);
         }
     }, [props?.defaultValues]);
-
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
@@ -91,74 +90,15 @@ const IUIApprovalPage = (props) => {
         }
     }, [loggedInUser, module]);
 
-
-    useEffect(() => {
-        if (dirty) {
-            const error = validate(data, schema?.fields)
-            setErrors(error);
-        }
-    }, [data, dirty]);
-
     const handleChange = (e) => {
         e.preventDefault();
         const newData = { ...data, ...e.target.value }
         setData(newData);
     };
 
-
     const handleRemarksChange = (event) => {
         const { value } = event.target;
         setRemarks(value);
-    };
-
-    const validate = (values, fields) => {
-        let errors = {};
-
-
-        for (let i = 0; i < fields?.length; i++) {
-            let item = fields[i];
-            if (item.type === 'area') {
-                errors = { ...errors, ...validate(values, item.fields) }
-            }
-            if (item.required && !values) {
-                errors[item.field] = `Required field.`;
-            }
-            if (item.required && values && !values[item?.field]) {
-                errors[item.field] = `Required field.`;
-            }
-            if (item.type === 'email' && values && values[item?.field]) {
-                if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
-                    errors[item.field] = 'Invalid email address.'
-                }
-            }
-            if (item.type === 'phone' && values && values[item?.field]) {
-                const regex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
-                //var pattern = new RegExp(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/); // /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
-                if (!regex.test(values[item.field])) {
-                    errors[item.field] = 'Invalid phone number.'
-                }
-            }
-            if (item.type === 'radio') {
-                errors = { ...errors, ...validate(values, item.fields) }
-            }
-            if (item.type === 'lookup-relation') {
-                if (item?.exclusionCondition && values && values[item?.exclusionCondition?.field] === item?.exclusionCondition?.value && !values[item?.field]) {
-                    errors[item.field] = `Required field.`;
-                }
-            }
-            if (item.type === 'number' && values[item?.field]) {
-                try {
-                    let numericValue = parseInt(values[item?.field]);
-                    if (numericValue < 0) {
-                        errors[item.field] = `Negative input not allowed.`;
-                    }
-                }
-                catch (e) {
-                    errors[item.field] = `Invalid Input.`;
-                }
-            }
-        }
-        return errors;
     };
 
     const assignApprover = async (e, email) => {
@@ -186,6 +126,11 @@ const IUIApprovalPage = (props) => {
         }
     }
 
+    const updateAmendments = async (amendment) => {
+        const response = await api.editData({ module: module, data: amendment });
+        return response.data;
+    }
+
     const approvedPageValue = async (e, isApproved) => {
         e.preventDefault();
         if (!remarks || remarks === '') {
@@ -195,84 +140,80 @@ const IUIApprovalPage = (props) => {
         const current = new Date();
         let patchAction = {};
         let editAction = {};
-        let amendmentAction = {};
         if (loggedInUser?.roles?.includes("Quality Engineer")) {
-            // QC is approving
+            // QC is approving, then
+            // 1. set AmendmentStatus to 2 for parent as well as child
+            // 2. Find the newValues from the latest child amendment
+            // 3. Update the main Activity Table with the newValues
             if (isApproved) {
+                // Find child amendments
+                const newBaseFilter = {
+                    name: 'parentId',
+                    value: parseInt(id)
+                }
+
+
+                const pageOptions = {
+                    recordPerPage: 0,
+                    searchCondition: newBaseFilter
+                }
+
+
+                const response = await api.getData({ module: module, options: pageOptions });
+
+
+                let childAmendments = response?.data?.items;
+
+
+                const sortedAmendmentData = childAmendments?.sort((t1, t2) => new Date(t2.date) - new Date(t1.date));
+
+
+                const lastChildAmendmentData = sortedAmendmentData[0];
+
+
+                const lastChildActivityData = JSON.parse(lastChildAmendmentData?.newValues);
+
+
+                const allAmendmentsToUpdate = [data, ...childAmendments].map((amendment) => ({ ...amendment, amendmentStatus: 2, rejectedByQC: false, reviewedBy: loggedInUser?.email, qcRemarks: remarks }))
+
+
+                // Update all amendments
+                const updatePromises = allAmendmentsToUpdate.map(amendment => updateAmendments(amendment));
+                await Promise.all(updatePromises);
+
+
                 patchAction = {
-                    module: module,
-                    data: { id: id, status: 7, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
+                    module: 'activity',
+                    data: { id: lastChildActivityData?.id, status: 7, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
+                }
+
+
+                // Edit the main activity
+                editAction = {
+                    module: 'activity',
+                    data: { ...lastChildActivityData, isCompleted: false, isAbandoned: true, isInProgress: true, progressPercentage: 95 }
                 }
             }
-            // QC is rejecting
+            // QC is rejecting, then
+            // Process continues, just set the QC Remarks field in the main parent amendment
             else {
-                // patchAction = {
-                //     module: module,
-                //     data: { id: id, status: 3, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
-                // }
-                // editAction = {
-                //     module: module,
-                //     data: { ...data, isCompleted: false, isAbandoned: true, isInProgress: true, progressPercentage: 95 }
-                // }
-                // Create new record in Work Amendments
-                amendmentAction = {
-                    module: 'activityamendment',
-                    data: {
-                        code: `Amendment-${data?.workId}`,
-                        name: `Amendment-${data?.workId}`,
-                        rejectedByQC: !isApproved,
-                        qCRemarks: remarks,
-                        amendmentReason: "QC Rejection",
-                        newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
-                        amendmentStatus: 0, // assuming status is 0 for newly created amendment
-                        reviewedBy: loggedInUser?.email,
-                        activityId: id
-                    }
+                editAction = {
+                    module: module,
+                    data: { ...data, qcRemarks: remarks }
                 }
             }
         }
-        else {
-            // HOD is approving
-            if (isApproved) {
-                patchAction = {
-                    module: module,
-                    data: { id: id, status: 4, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
-                }
-                editAction = {
-                    module: module,
-                    data: { ...data, isCompleted: true, actualEndDate: current }
-                }
-            }
-            // HOD is rejecting
-            else {
-                patchAction = {
-                    module: module,
-                    data: { id: id, status: 6, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
-                }
-                editAction = {
-                    module: module,
-                    data: { ...data, isCompleted: false, isAbandoned: true }
-                }
-            }
-        }
+
         try {
             if (Object.keys(editAction).length > 0) {
                 await api.editData(editAction);
             }
 
-
-            if (Object.keys(amendmentAction).length > 0) {
-                await api.addData(amendmentAction);
-            }
-
-
             if (Object.keys(patchAction).length > 0) {
                 await api.editPartialData(patchAction);
             }
 
-
             dispatch(setSave({ module: module }));
-
 
             const timeId = setTimeout(async () => {
                 // After 3 seconds set the show value to false
@@ -281,15 +222,12 @@ const IUIApprovalPage = (props) => {
                 navigate(0);
             }, 1000)
 
-
             return () => {
                 clearTimeout(timeId)
             }
 
-
         } catch (e) {
             // TODO
-            console.log(e)
             notify('error', 'Failed to submit approval!');
         }
     }
@@ -327,24 +265,10 @@ const IUIApprovalPage = (props) => {
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(-1)}> Back</Button>
                                                     }
-                                                    {/* {!schema?.readonly &&
-                                                        <>
-                                                            {(privileges?.add || privileges?.edit) &&
-                                                                <>
-                                                                    <Button variant="contained"
-                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
-                                                                        onClick={savePageValue}>Save </Button>
 
 
-                                                                    <Button variant="contained"
-                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                                        onClick={() => navigate(-1)}> Cancel</Button>
-                                                                </>
-                                                            }
-                                                        </>
-                                                    } */}
                                                     {
-                                                        (approvalStatus === 2 || approvalStatus === 7) && displayApprovalButtons &&
+                                                        (amendmentStatus <= 1) && displayApprovalButtons &&
                                                         <>
                                                             {
                                                                 schema?.readonly && privileges?.approve &&
@@ -361,10 +285,11 @@ const IUIApprovalPage = (props) => {
                                                         </>
                                                     }
 
+
                                                     {/* Condition modified by Adrish */}
-                                                    {schema?.approving && privileges?.assign && approvalStatus === 3 && loggedInUser?.email !== data.member &&
+                                                    {/* {schema?.approving && privileges?.assign && approvalStatus === 3 && loggedInUser?.email !== data.member &&
                                                         <IUIApprover onClick={assignApprover} />
-                                                    }
+                                                    } */}
                                                     <IUIModuleMessage schema={props.schema} />
                                                 </Col>
                                             </Row>
@@ -384,7 +309,7 @@ const IUIApprovalPage = (props) => {
                                                                     errors={errors}
                                                                     readonly={schema.readonly}
                                                                     onChange={handleChange}
-                                                                    dirty={dirty}
+                                                                    dirty={false}
                                                                     defaultFields={schema?.defaultFields || []}
                                                                 />
                                                                 {/* <br /> */}
@@ -475,4 +400,4 @@ const IUIApprovalPage = (props) => {
     )
 }
 
-export default IUIApprovalPage;
+export default IUIAmendmentPage;

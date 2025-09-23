@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import Table from 'react-bootstrap/Table';
 
-
 const IUIJsonTable = (props) => {
-    const schema = props?.schema;
-    const excludeKeys = schema?.excludeKeys || [];
-    const maxLength = schema?.maxLength || 200;
-    const [data, setData] = useState({});
+    const excludeKeys = props?.excludeKeys || [];
+    const nestedTableKeys = props?.nestedTableKeys || [];
+    const maxLength = props?.maxLength || 200;
+    const [data, setData] = useState(null);
     const [entries, setEntries] = useState([]);
-
 
     useEffect(() => {
         if (props?.value) {
@@ -24,14 +22,15 @@ const IUIJsonTable = (props) => {
             {
                 (!data || typeof data !== "object") ?
                     <>
-                        <p>No valid data provided</p>
+                        <p>No data provided</p>
                     </>
-                    : <div className="row">
+                    :
+                    <div className="row">
                         <div className="col-md-12">
                             <Table responsive>
                                 <thead className="table-dark">
                                     <tr>
-                                        <th>Property</th>
+                                        <th>Key</th>
                                         <th>Value</th>
                                     </tr>
                                 </thead>
@@ -45,8 +44,40 @@ const IUIJsonTable = (props) => {
                                         ) {
                                             return null;
                                         }
+                                        else if (nestedTableKeys.includes(key)) {
+                                            const jsonValue = JSON.parse(stringValue);
+                                            const subKeys = Object.keys(jsonValue[0]);
 
-
+                                            return (
+                                                <tr key={key}>
+                                                    <td>{key}</td>
+                                                    <td>
+                                                        <Table responsive>
+                                                            <thead>
+                                                                <tr>
+                                                                    {
+                                                                        subKeys.map((key, index) => (
+                                                                            <th key={`${key}-${index}`} className='text-capitalize'>{key}</th>
+                                                                        ))
+                                                                    }
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {jsonValue.map((detail, index) => (
+                                                                    <tr key={index}>
+                                                                        {
+                                                                            subKeys.map((key, index) => (
+                                                                                <th key={`${key}-${index}-val`}>{detail[key]}</th>
+                                                                            ))
+                                                                        }
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </Table>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        }
                                         return (
                                             <tr key={key}>
                                                 <td>{key}</td>
@@ -62,6 +93,5 @@ const IUIJsonTable = (props) => {
         </>
     );
 };
-
 
 export default IUIJsonTable;

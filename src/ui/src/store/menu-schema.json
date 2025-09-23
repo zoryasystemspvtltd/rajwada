@@ -186,6 +186,13 @@
                     "New Civil Head"
                 ]
             },
+              {
+                "name": "workAmendment",
+                "text": "Work Amendment",
+                "icon": "vector-square",
+                "path": "/amendments",
+                "access": "activity"
+            },
             {
                 "name": "siteMaterialApproval",
                 "text": "Site Material Approval",

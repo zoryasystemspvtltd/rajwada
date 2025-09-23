@@ -1,0 +1,28 @@
+{
+    "quality": {
+        "amendmentInProgress": {
+            "name": "amendmentStatus",
+            "value": 0,
+            "or": {
+                "name": "amendmentStatus",
+                "value": 1,
+                "and": {
+                    "name": "parentId",
+                    "value": null
+                }
+            }
+        },
+        "amendmentCompleted": {
+            "name": "amendmentStatus",
+            "value": 2,
+            "or": {
+                "name": "amendmentStatus",
+                "value": 3,
+                "and": {
+                    "name": "parentId",
+                    "value": null
+                }
+            }
+        }
+    }
+}

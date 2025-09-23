@@ -45,6 +45,8 @@ export const ViewAuditLog = () => {
                     { text: 'Entity Id', field: 'entityId', width: 4, type: 'label' },
                     { text: 'Module Name', field: 'name', width: 4, type: 'label' },
                     { text: 'Action Type', field: 'actionType', width: 4, type: 'label' },
+                    { text: 'Created By', field: 'member', width: 4, type: 'label' },
+                    { text: 'Creation Date', field: 'date', width: 4, type: 'label-date' },
                     { text: 'Modified By', field: 'modifiedBy', width: 4, type: 'label' },
                     { text: 'Modified Date', field: 'modifiedDate', width: 4, type: 'label-date' },
                     { text: 'Reviewed By', field: 'reviewedBy', width: 4, type: 'label' },

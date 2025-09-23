@@ -623,12 +623,18 @@ const Calendar = () => {
 
     const handleCompletionConfirmation = async () => {
         try {
+            // Fetch List of users who are assigned that activity
+            let allUsersResponse = await api.assignedUsers({ module: "activity", id: selectedTask?.id });
+
+            // Filter users with Role QC Engineer
+            let userList = allUsersResponse?.data?.filter(item => `${item?.member}`.toLowerCase().includes("qc"));
+
             const updatedData_a = {
                 ...selectedTask,
                 actualCost: parseFloat(actualCost),
                 progressPercentage: progress,
                 status: 2,
-                isCompleted: true
+                isCompleted: userList?.length > 0 ? true : false
             };
 
             const updateData_b = {
@@ -645,23 +651,22 @@ const Calendar = () => {
             await api.editData({ module: 'activity', data: updatedData_a });
             await api.addData({ module: 'activitytracking', data: updateData_b });
 
-            // Fetch List of users who are assigned that activity
-            let allUsersResponse = await api.assignedUsers({ module: "activity", id: selectedTask?.id });
-
-            // Filter users with Role QC Engineer
-            let userList = allUsersResponse?.data?.filter(item => `${item?.member}`.toLowerCase().includes("qc"));
-
-            for (let user of userList) {
-                const action = { module: "activity", data: { id: selectedTask?.id, member: user?.member, status: 2, modifiedBy: loggedInUser?.email } }
-                try {
-                    await api.editPartialData(action);
-                    dispatch(setSave({ module: "activity" }))
-                    //navigate(-1);
-                } catch (e) {
-                    // TODO
+            if (userList?.length > 0) {
+                for (let user of userList) {
+                    const action = { module: "activity", data: { id: selectedTask?.id, member: user?.member, status: 2, modifiedBy: loggedInUser?.email } }
+                    try {
+                        await api.editPartialData(action);
+                        dispatch(setSave({ module: "activity" }))
+                        //navigate(-1);
+                    } catch (e) {
+                        // TODO
+                    }
                 }
+                notify("success", "Assignment to QC Successful");
             }
-            notify("success", "Assignment to QC Successful");
+            else {
+                notify("info", "No QC Engineer has been assigned for this work till now. Contact your HOD");
+            }
         }
         catch (error) {
 
@@ -740,7 +745,7 @@ const Calendar = () => {
                         rejectedByQC: lastAmendmentData?.rejectedByQC,
                         qCRemarks: lastAmendmentData?.remarks,
                         amendmentReason: lastAmendmentData?.amendmentReason,
-                        oldValues: lastAmendmentData?.newValues,
+                        oldData: lastAmendmentData?.newValues,
                         newValues: JSON.stringify(updatedData_a),
                         amendmentStatus: 1, // assuming status is 1 for re-submission
                         reviewedBy: lastAmendmentData?.reviewedBy,
