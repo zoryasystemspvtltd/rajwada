@@ -16,12 +16,8 @@ namespace RajApi.Data.Models
         public virtual string? NewValues { get; set; }
         public virtual int AmendmentStatus { get; set; }
         [StringLength(255)]
-        public virtual string? ReviewedBy { get; set; }
-
-        [ForeignKey("Activity")]
-        public virtual long? ActivityId { get; set; }
-        [JsonIgnore]
-        public virtual Activity? Activity { get; set; }
+        public virtual string? ReviewedBy { get; set; }       
+        public virtual long? ActivityId { get; set; }      
 
         /// <summary>
         /// ActivityAmendment is also a collection of other ActivityAmendment
@@ -29,6 +25,6 @@ namespace RajApi.Data.Models
         [ForeignKey("Parent")]
         public virtual long? ParentId { get; set; }
         [JsonIgnore]
-        public virtual ActivityAmendment? Parent { get; set; }
+        public virtual ActivityAmendment? Parent { get; set; }        
     }
 }
