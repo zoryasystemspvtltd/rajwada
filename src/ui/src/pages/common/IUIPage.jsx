@@ -29,6 +29,7 @@ const IUIPage = (props) => {
     const [dirty, setDirty] = useState(false)
     // Local State
     const [data, setData] = useState({});
+    const [amendmentData, setAmendmentData] = useState({});
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
     const [disabled, setDisabled] = useState(false)
@@ -38,6 +39,7 @@ const IUIPage = (props) => {
     const [approvalType, setApprovalType] = useState('');
     const [showRemarksModal, setShowRemarksModal] = useState(false);
     const [oldData, setOldData] = useState({});
+    const [auditPrivileges, setAuditPrivileges] = useState({});
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -46,12 +48,20 @@ const IUIPage = (props) => {
         async function fetchData() {
             if (id) {
                 const item = await api.getSingleData({ module: module, id: id });
-                setData(item.data);
+                if (schema?.isAmendment) {
+                    setAmendmentData(item.data);
+                    setData(JSON.parse(item.data?.newValues));
+                    // print and check full activity details
+                }
+                else {
+                    setData(item.data);
+                }
                 setOldData(item.data);
                 setApprovalStatus(item.data.status);
                 setApprovalBy(item.data.member);
             }
         }
+
 
         fetchData();
     }, [id]);
@@ -78,6 +88,22 @@ const IUIPage = (props) => {
             localStorage.removeItem("dependency-flow");
         }
     }, [loggedInUser, module]);
+
+    useEffect(() => {
+        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === "auditLog")?.map(p => p.name);
+        let access = {};
+        modulePrivileges.forEach(p => {
+            access = { ...access, ...{ [p]: true } }
+        })
+        setAuditPrivileges(access);
+        if (module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
+    }, [loggedInUser, module]);
+
+    const handleAuditClick = () => {
+        navigate("/audit-logs", { state: { id: id, childModule: module } });
+    };
 
     useEffect(() => {
         if (dirty) {
@@ -208,7 +234,7 @@ const IUIPage = (props) => {
         else {
             notify("error", "One or more assignments failed!");
         }
-         window.location.reload();
+        window.location.reload();
     }
 
     const multiUserAssignment = async (dataId, userList) => {
@@ -226,6 +252,7 @@ const IUIPage = (props) => {
                 await api.editPartialData(action);
                 dispatch(setSave({ module: module }));
                 //navigate(-1);
+
 
             } catch (e) {
                 // TODO
@@ -250,6 +277,7 @@ const IUIPage = (props) => {
                 dispatch(setSave({ module: module }));
                 //navigate(-1);
 
+
             } catch (e) {
                 // TODO
                 isAllUnassignSuccessful = false;
@@ -267,6 +295,7 @@ const IUIPage = (props) => {
             dispatch(setSave({ module: module }))
             //navigate(-1);
 
+
         } catch (e) {
             // TODO
         }
@@ -280,14 +309,17 @@ const IUIPage = (props) => {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
 
+
             const timeId = setTimeout(() => {
                 // After 3 seconds set the show value to false
                 navigate(0);
             }, 1000)
 
+
             return () => {
                 clearTimeout(timeId)
             }
+
 
         } catch (e) {
             // TODO
@@ -309,6 +341,7 @@ const IUIPage = (props) => {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
 
+
             const timeId = setTimeout(async () => {
                 // After 3 seconds set the show value to false
                 setShowRemarksModal(false);
@@ -324,9 +357,11 @@ const IUIPage = (props) => {
                 navigate(0);
             }, 1000)
 
+
             return () => {
                 clearTimeout(timeId)
             }
+
 
         } catch (e) {
             // TODO
@@ -364,8 +399,24 @@ const IUIPage = (props) => {
                     return
                 setDisabled(true)
                 if (id != undefined)
+                    // Check for Amendment Data
                     try {
-                        await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: JSON.stringify(oldData), data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: JSON.stringify(oldData) } });
+                        if (schema?.isAmendment) {
+                            // Update the data in amendment table
+                            // Change planned end date in activity table
+                            let amendmentAction = {
+                                module: module,
+                                data: {
+                                    ...amendmentData, oldValues: oldData, newValues: JSON.stringify(data)
+                                }
+                            }
+                            await api.editData(amendmentAction);
+
+                            await api.editData({ module: 'activity', data: { ...data, oldValues: JSON.stringify(oldData) } });
+                        }
+                        else {
+                            await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: JSON.stringify(oldData), data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: JSON.stringify(oldData) } });
+                        }
                         dispatch(setSave({ module: module }))
 
                         const timeId = setTimeout(() => {
@@ -385,7 +436,6 @@ const IUIPage = (props) => {
                         return () => {
                             clearTimeout(timeId)
                         }
-
 
                     } catch (e) {
                         // TODO
@@ -417,8 +467,6 @@ const IUIPage = (props) => {
                                     localStorage.removeItem(flowchartKey);
                                 }
                             }
-
-
                         }, 1000)
 
                         return () => {
@@ -478,6 +526,7 @@ const IUIPage = (props) => {
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save </Button>
 
+
                                                                     <Button variant="contained"
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                                         onClick={() => navigate(-1)}> Cancel</Button>
@@ -528,6 +577,18 @@ const IUIPage = (props) => {
                                                                     }
                                                                 </>
                                                             }
+                                                        </>
+                                                    }
+                                                    {
+                                                        (auditPrivileges?.view) &&
+                                                        <>
+                                                            <Button
+                                                                variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                onClick={() => handleAuditClick()}
+                                                            >
+                                                                Audit Log
+                                                            </Button>
                                                         </>
                                                     }
                                                     {
@@ -605,6 +666,7 @@ const IUIPage = (props) => {
                                                 ))}
                                             </Row>
 
+
                                             {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
                                                 <hr />
                                             }
@@ -619,6 +681,8 @@ const IUIPage = (props) => {
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save
                                                                     </Button>
+
+
 
 
                                                                     {
@@ -700,7 +764,6 @@ const IUIPage = (props) => {
                 </div>
             </div>
         </>
-
     )
 }
 

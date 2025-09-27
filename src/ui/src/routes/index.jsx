@@ -547,7 +547,7 @@ const Routes = () => {
                 },
                 {
                     path: "/audit-logs",
-                    element: <ListAuditLog />
+                    element: <ListAuditLog id={null} childModule={null} />
                 },
                 {
                     path: "/audit-logs/:id",

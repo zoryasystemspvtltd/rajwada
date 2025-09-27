@@ -14,6 +14,7 @@ import { notify } from "../../store/notification";
 
 const IUIAmendmentList = (props) => {
     const schema = props.schema;
+    const amendmentType = props?.amendmentType;
     const module = `${schema.module}#${props.filter}`;
     const pageLength = schema.paging ? 10 : 0;
     const initialData = useSelector((state) => state.api[module])
@@ -38,6 +39,7 @@ const IUIAmendmentList = (props) => {
         }
     }, [loggedInUser, schema.module]);
 
+
     useEffect(() => {
         async function fetchAmendmentList() {
             try {
@@ -49,16 +51,13 @@ const IUIAmendmentList = (props) => {
                         // and: props?.filterSchema
                     }
 
-
                     setBaseFilter(newBaseFilter)
-
 
                     const pageOptions = {
                         ...initialData?.options
                         , recordPerPage: pageLength
                         // , searchCondition: newBaseFilter
                     }
-
 
                     const response = await api.getData({ module: module, options: pageOptions });
                     // console.log(newBaseFilter)
@@ -70,7 +69,6 @@ const IUIAmendmentList = (props) => {
                 notify('error', 'Failed to fetch Activity List!')
             }
         }
-
         fetchAmendmentList();
     }, [props]);
 
@@ -89,7 +87,6 @@ const IUIAmendmentList = (props) => {
             sortDirection: !dataSet?.options?.sortDirection
         }
 
-
         dispatch(getData({ module: module, options: sortOptions }));
     }
 
@@ -103,7 +100,6 @@ const IUIAmendmentList = (props) => {
             const searchFields = schema.fields
                 .filter(fld => fld.searching)
                 .map(fld => ({ name: fld.field, value: search, operator: 'likelihood' }));
-
 
             for (let i = 1; i < searchFields.length; i++) {
                 searchFields[i] = { ...searchFields[i], or: searchFields[i - 1] }
@@ -148,8 +144,6 @@ const IUIAmendmentList = (props) => {
                                 <Col md={4}>
                                     {schema.searching &&
                                         <div className="input-group mb-2 justify-content-end " data-mdb-input-init>
-
-
                                             <input className="form-control"
                                                 type="text"
                                                 placeholder="Search"
@@ -157,8 +151,6 @@ const IUIAmendmentList = (props) => {
                                                 value={search}
                                                 onChange={handleSearchChange}
                                             />
-
-
                                             <button
                                                 type="submit"
                                                 onClick={handleSearch}
@@ -175,11 +167,9 @@ const IUIAmendmentList = (props) => {
                                     <Table responsive>
                                         <thead>
                                             <tr>
-                                                {schema?.editing &&
+                                                {(schema?.editing && amendmentType === 'queue') &&
                                                     <th>
                                                         <button type="submit" className="btn btn-link text-white p-0">#</button>
-
-
                                                     </th>
                                                 }
                                                 {schema?.fields?.map((fld, f) => (
@@ -207,12 +197,10 @@ const IUIAmendmentList = (props) => {
                                         </thead>
                                         {
                                             <tbody>
-
-
                                                 {
                                                     dataSet?.items?.map((item, i) => (
                                                         <tr key={i}>
-                                                            {schema?.editing &&
+                                                            {(schema?.editing && amendmentType === 'queue') &&
                                                                 <>
                                                                     {
                                                                         privileges?.edit &&
@@ -262,8 +250,6 @@ const IUIAmendmentList = (props) => {
                                                     }
                                                 </tr>
                                             </tfoot>
-
-
                                         }
                                     </Table>
                                 </Col>
