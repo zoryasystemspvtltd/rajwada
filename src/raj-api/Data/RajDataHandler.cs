@@ -974,7 +974,7 @@ public class RajDataHandler : LabDataHandler
     }
 
     public dynamic GetCopyData(long id, string type)
-    {
+    {        
         dynamic entities;
         if (type.Equals("tower", StringComparison.CurrentCultureIgnoreCase))
         {
@@ -1067,6 +1067,17 @@ public class RajDataHandler : LabDataHandler
                 return JsonConvert.SerializeObject(flatData);
             }
         }
+    }
+
+    internal dynamic GetNullData(string model)
+    {
+        if (model != null)
+        {
+            var data = dbContext.Set<ActivityAmendment>().Where(e => e.ParentId == null).ToList();
+            return data;
+        }
+        else
+            return 0;
     }
 }
 
