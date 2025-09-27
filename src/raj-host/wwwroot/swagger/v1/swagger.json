@@ -1309,7 +1309,11 @@
 "Dependency": {
 "type": "string",
 },
-"ActivityAmendments": {
+"AmendmentId": {
+"type": "string",
+"nullable": true
+},
+"Amendments": {
 "type": "string",
 },
 "ModifiedBy": {
@@ -1399,9 +1403,6 @@
 "ActivityId": {
 "type": "string",
 "nullable": true
-},
-"Activity": {
-"type": "string",
 },
 "ParentId": {
 "type": "string",

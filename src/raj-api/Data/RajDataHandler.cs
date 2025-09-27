@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
 using System.Data;
+using System.Linq;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
 
@@ -974,7 +975,7 @@ public class RajDataHandler : LabDataHandler
     }
 
     public dynamic GetCopyData(long id, string type)
-    {
+    {       
         dynamic entities;
         if (type.Equals("tower", StringComparison.CurrentCultureIgnoreCase))
         {
@@ -1068,6 +1069,134 @@ public class RajDataHandler : LabDataHandler
             }
         }
     }
+
+    internal dynamic GetNullData(string model)
+    {
+        if (model != null)
+        {
+            var data = dbContext.Set<ActivityAmendment>().Where(e => e.ParentId == null).ToList();
+            return data;
+        }
+        else
+            return 0;
+    }
+    internal dynamic GetGetHierarchyTree(long id)
+    {
+        try
+        {
+            var tree = new HierarchyTree();
+
+            // Load the company in a single query
+            var company = dbContext.Set<Company>().Where(e => e.Id == id)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Name
+                }).FirstOrDefault();
+
+            if (company == null)
+                return tree;
+
+            tree.CompanyName = company.Name;
+            tree.CompanyId = company.Id;
+
+            // Load all projects of the company
+            var projects = dbContext.Set<Project>().Where(p => p.CompanyId == company.Id)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name
+                }).ToList();
+
+            // Load all plans of these projects in one go
+            var projectIds = projects.Select(p => p.Id).ToList();
+            var planQuery = dbContext.Set<Plan>()
+                            .Select(plan => new
+                            {
+                                plan.Id,
+                                plan.Name,
+                                plan.Type,
+                                plan.ProjectId,
+                                plan.ParentId
+                            });
+
+            var allPlans = planQuery
+                .AsEnumerable() // switch to LINQ-to-Objects
+                .Where(plan => projectIds.Contains((long)plan.ProjectId))
+                .ToList();
+
+
+            var projectHier = new List<ProjectHierarchy>();
+            foreach (var project in projects)
+            {
+                // Towers for this project
+                var towers = allPlans
+                    .Where(p => p.ProjectId == project.Id && p.Type == "tower")
+                    .ToList();
+
+                var towerHier = new List<TowerHierarchy>();
+                foreach (var tower in towers)
+                {
+                    // Floors under this tower
+                    var floors = allPlans
+                        .Where(p => p.ProjectId == project.Id && p.Type == "floor" && p.ParentId == tower.Id)
+                        .ToList();
+
+                    var floorHier = new List<FloorHierarchy>();
+                    foreach (var floor in floors)
+                    {
+                        // Flats under this floor
+                        var flats = allPlans
+                            .Where(p => p.ProjectId == project.Id && p.Type == "flat" && p.ParentId == floor.Id)
+                            .ToList();
+
+                        var flatHier = flats
+                            .Select(flat => new FlatHierarchy
+                            {
+                                FlatId = flat.Id,
+                                FlatName = flat.Name
+                            })
+                            .ToList();
+
+                        var fodata = new FloorHierarchy
+                        {
+                            FloorId = floor.Id,
+                            FloorName = floor.Name,
+                            Flats = flatHier
+                        };
+                        floorHier.Add(fodata);
+                    }
+
+                    var tdata = new TowerHierarchy
+                    {
+                        TowerId = tower.Id,
+                        TowerName = tower.Name,
+                        Floors = floorHier
+                    };
+                    towerHier.Add(tdata);
+                }
+
+                var pdata = new ProjectHierarchy
+                {
+                    ProjectId = project.Id,
+                    ProjectName = project.Name,
+                    Towers = towerHier
+                };
+                projectHier.Add(pdata);
+            }
+
+            tree.Projects = projectHier;
+            return tree;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetGetHierarchyTree method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+
 }
 
 public class ModuleIdentity
