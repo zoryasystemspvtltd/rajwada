@@ -770,5 +770,19 @@ namespace ILab.Data
                 return 0;
             }
         }
+        internal dynamic GetHierarchyData(long id)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetGetHierarchyTree));
+                object[] parameters = [id];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetData method and details: " + ex.Message);
+                return 0;
+            }
+        }
     }
 }
