@@ -13,6 +13,7 @@ import api from '../../../store/api-service';
 import { formatStringDate } from '../../../store/datetime-formatter';
 import IUILookUp from '../../common/shared/IUILookUp';
 import IUIPage from '../../common/IUIPage';
+import { notify } from '../../../store/notification';
 
 
 export const ListAuditLog = (props) => {
@@ -90,6 +91,12 @@ export const ListAuditLog = (props) => {
     const handleSearch = async () => {
         const start = new Date(startDate);
         const end = new Date(endDate);
+
+        if (start === null || end === null || selectedChildModule === '') {
+            notify('info', 'Kindly provide all the inputs!');
+            return;
+        }
+
         let newBaseFilter = {};
 
         if (entityId) {
@@ -171,72 +178,75 @@ export const ListAuditLog = (props) => {
                         <div className="col-md-12">
                             <div className="main-card mb-3 card">
                                 <div className="card-body">
-                                    <Row>
-                                        <Form className="mb-3">
-                                            <Row>
-                                                <Col sm={12} md={3}>
-                                                    <Form.Group controlId="startDate">
-                                                        <Form.Label className='fw-bold'>Start Date</Form.Label>
-                                                        <Form.Control
-                                                            type="date"
-                                                            value={startDate}
-                                                            onChange={(e) => setStartDate(e.target.value)}
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col sm={12} md={3}>
-                                                    <Form.Group controlId="endDate">
-                                                        <Form.Label className='fw-bold'>End Date</Form.Label>
-                                                        <Form.Control
-                                                            type="date"
-                                                            value={endDate}
-                                                            onChange={(e) => setEndDate(e.target.value)}
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col sm={12} md={3}>
-                                                    <Form.Group className="position-relative form-group" controlId="childModule">
-                                                        <Form.Label className='fw-bold'>
-                                                            Select a module
-                                                        </Form.Label>
+                                    {
+                                        (!disableModuleSelection) &&
+                                        <Row>
+                                            <Form className="mb-3">
+                                                <Row>
+                                                    <Col sm={12} md={3}>
+                                                        <Form.Group controlId="startDate">
+                                                            <Form.Label className='fw-bold'>Start Date <span className="text-danger">*</span></Form.Label>
+                                                            <Form.Control
+                                                                type="date"
+                                                                value={startDate}
+                                                                onChange={(e) => setStartDate(e.target.value)}
+                                                            />
+                                                        </Form.Group>
+                                                    </Col>
+                                                    <Col sm={12} md={3}>
+                                                        <Form.Group controlId="endDate">
+                                                            <Form.Label className='fw-bold'>End Date <span className="text-danger">*</span></Form.Label>
+                                                            <Form.Control
+                                                                type="date"
+                                                                value={endDate}
+                                                                onChange={(e) => setEndDate(e.target.value)}
+                                                            />
+                                                        </Form.Group>
+                                                    </Col>
+                                                    <Col sm={12} md={3}>
+                                                        <Form.Group className="position-relative form-group" controlId="childModule">
+                                                            <Form.Label className='fw-bold'>
+                                                                Select a module <span className="text-danger">*</span>
+                                                            </Form.Label>
 
-                                                        < select
-                                                            aria-label={`audit-${module}`}
-                                                            id={`audit-select-${module}`}
-                                                            value={selectedChildModule}
-                                                            data-name={'audit-module'}
-                                                            name='select'
-                                                            className={`form-control`}
+                                                            < select
+                                                                aria-label={`audit-${module}`}
+                                                                id={`audit-select-${module}`}
+                                                                value={selectedChildModule}
+                                                                data-name={'audit-module'}
+                                                                name='select'
+                                                                className={`form-control`}
+                                                                disabled={disableModuleSelection}
+                                                                onChange={(e) => handleModuleSelection(e)}>
+                                                                <option>--Select--</option>
+                                                                {allModules?.map((item, i) => (
+                                                                    <option key={i} value={item.name}>{item.name}</option>
+                                                                ))}
+                                                            </select>
+
+                                                        </Form.Group >
+                                                    </Col>
+                                                    <Col xs="auto" className="d-flex align-items-center justify-content-start" sm={12} md={3}>
+                                                        <Button
+                                                            variant="contained"
+                                                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn-sm btn btn-primary mr-2'
+                                                            onClick={handleSearch}
+                                                        >
+                                                            Fetch Report
+                                                        </Button>
+                                                        <Button
+                                                            variant="conatined"
                                                             disabled={disableModuleSelection}
-                                                            onChange={(e) => handleModuleSelection(e)}>
-                                                            <option>--Select--</option>
-                                                            {allModules?.map((item, i) => (
-                                                                <option key={i} value={item.name}>{item.name}</option>
-                                                            ))}
-                                                        </select>
-
-                                                    </Form.Group >
-                                                </Col>
-                                                <Col xs="auto" className="d-flex align-items-center justify-content-start" sm={12} md={3}>
-                                                    <Button
-                                                        variant="contained"
-                                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn-sm btn btn-primary mr-2'
-                                                        onClick={handleSearch}
-                                                    >
-                                                        Fetch Report
-                                                    </Button>
-                                                    <Button
-                                                        variant="conatined"
-                                                        disabled={disableModuleSelection}
-                                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn-sm btn btn-secondary'
-                                                        onClick={handleReset}
-                                                    >
-                                                        Reset
-                                                    </Button>
-                                                </Col>
-                                            </Row>
-                                        </Form>
-                                    </Row>
+                                                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn-sm btn btn-secondary'
+                                                            onClick={handleReset}
+                                                        >
+                                                            Reset
+                                                        </Button>
+                                                    </Col>
+                                                </Row>
+                                            </Form>
+                                        </Row>
+                                    }
                                     {
                                         (dataSet?.items?.length > 0) && (
                                             <>

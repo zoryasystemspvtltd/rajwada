@@ -5,17 +5,15 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import api from '../../../store/api-service';
 
-
 const IUILookUpMultiColumn = (props) => {
     const schema = props?.schema;
     const columns = schema?.columns;
+    const [show, setShow] = useState(false);
     const [value, setValue] = useState("");
     const [text, setText] = useState("");
     const [selected, setSelected] = useState(null);
 
-
     const [dataSet, setDataSet] = useState(useSelector((state) => state.api[schema?.module]))
-
 
     useEffect(() => {
         async function fetchData() {
@@ -32,7 +30,6 @@ const IUILookUpMultiColumn = (props) => {
         }
     }, [schema?.module]);
 
-
     useEffect(() => {
         const newValue = schema?.module
             ? dataSet?.items?.find(item => item.id === parseInt(value))?.name
@@ -42,7 +39,6 @@ const IUILookUpMultiColumn = (props) => {
         }
     }, [dataSet?.items, value]);
 
-
     useEffect(() => {
         if (props?.clearFields) {
             setValue("");
@@ -50,13 +46,11 @@ const IUILookUpMultiColumn = (props) => {
         }
     }, [props?.clearFields]);
 
-
     useEffect(() => {
         if (props?.value) {
             setValue(props?.value);
         }
     }, [props?.value]);
-
 
     useEffect(() => {
         async function fetchSelectedData(id) {
@@ -64,14 +58,10 @@ const IUILookUpMultiColumn = (props) => {
             setSelected(item.data);
         }
 
-
         if (props?.value) {
             fetchSelectedData(props?.value);
         }
     }, [props?.value]);
-
-
-
 
     const handleChange = (e, item) => {
         e.preventDefault();
@@ -81,8 +71,8 @@ const IUILookUpMultiColumn = (props) => {
             let modifiedEvent = { ...e, target: { id: props?.id, value: item?.id }, preventDefault: function () { } };
             props.onChange(modifiedEvent);
         }
+        setShow(false);
     };
-
 
     return (
         <>
@@ -113,7 +103,7 @@ const IUILookUpMultiColumn = (props) => {
             }
             {!props?.readonly &&
                 <>
-                    <Dropdown>
+                    <Dropdown show={show} onToggle={(isOpen) => setShow(isOpen)}>
                         <Dropdown.Toggle variant="contained" className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2'>
                             {selected ? `${selected?.name}` : `Select ${schema?.selectLabel}`}
                         </Dropdown.Toggle>
@@ -153,6 +143,5 @@ const IUILookUpMultiColumn = (props) => {
         </>
     );
 }
-
 
 export default IUILookUpMultiColumn;

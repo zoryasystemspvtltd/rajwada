@@ -57,7 +57,7 @@ export const ListAmendment = () => {
                                         </div>
 
 
-                                        <div className="tab-pane active" id="amendments-in-progress" role="tabpanel">
+                                        <div className="tab-pane" id="amendments-in-progress" role="tabpanel">
                                             <IUIAmendmentList schema={schema} filter={null} amendmentType={'in-progress'} filterSchema={filterSchema?.amendmentInProgress} />
                                         </div>
 

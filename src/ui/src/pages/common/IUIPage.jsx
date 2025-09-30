@@ -580,7 +580,7 @@ const IUIPage = (props) => {
                                                         </>
                                                     }
                                                     {
-                                                        (auditPrivileges?.view && module !== "auditLog") &&
+                                                        (auditPrivileges?.view && module !== "auditLog" && (!schema?.adding || schema?.editing)) &&
                                                         <>
                                                             <Button
                                                                 variant="contained"

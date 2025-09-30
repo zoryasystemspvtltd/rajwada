@@ -44,6 +44,10 @@ const IUIAmendmentList = (props) => {
         async function fetchAmendmentList() {
             try {
                 if (props?.filterSchema) {
+                    // Fetch all the amendments whose parentId is Null
+                    const amendmentByNull = await api.getAmendmentsByNullValue({ model: module });
+                    console.log(amendmentByNull);
+
                     const newBaseFilter = {
                         // name: schema?.relationKey,
                         // value: props?.filter,
