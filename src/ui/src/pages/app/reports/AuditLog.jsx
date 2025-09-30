@@ -29,8 +29,8 @@ export const ListAuditLog = (props) => {
             { text: 'Entity Id', field: 'entityId', type: 'text', sorting: true, searching: true },
             { text: 'Module Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Action Type', field: 'actionType', type: 'text', sorting: true, searching: true },
-            { text: 'Modified By', field: 'modifiedBy', type: 'text', sorting: true, searching: true },
-            { text: 'Modified Date', field: 'modifiedDate', type: 'date', sorting: false, }
+            { text: 'Action By', field: 'member', type: 'text', sorting: true, searching: true },
+            { text: 'Action Date', field: 'date', type: 'date', sorting: false, }
         ]
     }
     const dispatch = useDispatch();
@@ -44,7 +44,7 @@ export const ListAuditLog = (props) => {
     // Get values from props first, otherwise fallback to navigation state
     const id = props.id ?? location.state?.id ?? null;
     const childModule = props.childModule ?? location.state?.childModule ?? null;
-
+    const disableModuleSelection = location.state?.disableSelection ?? false;
 
     useEffect(() => {
         async function fetchAllModules() {
@@ -61,23 +61,18 @@ export const ListAuditLog = (props) => {
         async function fetchData() {
             if (id && childModule) {
                 setEntityId(parseInt(id));
-                setSelectedChildModule(childModule);
+                setSelectedChildModule(`${childModule[0].toUpperCase()}${childModule.substring(1)}`);
 
                 const newBaseFilter = {
                     name: 'entityId',
                     value: parseInt(id),
                     and: {
                         name: 'name',
-                        value: childModule
+                        value: `${childModule[0].toUpperCase()}${childModule.substring(1)}`
                     }
                 };
 
                 const pageOptions = { recordPerPage: 0, searchCondition: newBaseFilter };
-                const response = await api.getData({ module: module, options: pageOptions });
-                setDataSet(response?.data);
-            }
-            else {
-                const pageOptions = { recordPerPage: 0 };
                 const response = await api.getData({ module: module, options: pageOptions });
                 setDataSet(response?.data);
             }
@@ -97,7 +92,6 @@ export const ListAuditLog = (props) => {
         const end = new Date(endDate);
         let newBaseFilter = {};
 
-
         if (entityId) {
             newBaseFilter = {
                 name: 'entityId',
@@ -106,11 +100,11 @@ export const ListAuditLog = (props) => {
                     name: 'name',
                     value: selectedChildModule,
                     and: {
-                        name: 'documentDate',
+                        name: 'date',
                         value: start,
                         operator: 'greaterThan',
                         and: {
-                            name: 'documentDate',
+                            name: 'date',
                             value: end,
                             operator: 'lessThan',
                         }
@@ -120,16 +114,16 @@ export const ListAuditLog = (props) => {
         }
         else {
             newBaseFilter = {
-                name: 'name',
-                value: selectedChildModule,
+                name: 'date',
+                value: start,
+                operator: 'greaterThan',
                 and: {
-                    name: 'documentDate',
-                    value: start,
-                    operator: 'greaterThan',
+                    name: 'date',
+                    value: end,
+                    operator: 'lessThan',
                     and: {
-                        name: 'documentDate',
-                        value: end,
-                        operator: 'lessThan',
+                        name: 'name',
+                        value: selectedChildModule,
                     }
                 }
             };
@@ -202,10 +196,9 @@ export const ListAuditLog = (props) => {
                                                 </Col>
                                                 <Col sm={12} md={3}>
                                                     <Form.Group className="position-relative form-group" controlId="childModule">
-                                                        <Form.Label className='text-uppercase mb-2'>
-                                                            Select a {schema?.copyLabel}
+                                                        <Form.Label className='fw-bold'>
+                                                            Select a module
                                                         </Form.Label>
-
 
                                                         < select
                                                             aria-label={`audit-${module}`}
@@ -214,7 +207,7 @@ export const ListAuditLog = (props) => {
                                                             data-name={'audit-module'}
                                                             name='select'
                                                             className={`form-control`}
-                                                            disabled={entityId || false}
+                                                            disabled={disableModuleSelection}
                                                             onChange={(e) => handleModuleSelection(e)}>
                                                             <option>--Select--</option>
                                                             {allModules?.map((item, i) => (
@@ -222,10 +215,9 @@ export const ListAuditLog = (props) => {
                                                             ))}
                                                         </select>
 
-
                                                     </Form.Group >
                                                 </Col>
-                                                <Col xs="auto" className="d-flex align-items-end" sm={12} md={3}>
+                                                <Col xs="auto" className="d-flex align-items-center justify-content-start" sm={12} md={3}>
                                                     <Button
                                                         variant="contained"
                                                         className='btn-wide btn-pill btn-shadow btn-hover-shine btn-sm btn btn-primary mr-2'
@@ -235,6 +227,7 @@ export const ListAuditLog = (props) => {
                                                     </Button>
                                                     <Button
                                                         variant="conatined"
+                                                        disabled={disableModuleSelection}
                                                         className='btn-wide btn-pill btn-shadow btn-hover-shine btn-sm btn btn-secondary'
                                                         onClick={handleReset}
                                                     >
@@ -335,7 +328,7 @@ export const ListAuditLog = (props) => {
                                     }
                                     {
                                         (dataSet?.items?.length === 0 && startDate !== '' && endDate !== '' && selectedChildModule !== '') && (
-                                            <p>No audit log found within the selected date range.</p>
+                                            <p>No audit log found for the provided input.</p>
                                         )
                                     }
                                 </div>

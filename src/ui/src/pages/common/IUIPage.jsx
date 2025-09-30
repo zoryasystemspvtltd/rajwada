@@ -102,7 +102,7 @@ const IUIPage = (props) => {
     }, [loggedInUser, module]);
 
     const handleAuditClick = () => {
-        navigate("/audit-logs", { state: { id: id, childModule: module } });
+        navigate("/audit-logs", { state: { id: id, childModule: module, disableSelection: true } });
     };
 
     useEffect(() => {
@@ -580,14 +580,14 @@ const IUIPage = (props) => {
                                                         </>
                                                     }
                                                     {
-                                                        (auditPrivileges?.view) &&
+                                                        (auditPrivileges?.view && module !== "auditLog") &&
                                                         <>
                                                             <Button
                                                                 variant="contained"
                                                                 className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
                                                                 onClick={() => handleAuditClick()}
                                                             >
-                                                                Audit Log
+                                                                Change History
                                                             </Button>
                                                         </>
                                                     }
