@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RajApi.Data.Models;
 using System.Data;
-using System.Linq;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
 
@@ -1070,7 +1069,7 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    internal dynamic GetNullData(string model)
+    public dynamic GetNullData(string model)
     {
         if (model != null)
         {

@@ -1,9 +1,7 @@
 ﻿using ILab.Data;
-using ILab.Extensionss.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RajApi.Data;
-using RajApi.Data.Models;
 
 namespace RajApi.Controllers;
 
