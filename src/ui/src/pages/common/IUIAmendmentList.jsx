@@ -46,27 +46,20 @@ const IUIAmendmentList = (props) => {
                 if (props?.filterSchema) {
                     // Fetch all the amendments whose parentId is Null
                     const amendmentByNull = await api.getAmendmentsByNullValue({ model: module });
-                    console.log(amendmentByNull);
+                    const parentAmendmentIds = amendmentByNull.data.map(amendment => amendment.id);
 
-                    const newBaseFilter = {
-                        // name: schema?.relationKey,
-                        // value: props?.filter,
-                        // //operator: 'likelihood' // Default value is equal
-                        // and: props?.filterSchema
-                    }
+                    const newBaseFilter = props?.filterSchema
 
                     setBaseFilter(newBaseFilter)
 
                     const pageOptions = {
                         ...initialData?.options
-                        , recordPerPage: pageLength
-                        // , searchCondition: newBaseFilter
+                        , recordPerPage: pageLength,
+                        searchCondition: newBaseFilter
                     }
 
                     const response = await api.getData({ module: module, options: pageOptions });
-                    // console.log(newBaseFilter)
-                    // console.log(response)
-                    setDataSet(response?.data);
+                    setDataSet(response?.data?.items?.filter(amendment => parentAmendmentIds?.includes(amendment.id)));
                 }
             }
             catch (error) {
@@ -202,7 +195,7 @@ const IUIAmendmentList = (props) => {
                                         {
                                             <tbody>
                                                 {
-                                                    dataSet?.items?.map((item, i) => (
+                                                    dataSet?.map((item, i) => (
                                                         <tr key={i}>
                                                             {(schema?.editing && amendmentType === 'queue') &&
                                                                 <>

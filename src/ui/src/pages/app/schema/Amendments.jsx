@@ -7,7 +7,7 @@ import IUIPage from "../../common/IUIPage.jsx";
 
 export const ListAmendment = () => {
     const schema = {
-        module: 'activityamendment',
+        module: 'activityAmendment',
         title: 'Activity Amendment',
         relationKey: "parentId",
         path: 'amendments',
@@ -80,7 +80,7 @@ export const ViewAmendment = () => {
     const { id } = useParams();
 
     const schema = {
-        module: 'activityamendment',
+        module: 'activityAmendment',
         title: 'Activity Amendment',
         relationKey: "parentId",
         path: 'amendments',
@@ -162,7 +162,7 @@ export const ViewAmendment = () => {
 
 export const EditAmendment = () => {
     const schema = {
-        module: 'activityamendment',
+        module: 'activityAmendment',
         title: 'Activity Amendment',
         path: 'amendments',
         isAmendment: true,
@@ -171,10 +171,10 @@ export const EditAmendment = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', width: 4, type: 'text', required: true },
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', width: 4, type: 'text', required: true, readonly: true },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: true },
                     {
-                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
+                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4, readonly: true,
                         schema: {
                             items: [ // or use items for fixed value
                                 { name: 'Main Task' },
@@ -191,7 +191,7 @@ export const EditAmendment = () => {
                         schema: { module: 'workflow' }
                     },
                     {
-                        text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false,
+                        text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false, readonly: true,
                         schema: { module: 'activity' }
                     },
                     {

@@ -405,14 +405,15 @@ const IUIPage = (props) => {
                             // Update the data in amendment table
                             // Change planned end date in activity table
                             let amendmentAction = {
-                                module: module,
+                                module: 'activityamendment',
                                 data: {
-                                    ...amendmentData, oldValues: oldData, newValues: JSON.stringify(data)
+                                    ...amendmentData, oldData: JSON.stringify(oldData), newValues: JSON.stringify(data), amendmentStatus: 1
                                 }
                             }
+
                             await api.editData(amendmentAction);
 
-                            await api.editData({ module: 'activity', data: { ...data, oldValues: JSON.stringify(oldData) } });
+                            await api.editData({ module: 'activity', data: { ...data, oldValues: JSON.stringify(oldData), progressPercentage: 50 } });
                         }
                         else {
                             await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: JSON.stringify(oldData), data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: JSON.stringify(oldData) } });
@@ -442,11 +443,6 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
-                        //api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
-                        // if (module === 'activity') {
-                        //     console.log(data);
-                        //     return;
-                        // }
                         let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
@@ -580,7 +576,7 @@ const IUIPage = (props) => {
                                                         </>
                                                     }
                                                     {
-                                                        (auditPrivileges?.view && module !== "auditLog" && (!schema?.adding || schema?.editing)) &&
+                                                        (auditPrivileges?.view && module !== "auditLog" && (!schema?.adding || !schema?.editing)) && !schema?.isAmendment && schema?.readonly &&
                                                         <>
                                                             <Button
                                                                 variant="contained"

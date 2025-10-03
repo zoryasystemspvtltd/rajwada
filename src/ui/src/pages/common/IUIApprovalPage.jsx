@@ -196,6 +196,8 @@ const IUIApprovalPage = (props) => {
         let patchAction = {};
         let editAction = {};
         let amendmentAction = {};
+        let isAlreadyAmended = false;
+
         if (loggedInUser?.roles?.includes("Quality Engineer")) {
             // QC is approving
             if (isApproved) {
@@ -210,23 +212,62 @@ const IUIApprovalPage = (props) => {
                 //     module: module,
                 //     data: { id: id, status: 3, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
                 // }
-                // editAction = {
-                //     module: module,
-                //     data: { ...data, isCompleted: false, isAbandoned: true, isInProgress: true, progressPercentage: 95 }
-                // }
-                // Create new record in Work Amendments
-                amendmentAction = {
-                    module: 'activityamendment',
-                    data: {
-                        code: `Amendment-${data?.workId}`,
-                        name: `Amendment-${data?.workId}`,
-                        rejectedByQC: !isApproved,
-                        qCRemarks: remarks,
-                        amendmentReason: "QC Rejection",
-                        newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
-                        amendmentStatus: 0, // assuming status is 0 for newly created amendment
-                        reviewedBy: loggedInUser?.email,
-                        activityId: id
+
+                // Edit the main activity in the Activity table so that work continues
+                editAction = {
+                    module: module,
+                    data: { ...data, isCompleted: false, isInProgress: true, progressPercentage: 50 }
+                }
+
+                // Check whether amendment already exists for the rejected activity
+                const baseFilter = {
+                    name: 'activityId',
+                    value: parseInt(id)
+                }
+
+                const pageOptions = {
+                    recordPerPage: 0,
+                    searchCondition: baseFilter
+                };
+
+                const response = await api.getData({ module: 'activityamendment', options: pageOptions });
+                const existingAmendments = response?.data?.items;
+
+                if (existingAmendments?.length === 0) {
+                    // Create new record in Work Amendments if not already amended activity
+                    amendmentAction = {
+                        module: 'activityamendment',
+                        data: {
+                            code: `Amendment-${data?.workId}`,
+                            name: `Amendment-${data?.workId}`,
+                            rejectedByQC: !isApproved,
+                            qCRemarks: remarks,
+                            amendmentReason: "QC Rejection",
+                            newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
+                            amendmentStatus: 0, // assuming status is 0 for newly created amendment
+                            reviewedBy: loggedInUser?.email,
+                            activityId: id
+                        }
+                    }
+                }
+                else {
+                    // Already amended
+                    isAlreadyAmended = true;
+
+                    const mainAmendment = existingAmendments?.filter(amendment => amendment?.parentId === null)[0];
+
+                    // Update the main amendment record in the Amendment table
+                    amendmentAction = {
+                        module: 'activityamendment',
+                        data: {
+                            ...mainAmendment,
+                            rejectedByQC: !isApproved,
+                            qCRemarks: remarks,
+                            amendmentReason: "QC Rejection",
+                            newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
+                            reviewedBy: loggedInUser?.email,
+                            activityId: id
+                        }
                     }
                 }
             }
@@ -262,7 +303,12 @@ const IUIApprovalPage = (props) => {
 
 
             if (Object.keys(amendmentAction).length > 0) {
-                await api.addData(amendmentAction);
+                if (isAlreadyAmended) {
+                    await api.editData(amendmentAction);
+                }
+                else {
+                    await api.addData(amendmentAction);
+                }
             }
 
 

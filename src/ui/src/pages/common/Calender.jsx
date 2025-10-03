@@ -741,6 +741,7 @@ const Calendar = () => {
                 let amendmentAction = {
                     module: 'activityamendment',
                     data: {
+                        name: lastAmendmentData?.name,
                         code: lastAmendmentData?.code,
                         rejectedByQC: lastAmendmentData?.rejectedByQC,
                         qCRemarks: lastAmendmentData?.remarks,
@@ -756,6 +757,9 @@ const Calendar = () => {
 
                 // Insert new Entry in Amendment table
                 await api.addData(amendmentAction);
+
+                // Update only the progress percentage in actual Activity table
+                await api.editData({ module: 'activity', data: { ...selectedTask, progressPercentage: progress } });
             }
             else {
                 // Amendment does not exist and it is a fresh activity

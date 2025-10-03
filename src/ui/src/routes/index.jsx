@@ -46,7 +46,7 @@ import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/
 import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } from "../pages/app/schema/ParkingTypes";
 import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate } from "../pages/app/schema/FlatTemplates";
 import { ListAuditLog, ViewAuditLog } from "../pages/app/reports/AuditLog";
-import { ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
+import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -340,6 +340,10 @@ const Routes = () => {
                 {
                     path: "/amendments/:id",
                     element: <ViewAmendment />
+                },
+                {
+                    path: "/amendments/:id/edit",
+                    element: <EditAmendment />
                 },
                 {
                     path: "/approvals/:id",
