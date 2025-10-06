@@ -48,13 +48,7 @@
             }
         ],
         "report": [
-            {
-                "name": "adminReport",
-                "text": "Audit Log",
-                "icon": "vector-square",
-                "path": "/audit-logs",
-                "access": "auditLog"
-            }
+           
         ]
     },
     "civil": {

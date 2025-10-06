@@ -21,7 +21,7 @@ import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
 import IUITableInput from './IUITableInput';
 import IUIListMapping from '../IUIListMapping';
-import { formatStringDate } from '../../../store/datetime-formatter';
+import { formatStringDate, getFormattedDateTime } from '../../../store/datetime-formatter';
 import IUIImageGallery from './IUIImageGallery';
 import { FaImage } from 'react-icons/fa';
 import IUIPdfTool from '../../pdf-helper/IUIPdfTool';
@@ -180,6 +180,14 @@ const IUIPageElement = (props) => {
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
                                             <span id={fld.field}> {data[fld.field] ? formatStringDate(data[fld.field]) : ""} </span>
+                                        </Form.Group>
+                                    </>
+                                }
+                                {fld.type === 'label-date-time' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
+                                            <span id={fld.field}> {data[fld.field] ? getFormattedDateTime(data[fld.field]) : ""} </span>
                                         </Form.Group>
                                     </>
                                 }

@@ -10,7 +10,7 @@ import { FaImage } from "react-icons/fa6";
 import { useDispatch, useSelector } from 'react-redux';
 import { setSave } from '../../store/api-db';
 import api from '../../store/api-service';
-import { getFormattedDate } from '../../store/datetime-formatter';
+import { getFormattedDateTime } from '../../store/datetime-formatter';
 import { notify } from "../../store/notification";
 import IUIImageGallery from './shared/IUIImageGallery';
 import ILab from '../canvas-helper/Ilab-Canvas';
@@ -1285,7 +1285,7 @@ const Calendar = () => {
                                             <div className="text-break">{comment?.remarks}</div>
                                             <div className={`text-left ${comment.member === loggedInUser?.email ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
                                                 style={{ fontSize: '0.60rem' }}>
-                                                {getFormattedDate(new Date(comment?.date))}
+                                                {getFormattedDateTime(new Date(comment?.date))}
                                             </div>
                                         </div>
                                     </div>

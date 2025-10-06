@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 import { Link } from "react-router-dom";
 import { getData } from '../../../store/api-db';
 import api from '../../../store/api-service';
-import { formatStringDate } from '../../../store/datetime-formatter';
+import { getFormattedDateTime } from '../../../store/datetime-formatter';
 import IUILookUp from '../../common/shared/IUILookUp';
 import IUIPage from '../../common/IUIPage';
 import { notify } from '../../../store/notification';
@@ -27,9 +27,7 @@ export const ListAuditLog = (props) => {
         editing: false,
         adding: false,
         fields: [
-            { text: 'Entity Id', field: 'entityId', type: 'text', sorting: true, searching: true },
-            { text: 'Module Name', field: 'name', type: 'link', sorting: true, searching: true },
-            { text: 'Action Type', field: 'actionType', type: 'text', sorting: true, searching: true },
+            { text: 'Action Type', field: 'actionType', type: 'link', sorting: true, searching: true },
             { text: 'Action By', field: 'member', type: 'text', sorting: true, searching: true },
             { text: 'Action Date', field: 'date', type: 'date', sorting: false, }
         ]
@@ -294,7 +292,7 @@ export const ListAuditLog = (props) => {
                                                                                             <Link to={`${item.id}`}>{item[fld.field]}</Link>
                                                                                         }
                                                                                         {(!fld.type || fld.type === 'text') && item[fld.field]}
-                                                                                        {fld.type === 'date' && formatStringDate(item[fld.field])}
+                                                                                        {fld.type === 'date' && getFormattedDateTime(item[fld.field])}
                                                                                         {(fld.type === 'lookup') &&
                                                                                             <IUILookUp
                                                                                                 value={item[fld.field]}
@@ -368,15 +366,15 @@ export const ViewAuditLog = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Entity Id', field: 'entityId', width: 4, type: 'label' },
-                    { text: 'Module Name', field: 'name', width: 4, type: 'label' },
+                    // { text: 'Entity Id', field: 'entityId', width: 4, type: 'label' },
+                    // { text: 'Module Name', field: 'name', width: 4, type: 'label' },
                     { text: 'Action Type', field: 'actionType', width: 4, type: 'label' },
-                    { text: 'Created By', field: 'member', width: 4, type: 'label' },
-                    { text: 'Creation Date', field: 'date', width: 4, type: 'label-date' },
-                    { text: 'Modified By', field: 'modifiedBy', width: 4, type: 'label' },
-                    { text: 'Modified Date', field: 'modifiedDate', width: 4, type: 'label-date' },
-                    { text: 'Reviewed By', field: 'reviewedBy', width: 4, type: 'label' },
-                    { text: 'Reviewed Date', field: 'reviewedDate', width: 4, type: 'label-date' },
+                    { text: 'Action By', field: 'member', width: 4, type: 'label' },
+                    { text: 'Action Date & Time', field: 'date', width: 4, type: 'label-date-time' },
+                    // { text: 'Modified By', field: 'modifiedBy', width: 4, type: 'label' },
+                    // { text: 'Modified Date', field: 'modifiedDate', width: 4, type: 'label-date' },
+                    // { text: 'Reviewed By', field: 'reviewedBy', width: 4, type: 'label' },
+                    // { text: 'Reviewed Date', field: 'reviewedDate', width: 4, type: 'label-date' },
                 ]
             },
             {

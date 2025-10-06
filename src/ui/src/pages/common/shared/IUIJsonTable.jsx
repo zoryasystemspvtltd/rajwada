@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import Table from 'react-bootstrap/Table';
 
 const IUIJsonTable = (props) => {
-    const excludeKeys = props?.excludeKeys || [];
-    const nestedTableKeys = props?.nestedTableKeys || [];
-    const maxLength = props?.maxLength || 200;
+    const schema = props?.schema;
+    const excludeKeys = schema?.excludeKeys || [];
+    const nestedTableKeys = schema?.nestedTableKeys || [];
+    const maxLength = schema?.schemamaxLength || 200;
     const [data, setData] = useState(null);
     const [entries, setEntries] = useState([]);
 
@@ -37,10 +38,12 @@ const IUIJsonTable = (props) => {
                                 <tbody>
                                     {entries.map(([key, value]) => {
                                         // Skip excluded keys or very large values
-                                        const stringValue = String(value);
+                                        const stringValue = value !== null ? String(value) : "";
+                                        
                                         if (
                                             excludeKeys.includes(key) ||
-                                            stringValue.length > maxLength
+                                            stringValue.length > maxLength ||
+                                            key.includes("Id")
                                         ) {
                                             return null;
                                         }

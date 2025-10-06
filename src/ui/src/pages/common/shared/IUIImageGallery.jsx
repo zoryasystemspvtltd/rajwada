@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Carousel, Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import api from '../../../store/api-service';
 import { notify } from "../../../store/notification";
-import { getFormattedDate } from '../../../store/datetime-formatter';
+import { getFormattedDateTime } from '../../../store/datetime-formatter';
 
 const IUIImageGallery = (props) => {
     const module = "attachment";
@@ -124,7 +124,7 @@ const IUIImageGallery = (props) => {
                                     <img className="d-block w-100" src={image.file} alt={`Slide ${index}`} />
                                     <Carousel.Caption>
                                         <h3>{image.member}</h3>
-                                        <p>Upload Date Time: {getFormattedDate(image.date)}</p>
+                                        <p>Upload Date Time: {getFormattedDateTime(image.date)}</p>
                                     </Carousel.Caption>
                                 </Carousel.Item>
                             ))
