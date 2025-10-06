@@ -21,11 +21,12 @@ import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
 import IUITableInput from './IUITableInput';
 import IUIListMapping from '../IUIListMapping';
-import { formatStringDate } from '../../../store/datetime-formatter';
+import { formatStringDate, getFormattedDateTime } from '../../../store/datetime-formatter';
 import IUIImageGallery from './IUIImageGallery';
 import { FaImage } from 'react-icons/fa';
 import IUIPdfTool from '../../pdf-helper/IUIPdfTool';
 import IUILookUpMultiColumn from './IUILookUpMultiColumn';
+import IUIJsonTable from './IUIJsonTable';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -179,6 +180,14 @@ const IUIPageElement = (props) => {
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
                                             <span id={fld.field}> {data[fld.field] ? formatStringDate(data[fld.field]) : ""} </span>
+                                        </Form.Group>
+                                    </>
+                                }
+                                {fld.type === 'label-date-time' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
+                                            <span id={fld.field}> {data[fld.field] ? getFormattedDateTime(data[fld.field]) : ""} </span>
                                         </Form.Group>
                                     </>
                                 }
@@ -424,7 +433,7 @@ const IUIPageElement = (props) => {
                                                 {fld.required &&
                                                     <span className="text-danger">*</span>
                                                 }
-                                            </Form.Label>
+                                        </Form.Label>
 
                                             <IUILookUpEnum
                                                 value={data[fld.field]}
@@ -464,7 +473,7 @@ const IUIPageElement = (props) => {
                                         <p className="text-danger">{errors[fld.field]}</p>
                                     </>
                                 }
-                                 {fld.type === 'lookup-multi-column' &&
+                                {fld.type === 'lookup-multi-column' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field} >{fld.text}
@@ -539,6 +548,16 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative mt-2">
                                             <IUIListMapping schema={fld.schema} parentId={data.id} />
+                                        </Form.Group>
+                                        <br />
+                                    </>
+                                }
+                                {fld.type === 'key-val-table' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
+
+                                            <IUIJsonTable schema={fld.schema} value={data[fld.field]} />
                                         </Form.Group>
                                         <br />
                                     </>

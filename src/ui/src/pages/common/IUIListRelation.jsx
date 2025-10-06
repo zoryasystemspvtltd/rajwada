@@ -197,7 +197,7 @@ const IUIListRelation = (props) => {
             await Promise.all(deletePromises);
             notify("success", 'Deletion Successful!');
             setSelectedValues([]);
-             window.location.reload();
+            window.location.reload();
         }
         else {
             notify("info", `Kindly select ${schema?.module} to delete!`)

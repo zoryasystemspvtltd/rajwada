@@ -1,0 +1,20 @@
+{
+    "quality": {
+        "amendmentInQueue": {
+            "name": "amendmentStatus",
+            "value": 0
+        },
+        "amendmentInProgress": {
+            "name": "amendmentStatus",
+            "value": 1
+        },
+        "amendmentCompleted": {
+            "name": "amendmentStatus",
+            "value": 2,
+            "or": {
+                "name": "amendmentStatus",
+                "value": 3
+            }
+        }
+    }
+}

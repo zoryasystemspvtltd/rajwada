@@ -10,6 +10,7 @@ import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUIPageElement from './shared/IUIPageElement';
 
+
 const IUIApprovalPage = (props) => {
     // Properties
     const schema = props?.schema;
@@ -35,6 +36,7 @@ const IUIApprovalPage = (props) => {
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
 
     useEffect(() => {
         async function fetchData() {
@@ -64,6 +66,7 @@ const IUIApprovalPage = (props) => {
         fetchData();
     }, [id, loggedInUser]);
 
+
     useEffect(() => {
         if (props?.defaultValues) {
             setDefaultValues(props?.defaultValues);
@@ -74,6 +77,7 @@ const IUIApprovalPage = (props) => {
             setData(newData);
         }
     }, [props?.defaultValues]);
+
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
@@ -86,6 +90,7 @@ const IUIApprovalPage = (props) => {
             localStorage.removeItem("dependency-flow");
         }
     }, [loggedInUser, module]);
+
 
     useEffect(() => {
         if (dirty) {
@@ -100,6 +105,7 @@ const IUIApprovalPage = (props) => {
         setData(newData);
     };
 
+
     const handleRemarksChange = (event) => {
         const { value } = event.target;
         setRemarks(value);
@@ -107,6 +113,7 @@ const IUIApprovalPage = (props) => {
 
     const validate = (values, fields) => {
         let errors = {};
+
 
         for (let i = 0; i < fields?.length; i++) {
             let item = fields[i];
@@ -156,20 +163,23 @@ const IUIApprovalPage = (props) => {
 
     const assignApprover = async (e, email) => {
         e.preventDefault();
-         //status :3 means assigned
-        const action = { module: module, data: { id: id, member: email ,status: 3} }
+        //status :3 means assigned
+        const action = { module: module, data: { id: id, member: email, status: 3 } }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
+
 
             const timeId = setTimeout(() => {
                 // After 3 seconds set the show value to false
                 navigate(0);
             }, 1000)
 
+
             return () => {
                 clearTimeout(timeId)
             }
+
 
         } catch (e) {
             // TODO
@@ -185,6 +195,9 @@ const IUIApprovalPage = (props) => {
         const current = new Date();
         let patchAction = {};
         let editAction = {};
+        let amendmentAction = {};
+        let isAlreadyAmended = false;
+
         if (loggedInUser?.roles?.includes("Quality Engineer")) {
             // QC is approving
             if (isApproved) {
@@ -195,13 +208,67 @@ const IUIApprovalPage = (props) => {
             }
             // QC is rejecting
             else {
-                patchAction = {
-                    module: module,
-                    data: { id: id, status: 3, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
-                }
+                // patchAction = {
+                //     module: module,
+                //     data: { id: id, status: 3, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
+                // }
+
+                // Edit the main activity in the Activity table so that work continues
                 editAction = {
                     module: module,
-                    data: { ...data, isCompleted: false, isAbandoned: true, isInProgress: true, progressPercentage: 95 }
+                    data: { ...data, isCompleted: false, isInProgress: true, progressPercentage: 50 }
+                }
+
+                // Check whether amendment already exists for the rejected activity
+                const baseFilter = {
+                    name: 'activityId',
+                    value: parseInt(id)
+                }
+
+                const pageOptions = {
+                    recordPerPage: 0,
+                    searchCondition: baseFilter
+                };
+
+                const response = await api.getData({ module: 'activityamendment', options: pageOptions });
+                const existingAmendments = response?.data?.items;
+
+                if (existingAmendments?.length === 0) {
+                    // Create new record in Work Amendments if not already amended activity
+                    amendmentAction = {
+                        module: 'activityamendment',
+                        data: {
+                            code: `Amendment-${data?.workId}`,
+                            name: `Amendment-${data?.workId}`,
+                            rejectedByQC: !isApproved,
+                            qCRemarks: remarks,
+                            amendmentReason: "QC Rejection",
+                            newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
+                            amendmentStatus: 0, // assuming status is 0 for newly created amendment
+                            reviewedBy: loggedInUser?.email,
+                            activityId: id
+                        }
+                    }
+                }
+                else {
+                    // Already amended
+                    isAlreadyAmended = true;
+
+                    const mainAmendment = existingAmendments?.filter(amendment => amendment?.parentId === null)[0];
+
+                    // Update the main amendment record in the Amendment table
+                    amendmentAction = {
+                        module: 'activityamendment',
+                        data: {
+                            ...mainAmendment,
+                            rejectedByQC: !isApproved,
+                            qCRemarks: remarks,
+                            amendmentReason: "QC Rejection",
+                            newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
+                            reviewedBy: loggedInUser?.email,
+                            activityId: id
+                        }
+                    }
                 }
             }
         }
@@ -234,8 +301,24 @@ const IUIApprovalPage = (props) => {
                 await api.editData(editAction);
             }
 
-            await api.editPartialData(patchAction);
+
+            if (Object.keys(amendmentAction).length > 0) {
+                if (isAlreadyAmended) {
+                    await api.editData(amendmentAction);
+                }
+                else {
+                    await api.addData(amendmentAction);
+                }
+            }
+
+
+            if (Object.keys(patchAction).length > 0) {
+                await api.editPartialData(patchAction);
+            }
+
+
             dispatch(setSave({ module: module }));
+
 
             const timeId = setTimeout(async () => {
                 // After 3 seconds set the show value to false
@@ -244,12 +327,15 @@ const IUIApprovalPage = (props) => {
                 navigate(0);
             }, 1000)
 
+
             return () => {
                 clearTimeout(timeId)
             }
 
+
         } catch (e) {
             // TODO
+            console.log(e)
             notify('error', 'Failed to submit approval!');
         }
     }
@@ -294,6 +380,7 @@ const IUIApprovalPage = (props) => {
                                                                     <Button variant="contained"
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save </Button>
+
 
                                                                     <Button variant="contained"
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
@@ -366,6 +453,7 @@ const IUIApprovalPage = (props) => {
                                                 ))}
                                             </Row>
 
+
                                             {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
                                                 <hr />
                                             }
@@ -375,6 +463,7 @@ const IUIApprovalPage = (props) => {
                                                         <>
                                                             {(privileges?.add || privileges?.edit) &&
                                                                 <>
+
 
                                                                     {
                                                                         ((module !== 'activity') || (module === 'activity' && !schema?.adding)) && (

@@ -45,6 +45,8 @@ import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/sche
 import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
 import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } from "../pages/app/schema/ParkingTypes";
 import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate } from "../pages/app/schema/FlatTemplates";
+import { ListAuditLog, ViewAuditLog } from "../pages/app/reports/AuditLog";
+import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -331,6 +333,22 @@ const Routes = () => {
                     path: "/approvals/:id",
                     element: <ViewActivityApproval />
                 },
+                {
+                    path: "/amendments",
+                    element: <ListAmendment />
+                },
+                {
+                    path: "/amendments/:id",
+                    element: <ViewAmendment />
+                },
+                {
+                    path: "/amendments/:id/edit",
+                    element: <EditAmendment />
+                },
+                {
+                    path: "/approvals/:id",
+                    element: <ViewActivityApproval />
+                },
                 // {
                 //     path: "/reporting/:id",
                 //     element: <ViewReport />
@@ -530,6 +548,14 @@ const Routes = () => {
                 {
                     path: "/flat-templates/add",
                     element: <AddFlatTemplate />
+                },
+                {
+                    path: "/audit-logs",
+                    element: <ListAuditLog id={null} childModule={null} />
+                },
+                {
+                    path: "/audit-logs/:id",
+                    element: <ViewAuditLog />
                 },
             ],
         },

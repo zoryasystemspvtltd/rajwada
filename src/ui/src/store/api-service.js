@@ -190,5 +190,10 @@ api.getDataCopy = async (action) => {
     const url = `/datacopy/${action.id}/${action.type}`;
     return await api.get(url);
 }
+api.getAmendmentsByNullValue = async (action) => {
+    const url = `/nullvalue/${action.model}`;
+    const response = await api.get(url);
+    return response;
+}
 export default api;
 

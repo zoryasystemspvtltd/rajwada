@@ -48,12 +48,7 @@
             }
         ],
         "report": [
-            {
-                "name": "adminReport",
-                "text": "Admin",
-                "icon": "vector-square",
-                "path": "/home"
-            }
+           
         ]
     },
     "civil": {
@@ -184,6 +179,13 @@
                     "Quality Engineer",
                     "New Civil Head"
                 ]
+            },
+              {
+                "name": "workAmendment",
+                "text": "Work Amendment",
+                "icon": "vector-square",
+                "path": "/amendments",
+                "access": "activity"
             },
             {
                 "name": "siteMaterialApproval",

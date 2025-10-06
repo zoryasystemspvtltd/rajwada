@@ -10,7 +10,7 @@ import { FaImage } from "react-icons/fa6";
 import { useDispatch, useSelector } from 'react-redux';
 import { setSave } from '../../store/api-db';
 import api from '../../store/api-service';
-import { getFormattedDate } from '../../store/datetime-formatter';
+import { getFormattedDateTime } from '../../store/datetime-formatter';
 import { notify } from "../../store/notification";
 import IUIImageGallery from './shared/IUIImageGallery';
 import ILab from '../canvas-helper/Ilab-Canvas';
@@ -623,12 +623,18 @@ const Calendar = () => {
 
     const handleCompletionConfirmation = async () => {
         try {
+            // Fetch List of users who are assigned that activity
+            let allUsersResponse = await api.assignedUsers({ module: "activity", id: selectedTask?.id });
+
+            // Filter users with Role QC Engineer
+            let userList = allUsersResponse?.data?.filter(item => `${item?.member}`.toLowerCase().includes("qc"));
+
             const updatedData_a = {
                 ...selectedTask,
                 actualCost: parseFloat(actualCost),
                 progressPercentage: progress,
                 status: 2,
-                isCompleted: true
+                isCompleted: userList?.length > 0 ? true : false
             };
 
             const updateData_b = {
@@ -645,23 +651,22 @@ const Calendar = () => {
             await api.editData({ module: 'activity', data: updatedData_a });
             await api.addData({ module: 'activitytracking', data: updateData_b });
 
-            // Fetch List of users who are assigned that activity
-            let allUsersResponse = await api.assignedUsers({ module: "activity", id: selectedTask?.id });
-
-            // Filter users with Role QC Engineer
-            let userList = allUsersResponse?.data?.filter(item => `${item?.member}`.toLowerCase().includes("qc"));
-
-            for (let user of userList) {
-                const action = { module: "activity", data: { id: selectedTask?.id, member: user?.member, status: 2 } }
-                try {
-                    await api.editPartialData(action);
-                    dispatch(setSave({ module: "activity" }))
-                    //navigate(-1);
-                } catch (e) {
-                    // TODO
+            if (userList?.length > 0) {
+                for (let user of userList) {
+                    const action = { module: "activity", data: { id: selectedTask?.id, member: user?.member, status: 2, modifiedBy: loggedInUser?.email } }
+                    try {
+                        await api.editPartialData(action);
+                        dispatch(setSave({ module: "activity" }))
+                        //navigate(-1);
+                    } catch (e) {
+                        // TODO
+                    }
                 }
+                notify("success", "Assignment to QC Successful");
             }
-            notify("success", "Assignment to QC Successful");
+            else {
+                notify("info", "No QC Engineer has been assigned for this work till now. Contact your HOD");
+            }
         }
         catch (error) {
 
@@ -683,8 +688,27 @@ const Calendar = () => {
         }
     }
 
+
     // Save task changes
+    // Need checks for activity amendment
+    // If activity present in amendment table, then don't modify data in actual activity table. Add the updated values to the newValues field of the amendment table
+    // If activity not present in amendment table, then update in the default way
     const handleSave = async () => {
+        // Check for data in amendment table
+        const newBaseFilter = {
+            name: 'activityId',
+            value: parseInt(selectedTask.id)
+        }
+
+        const pageOptions = {
+            recordPerPage: 0,
+            searchCondition: newBaseFilter
+        }
+
+        const response = await api.getData({ module: 'activityamendment', options: pageOptions });
+
+        let amendmentData = response?.data?.items;
+
         const updatedData_a = {
             ...selectedTask,
             actualCost: parseFloat(actualCost),
@@ -706,7 +730,42 @@ const Calendar = () => {
         };
 
         try {
-            await api.editData({ module: 'activity', data: updatedData_a });
+            if (amendmentData?.length > 0) {
+                // Amendment exists for activity
+
+                // Main amendment entry has parentId null. Find the main amendment
+                let mainAmendment = amendmentData?.find(amendment => amendment.parentId === null);
+                const sortedAmendmentData = amendmentData?.sort((t1, t2) => new Date(t2.date) - new Date(t1.date));
+                const lastAmendmentData = sortedAmendmentData[0];
+
+                let amendmentAction = {
+                    module: 'activityamendment',
+                    data: {
+                        name: lastAmendmentData?.name,
+                        code: lastAmendmentData?.code,
+                        rejectedByQC: lastAmendmentData?.rejectedByQC,
+                        qCRemarks: lastAmendmentData?.remarks,
+                        amendmentReason: lastAmendmentData?.amendmentReason,
+                        oldData: lastAmendmentData?.newValues,
+                        newValues: JSON.stringify(updatedData_a),
+                        amendmentStatus: 1, // assuming status is 1 for re-submission
+                        reviewedBy: lastAmendmentData?.reviewedBy,
+                        activityId: lastAmendmentData?.activityId,
+                        parentId: mainAmendment?.id
+                    }
+                };
+
+                // Insert new Entry in Amendment table
+                await api.addData(amendmentAction);
+
+                // Update only the progress percentage in actual Activity table
+                await api.editData({ module: 'activity', data: { ...selectedTask, progressPercentage: progress } });
+            }
+            else {
+                // Amendment does not exist and it is a fresh activity
+                await api.editData({ module: 'activity', data: updatedData_a });
+            }
+
             await api.addData({ module: 'activitytracking', data: updateData_b });
         } catch (error) {
             // console.error('Error saving data:', error);
@@ -727,6 +786,7 @@ const Calendar = () => {
             await fetchData();
         }
     };
+
 
     const handleCommentSubmit = async () => {
         if (newComment.trim()) {
@@ -1225,7 +1285,7 @@ const Calendar = () => {
                                             <div className="text-break">{comment?.remarks}</div>
                                             <div className={`text-left ${comment.member === loggedInUser?.email ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
                                                 style={{ fontSize: '0.60rem' }}>
-                                                {getFormattedDate(new Date(comment?.date))}
+                                                {getFormattedDateTime(new Date(comment?.date))}
                                             </div>
                                         </div>
                                     </div>

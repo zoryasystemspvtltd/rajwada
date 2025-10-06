@@ -1,6 +1,4 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
 using ILab.Data;
 using ILab.Extensionss.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using RajApi.Data;
 using RajApi.Data.Models;
 using System.Data;
-using System.Reflection;
 
 namespace RajApi.Controllers;
 

@@ -29,6 +29,7 @@ const IUIPage = (props) => {
     const [dirty, setDirty] = useState(false)
     // Local State
     const [data, setData] = useState({});
+    const [amendmentData, setAmendmentData] = useState({});
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
     const [disabled, setDisabled] = useState(false)
@@ -38,6 +39,7 @@ const IUIPage = (props) => {
     const [approvalType, setApprovalType] = useState('');
     const [showRemarksModal, setShowRemarksModal] = useState(false);
     const [oldData, setOldData] = useState({});
+    const [auditPrivileges, setAuditPrivileges] = useState({});
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -46,12 +48,20 @@ const IUIPage = (props) => {
         async function fetchData() {
             if (id) {
                 const item = await api.getSingleData({ module: module, id: id });
-                setData(item.data);
+                if (schema?.isAmendment) {
+                    setAmendmentData(item.data);
+                    setData(JSON.parse(item.data?.newValues));
+                    // print and check full activity details
+                }
+                else {
+                    setData(item.data);
+                }
                 setOldData(item.data);
                 setApprovalStatus(item.data.status);
                 setApprovalBy(item.data.member);
             }
         }
+
 
         fetchData();
     }, [id]);
@@ -78,6 +88,22 @@ const IUIPage = (props) => {
             localStorage.removeItem("dependency-flow");
         }
     }, [loggedInUser, module]);
+
+    useEffect(() => {
+        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === "auditLog")?.map(p => p.name);
+        let access = {};
+        modulePrivileges.forEach(p => {
+            access = { ...access, ...{ [p]: true } }
+        })
+        setAuditPrivileges(access);
+        if (module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
+    }, [loggedInUser, module]);
+
+    const handleAuditClick = () => {
+        navigate("/audit-logs", { state: { id: id, childModule: module, disableSelection: true } });
+    };
 
     useEffect(() => {
         if (dirty) {
@@ -156,11 +182,11 @@ const IUIPage = (props) => {
         e.preventDefault();
         let action = {};
         if (module === 'activity') {
-            action = { module: module, data: { id: id, member: email, userId: userId, status: 3 } }
+            action = { module: module, data: { id: id, member: email, userId: userId, status: 3, modifiedBy: loggedInUser?.email } }
         }
         else {
             //status :3 means assigned
-            action = { module: module, data: { id: id, member: email, status: 3 } }
+            action = { module: module, data: { id: id, member: email, status: 3, modifiedBy: loggedInUser?.email } }
         }
         try {
             await api.editPartialData(action);
@@ -208,6 +234,7 @@ const IUIPage = (props) => {
         else {
             notify("error", "One or more assignments failed!");
         }
+        window.location.reload();
     }
 
     const multiUserAssignment = async (dataId, userList) => {
@@ -215,16 +242,17 @@ const IUIPage = (props) => {
         for (let user of userList) {
             let action = {};
             if (module === 'activity') {
-                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: 3 } }
+                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: 3, modifiedBy: loggedInUser?.email } }
             }
             else {
                 //status :3 means assigned
-                action = { module: module, data: { id: dataId, member: user.email, status: 3 } }
+                action = { module: module, data: { id: dataId, member: user.email, status: 3, modifiedBy: loggedInUser?.email } }
             }
             try {
                 await api.editPartialData(action);
                 dispatch(setSave({ module: module }));
                 //navigate(-1);
+
 
             } catch (e) {
                 // TODO
@@ -239,15 +267,16 @@ const IUIPage = (props) => {
         for (let user of uncheckedUserList) {
             let action = {};
             if (module === 'activity') {
-                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: -3 } }
+                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: -3, modifiedBy: loggedInUser?.email } }
             }
             else {
-                action = { module: module, data: { id: dataId, member: user.email, status: -3 } }
+                action = { module: module, data: { id: dataId, member: user.email, status: -3, modifiedBy: loggedInUser?.email } }
             }
             try {
                 await api.editPartialData(action);
                 dispatch(setSave({ module: module }));
                 //navigate(-1);
+
 
             } catch (e) {
                 // TODO
@@ -260,11 +289,12 @@ const IUIPage = (props) => {
     const assignDirect = async (userId) => {
         const user = await api.getSingleData({ module: "user", id: userId });
         let email = user.data.email;
-        const action = { module: module, data: { id: id, member: email, status: 2 } }
+        const action = { module: module, data: { id: id, member: email, status: 2, modifiedBy: loggedInUser?.email } }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }))
             //navigate(-1);
+
 
         } catch (e) {
             // TODO
@@ -274,19 +304,22 @@ const IUIPage = (props) => {
     const assignApprover = async (e, email) => {
         e.preventDefault();
         //status :3 means assigned
-        const action = { module: module, data: { id: id, member: email, status: 3 } }
+        const action = { module: module, data: { id: id, member: email, status: 3, modifiedBy: loggedInUser?.email } }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
+
 
             const timeId = setTimeout(() => {
                 // After 3 seconds set the show value to false
                 navigate(0);
             }, 1000)
 
+
             return () => {
                 clearTimeout(timeId)
             }
+
 
         } catch (e) {
             // TODO
@@ -302,11 +335,12 @@ const IUIPage = (props) => {
         const current = new Date();
         const action = {
             module: module,
-            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, approvedRemarks: remarks }
+            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, approvedRemarks: remarks, modifiedBy: loggedInUser?.email }
         }
         try {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
+
 
             const timeId = setTimeout(async () => {
                 // After 3 seconds set the show value to false
@@ -323,9 +357,11 @@ const IUIPage = (props) => {
                 navigate(0);
             }, 1000)
 
+
             return () => {
                 clearTimeout(timeId)
             }
+
 
         } catch (e) {
             // TODO
@@ -363,8 +399,25 @@ const IUIPage = (props) => {
                     return
                 setDisabled(true)
                 if (id != undefined)
+                    // Check for Amendment Data
                     try {
-                        await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: oldData, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: oldData } });
+                        if (schema?.isAmendment) {
+                            // Update the data in amendment table
+                            // Change planned end date in activity table
+                            let amendmentAction = {
+                                module: 'activityamendment',
+                                data: {
+                                    ...amendmentData, oldData: JSON.stringify(oldData), newValues: JSON.stringify(data), amendmentStatus: 1
+                                }
+                            }
+
+                            await api.editData(amendmentAction);
+
+                            await api.editData({ module: 'activity', data: { ...data, oldValues: JSON.stringify(oldData), progressPercentage: 50 } });
+                        }
+                        else {
+                            await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: JSON.stringify(oldData), data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: JSON.stringify(oldData) } });
+                        }
                         dispatch(setSave({ module: module }))
 
                         const timeId = setTimeout(() => {
@@ -385,17 +438,11 @@ const IUIPage = (props) => {
                             clearTimeout(timeId)
                         }
 
-
                     } catch (e) {
                         // TODO
                     }
                 else
                     try {
-                        //api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
-                        // if (module === 'activity') {
-                        //     console.log(data);
-                        //     return;
-                        // }
                         let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
@@ -416,8 +463,6 @@ const IUIPage = (props) => {
                                     localStorage.removeItem(flowchartKey);
                                 }
                             }
-
-
                         }, 1000)
 
                         return () => {
@@ -477,6 +522,7 @@ const IUIPage = (props) => {
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save </Button>
 
+
                                                                     <Button variant="contained"
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                                         onClick={() => navigate(-1)}> Cancel</Button>
@@ -527,6 +573,18 @@ const IUIPage = (props) => {
                                                                     }
                                                                 </>
                                                             }
+                                                        </>
+                                                    }
+                                                    {
+                                                        (auditPrivileges?.view && module !== "auditLog" && (!schema?.adding || !schema?.editing)) && !schema?.isAmendment && schema?.readonly &&
+                                                        <>
+                                                            <Button
+                                                                variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                onClick={() => handleAuditClick()}
+                                                            >
+                                                                Change History
+                                                            </Button>
                                                         </>
                                                     }
                                                     {
@@ -604,6 +662,7 @@ const IUIPage = (props) => {
                                                 ))}
                                             </Row>
 
+
                                             {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
                                                 <hr />
                                             }
@@ -618,6 +677,8 @@ const IUIPage = (props) => {
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save
                                                                     </Button>
+
+
 
 
                                                                     {
@@ -699,7 +760,6 @@ const IUIPage = (props) => {
                 </div>
             </div>
         </>
-
     )
 }
 

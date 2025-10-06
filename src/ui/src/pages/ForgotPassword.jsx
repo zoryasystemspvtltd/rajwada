@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Col, Form, Row } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
-import logo from '../assets/images/logo.png';
+import logo from '../assets/images/civilier_new_logo.jpeg';
 import api from '../store/api-service';
 import ICarousel from "./common/ICarousel";
 
@@ -49,7 +49,10 @@ const ForgotPassword = () => {
     }
 
     return (
-        <div className="app-login app-container app-theme-login-bg">
+        <div className="app-login app-container">
+            <div className="carousel-background">
+                <ICarousel />
+            </div>
             <div className="app-container">
                 <div className="mx-auto app-login-box">
                     <div className="app-logo">

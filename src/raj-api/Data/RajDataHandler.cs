@@ -125,7 +125,30 @@ public class RajDataHandler : LabDataHandler
 
         return final;
     }
+    public dynamic GetResourceDetails(long flatId)
+    {
+        ListOptions option = new();
 
+        option.SearchCondition = new Condition()
+        {
+            Name = "PlanId",
+            Value = flatId
+        };
+        var resouces = Load<Resource>(option).Items.ToList();
+        return resouces;
+    }
+    public dynamic GetFlatTemplateDetails(long templateId)
+    {
+        ListOptions option = new();
+
+        option.SearchCondition = new Condition()
+        {
+            Name = "FlatTemplateId",
+            Value = templateId
+        };
+        var resouces = Load<FlatTemplateDetails>(option).Items.ToList();
+        return resouces;
+    }
     public dynamic GetTaskItemDetails(long id)
     {
         try
@@ -716,7 +739,7 @@ public class RajDataHandler : LabDataHandler
         {
             var id = await base.AddAsync(item, cancellationToken);
             await LogLabModelLog(item, StatusType.Draft, cancellationToken);
-            await SaveAuditLogs(item, StatusType.Draft, cancellationToken);
+            await SaveAuditLogs(item, StatusType.Draft, null, null, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -747,7 +770,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.Modified, cancellationToken);
-            await SaveAuditLogs(item, StatusType.Modified, cancellationToken);
+            await SaveAuditLogs(item, StatusType.Modified, null, null, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -801,7 +824,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.ModuleDeleted, cancellationToken);
-            await SaveAuditLogs(item, (StatusType)item.Status, cancellationToken);
+            await SaveAuditLogs(item, (StatusType)item.Status, null, null, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -811,7 +834,7 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public async Task<long> EditPartialAsync<T>(T item, string module, CancellationToken cancellationToken)
+    public async Task<long> EditPartialAsync<T>(T item, string module, string? remarks, string? modifiedBy, CancellationToken cancellationToken)
         where T : LabModel
     {
         item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
@@ -820,7 +843,8 @@ public class RajDataHandler : LabDataHandler
         try
         {
             await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);
-            await SaveAuditLogs(item, (StatusType)item.Status, cancellationToken);
+            await SaveAuditLogs(item, (StatusType)item.Status, remarks, modifiedBy, cancellationToken);
+
             if (item.Status.Equals(StatusType.UnAssigned))
             {
                 var data = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == item.Id && l.Name.Equals(module)
@@ -874,16 +898,17 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    private async Task<long> SaveAuditLogs<T>(T item, StatusType activityType, CancellationToken cancellationToken)
+    private async Task<long> SaveAuditLogs<T>(T item, StatusType activityType, string? remarks, string? modifiedBy, CancellationToken cancellationToken)
     where T : LabModel
     {
         var module = typeof(T);
         var jitem = JsonConvert.SerializeObject(item,
-        Newtonsoft.Json.Formatting.None,
+            Formatting.None,
         new JsonSerializerSettings()
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         });
+
 
         var log = new AuditLog
         {
@@ -891,20 +916,37 @@ public class RajDataHandler : LabDataHandler
             EntityId = item.Id,
             Name = module.Name,
             Member = item.Member,
-            ActionType = (activityType == StatusType.Draft ? "Insert" : activityType.ToString()),
-            Key = item.Key
+            Key = item.Key,
+            Remarks = remarks
         };
-        if (activityType == StatusType.Draft)
+
+        switch (activityType)
         {
-            log.NewValues = jitem;
+            case StatusType.Draft:
+                log.ActionType = "Insert";
+                log.NewValues = jitem;
+                break;
+            case StatusType.Modified:
+            case StatusType.QCAssigned:
+            case StatusType.Assigned:
+            case StatusType.Approved:
+            case StatusType.Hold:
+            case StatusType.Rejected:
+            case StatusType.HODAssigned:
+                log.ActionType = activityType.ToString();
+                log.OldValues = item.OldValues;
+                log.ModifiedDate = DateTime.UtcNow;
+                log.ModifiedBy = modifiedBy;
+                log.NewValues = jitem;
+                break;
+            default:
+                log.OldValues = item.OldValues;
+                log.NewValues = jitem;
+                log.ModifiedDate = DateTime.UtcNow;
+                log.ModifiedBy = modifiedBy;
+                break;
         }
-        else
-        {
-            log.OldValues = null;
-            log.NewValues = jitem;
-            log.ModifiedDate = DateTime.UtcNow;
-            log.ModifiedBy = item.Member;
-        }
+
 
         try
         {
@@ -932,7 +974,7 @@ public class RajDataHandler : LabDataHandler
     }
 
     public dynamic GetCopyData(long id, string type)
-    {
+    {       
         dynamic entities;
         if (type.Equals("tower", StringComparison.CurrentCultureIgnoreCase))
         {
@@ -1022,10 +1064,138 @@ public class RajDataHandler : LabDataHandler
                 {
                     flatTemplates = list
                 };
-                return JsonConvert.SerializeObject(flatData);                
+                return JsonConvert.SerializeObject(flatData);
             }
         }
     }
+
+    public dynamic GetNullData(string model)
+    {
+        if (model != null)
+        {
+            var data = dbContext.Set<ActivityAmendment>().Where(e => e.ParentId == null).ToList();
+            return data;
+        }
+        else
+            return 0;
+    }
+    internal dynamic GetGetHierarchyTree(long id)
+    {
+        try
+        {
+            var tree = new HierarchyTree();
+
+            // Load the company in a single query
+            var company = dbContext.Set<Company>().Where(e => e.Id == id)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Name
+                }).FirstOrDefault();
+
+            if (company == null)
+                return tree;
+
+            tree.CompanyName = company.Name;
+            tree.CompanyId = company.Id;
+
+            // Load all projects of the company
+            var projects = dbContext.Set<Project>().Where(p => p.CompanyId == company.Id)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name
+                }).ToList();
+
+            // Load all plans of these projects in one go
+            var projectIds = projects.Select(p => p.Id).ToList();
+            var planQuery = dbContext.Set<Plan>()
+                            .Select(plan => new
+                            {
+                                plan.Id,
+                                plan.Name,
+                                plan.Type,
+                                plan.ProjectId,
+                                plan.ParentId
+                            });
+
+            var allPlans = planQuery
+                .AsEnumerable() // switch to LINQ-to-Objects
+                .Where(plan => projectIds.Contains((long)plan.ProjectId))
+                .ToList();
+
+
+            var projectHier = new List<ProjectHierarchy>();
+            foreach (var project in projects)
+            {
+                // Towers for this project
+                var towers = allPlans
+                    .Where(p => p.ProjectId == project.Id && p.Type == "tower")
+                    .ToList();
+
+                var towerHier = new List<TowerHierarchy>();
+                foreach (var tower in towers)
+                {
+                    // Floors under this tower
+                    var floors = allPlans
+                        .Where(p => p.ProjectId == project.Id && p.Type == "floor" && p.ParentId == tower.Id)
+                        .ToList();
+
+                    var floorHier = new List<FloorHierarchy>();
+                    foreach (var floor in floors)
+                    {
+                        // Flats under this floor
+                        var flats = allPlans
+                            .Where(p => p.ProjectId == project.Id && p.Type == "flat" && p.ParentId == floor.Id)
+                            .ToList();
+
+                        var flatHier = flats
+                            .Select(flat => new FlatHierarchy
+                            {
+                                FlatId = flat.Id,
+                                FlatName = flat.Name
+                            })
+                            .ToList();
+
+                        var fodata = new FloorHierarchy
+                        {
+                            FloorId = floor.Id,
+                            FloorName = floor.Name,
+                            Flats = flatHier
+                        };
+                        floorHier.Add(fodata);
+                    }
+
+                    var tdata = new TowerHierarchy
+                    {
+                        TowerId = tower.Id,
+                        TowerName = tower.Name,
+                        Floors = floorHier
+                    };
+                    towerHier.Add(tdata);
+                }
+
+                var pdata = new ProjectHierarchy
+                {
+                    ProjectId = project.Id,
+                    ProjectName = project.Name,
+                    Towers = towerHier
+                };
+                projectHier.Add(pdata);
+            }
+
+            tree.Projects = projectHier;
+            return tree;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetGetHierarchyTree method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+
 }
 
 public class ModuleIdentity
