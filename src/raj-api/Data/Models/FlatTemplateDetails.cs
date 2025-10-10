@@ -25,6 +25,8 @@ public class FlatTemplateDetails : LabModel, IGlobal
 
     [JsonIgnore]
     public virtual ICollection<Plan>? Plans { get; set; }
+    [JsonIgnore]
+    public virtual ICollection<Workflow>? Workflows { get; set; }
 }
 public class FlatTemplateRawData
 {
