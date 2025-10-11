@@ -383,7 +383,7 @@ export const ViewAuditLog = () => {
                     {
                         text: 'New Value', field: 'newValues', width: 12, type: 'key-val-table',
                         schema: {
-                            excludeKeys: ["Blueprint", "Key", "Status"],
+                            excludeKeys: ["Blueprint", "Key", "Status", "Member"],
                             maxLength: 100
                         }
                     }
@@ -395,7 +395,7 @@ export const ViewAuditLog = () => {
                     {
                         text: 'Old Value', field: 'oldValues', width: 12, type: 'key-val-table',
                         schema: {
-                            excludeKeys: ["Blueprint", "Key", "Status"],
+                            excludeKeys: ["Blueprint", "Key", "Status", "Member"],
                             maxLength: 100
                         }
                     }
