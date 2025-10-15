@@ -237,6 +237,28 @@ export const AddWorkflow = () => {
                             relationKey: "parentId",
                             path: 'flats'
                         },
+                    },
+                    {
+                        text: 'Flat Template', field: 'flatTemplateId', type: 'lookup', readonly: true, width: 6,
+                        schema: { module: 'flatTemplate' }
+                    },
+                    {
+                        type: 'lookup-relation-rooms',
+                        parent: 'flatId',
+                        field: 'roomId',
+                        // exclusionCondition:{
+                        //     field: 'type',
+                        //     value: 'Inside'
+                        // },
+                        text: 'Room',
+                        width: 3,
+                        schema: {
+                            module: 'plan',
+                            parentModule: 'flatTemplateDetails',
+                            childModule: 'room',
+                            field: 'flatTemplateId',
+                            parentFilterFields: ['projectId', 'towerId', 'floorId', 'flatId']
+                        }
                     }
                 ]
             },

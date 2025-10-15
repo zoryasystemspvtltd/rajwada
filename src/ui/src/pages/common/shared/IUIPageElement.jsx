@@ -27,6 +27,8 @@ import { FaImage } from 'react-icons/fa';
 import IUIPdfTool from '../../pdf-helper/IUIPdfTool';
 import IUILookUpMultiColumn from './IUILookUpMultiColumn';
 import IUIJsonTable from './IUIJsonTable';
+import IUILookUpNullFilter from './IUILookUpNullFilter';
+import IUILookUpRelationRooms from './IUILookUpRelationRooms';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -433,7 +435,7 @@ const IUIPageElement = (props) => {
                                                 {fld.required &&
                                                     <span className="text-danger">*</span>
                                                 }
-                                        </Form.Label>
+                                            </Form.Label>
 
                                             <IUILookUpEnum
                                                 value={data[fld.field]}
@@ -490,6 +492,29 @@ const IUIPageElement = (props) => {
                                                 schema={fld.schema}
                                                 onChange={handleChange}
                                                 readonly={props.readonly || fld.readonly || defaultFields?.includes(fld.field) || false}
+                                            />
+
+                                        </Form.Group>
+                                        <p className="text-danger">{errors[fld.field]}</p>
+                                    </>
+                                }
+                                {fld.type === 'lookup-filter-null' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+
+                                            <IUILookUpNullFilter
+                                                filter={fld.filter}
+                                                value={data[fld.field]}
+                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                id={fld.field}
+                                                schema={fld.schema}
+                                                onChange={handleChange}
+                                                readonly={props.readonly || fld.readonly || false}
                                             />
 
                                         </Form.Group>
@@ -621,6 +646,35 @@ const IUIPageElement = (props) => {
                                                         value={data[fld.field]}
                                                         className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                         parentId={parseInt(data[fld.parent])}
+                                                        onChange={handleChange}
+                                                        readonly={props.readonly || fld.readonly || false}
+                                                    />
+                                                </Form.Group>
+                                            ) : <></>
+                                        }
+                                        <br />
+                                    </>
+                                }
+                                {fld.type === 'lookup-relation-rooms' &&
+                                    <>
+                                        {
+                                            (data[fld.parent]) ? (
+                                                <Form.Group className="position-relative form-group">
+                                                    <Form.Label htmlFor={fld.field} >{fld.text}
+                                                        {fld.required &&
+                                                            <span className="text-danger">*</span>
+                                                        }
+                                                        {/* {(fld?.exclusionCondition && data[fld?.exclusionCondition?.field] === fld?.exclusionCondition?.value) &&
+                                                            <span className="text-danger">*</span>
+                                                        } */}
+                                                    </Form.Label>
+
+                                                    <IUILookUpRelationRooms
+                                                        schema={fld.schema}
+                                                        id={fld.field}
+                                                        value={data[fld.field]}
+                                                        className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                        parentData={data}
                                                         onChange={handleChange}
                                                         readonly={props.readonly || fld.readonly || false}
                                                     />
