@@ -66,6 +66,10 @@ const IUIPageElement = (props) => {
             return
 
         let newData = { ...data, [e.target.id]: e.target.value }
+        // Setting flat template id based on room
+        if (e?.parentValue && Object.keys(e.parentValue).includes("flatTemplateId")) {
+            newData = { ...newData, flatTemplateId: e.parentValue.flatTemplateId }
+        }
         if (e.target?.dataset?.name) {
             newData = { ...newData, [e.target?.dataset?.name]: e.target[e.target.selectedIndex].text };
         }
@@ -96,6 +100,7 @@ const IUIPageElement = (props) => {
             props.onChange(event);
         }
     };
+
 
     const handleImageGalleryOpen = () => {
         setShowImageGalleryModal(true);
@@ -226,6 +231,27 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                     </>
                                 }
+                                {(fld.type?.startsWith('compute')) && (
+                                    <Form.Group className="position-relative form-group">
+                                        <Form.Label htmlFor={fld.field}>
+                                            {fld.text}
+                                            {fld.required && <span className="text-danger">*</span>}
+                                        </Form.Label>
+
+                                        <Form.Control
+                                            type={fld.inputType}
+                                            name={fld.field}
+                                            id={fld.field}
+                                            value={data[fld.field] || ''}
+                                            readOnly
+                                            disabled={props.readonly || fld.readonly}
+                                            className="bg-light"
+                                        />
+
+                                        <p className="text-danger">{errors[fld.field]}</p>
+                                    </Form.Group>
+                                )}
+
                                 {(fld.type === 'textarea') &&
                                     <>
                                         <Form.Group className="position-relative form-group">

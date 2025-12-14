@@ -1,27 +1,22 @@
-// After selecting all of project, tower, floor and flat, get the flat template id of the flat
-// then fetch all the rooms which are available for the corresponding template
-// user should select only the room
-// new fields will be needed in the workflow module, flatTemplateId and roomId
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Form } from "react-bootstrap";
-import { useDispatch, useSelector } from 'react-redux';
-import { getData } from '../../../store/api-db';
 import api from '../../../store/api-service';
 
 const IUILookUpRelationRooms = (props) => {
     const schema = props.schema;
     const [dataSet, setDataSet] = useState([]);
-    const [value, setValue] = useState("")
-    const [text, setText] = useState("")
+    const [flatTemplateId, setFlatTemplateId] = useState(-1);
+    const [value, setValue] = useState("");
+    const [text, setText] = useState("");
 
     const queryConstructor = (fields, data, index) => {
         if (index === 0) {
-            return { name: fields[index], value: data[fields[index]] }
+            return { name: fields[index]?.key, value: fields[index]?.value ? fields[index].value : parseInt(data[fields[index]?.name]) }
         }
         else {
             return {
-                name: fields[index],
-                value: data[fields[index]],
+                name: fields[index]?.key,
+                value: fields[index]?.value ? fields[index].value : parseInt(data[fields[index]?.name]),
                 and: queryConstructor(fields, data, index - 1)
             }
         }
@@ -29,7 +24,7 @@ const IUILookUpRelationRooms = (props) => {
 
     useEffect(() => {
         const prepareDataSet = async () => {
-            const newBaseFilter = queryConstructor(schema?.parentFilterFields, props?.parentData)
+            const newBaseFilter = queryConstructor(schema?.parentFilterFields, props?.parentData, schema?.parentFilterFields?.length - 1);
 
             const pageOptions = {
                 recordPerPage: 0
@@ -45,6 +40,7 @@ const IUILookUpRelationRooms = (props) => {
             }
             else {
                 const flatTemplateId = data[schema?.field];
+                setFlatTemplateId(flatTemplateId);
 
                 const newBaseFilter = {
                     name: schema?.field,
@@ -88,7 +84,6 @@ const IUILookUpRelationRooms = (props) => {
 
     }, [value, schema?.childModule]);
 
-
     useEffect(() => {
         if (props?.value) {
             setValue(props?.value);
@@ -99,7 +94,7 @@ const IUILookUpRelationRooms = (props) => {
         e.preventDefault();
         if (!props?.readonly) {
             setValue({ ...value, [e.target.id]: e.target.value });
-            props.onChange(e);
+            props.onChange({ ...e, parentValue: { [schema?.field]: flatTemplateId }, preventDefault: () => { } });
         }
     };
 

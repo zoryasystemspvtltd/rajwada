@@ -16,8 +16,8 @@ export const ListActivity = () => {
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
-            { text: 'Planned Start Date', field: 'startDate', type: 'date', sorting: true, searching: true },
-            { text: 'Planned End Date', field: 'endDate', type: 'date', sorting: true, searching: true },
+            { text: 'Expected Start Date', field: 'startDate', type: 'date', sorting: true, searching: true },
+            { text: 'Expected End Date', field: 'endDate', type: 'date', sorting: true, searching: true },
             { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false },
             {
                 text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
@@ -223,8 +223,29 @@ export const EditActivity = () => {
                         text: 'Flat', field: 'flatId', type: 'lookup-filter', required: false, width: 4, readonly: true,
                         schema: { module: 'plan', filter: 'type', value: 'flat' }
                     },
-                    { text: 'Planned Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
-                    { text: 'Planned End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: true },
+                    { text: 'Expected Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
+                    { text: 'Expected End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: true },
+                    {
+                        text: 'Expected Duration (Days)',
+                        field: 'duration',
+                        width: 4,
+                        type: 'compute-number',
+                        placeholder: 'Duration here...',
+                        inputType: 'number',
+                        dependsOn: ['startDate', 'endDate'],
+                        required: true,
+                        compute: ({ startDate, endDate }) => {
+                            if (!startDate || !endDate) return '';
+
+                            const start = new Date(startDate);
+                            const end = new Date(endDate);
+
+                            const diffMs = end - start;
+                            return diffMs > 0
+                                ? Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+                                : 0;
+                        }
+                    },
                     // {
                     //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-enum', required: false,
                     //     schema: { module: 'priorityStatusType' }
@@ -253,6 +274,16 @@ export const EditActivity = () => {
                             ]
                         }
                     },
+                    {
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup', required: true,
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'Normal' },
+                                { name: 'Urgent' },
+                                { name: 'Very Urgent' }
+                            ]
+                        }
+                    }
                 ]
             },
             {
@@ -502,8 +533,29 @@ export const AddActivity = () => {
                             path: 'flats'
                         },
                     },
-                    { text: 'Planned Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
-                    { text: 'Planned End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: true },
+                    { text: 'Expected Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
+                    { text: 'Expected End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: true },
+                    {
+                        text: 'Expected Duration (Days)',
+                        field: 'duration',
+                        width: 4,
+                        type: 'compute-number',
+                        placeholder: 'Duration here...',
+                        inputType: 'number',
+                        dependsOn: ['startDate', 'endDate'],
+                        required: true,
+                        compute: ({ startDate, endDate }) => {
+                            if (!startDate || !endDate) return '';
+
+                            const start = new Date(startDate);
+                            const end = new Date(endDate);
+
+                            const diffMs = end - start;
+                            return diffMs > 0
+                                ? Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+                                : 0;
+                        }
+                    }
                     // {
                     //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-enum', required: false,
                     //     schema: { module: 'priorityStatusType' }
@@ -532,6 +584,16 @@ export const AddActivity = () => {
                             ]
                         }
                     },
+                    {
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup', required: true,
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'Normal' },
+                                { name: 'Urgent' },
+                                { name: 'Very Urgent' }
+                            ]
+                        }
+                    }
                 ]
             },
             {
