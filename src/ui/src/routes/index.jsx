@@ -47,6 +47,9 @@ import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } fro
 import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate } from "../pages/app/schema/FlatTemplates";
 import { ListAuditLog, ViewAuditLog } from "../pages/app/reports/AuditLog";
 import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
+import { AddWorkCheckpoint, EditWorkCheckpoint, ListWorkCheckpoint, ViewWorkCheckpoint } from "../pages/app/schema/WorkCheckpoints";
+import { AddPostWorkPeriodicCheck, EditPostWorkPeriodicCheck, ListPostWorkPeriodicCheck, ViewPostWorkPeriodicCheck } from "../pages/app/schema/PostWorkPeriodicCheck";
+import { ListActivityForTransfer, ViewActivityForTransfer } from "../pages/common/WorkTransfer";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -557,6 +560,46 @@ const Routes = () => {
                     path: "/audit-logs/:id",
                     element: <ViewAuditLog />
                 },
+                {
+                    path: "/work-checkpoints",
+                    element: <ListWorkCheckpoint />
+                },
+                {
+                    path: "/work-checkpoints/:id",
+                    element: <ViewWorkCheckpoint />
+                },
+                {
+                    path: "/work-checkpoints/:id/edit",
+                    element: <EditWorkCheckpoint />
+                },
+                {
+                    path: "/work-checkpoints/add",
+                    element: <AddWorkCheckpoint />
+                },
+                {
+                    path: "/post-work-periodic-checks",
+                    element: <ListPostWorkPeriodicCheck />
+                },
+                {
+                    path: "/post-work-periodic-checks/:id",
+                    element: <ViewPostWorkPeriodicCheck />
+                },
+                {
+                    path: "/post-work-periodic-checks/:id/edit",
+                    element: <EditPostWorkPeriodicCheck />
+                },
+                {
+                    path: "/post-work-periodic-checks/add",
+                    element: <AddPostWorkPeriodicCheck />
+                },
+                {
+                    path: "/worktransfers",
+                    element: <ListActivityForTransfer />
+                },
+                {
+                    path: "/worktransfers/:id",
+                    element: <ViewActivityForTransfer />
+                }
             ],
         },
     ];

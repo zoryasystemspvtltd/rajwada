@@ -164,6 +164,7 @@ export const ViewActivity = () => {
                             adding: false,
                             delete: true,
                             enableCheckBoxRow: true,
+                            isActivityHold: true,
                             fields: [
                                 { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true, },
                                 { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
@@ -352,6 +353,7 @@ export const EditActivity = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            assign: true,
                             fields: [
                                 {
                                     text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
@@ -658,6 +660,7 @@ export const AddActivity = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            assign: true, // for assign accordion
                             fields: [
                                 {
                                     text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,

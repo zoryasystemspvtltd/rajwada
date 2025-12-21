@@ -47,9 +47,7 @@
                 "path": "/home"
             }
         ],
-        "report": [
-           
-        ]
+        "report": []
     },
     "civil": {
         "text": "Civil",
@@ -97,7 +95,7 @@
                 "path": "/item-masters",
                 "access": "asset"
             },
-             {
+            {
                 "name": "flatTemplateManagement",
                 "text": "Flat Template",
                 "icon": "vector-square",
@@ -152,6 +150,20 @@
                 "icon": "cubes-stacked",
                 "path": "/parking-types",
                 "access": "parkingType"
+            },
+            {
+                "name": "workCheckpoint",
+                "text": "Work Checkpoint",
+                "icon": "cubes-stacked",
+                "path": "/work-checkpoints",
+                "access": "activity"
+            },
+            {
+                "name": "postWorkPeriodicCheck",
+                "text": "Post Work Periodic Check",
+                "icon": "cubes-stacked",
+                "path": "/post-work-periodic-checks",
+                "access": "activity"
             }
         ],
         "transaction": [
@@ -180,11 +192,18 @@
                     "New Civil Head"
                 ]
             },
-              {
+            {
                 "name": "workAmendment",
                 "text": "Work Amendment",
                 "icon": "vector-square",
                 "path": "/amendments",
+                "access": "activity"
+            },
+             {
+                "name": "workTransfer",
+                "text": "Work Transfer",
+                "icon": "vector-square",
+                "path": "/worktransfers",
                 "access": "activity"
             },
             {

@@ -666,7 +666,7 @@ const IUIPage = (props) => {
                                                 </Col>
                                             </Row>
                                             {
-                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity' && schema?.editing) ?
+                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity' && (schema?.editing || schema?.back)) ?
                                                     <hr /> : null
                                             }
                                             {

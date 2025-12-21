@@ -1079,7 +1079,7 @@ public class RajDataHandler : LabDataHandler
         else
             return 0;
     }
-    internal dynamic GetGetHierarchyTree(long id)
+    public dynamic GetGetHierarchyTree(long id)
     {
         try
         {

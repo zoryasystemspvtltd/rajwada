@@ -16,7 +16,6 @@ import { formatStringDate } from '../../store/datetime-formatter';
 import api from '../../store/api-service';
 import { notify } from '../../store/notification';
 
-
 const IUIListRelation = (props) => {
     const schema = props.schema;
     const module = `${schema.module}#${props.parentId}`;
@@ -32,7 +31,6 @@ const IUIListRelation = (props) => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const [privileges, setPrivileges] = useState({});
 
-
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === schema.module)?.map(p => p.name);
         let access = {};
@@ -46,10 +44,8 @@ const IUIListRelation = (props) => {
         }
     }, [loggedInUser, schema.module]);
 
-
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
-
 
         if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
             const reader = new FileReader();
@@ -69,11 +65,9 @@ const IUIListRelation = (props) => {
         }
     }
 
-
     const handleButtonClick = () => {
         fileInputRef.current.click(); // Trigger the file input click
     };
-
 
     useEffect(() => {
         if (props?.parentId) {
@@ -83,9 +77,7 @@ const IUIListRelation = (props) => {
                 //operator: 'likelihood' // Default value is equal
             }
 
-
             setBaseFilter(newBaseFilter)
-
 
             const pageOptions = {
                 ...dataSet?.options
@@ -95,8 +87,6 @@ const IUIListRelation = (props) => {
             dispatch(getData({ module: module, options: pageOptions }));
         }
     }, [props]);
-
-
 
 
     const pageChanges = async (e) => {
@@ -113,15 +103,12 @@ const IUIListRelation = (props) => {
             sortDirection: !dataSet?.options?.sortDirection
         }
 
-
         dispatch(getData({ module: module, options: sortOptions }));
     }
-
 
     const handleSearchChange = async (e) => {
         setSearch(e.target.value);
     }
-
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -130,16 +117,11 @@ const IUIListRelation = (props) => {
                 .filter(fld => fld.searching)
                 .map(fld => ({ name: fld.field, value: search, operator: 'likelihood' }));
 
-
-
-
             for (let i = 1; i < searchFields.length; i++) {
                 searchFields[i] = { ...searchFields[i], or: searchFields[i - 1] }
             }
 
-
             let condition = searchFields[searchFields.length - 1];
-
 
             const searchOptions = {
                 currentPage: 1,
@@ -158,7 +140,6 @@ const IUIListRelation = (props) => {
         }
     };
 
-
     const handleIndividualChange = (e) => {
         const { value, checked } = e.target;
         let newValues = [];
@@ -166,13 +147,11 @@ const IUIListRelation = (props) => {
             newValues = [...selectedValues, parseInt(value)];
             setSelectedValues(newValues);
 
-
         } else {
             newValues = selectedValues.filter(v => v !== parseInt(value));
             setSelectedValues(newValues);
         }
     };
-
 
     const handleRowChange = (e) => {
         if (e.target.checked) {
@@ -184,12 +163,38 @@ const IUIListRelation = (props) => {
         }
     };
 
-
     const deleteItem = async (itemId) => {
         const response = await api.deleteData({ module: schema?.module, id: itemId });
         return response.data;
     }
 
+    const holdItem = async (id) => {
+        const item = await api.getSingleData({ module: schema?.module, id: id });
+        let updatedData = { ...item.data, isOnHold: true };
+        const response = await api.editData({ module: schema?.module, data: updatedData });
+        return response.data;
+    }
+
+    const holdSelected = async () => {
+        if (selectedValues.length > 0 && selectedValues.length !== dataSet?.items?.length) {
+            const holdPromises = selectedValues.map(id => holdItem(id));
+            await Promise.all(holdPromises);
+            notify("success", 'Hold Successful!');
+            setSelectedValues([]);
+            window.location.reload();
+        }
+        else if (selectedValues.length > 0 && selectedValues.length === dataSet?.items?.length) {
+            const holdPromises = selectedValues.map(id => holdItem(id));
+            await Promise.all(holdPromises);
+            await holdItem(parseInt(props?.parentId)); // Hold the Main work too
+            notify("success", 'Hold Successful!');
+            setSelectedValues([]);
+            window.location.reload();
+        }
+        else {
+            notify("info", `Kindly select ${schema?.module} to hold!`)
+        }
+    }
 
     const deleteSelected = async () => {
         if (selectedValues.length > 0) {
@@ -204,226 +209,235 @@ const IUIListRelation = (props) => {
         }
     }
 
-
     return (
         <>
-            <div className="row">
-                <div className="col-md-12">
-                    <div className="main-card mb-3 card">
-                        <div className="card-body">
-                            <Row>
-                                <Col md={8} className='mb-3'>
-                                    <div className="app-page-title">
-                                        <div className="page-title-heading"> {schema?.title}</div>
-                                    </div>
-                                    {schema.adding &&
+            <div className="main-card mb-3 card">
+                <div className="card-body">
+                    <Row>
+                        <Col md={8} className='mb-3'>
+                            {/* <div className="app-page-title">
+                                <div className="page-title-heading"> {schema?.title}</div>
+                            </div> */}
+                            {schema.adding &&
+                                <Button
+                                    variant="contained"
+                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                    onClick={() => navigate(`/${schema?.path}/add/`)}
+                                >
+                                    Add New {schema?.title}
+                                </Button>
+                            }
+                            {schema?.downloading &&
+                                <Button
+                                    variant="contained"
+                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                    onClick={() => {
+                                        const excelFileUrl = '/templates/FloorDetails.xlsx';
+                                        // console.log(excelFileUrl);
+                                        const link = document.createElement("a");
+                                        link.href = excelFileUrl;
+                                        link.download = "FloorDetails.xlsx";
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                    }}
+                                >
+                                    <RiDownload2Fill className="inline-block mr-2" />
+                                    Download
+                                </Button>
+                            }
+                            {schema?.uploading &&
+                                <Button
+                                    variant="contained"
+                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                    onClick={handleButtonClick}
+                                >
+                                    <HiOutlineUpload className="inline-block mr-2" />
+                                    <input
+                                        type='file'
+                                        accept='.xlsx, .xls'
+                                        ref={fileInputRef}
+                                        onChange={handleFileUpload}
+                                        style={{ display: 'none' }}
+                                    />
+                                    Upload
+                                </Button>
+                            }
+                            {schema?.delete &&
+                                <>
+                                    {
+                                        privileges?.delete &&
                                         <Button
                                             variant="contained"
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
-                                            onClick={() => navigate(`/${schema?.path}/add/`)}
+                                            onClick={() => deleteSelected()}
                                         >
-                                            Add New {schema?.title}
+                                            Delete
                                         </Button>
                                     }
-                                    {schema?.downloading &&
+                                </>
+                            }
+                            {
+                                schema?.isActivityHold &&
+                                <>
+                                    {
+                                        privileges?.edit &&
                                         <Button
                                             variant="contained"
                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
-                                            onClick={() => {
-                                                const excelFileUrl = '/templates/FloorDetails.xlsx';
-                                                // console.log(excelFileUrl);
-                                                const link = document.createElement("a");
-                                                link.href = excelFileUrl;
-                                                link.download = "FloorDetails.xlsx";
-                                                document.body.appendChild(link);
-                                                link.click();
-                                                document.body.removeChild(link);
-                                            }}
+                                            onClick={() => holdSelected()}
                                         >
-                                            <RiDownload2Fill className="inline-block mr-2" />
-                                            Download
+                                            Hold
                                         </Button>
                                     }
-                                    {schema?.uploading &&
-                                        <Button
-                                            variant="contained"
-                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
-                                            onClick={handleButtonClick}
-                                        >
-                                            <HiOutlineUpload className="inline-block mr-2" />
-                                            <input
-                                                type='file'
-                                                accept='.xlsx, .xls'
-                                                ref={fileInputRef}
-                                                onChange={handleFileUpload}
-                                                style={{ display: 'none' }}
-                                            />
-                                            Upload
-                                        </Button>
-                                    }
-                                    {schema?.delete &&
-                                        <>
-                                            {
-                                                privileges?.delete &&
-                                                <Button
-                                                    variant="contained"
-                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
-                                                    onClick={() => deleteSelected()}
-                                                >
-                                                    Delete
-                                                </Button>
-                                            }
-                                        </>
-                                    }
-                                    <IUIModuleMessage schema={props.schema} />
-                                </Col>
-                                <Col md={4}>
-                                    {schema.searching &&
-                                        <div className="input-group mb-2 justify-content-end " data-mdb-input-init>
+                                </>
+                            }
+
+                            <IUIModuleMessage schema={props.schema} />
+                        </Col>
+                        <Col md={4}>
+                            {schema.searching &&
+                                <div className="input-group mb-2 justify-content-end " data-mdb-input-init>
 
 
-                                            <input className="form-control"
-                                                type="text"
-                                                placeholder="Search"
-                                                id="search"
-                                                value={search}
-                                                onChange={handleSearchChange}
-                                            />
+                                    <input className="form-control"
+                                        type="text"
+                                        placeholder="Search"
+                                        id="search"
+                                        value={search}
+                                        onChange={handleSearchChange}
+                                    />
 
 
-                                            <button
-                                                type="submit"
-                                                onClick={handleSearch}
-                                                className="btn btn-primary" data-mdb-ripple-init
-                                            >
-                                                Search
-                                            </button>
-                                        </div>
-                                    }
-                                </Col>
-                            </Row >
-                            <Row>
-                                <Col>
-                                    <Table responsive>
-                                        <thead>
-                                            <tr>
-                                                {schema?.editing &&
-                                                    <th>
-                                                        <button type="submit" className="btn btn-link text-white p-0">#</button>
-                                                    </th>
-                                                }
-                                                {
-                                                    schema?.enableCheckBoxRow &&
-                                                    <th>
-                                                        <Form.Check className='text-capitalize'
-                                                            id={`${props.id}_Check_All`}
-                                                            checked={(selectedValues?.length === dataSet?.items?.length) || false}
-                                                            onChange={(e) => handleRowChange(e)}
-                                                        />
-                                                    </th>
-                                                }
-                                                {schema?.fields?.map((fld, f) => (
-                                                    <th key={f}>
-                                                        {fld.sorting &&
-                                                            <button
-                                                                type="submit"
-                                                                className="btn btn-link text-white p-0"
-                                                                onClick={(e) => sortData(e, fld.field)}
-                                                            >
-                                                                {dataSet?.options && fld.field === dataSet?.options.sortColumnName && dataSet?.options?.sortDirection ? <Icon.SortUp /> : <Icon.SortDown />} {dataSet?.options?.sortDirection}
-                                                                {fld.text}
-                                                            </button>
-                                                        }
-                                                        {!fld.sorting &&
-                                                            <button
-                                                                type="submit"
-                                                                className="btn btn-link text-white p-0"
-                                                            >
-                                                                {fld.text}
-                                                            </button>}
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        {
-                                            <tbody>
-
-
-                                                {
-                                                    dataSet?.items?.map((item, i) => (
-                                                        <tr key={i} >
-                                                            {
-                                                                schema?.enableCheckBoxRow &&
-                                                                <td>
-                                                                    <Form.Check className='text-capitalize'
-                                                                        id={item.id}
-                                                                        value={item.id}
-                                                                        checked={selectedValues.includes(item.id)}
-                                                                        onChange={(e) => handleIndividualChange(e)}
-                                                                        label={''}
-                                                                    />
-                                                                </td>
-                                                            }
-                                                            {schema?.editing &&
-                                                                <td width={10}>
-                                                                    <Link to={`/${schema?.path}/${item?.id}/edit/${props?.parentId}`} title='Edit'><i className="fa-solid fa-pencil"></i></Link>
-                                                                </td>
-                                                            }
-                                                            {schema?.fields?.map((fld, f) => (
-                                                                <td key={f} width={fld.width}>
-                                                                    {fld.type === 'link' &&
-                                                                        <Link to={`/${schema.path}/${item.id}`}>{item[fld.field]}</Link>
-                                                                    }
-                                                                    {(!fld.type || fld.type === 'text') && item[fld.field]}
-                                                                    {fld.type === 'date' && formatStringDate(item[fld.field])}
-                                                                    {(fld.type === 'lookup') &&
-                                                                        <IUILookUp
-                                                                            value={item[fld.field]}
-                                                                            schema={fld.schema}
-                                                                            readonly={true}
-                                                                            textonly={true}
-                                                                        />
-                                                                    }
-                                                                </td>
-                                                            ))}
-                                                        </tr>
-                                                    ))
-                                                }
-                                            </tbody>
+                                    <button
+                                        type="submit"
+                                        onClick={handleSearch}
+                                        className="btn btn-primary" data-mdb-ripple-init
+                                    >
+                                        Search
+                                    </button>
+                                </div>
+                            }
+                        </Col>
+                    </Row >
+                    <Row>
+                        <Col>
+                            <Table responsive>
+                                <thead>
+                                    <tr>
+                                        {schema?.editing &&
+                                            <th>
+                                                <button type="submit" className="btn btn-link text-white p-0">#</button>
+                                            </th>
                                         }
-                                        {schema.paging &&
-                                            <tfoot>
-                                                <tr>
-                                                    <td colSpan={schema?.fields.length}>
-                                                        <Pagination size="sm" onClick={pageChanges}>
-                                                            {[...Array(dataSet?.totalPages)].map((e, i) => {
-                                                                return <Pagination.Item key={i}
-                                                                    active={(dataSet?.options?.currentPage === i + 1)}
-                                                                >{i + 1}</Pagination.Item>
-                                                            })}
-                                                        </Pagination>
-                                                    </td>
-                                                    {schema?.editing &&
+                                        {
+                                            schema?.enableCheckBoxRow &&
+                                            <th>
+                                                <Form.Check className='text-capitalize'
+                                                    id={`${props.id}_Check_All`}
+                                                    checked={(selectedValues?.length === dataSet?.items?.length) || false}
+                                                    onChange={(e) => handleRowChange(e)}
+                                                />
+                                            </th>
+                                        }
+                                        {schema?.fields?.map((fld, f) => (
+                                            <th key={f}>
+                                                {fld.sorting &&
+                                                    <button
+                                                        type="submit"
+                                                        className="btn btn-link text-white p-0"
+                                                        onClick={(e) => sortData(e, fld.field)}
+                                                    >
+                                                        {dataSet?.options && fld.field === dataSet?.options.sortColumnName && dataSet?.options?.sortDirection ? <Icon.SortUp /> : <Icon.SortDown />} {dataSet?.options?.sortDirection}
+                                                        {fld.text}
+                                                    </button>
+                                                }
+                                                {!fld.sorting &&
+                                                    <button
+                                                        type="submit"
+                                                        className="btn btn-link text-white p-0"
+                                                    >
+                                                        {fld.text}
+                                                    </button>}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                {
+                                    <tbody>
+
+
+                                        {
+                                            dataSet?.items?.map((item, i) => (
+                                                <tr key={i} >
+                                                    {
+                                                        schema?.enableCheckBoxRow &&
                                                         <td>
+                                                            <Form.Check className='text-capitalize'
+                                                                id={item.id}
+                                                                value={item.id}
+                                                                checked={selectedValues.includes(item.id)}
+                                                                onChange={(e) => handleIndividualChange(e)}
+                                                                label={''}
+                                                            />
                                                         </td>
                                                     }
+                                                    {schema?.editing &&
+                                                        <td width={10}>
+                                                            <Link to={`/${schema?.path}/${item?.id}/edit/${props?.parentId}`} title='Edit'><i className="fa-solid fa-pencil"></i></Link>
+                                                        </td>
+                                                    }
+                                                    {schema?.fields?.map((fld, f) => (
+                                                        <td key={f} width={fld.width}>
+                                                            {fld.type === 'link' &&
+                                                                <Link to={`/${schema.path}/${item.id}`}>{item[fld.field]}</Link>
+                                                            }
+                                                            {(!fld.type || fld.type === 'text') && item[fld.field]}
+                                                            {fld.type === 'date' && formatStringDate(item[fld.field])}
+                                                            {(fld.type === 'lookup') &&
+                                                                <IUILookUp
+                                                                    value={item[fld.field]}
+                                                                    schema={fld.schema}
+                                                                    readonly={true}
+                                                                    textonly={true}
+                                                                />
+                                                            }
+                                                        </td>
+                                                    ))}
                                                 </tr>
-                                            </tfoot>
-
-
+                                            ))
                                         }
+                                    </tbody>
+                                }
+                                {schema.paging &&
+                                    <tfoot>
+                                        <tr>
+                                            <td colSpan={schema?.fields.length}>
+                                                <Pagination size="sm" onClick={pageChanges}>
+                                                    {[...Array(dataSet?.totalPages)].map((e, i) => {
+                                                        return <Pagination.Item key={i}
+                                                            active={(dataSet?.options?.currentPage === i + 1)}
+                                                        >{i + 1}</Pagination.Item>
+                                                    })}
+                                                </Pagination>
+                                            </td>
+                                            {schema?.editing &&
+                                                <td>
+                                                </td>
+                                            }
+                                        </tr>
+                                    </tfoot>
 
 
-                                    </Table>
-                                </Col>
-                            </Row>
-                        </div>
-                    </div>
+                                }
+
+                            </Table>
+                        </Col>
+                    </Row>
                 </div>
             </div>
         </>
     )
 }
-
 
 export default IUIListRelation

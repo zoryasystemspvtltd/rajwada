@@ -186,8 +186,9 @@ const IUIApprovalPage = (props) => {
         }
     }
 
-    const approvedPageValue = async (e, isApproved) => {
+    const approvedPageValue = async (e, reviewType) => {
         e.preventDefault();
+        let isApproved = false;
         if (!remarks || remarks === '') {
             notify("error", "Remarks is mandatory!");
             return;
@@ -392,17 +393,23 @@ const IUIApprovalPage = (props) => {
                                                     {
                                                         (approvalStatus === 2 || approvalStatus === 7) && displayApprovalButtons &&
                                                         <>
-                                                            {
+                                                            {/* {
                                                                 schema?.readonly && privileges?.approve &&
                                                                 <Button variant="contained"
                                                                     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={(e) => { setShowRemarksModal(true); setApprovalType("Approve"); }}> Approve</Button>
+                                                                    onClick={(e) => { setShowRemarksModal(true); }}> Approve</Button>
                                                             }
                                                             {
                                                                 schema?.readonly && privileges?.approve &&
                                                                 <Button variant="contained"
                                                                     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-sm mr-2"
-                                                                    onClick={(e) => { setShowRemarksModal(true); setApprovalType("Reject"); }}> Reject</Button>
+                                                                    onClick={(e) => { setShowRemarksModal(true); }}> Reject</Button>
+                                                            } */}
+                                                              {
+                                                                schema?.readonly && privileges?.approve &&
+                                                                <Button variant="contained"
+                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                    onClick={(e) => { setShowRemarksModal(true); }}> Review</Button>
                                                             }
                                                         </>
                                                     }
@@ -485,34 +492,86 @@ const IUIApprovalPage = (props) => {
                             </div>
                         </div>
                         {
-                            (showRemarksModal) && <Modal show={showRemarksModal} onHide={handleModalClose}>
-                                <Modal.Header closeButton>
-                                    <h4 style={{ color: "black" }}>Remarks</h4>
-                                </Modal.Header>
-                                <Modal.Body style={{ color: "black" }}>
-                                    <Form.Group as={Row} controlId="remarksInput">
-                                        <Col>
-                                            <Form.Control type="text" value={remarks} onChange={handleRemarksChange} placeholder="Remarks here....." />
-                                        </Col>
-                                    </Form.Group>
-                                </Modal.Body>
-                                <Modal.Footer>
-                                    <Button
-                                        variant="contained"
-                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
-                                        onClick={handleModalClose}
-                                    >
-                                        Close
-                                    </Button>
-                                    <Button
-                                        variant="contained"
-                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
-                                        onClick={(e) => (approvalType === "Approve") ? approvedPageValue(e, true) : approvedPageValue(e, false)}
-                                    >
-                                        Submit
-                                    </Button>
-                                </Modal.Footer>
-                            </Modal>
+                            showRemarksModal && (
+                                <Modal show={showRemarksModal} onHide={handleModalClose}>
+                                    <Modal.Header closeButton>
+                                        <h4 style={{ color: "black" }}>Remarks</h4>
+                                    </Modal.Header>
+
+                                    <Modal.Body style={{ color: "black" }}>
+                                        {/* Radio Buttons */}
+                                        <Form.Group>
+                                            <Form.Label className='mb-2'><b>Approval Type :</b></Form.Label>
+
+                                            <div>
+                                                <Form.Check
+                                                    type="radio"
+                                                    label="Poor"
+                                                    name="approvalType"
+                                                    value="poor"
+                                                    checked={approvalType === "poor"}
+                                                    onChange={(e) => setApprovalType(e.target.value)}
+                                                />
+                                                <Form.Check
+                                                    type="radio"
+                                                    label="Average"
+                                                    name="approvalType"
+                                                    value="average"
+                                                    checked={approvalType === "average"}
+                                                    onChange={(e) => setApprovalType(e.target.value)}
+                                                />
+                                                <Form.Check
+                                                    type="radio"
+                                                    label="Good"
+                                                    name="approvalType"
+                                                    value="good"
+                                                    checked={approvalType === "good"}
+                                                    onChange={(e) => setApprovalType(e.target.value)}
+                                                />
+                                                <Form.Check
+                                                    type="radio"
+                                                    label="Excellent"
+                                                    name="approvalType"
+                                                    value="excellent"
+                                                    checked={approvalType === "excellent"}
+                                                    onChange={(e) => setApprovalType(e.target.value)}
+                                                />
+                                            </div>
+                                        </Form.Group>
+
+                                        {/* Remarks Input */}
+                                        <Form.Group as={Row} controlId="remarksInput" className="mt-3">
+                                            <Col>
+                                                <Form.Control
+                                                    type="text"
+                                                    value={remarks}
+                                                    onChange={handleRemarksChange}
+                                                    placeholder="Remarks here....."
+                                                />
+                                            </Col>
+                                        </Form.Group>
+                                    </Modal.Body>
+
+                                    <Modal.Footer>
+                                        <Button
+                                            variant="contained"
+                                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
+                                            onClick={handleModalClose}
+                                        >
+                                            Close
+                                        </Button>
+
+                                        <Button
+                                            variant="contained"
+                                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
+                                            onClick={(e) => approvedPageValue(e, approvalType)}
+                                            disabled={!approvalType}
+                                        >
+                                            Submit
+                                        </Button>
+                                    </Modal.Footer>
+                                </Modal>
+                            )
                         }
                     </div>
                 </div>
