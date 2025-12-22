@@ -178,6 +178,8 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<ParkingType> ParkingTypes { get; set; }
     public virtual DbSet<ProjectDocNoTracking> ProjectDocNoTrackings { get; set; }
     public virtual DbSet<FinancialYear> FinancialYears { get; set; }
+    public virtual DbSet<WorkCheckpoints> WorkCheckpoints { get; set; }
+    public virtual DbSet<PostWorkPeriodicChecking> PostWorkPeriodicCheckings { get; set; }
     #endregion
 
 }

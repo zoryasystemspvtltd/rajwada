@@ -10,6 +10,10 @@ public class Plan : LabModel, IAssignable
     public string? Description { get; set; }
     public string? Blueprint { get; set; }
     public string? MarkerJson { get; set; }
+    /// <summary>
+    /// Priority Status 
+    /// </summary>
+    public virtual PriorityStatusType? PriorityStatus { get; set; }
 
     #region Workflow
     /// <summary>

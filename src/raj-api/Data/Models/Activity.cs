@@ -65,7 +65,7 @@ namespace RajApi.Data.Models
 
         #region Workflow
         /// <summary>
-        /// Activity Status 
+        /// Priority Status 
         /// </summary>
         public virtual PriorityStatusType? PriorityStatus { get; set; }
 

@@ -36,9 +36,9 @@ public enum ApprovalStatusType
 
 public enum PriorityStatusType
 {
-    Low = 0,
-    Medium = 1,
-    High = 2
+    Normal = 0,
+    Urgent = 1,
+    VeryUrgent = 2
 }
 public enum QualityStatus
 {
