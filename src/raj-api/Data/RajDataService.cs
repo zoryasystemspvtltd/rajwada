@@ -712,6 +712,21 @@ namespace ILab.Data
                 return 0;
             }
         }
+        internal dynamic GetAllAssignedModules(string module, string member)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetAllAssignedModules));
+                object[] parameters = [module, member];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetAllAssignedUsers method and details: " + ex.Message);
+                return 0;
+            }
+        }
+
         internal dynamic GetAllAssignedProjects(string member)
         {
             try

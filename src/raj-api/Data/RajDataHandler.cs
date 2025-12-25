@@ -660,6 +660,17 @@ public class RajDataHandler : LabDataHandler
 
         return result;
     }
+
+    public dynamic GetAllAssignedModules(string module, string member)
+    {
+        var result = dbContext.Set<ApplicationLog>()                   
+                    .Where(x => x.Member.Equals(member) && x.Name.Equals(module))
+                    .Select(a => new { a.EntityId})
+                    .Distinct();
+
+        return result;
+    }
+
     private List<long> GetAllAssignedActivities(string member)
     {
         var query = "select distinct act.Id from [Activities] act" +
