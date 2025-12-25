@@ -148,8 +148,9 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Project> Projects { get; set; }
     public virtual DbSet<Plan> Plans { get; set; }
     public virtual DbSet<Activity> Activities { get; set; }
-    public virtual DbSet<ActivityTracking> ActivityTrackings { get; set; }
+    public virtual DbSet<ActivityTracking> ActivityTrackings { get; set; }    
     public virtual DbSet<ActivityResource> ActivityResources { get; set; }
+    public virtual DbSet<ActivityResourceReport> ActivityResourceReports { get; set; }
     public virtual DbSet<DependencyResource> DependencyResources { get; set; }
     public virtual DbSet<AssetGroup> AssetGroups { get; set; }
     public virtual DbSet<Asset> Assets { get; set; }

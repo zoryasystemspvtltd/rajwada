@@ -55,4 +55,11 @@ public enum WOUStatus
     Completed = 99
 }
 
+public enum AvailablityStatus
+{
+    NotAvailable = 0,
+    Available = 1
+}
+
+
 
