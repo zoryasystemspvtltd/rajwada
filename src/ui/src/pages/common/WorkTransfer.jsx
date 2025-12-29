@@ -1,331 +1,401 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Form } from "react-bootstrap";
-import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from "react-router-dom";
-import { setSave } from '../../store/api-db';
-import api from "../../store/api-service";
-import { notify } from '../../store/notification';
-import IUIPage from "../common/IUIPage.jsx";
-import IUIListFilter from "./IUIListFilter.jsx";
+import api from '../../store/api-service';
 
-export const ListActivityForTransfer = () => {
+const WorkTransfer = () => {
+    const [departmentsData, setDepartmentsData] = useState([]);
+    const [departmentId, setDepartmentId] = useState("");
+    const [people, setPeople] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    const schema = {
-        module: 'activity',
-        title: 'Work Transfer',
-        path: 'worktransfers',
-        paging: true,
-        searching: true,
-        editing: false,
-        adding: false,
-        relationKey: "type",
-        fields: [
-            { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
-            { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
-            { text: 'Expected Start Date', field: 'startDate', type: 'date', sorting: true, searching: true },
-            { text: 'Expected End Date', field: 'endDate', type: 'date', sorting: true, searching: true },
-            { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false },
-            {
-                text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
-                schema: { module: 'project' }
-            },
-            {
-                text: 'Dependency', field: 'workflowId', type: 'lookup', sorting: false, searching: false,
-                schema: { module: 'workflow' }
-            }
-        ]
-    }
+    const [person1Id, setPerson1Id] = useState("");
+    const [person2Id, setPerson2Id] = useState("");
 
-    return (<IUIListFilter schema={schema} filter='Main Task' />)
-}
+    const [leftItems, setLeftItems] = useState([]);
+    const [rightItems, setRightItems] = useState([]);
 
+    const [selectedLeft, setSelectedLeft] = useState([]);
+    const [selectedRight, setSelectedRight] = useState([]);
 
-export const ViewActivityForTransfer = () => {
-    const { id } = useParams();
+    // prevents re-initialization loops
+    const initializedPairRef = useRef("");
 
-    const module = "user";
-    // const schema = props?.schema;
-    const [assignedUsers, setAssignedUsers] = useState([]);
-    const [otherUsers, setOtherUsers] = useState([]);
-    const [reason, setReason] = useState("");
-
-    const [oldUser, setOldUser] = useState(null);
-    const [newUser, setNewUser] = useState(null);
-
-    const [error, setError] = useState({});
-    const loggedInUser = useSelector((state) => state.api.loggedInUser);
-    const dispatch = useDispatch();
-
-    const schema = {
-        module: 'activity',
-        title: 'Work Transfer',
-        path: 'worktransfers',
-        showBreadcrumbs: true,
-        editing: false,
-        adding: false,
-        deleting: false,
-        assign: false,
-        assignType: 'multiple',
-        assignChild: false,
-        approving: false,
-        back: true,
-        readonly: true,
-        fields: [
-            {
-                type: "area", width: 12
-                , fields: [
-                    { text: 'Name', field: 'name', width: 4, type: 'label' },
-                    { text: 'Description', field: 'description', width: 4, type: 'label' },
-                    {
-                        text: 'Type', field: 'type', type: 'lookup-link', width: 4,
-                        schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'Main Task' },
-                                { name: 'Sub Task' }
-                            ]
-                        }
-                    },
-                    {
-                        text: 'Project', field: 'projectId', width: 4, type: 'lookup-link',
-                        schema: { module: 'project', path: 'projects' }
-                    },
-                    {
-                        text: 'Assigned To', field: 'member', width: 4, type: 'label',
-                        schema: { module: 'user', path: 'users' }
-                    }
-                ]
-            },
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        type: 'module-relation',
-                        schema: {
-                            module: 'activity',
-                            relationKey: "parentId",
-                            title: 'Related Work',
-                            path: 'works',
-                            paging: true,
-                            searching: false,
-                            editing: false,
-                            adding: false,
-                            delete: false,
-                            enableCheckBoxRow: false,
-                            fields: [
-                                { text: 'Name', field: 'name', type: 'text', sorting: true, searching: true, },
-                                { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
-                            ]
-                        },
-                    }
-                ]
-            }
-        ]
-    }
-
+    /* ---------------- Department change ---------------- */
     useEffect(() => {
-        async function fetchData() {
-            const pageOptions = { recordPerPage: 0 }
-            const response = await api.getData({ module: module, options: pageOptions });
-
-            let allAssignedUsersResponse = await api.assignedUsers({ module: schema?.module, id: id });
-            let allAssignedUsers = allAssignedUsersResponse?.data;
-
-            const assignedUsersTemp = allAssignedUsers?.map((item) => {
-                return response?.data?.items?.find(user => user.email === item?.member)
-            })?.filter(value => value !== undefined) || [];
-
-            const assignedUserIds = allAssignedUsers?.map((item) => {
-                return response?.data?.items?.find(user => user.email === item?.member)?.id
-            })?.filter(value => value !== undefined) || [];
-
-            setAssignedUsers(assignedUsersTemp);
-            setOtherUsers(response?.data?.items?.filter((user) => !assignedUserIds.includes(user.id)));
-        }
-
-        fetchData();
+        api.getData({
+            module: "department",
+            options: { recordPerPage: 0 }
+        }).then(res => {
+            setDepartmentsData(res?.data?.items || []);
+        });
     }, []);
 
-    async function performTransfer() {
-        if (!oldUser || !newUser || reason === "") {
-            alert("All inputs are mandatory!");
+    useEffect(() => {
+        if (!departmentId) {
+            setPeople([]);
             return;
         }
 
-        try {
-            await multiUserAssignment("activity", id, [newUser]);
-            await multiUserUnassignment("activity", id, [oldUser]); // unassign users
-
-            let isAllAssignSuccessful = true;
-
-            const newBaseFilter = {
-                name: 'parentId',
-                value: parseInt(id)
-            }
-
-            const pageOptions = {
-                recordPerPage: 0
-                , searchCondition: newBaseFilter
-            }
-
-            const childResponse = await api.getData({ module: "activity", options: pageOptions });
-            let childrenItems = childResponse?.data?.items;
-            try {
-                // Multi user assignment for children
-                for (let item of childrenItems) {
-                    await multiUserAssignment("activity", item.id, [newUser]);
-                    await multiUserUnassignment("activity", item.id, [oldUser]);
+        api.getData({
+            module: "user",
+            options: {
+                recordPerPage: 0,
+                searchCondition: {
+                    name: "department",
+                    value: departmentId
                 }
+            }
+        }).then(res => {
+            setPeople(res?.data?.items || []);
+        });
 
-                // Add Logic to record transfer operation in new activity transfer table
-                // TODO
-            }
-            catch (error) {
-                isAllAssignSuccessful = false;
-            }
+        // reset everything
+        setPerson1Id("");
+        setPerson2Id("");
+        setLeftItems([]);
+        setRightItems([]);
+        setSelectedLeft([]);
+        setSelectedRight([]);
+        initializedPairRef.current = "";
+    }, [departmentId]);
 
-            if (isAllAssignSuccessful) {
-                notify("success", "Transfer Successful!");
-            }
-            else {
-                notify("error", "Transfer failed!");
-            }
-        } catch (err) {
-            console.error(err);
-            setError(err.message || "Error performing transfer");
-        } finally {
 
-        }
+    /* ---------------- Person selection (SAFE) ---------------- */
+    // useEffect(() => {
+    //     if (!person1Id || !person2Id) return;
+
+
+    //     const pairKey = `${person1Id}-${person2Id}`;
+    //     if (initializedPairRef.current === pairKey) return;
+
+
+    //     initializedPairRef.current = pairKey;
+
+
+    //     const p1 = people.find(p => p.id === person1Id);
+    //     const p2 = people.find(p => p.id === person2Id);
+
+
+    //     setLeftItems(p1?.items ? [...p1.items] : []);
+    //     setRightItems(p2?.items ? [...p2.items] : []);
+    //     setSelectedLeft([]);
+    //     setSelectedRight([]);
+    // }, [person1Id, person2Id]); // ❗ NO `people` dependency
+
+    const getSingleActivity = async (id) => {
+        const item = await api.getSingleData({ module: 'activity', id: id });
+        const activityData = {
+            id: item.data.id,
+            name: item.data.name,
+            type: item.data.type
+        };
+        return activityData;
     }
 
-    const multiUserAssignment = async (module, dataId, userList) => {
-        for (let user of userList) {
-            let action = {};
-            if (module === 'activity') {
-                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: 3, modifiedBy: loggedInUser?.email } }
+    const prepareActivities = async (entityIds) => {
+        let output = [];
+        try {
+            if (entityIds?.length > 0) {
+                const updatePromises = entityIds.map(item => getSingleActivity(item?.entityId));
+                output = await Promise.all(updatePromises);
             }
-            else {
-                //status :3 means assigned
-                action = { module: module, data: { id: dataId, member: user.email, status: 3, modifiedBy: loggedInUser?.email } }
-            }
+            return output;
+        }
+        catch (e) {
+            console.log(e)
+            return output;
+        }
+    };
+
+    useEffect(() => {
+        if (!person1Id) {
+            setLeftItems([]);
+            return;
+        }
+
+        const loadPerson1Items = async () => {
             try {
-                await api.editPartialData(action);
-                dispatch(setSave({ module: module }));
-                //navigate(-1);
-
-            } catch (e) {
-                // TODO
+                const res = await api.getAssignedItemsByUserAndModule({ module: 'activity', member: people?.find(p => p?.id === parseInt(person1Id))?.email });
+                const items = res?.data;
+                const finalActivities = await prepareActivities(items);
+                setLeftItems(finalActivities.filter(a => a.id !== undefined && a.type === 'Main Task') || []);
+                setSelectedLeft([]);
+            } catch (err) {
+                console.error("Person1 load error:", err);
+                setLeftItems([]);
             }
+        };
+
+        loadPerson1Items();
+
+    }, [person1Id]);
+
+    useEffect(() => {
+        if (!person2Id) {
+            setRightItems([]);
+            return;
         }
-        return;
-    }
 
-    const multiUserUnassignment = async (module, dataId, uncheckedUserList) => {
-        for (let user of uncheckedUserList) {
-            let action = {};
-            if (module === 'activity') {
-                action = { module: module, data: { id: dataId, member: user.email, userId: user.id, status: -3, modifiedBy: loggedInUser?.email } }
-            }
-            else {
-                action = { module: module, data: { id: dataId, member: user.email, status: -3, modifiedBy: loggedInUser?.email } }
-            }
+        const loadPerson2Items = async () => {
             try {
-                await api.editPartialData(action);
-                dispatch(setSave({ module: module }));
-                //navigate(-1);
-
-            } catch (e) {
-                // TODO
+                const res = await api.getAssignedItemsByUserAndModule({ module: 'activity', member: people?.find(p => p?.id === parseInt(person2Id))?.email });
+                const items = res?.data;
+                const finalActivities = await prepareActivities(items);
+                setRightItems(finalActivities.filter(a => a.id !== undefined && a.type === 'Main Task') || []);
+                setSelectedRight([]);
+            } catch (err) {
+                console.error("Person2 load error:", err);
+                setRightItems([]);
             }
-        }
-        return;
+        };
+
+        loadPerson2Items();
+
+    }, [person2Id]);
+
+    /* ---------------- Transfer logic ---------------- */
+    const moveToRight = () => {
+        setRightItems(prev => [...prev, ...selectedLeft]);
+        setLeftItems(prev => prev.filter(i => !selectedLeft.includes(i)));
+        setSelectedLeft([]);
+    };
+
+    const moveToLeft = () => {
+        setLeftItems(prev => [...prev, ...selectedRight]);
+        setRightItems(prev => prev.filter(i => !selectedRight.includes(i)));
+        setSelectedRight([]);
+    };
+
+    /* ---------------- Final Assign ---------------- */
+    const handleAssign = () => {
+        const updatedPeople = people.map(p => {
+            if (`${p.id}` === person1Id) return { ...p, items: leftItems };
+            if (`${p.id}` === person2Id) return { ...p, items: rightItems };
+            return p;
+        });
+
+        console.log("Final Assignment:", updatedPeople);
+        alert("Items reassigned successfully");
+    };
+
+    const fetchPeopleData = () => {
+
     }
 
-    return (<>
-        <IUIPage schema={schema} />
-        <div className="app-page-title">
-            <div className="page-title-heading">Transfer Work</div>
-        </div>
-        <div className="row">
-            <div className="col-md-12">
-                <div className="main-card mb-2 card">
-                    <div className="card-body">
-                        <div className="mb-2">
-                            <div className="card-body">
-                                <div className="row">
-                                    <div className="col-md-12 col-lg-2 m-2">
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor="parameter" >
-                                                Transfer From
-                                                <span className="text-danger">*</span>
-                                            </Form.Label>
-                                            <select
-                                                id="parameter"
-                                                value={oldUser}
-                                                name='parameter'
-                                                className={`form-control`}
-                                                onChange={e => setOldUser(e.target.value)}>
-                                                {assignedUsers?.map((item, i) => (
-                                                    <option key={i} value={item}>{item?.email}</option>
-                                                ))}
-                                            </select>
-
-                                        </Form.Group>
+    return (
+        <>
+            <div className="app-page-title">
+                <div className="page-title-heading text-uppercase">Work Transfer</div>
+            </div>
+            <div className="row">
+                <div className="col-md-12">
+                    <div className="main-card">
+                        {/* <h5 className="card-title">Data Explorer - {siteName}</h5> */}
+                        <div className="card-body">
+                            <div className="card no-shadow bg-transparent no-border rm-borders mb-2">
+                                <div className="card">
+                                    {/* Department */}
+                                    <div className="row">
+                                        <div className="col-md-12 col-lg-4 m-2">
+                                            <Form.Group className="position-relative form-group">
+                                                <Form.Label htmlFor="department">Department</Form.Label>
+                                                <select
+                                                    name="department"
+                                                    className="form-control"
+                                                    value={departmentId}
+                                                    onChange={e => setDepartmentId(e.target.value)}
+                                                >
+                                                    <option value="">Select Department</option>
+                                                    {departmentsData.map(d => (
+                                                        <option key={d.id} value={d.id}>{d.name}</option>
+                                                    ))}
+                                                </select>
+                                            </Form.Group>
+                                        </div>
                                     </div>
 
-                                    <div className="col-md-12 col-lg-2 m-2">
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor="parameter" >
-                                                Transfer To
-                                                <span className="text-danger">*</span>
-                                            </Form.Label>
-                                            <select
-                                                id="parameter"
-                                                value={newUser}
-                                                name='parameter'
-                                                className={`form-control`}
-                                                onChange={e => setNewUser(e.target.value)}>
-                                                {otherUsers?.map((item, i) => (
-                                                    <option key={i} value={item}>{item?.email}</option>
-                                                ))}
-                                            </select>
+                                    {/* People */}
+                                    {
+                                        (people.length > 0) &&
+                                        <div className="row">
+                                            <div className="col-md-12 col-lg-4 m-2">
+                                                <Form.Group className="position-relative form-group">
+                                                    <Form.Label htmlFor="person1">Person 1</Form.Label>
+                                                    <select
+                                                        name="person1"
+                                                        className="form-control"
+                                                        value={person1Id}
+                                                        onChange={e => {
+                                                            setPerson1Id(e.target.value);
+                                                            initializedPairRef.current = "";
+                                                        }}
+                                                    >
+                                                        <option value="">Select Person</option>
+                                                        {people.map(p => (
+                                                            <option key={p.id} value={p.id} disabled={`${p.id}` === person2Id}>
+                                                                {p.name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </Form.Group>
+                                            </div>
 
-                                        </Form.Group>
-                                    </div>
+                                            <div className="col-md-12 col-lg-4 m-2">
+                                                <Form.Group className="position-relative form-group">
+                                                    <Form.Label htmlFor="person2">Person 2</Form.Label>
+                                                    <select
+                                                        name="person2"
+                                                        className="form-control"
+                                                        value={person2Id}
+                                                        onChange={e => {
+                                                            setPerson2Id(e.target.value);
+                                                            initializedPairRef.current = "";
+                                                        }}
+                                                    >
+                                                        <option value="">Select Person</option>
+                                                        {people.map(p => (
+                                                            <option key={p.id} value={p.id} disabled={`${p.id}` === person1Id}>
+                                                                {p.name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
 
-                                    <div className="col-md-12 col-lg-2 m-2">
-                                        <Form.Group className="position-relative form-group">
-                                            <Form.Label htmlFor="reason" >
-                                                Transfer Reason
-                                            </Form.Label>
-                                            <span className="text-danger">*</span>
 
-                                            <Form.Control type="text"
-                                                name="reason"
-                                                id="reason"
-                                                className={`form-control`}
-                                                placeholder="Transfer reason"
-                                                value={reason}
-                                                onChange={e => setReason(e.target.value)} />
-                                        </Form.Group>
-                                    </div>
+                                                </Form.Group>
+                                            </div>
+                                        </div>
+                                    }
 
-                                    <div className="col-md-12 col-lg-2 d-flex justify-content-center align-items-center">
-                                        <Button
-                                            variant="contained"
-                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md"
-                                            onClick={performTransfer}
-                                        >
-                                            Submit
-                                        </Button>
-                                    </div>
+                                    {/* Transfer */}
+                                    {person1Id && person2Id && (
+                                        <div className="container">
+                                            <div className="row align-items-center mt-3">
+                                                {/* LEFT CARD */}
+                                                <div className="col">
+                                                    <div className="card">
+                                                        <div className="card-header d-flex justify-content-between align-items-center">
+                                                            <strong>
+                                                                {people.find(p => `${p.id}` === person1Id)?.name}
+                                                            </strong>
+                                                            <span className="badge bg-primary">{leftItems?.length}</span>
+                                                        </div>
+
+                                                        <div className="card-body p-0" style={{ maxHeight: 300, overflowY: "auto" }}>
+                                                            <ul className="list-group list-group-flush">
+                                                                {leftItems?.map(item => (
+                                                                    <li
+                                                                        key={item.id}
+                                                                        className={`list-group-item ${selectedLeft.includes(item) ? "active" : ""
+                                                                            }`}
+                                                                        style={{ cursor: "pointer" }}
+                                                                        onClick={() =>
+                                                                            setSelectedLeft(prev =>
+                                                                                prev.includes(item)
+                                                                                    ? prev.filter(i => i !== item)
+                                                                                    : [...prev, item]
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        {item.name}
+                                                                    </li>
+                                                                ))}
+
+                                                                {!leftItems.length && (
+                                                                    <li className="list-group-item text-muted text-center">
+                                                                        No items
+                                                                    </li>
+                                                                )}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* BUTTONS */}
+                                                <div className="col-2 d-flex flex-column align-items-center gap-2">
+                                                    <button
+                                                        className="btn btn-outline-primary"
+                                                        onClick={moveToRight}
+                                                        disabled={!selectedLeft.length}
+                                                    >
+                                                        <i className="fa-solid fa-arrow-right"></i>
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-outline-primary"
+                                                        onClick={moveToLeft}
+                                                        disabled={!selectedRight.length}
+                                                    >
+                                                        <i className="fa-solid fa-arrow-left"></i>
+                                                    </button>
+                                                </div>
+
+                                                {/* RIGHT CARD */}
+                                                <div className="col">
+                                                    <div className="card">
+                                                        <div className="card-header d-flex justify-content-between align-items-center">
+                                                            <strong>
+                                                                {people.find(p => `${p.id}` === person2Id)?.name}
+                                                            </strong>
+                                                            <span className="badge bg-success">{rightItems?.length}</span>
+                                                        </div>
+
+
+                                                        <div className="card-body p-0" style={{ maxHeight: 300, overflowY: "auto" }}>
+                                                            <ul className="list-group list-group-flush">
+                                                                {rightItems?.map(item => (
+                                                                    <li
+                                                                        key={item.id}
+                                                                        className={`list-group-item ${selectedRight.includes(item) ? "active" : ""
+                                                                            }`}
+                                                                        style={{ cursor: "pointer" }}
+                                                                        onClick={() =>
+                                                                            setSelectedRight(prev =>
+                                                                                prev.includes(item)
+                                                                                    ? prev.filter(i => i !== item)
+                                                                                    : [...prev, item]
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        {item.name}
+                                                                    </li>
+                                                                ))}
+
+
+                                                                {!rightItems.length && (
+                                                                    <li className="list-group-item text-muted text-center">
+                                                                        No items
+                                                                    </li>
+                                                                )}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Assign */}
+                                    {person1Id && person2Id && (
+                                        <div className="row justify-content-center my-2">
+                                            <div className="col-auto">
+                                                <Button
+                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md"
+                                                    onClick={handleAssign}
+                                                >
+                                                    Transfer
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
+
                         </div>
                     </div>
-
                 </div>
-            </div>
 
-        </div>
-    </>)
-}
+            </div>
+        </>
+    );
+};
+
+export default WorkTransfer;

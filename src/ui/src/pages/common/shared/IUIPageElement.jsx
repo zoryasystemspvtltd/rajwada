@@ -91,7 +91,7 @@ const IUIPageElement = (props) => {
             }
             newData = { ...newData, privileges: newPrivileges }
         }
-        else if (e.target.id === 'disable') {
+        else if ((e.target.id === 'disable') || (e.target.id?.startsWith('is'))) {
             newData = { ...data, [e.target.id]: e.target.checked }
         }
         setData(newData);
@@ -179,6 +179,14 @@ const IUIPageElement = (props) => {
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
                                             <span id={fld.field}> {data[fld.field]} </span>
+                                        </Form.Group>
+                                    </>
+                                }
+                                {fld.type === 'label-check' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
+                                            <span id={fld.field}> {(data[fld.field] === true) ? "Yes" : "No"} </span>
                                         </Form.Group>
                                     </>
                                 }
@@ -369,7 +377,7 @@ const IUIPageElement = (props) => {
                                                 }
                                             </Form.Label>
                                             <InputGroup>
-                                                <Form.Check className='text-capitalize'
+                                                <Form.Check className='text-capitalize ml-2'
                                                     type="switch"
                                                     style={{ transform: 'scale(1.2)' }}
                                                     id={fld.field}
@@ -590,7 +598,7 @@ const IUIPageElement = (props) => {
                                 {fld.type === 'module-relation' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
-                                             <Form.Label htmlFor={fld.schema.title} >{fld.schema.title} : 
+                                            <Form.Label htmlFor={fld.schema.title} >{fld.schema.title} :
                                                 {fld.required &&
                                                     <span className="text-danger">*</span>
                                                 }

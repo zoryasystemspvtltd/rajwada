@@ -46,8 +46,12 @@ const IUIPage = (props) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const computeDeps = schema?.fields?.flatMap(f => f?.fields)
-        ?.filter(f => f.type.startsWith('compute'))
-        ?.flatMap(f => f.dependsOn);
+        ?.filter(f => f?.type?.startsWith('compute'))
+        ?.flatMap(f => f?.dependsOn);
+    const defaultDeps = schema?.fields?.flatMap(f => f?.fields)
+        ?.filter(f => f?.type?.startsWith('default'))
+        ?.flatMap(f => f?.dependsOnField);
+
 
     useEffect(() => {
         async function fetchData() {
@@ -112,14 +116,51 @@ const IUIPage = (props) => {
         const updates = {};
 
         schema?.fields?.flatMap(f => f?.fields)?.forEach(fld => {
-            if (fld.type.startsWith('compute')) {
+            if (fld?.type?.startsWith('compute')) {
                 updates[fld.field] = fld.compute(data);
             }
         });
 
         setData(prev => ({ ...prev, ...updates }));
-        console.log(updates)
+        // console.log(updates)
     }, computeDeps.map(dep => data[dep]));
+
+    const prepareDefaultValue = async (schema) => {
+        // write logic to fetch the duration
+    }
+
+    const prepareDefaultValues = async (schema) => {
+        const fields = schema?.fields?.flatMap(f => f?.fields) || [];
+        const updates = {};
+
+        for (const fld of fields) {
+            if (fld?.type?.startsWith('default')) {
+                updates[fld.field] = await prepareDefaultValue(fld);
+            }
+        }
+
+        return updates;
+    };
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const initDefaults = async () => {
+            const updates = await prepareDefaultValues(schema);
+
+            if (isMounted) {
+                setData(prev => ({ ...prev, ...updates }));
+                // console.log(updates);
+            }
+        };
+
+        initDefaults();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [schema]);
+
 
     const handleAuditClick = () => {
         navigate("/audit-logs", { state: { id: id, childModule: module, disableSelection: true } });
@@ -408,6 +449,23 @@ const IUIPage = (props) => {
         return response.data;
     }
 
+    const addSingleDependencyItem = async (item, dependencyId) => {
+        const updatedItem = {
+            ...item,
+            dependencyId: parseInt(dependencyId)
+        };
+        return await api.addData({ module: 'dependencyResource', data: updatedItem });
+    }
+
+    const saveDependencyResources = async (data, dependencyId) => {
+        const dependencyItems = JSON.parse(data?.items);
+
+        if (dependencyItems?.length > 0) {
+            const addPromises = dependencyItems.map(item => addSingleDependencyItem(item, dependencyId));
+            await Promise.all(addPromises);
+        }
+    }
+
     const savePageValue = async (e) => {
         e.preventDefault();
 
@@ -490,6 +548,9 @@ const IUIPage = (props) => {
                     try {
                         console.log(data);
                         let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
+                        if (module === 'dependency') {
+                            await saveDependencyResources(data, response?.data);
+                        }
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
@@ -567,9 +628,6 @@ const IUIPage = (props) => {
                                                                     <Button variant="contained"
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save </Button>
-
-
-
 
                                                                     <Button variant="contained"
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
@@ -716,6 +774,7 @@ const IUIPage = (props) => {
                                                 ))}
                                             </Row>
 
+
                                             {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
                                                 <hr />
                                             }
@@ -730,13 +789,6 @@ const IUIPage = (props) => {
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save
                                                                     </Button>
-
-
-
-
-
-
-
 
                                                                     {
                                                                         ((module !== 'activity') || (module === 'activity' && !schema?.adding)) && (

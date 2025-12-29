@@ -20,10 +20,13 @@ export const ListFlat = () => {
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
             {
                 text: 'Floor', field: 'parentName', type: 'text', sorting: false, searching: false,
-            }
+            },
+            {
+                text: 'Priority', field: 'priorityStatus', type: 'lookup-enum', sorting: false, searching: false,
+                schema: { module: 'priorityStatusType' }
+            },
         ]
     }
-
 
     return (<IUIListFilter schema={schema} filter="flat" />)
 }
@@ -49,7 +52,6 @@ export const FlatDashboard = () => {
         ]
     }
 
-
     return (<IUIListFilter schema={schema} filter="flat" />)
 }
 
@@ -73,7 +75,11 @@ export const ViewFlat = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'h5', required: true, width: 12 },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'p', required: true, width: 12 },
+                    // { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'p', required: true, width: 12 },
+                    {
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', readonly: true, textonly: true,
+                        schema: { module: 'priorityStatusType' }
+                    },
                     // { field: 'name', type: 'ilab-canvas', width: 12 },
                 ]
             },
@@ -136,6 +142,7 @@ export const ViewFlat = () => {
     return (<IUIPage schema={schema} />)
 }
 
+
 export const EditFlat = () => {
     const { id } = useParams();
 
@@ -153,7 +160,11 @@ export const EditFlat = () => {
                         text: 'Floor', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
                         schema: { module: 'plan', filter: 'type', value: 'floor' }
                     },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 },
+                    {
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: true,
+                        schema: { module: 'priorityStatusType' }
+                    }
                 ]
             },
             {
@@ -207,6 +218,10 @@ export const AddFlat = () => {
                         schema: { module: 'plan', filter: 'type', value: 'floor' }
                     },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 },
+                    {
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: true,
+                        schema: { module: 'priorityStatusType' }
+                    },
                     { field: 'type', type: 'hidden-filter', value: "flat" }
                 ]
             },

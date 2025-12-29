@@ -54,6 +54,30 @@ export const ViewWorkItem = () => {
                     {
                         text: 'Belongs To', field: 'belongsTo', width: 4, type: 'lookup-link',
                         schema: { module: 'dependency', path: 'activities' }
+                    },
+                    { text: 'Expected Duration', field: 'expectedDuration', type: 'text', required: true, width: 6 },
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
+                        schema: {
+                            title: 'Item',
+                            module: 'dependency',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            assign: true, // for assign accordion
+                            fields: [
+                                {
+                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
+                            ]
+                        }
                     }
                 ]
             },
@@ -61,6 +85,7 @@ export const ViewWorkItem = () => {
     }
     return (<IUIPage schema={schema} />)
 }
+
 
 export const EditWorkItem = () => {
     const { id } = useParams();
@@ -96,7 +121,36 @@ export const EditWorkItem = () => {
                             matchAll: true,
                             excludeSelf: true
                         }
-                    }
+                    },
+                    { text: 'Expected Duration', field: 'expectedDuration', type: 'number', required: true, width: 6 },
+                    {
+                        type: "area", width: 12
+                        , fields: [
+                            {
+                                text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
+                                schema: {
+                                    title: 'Item',
+                                    module: 'activity',
+                                    paging: true,
+                                    searching: true,
+                                    editing: true,
+                                    adding: true,
+                                    assign: true, // for assign accordion
+                                    fields: [
+                                        {
+                                            text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                            schema: { module: 'asset' }
+                                        },
+                                        { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                        {
+                                            text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                            schema: { module: 'uom' }
+                                        },
+                                    ]
+                                }
+                            },
+                        ]
+                    },
                 ]
             },
         ]
@@ -126,6 +180,30 @@ export const AddWorkItem = () => {
                         text: 'Belongs To', field: 'belongsTo', type: 'lookup-filter', required: false, width: 6,
                         schema: { module: 'dependency', filter: 'parent', value: null }
                     },
+                    { text: 'Expected Duration', field: 'expectedDuration', type: 'number', required: true, width: 6 },
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
+                        schema: {
+                            title: 'Item',
+                            module: 'dependency',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            assign: true, // for assign accordion
+                            fields: [
+                                {
+                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
+                            ]
+                        }
+                    }
                 ]
             },
         ]

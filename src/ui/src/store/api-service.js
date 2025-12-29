@@ -195,5 +195,10 @@ api.getAmendmentsByNullValue = async (action) => {
     const response = await api.get(url);
     return response;
 }
+api.getAssignedItemsByUserAndModule = async (action) => {
+    const url = `/module/${action.module}/${action.member}`;
+    const response = await api.get(url);
+    return response;
+}
 export default api;
 

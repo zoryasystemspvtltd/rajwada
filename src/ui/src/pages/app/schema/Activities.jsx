@@ -224,27 +224,37 @@ export const EditActivity = () => {
                         text: 'Flat', field: 'flatId', type: 'lookup-filter', required: false, width: 4, readonly: true,
                         schema: { module: 'plan', filter: 'type', value: 'flat' }
                     },
-                    { text: 'Expected Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
-                    { text: 'Expected End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: true },
+                  { text: 'Expected Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
                     {
                         text: 'Expected Duration (Days)',
                         field: 'duration',
+                        placeholder: 'Duration here...',
+                        width: 4,
+                        type: 'default',
+                        dependsOnModule: 'dependency',
+                        dependsOnField: 'expectedDuration',
+                        required: true
+                    },
+                    {
+                        text: 'Expected End Date',
+                        field: 'endDate',
                         width: 4,
                         type: 'compute-number',
-                        placeholder: 'Duration here...',
+                        placeholder: 'End Date here...',
                         inputType: 'number',
-                        dependsOn: ['startDate', 'endDate'],
+                        dependsOn: ['startDate', 'duration'],
                         required: true,
-                        compute: ({ startDate, endDate }) => {
-                            if (!startDate || !endDate) return '';
+                        compute: ({ startDate, duration }) => {
+                            if (!startDate || !duration) return '';
 
                             const start = new Date(startDate);
-                            const end = new Date(endDate);
+                            // Ensure duration is a number
+                            const days = Number(duration);
+                            if (isNaN(days) || days <= 0) return '';
+                            const end = new Date(start);
+                            end.setDate(start.getDate() + days);
 
-                            const diffMs = end - start;
-                            return diffMs > 0
-                                ? Math.ceil(diffMs / (1000 * 60 * 60 * 24))
-                                : 0;
+                            return end;
                         }
                     },
                     // {
@@ -536,28 +546,39 @@ export const AddActivity = () => {
                         },
                     },
                     { text: 'Expected Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
-                    { text: 'Expected End Date', field: 'endDate', placeholder: 'End Date here...', width: 4, type: 'date', required: true },
                     {
                         text: 'Expected Duration (Days)',
                         field: 'duration',
+                        placeholder: 'Duration here...',
+                        width: 4,
+                        type: 'default',
+                        dependsOnModule: 'dependency',
+                        dependsOnField: 'expectedDuration',
+                        required: false
+                    },
+                    {
+                        text: 'Expected End Date',
+                        field: 'endDate',
                         width: 4,
                         type: 'compute-number',
-                        placeholder: 'Duration here...',
+                        placeholder: 'End Date here...',
                         inputType: 'number',
-                        dependsOn: ['startDate', 'endDate'],
-                        required: true,
-                        compute: ({ startDate, endDate }) => {
-                            if (!startDate || !endDate) return '';
+                        dependsOn: ['startDate', 'duration'],
+                        required: false,
+                        compute: ({ startDate, duration }) => {
+                            if (!startDate || !duration) return '';
 
                             const start = new Date(startDate);
-                            const end = new Date(endDate);
+                            // Ensure duration is a number
+                            const days = Number(duration);
+                            if (isNaN(days) || days <= 0) return '';
+                            const end = new Date(start);
+                            end.setDate(start.getDate() + days);
 
-                            const diffMs = end - start;
-                            return diffMs > 0
-                                ? Math.ceil(diffMs / (1000 * 60 * 60 * 24))
-                                : 0;
+                            return end;
                         }
                     }
+
                     // {
                     //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-enum', required: false,
                     //     schema: { module: 'priorityStatusType' }

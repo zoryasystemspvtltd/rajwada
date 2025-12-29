@@ -3,7 +3,7 @@ import IUIPage from "../../common/IUIPage"
 
 export const ListWorkCheckpoint = () => {
     const schema = {
-        module: 'workCheckpoint',
+        module: 'workCheckpoints',
         title: 'Work Checkpoint',
         path: 'work-checkpoints',
         paging: true,
@@ -23,7 +23,7 @@ export const ListWorkCheckpoint = () => {
 
 export const ViewWorkCheckpoint = () => {
     const schema = {
-        module: 'workCheckpoint',
+        module: 'workCheckpoints',
         title: 'Work Checkpoint',
         path: 'work-checkpoints',
         showBreadcrumbs: false,
@@ -46,7 +46,9 @@ export const ViewWorkCheckpoint = () => {
                                 { name: 'After' }
                             ]
                         }
-                    }
+                    },
+                    { text: 'Is Photo Required ?', field: 'isPhoto', placeholder: 'Check to edit photo status', type: 'label-check', required: false, width: 4 },
+                    { text: 'Is Calendar Required ?', field: 'isCalendar', placeholder: 'Check to edit calendar status', type: 'label-check', required: false, width: 4 },
                 ]
             }
         ]
@@ -58,7 +60,7 @@ export const ViewWorkCheckpoint = () => {
 
 export const EditWorkCheckpoint = () => {
     const schema = {
-        module: 'workCheckpoint',
+        module: 'workCheckpoints',
         title: 'Work Checkpoint',
         path: 'work-checkpoints',
         back: false,
@@ -88,7 +90,7 @@ export const EditWorkCheckpoint = () => {
 
 export const AddWorkCheckpoint = () => {
     const schema = {
-        module: 'workCheckpoint',
+        module: 'workCheckpoints',
         title: 'Work Checkpoint',
         path: 'work-checkpoints',
         back: false,
@@ -106,7 +108,9 @@ export const AddWorkCheckpoint = () => {
                                 { name: 'After' }
                             ]
                         }
-                    }
+                    },
+                    { text: 'Is Photo Required ?', field: 'isPhoto', placeholder: 'Check to edit photo status', type: 'check', required: false, width: 4 },
+                    { text: 'Is Calendar Required ?', field: 'isCalendar', placeholder: 'Check to edit calendar status', type: 'check', required: false, width: 4 },
                 ]
             }
         ]

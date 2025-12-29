@@ -152,18 +152,18 @@
                 "access": "parkingType"
             },
             {
-                "name": "workCheckpoint",
+                "name": "workCheckpoints",
                 "text": "Work Checkpoint",
                 "icon": "cubes-stacked",
                 "path": "/work-checkpoints",
-                "access": "activity"
+                "access": "workCheckpoints"
             },
             {
-                "name": "postWorkPeriodicCheck",
+                "name": "postWorkPeriodicChecking",
                 "text": "Post Work Periodic Check",
                 "icon": "cubes-stacked",
                 "path": "/post-work-periodic-checks",
-                "access": "activity"
+                "access": "postWorkPeriodicChecking"
             }
         ],
         "transaction": [

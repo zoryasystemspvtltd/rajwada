@@ -33,23 +33,23 @@ import { AddWorkflow, EditWorkflow, ListWorkflow, ViewWorkflow } from "../pages/
 import { useAuth } from "../provider/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 
+import { ListAuditLog, ViewAuditLog } from "../pages/app/reports/AuditLog";
 import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
+import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
+import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate } from "../pages/app/schema/FlatTemplates";
 import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
 import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/Mouzas";
 import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from "../pages/app/schema/NameMasters";
+import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } from "../pages/app/schema/ParkingTypes";
+import { AddPostWorkPeriodicCheck, EditPostWorkPeriodicCheck, ListPostWorkPeriodicCheck, ViewPostWorkPeriodicCheck } from "../pages/app/schema/PostWorkPeriodicCheck";
 import { AddRoomMapping, EditRoomMapping } from "../pages/app/schema/RoomMappings";
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
 import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
-import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } from "../pages/app/schema/ParkingTypes";
-import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate } from "../pages/app/schema/FlatTemplates";
-import { ListAuditLog, ViewAuditLog } from "../pages/app/reports/AuditLog";
-import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 import { AddWorkCheckpoint, EditWorkCheckpoint, ListWorkCheckpoint, ViewWorkCheckpoint } from "../pages/app/schema/WorkCheckpoints";
-import { AddPostWorkPeriodicCheck, EditPostWorkPeriodicCheck, ListPostWorkPeriodicCheck, ViewPostWorkPeriodicCheck } from "../pages/app/schema/PostWorkPeriodicCheck";
-import { ListActivityForTransfer, ViewActivityForTransfer } from "../pages/common/WorkTransfer";
+import WorkTransfer from "../pages/common/WorkTransfer";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -594,11 +594,7 @@ const Routes = () => {
                 },
                 {
                     path: "/worktransfers",
-                    element: <ListActivityForTransfer />
-                },
-                {
-                    path: "/worktransfers/:id",
-                    element: <ViewActivityForTransfer />
+                    element: <WorkTransfer />
                 }
             ],
         },

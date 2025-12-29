@@ -195,12 +195,28 @@ const IUITableInput = (props) => {
         setDisabled(true);
 
         let updatedArray = [...dataArray];
+
         if (editingIndex !== null) {
-            updatedArray[editingIndex] = data;
+            updatedArray[editingIndex] = {
+                ...data,
+                assign: updatedArray[editingIndex]?.assign || {
+                    department: "",
+                    people: [],
+                    notifyDuration: 0
+                }
+            };
             setEditingIndex(null);
         } else {
-            updatedArray.push(data);
+            updatedArray.push({
+                ...data,
+                assign: {
+                    department: "",
+                    people: [],
+                    notifyDuration: 0
+                }
+            });
         }
+
         setDataArray(updatedArray);
 
         // Reset form
@@ -232,10 +248,31 @@ const IUITableInput = (props) => {
         notify("success", `${schema?.title} List Updation Successful!`);
     }
 
+    useEffect(() => {
+        if (!props?.onChange) return;
+
+        const modifiedEvent = {
+            target: {
+                id: props?.id,
+                value: JSON.stringify(dataArray)
+            },
+            preventDefault() { }
+        };
+
+        props.onChange(modifiedEvent);
+    }, [dataArray]);
+
     const handleAssignChange = useCallback((index, assign) => {
         setDataArray(prev => {
             const updated = [...prev];
-            updated[index] = { ...updated[index], assign };
+
+            updated[index] = {
+                ...updated[index],
+                assign: {
+                    ...(updated[index]?.assign || {}),
+                    ...assign
+                }
+            };
             return updated;
         });
     }, []);
@@ -394,7 +431,7 @@ const IUITableInput = (props) => {
                                                                                 <tr>
                                                                                     <td colSpan={schema.fields.length + 1}>
                                                                                         <ItemAssignAccordion
-                                                                                            value={item.assign}
+                                                                                            value={item.assign || { department: "", people: [], notifyDuration: 0 }}
                                                                                             onChange={(assign) => handleAssignChange(i, assign)}
                                                                                         />
                                                                                     </td>

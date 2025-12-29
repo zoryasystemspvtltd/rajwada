@@ -1,36 +1,51 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Row, Col, Form } from "react-bootstrap";
-import api from '../../../store/api-service';
+import api from "../../../store/api-service";
 
 /**
  * Props:
  *  value?: {
- *    people: [],
- *    notifyDuration: number
+ *    department?: string | number,
+ *    people?: [],
+ *    notifyDuration?: number
  *  }
  *  onChange: (assignObj) => void
  */
 
-const ItemAssignAccordion = ({ value, onChange }) => {
+const EMPTY_ASSIGN = {
+    department: "",
+    people: [],
+    notifyDuration: 0
+};
+
+const ItemAssignAccordion = ({ value = EMPTY_ASSIGN, onChange }) => {
     const [departments, setDepartments] = useState([]);
     const [people, setPeople] = useState([]);
 
-    const department = value?.department || "";
-    const selectedPeople = value?.people || [];
-    const notifyDuration = value?.notifyDuration || 0;
+    const department = value.department ?? "";
+    const selectedPeople = value.people ?? [];
+    const notifyDuration = value.notifyDuration ?? 0;
 
-    /* Load departments once */
+    /* 🔹 Load departments once */
     useEffect(() => {
+        let mounted = true;
+
         api.getData({
             module: "department",
             options: { recordPerPage: 0 }
         }).then(res => {
-            setDepartments(res?.data?.items || []);
+            if (mounted) {
+                setDepartments(res?.data?.items || []);
+            }
         });
+
+        return () => { mounted = false; };
     }, []);
 
-    /* Load people when department changes */
+    /* 🔹 Load people when department changes */
     useEffect(() => {
+        let mounted = true;
+
         if (!department) {
             setPeople([]);
             return;
@@ -46,18 +61,40 @@ const ItemAssignAccordion = ({ value, onChange }) => {
                 }
             }
         }).then(res => {
-            setPeople(res?.data?.items || []);
+            if (mounted) {
+                setPeople(res?.data?.items || []);
+            }
         });
+
+        return () => { mounted = false; };
     }, [department]);
 
+    /* 🔹 Handlers */
+
+    const handleDepartmentChange = (deptId) => {
+        onChange({
+            ...EMPTY_ASSIGN,
+            department: deptId
+        });
+    };
+
+    const handleNotifyChange = (val) => {
+        onChange({
+            ...value,
+            notifyDuration: val
+        });
+    };
+
     const togglePerson = (person) => {
-        const updated = selectedPeople.some(p => p.id === person.id)
+        const updatedPeople = selectedPeople.some(p => p.id === person.id)
             ? selectedPeople.filter(p => p.id !== person.id)
             : [...selectedPeople, person];
 
+        const filteredPeople = updatedPeople?.map(p => ({member: p?.member, id: p?.id}));
+
         onChange({
             ...value,
-            people: updated
+            people: filteredPeople
         });
     };
 
@@ -69,13 +106,7 @@ const ItemAssignAccordion = ({ value, onChange }) => {
                     <select
                         className="form-control"
                         value={department}
-                        onChange={(e) =>
-                            onChange({
-                                ...value,
-                                department: e.target.value,
-                                people: []
-                            })
-                        }
+                        onChange={(e) => handleDepartmentChange(e.target.value)}
                     >
                         <option value="">Select Department</option>
                         {departments.map(d => (
@@ -90,33 +121,31 @@ const ItemAssignAccordion = ({ value, onChange }) => {
                     <Form.Label>Notify before (days)</Form.Label>
                     <Form.Control
                         type="number"
-                        value={notifyDuration}
                         min={0}
+                        value={notifyDuration}
                         onChange={(e) =>
-                            onChange({
-                                ...value,
-                                notifyDuration: parseInt(e.target.value) || 0
-                            })
+                            handleNotifyChange(parseInt(e.target.value, 10) || 0)
                         }
                     />
                 </Col>
             </Row>
 
-            <Row className="mt-3">
-                <Col>
-                    {people.map(p => (
-                        <Form.Check
-                            key={p.id}
-                            label={p.name}
-                            checked={selectedPeople.some(sp => sp.id === p.id)}
-                            onChange={() => togglePerson(p)}
-                        />
-                    ))}
-                </Col>
-            </Row>
+            {people.length > 0 && (
+                <Row className="mt-3">
+                    <Col>
+                        {people.map(p => (
+                            <Form.Check
+                                key={p.id}
+                                label={p.name}
+                                checked={selectedPeople.some(sp => sp.id === p.id)}
+                                onChange={() => togglePerson(p)}
+                            />
+                        ))}
+                    </Col>
+                </Row>
+            )}
         </div>
     );
 };
 
 export default ItemAssignAccordion;
-
