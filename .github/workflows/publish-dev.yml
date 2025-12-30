@@ -26,6 +26,13 @@ jobs:
       - name: Replace appsettings.json
         run: copy appsettings.json ./src/raj-host/appsettings.json
 
+      - name: Run DB Migration
+        run: |
+          dotnet tool install --global dotnet-ef
+          dotnet tool restore
+          dotnet ef database update --project ./src/ilab-authentication/ilab-authentication.csproj --startup-project ./src/raj-host/raj-host.csproj --context IlabAuthentication.Data.AuthenticationDbContext
+          dotnet ef database update --project ./src/raj-api/raj-api.csproj --startup-project ./src/raj-host/raj-host.csproj --context RajApi.Data.ApplicationDbContext
+
       - name: Restore Dependencies API 
         run: dotnet restore ./src/PlanManagement.sln 
 
