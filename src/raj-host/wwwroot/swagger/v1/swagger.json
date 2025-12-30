@@ -649,6 +649,7 @@
     "/api/Activity":{"get":{"tags":["Activity"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityItemList"}}}}}},"post":{"tags":["Activity"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Activity"}},"text/json":{"schema":{"$ref":"#/components/schemas/Activity"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Activity"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Activity/{id}":{"get":{"tags":["Activity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Activity"}},"application/json":{"schema":{"$ref":"#/components/schemas/Activity"}},"text/json":{"schema":{"$ref":"#/components/schemas/Activity"}}}}}},"put":{"tags":["Activity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Activity"}},"text/json":{"schema":{"$ref":"#/components/schemas/Activity"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Activity"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Activity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/ActivityAmendment":{"get":{"tags":["ActivityAmendment"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityAmendmentItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityAmendmentItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityAmendmentItemList"}}}}}},"post":{"tags":["ActivityAmendment"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityAmendment"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityAmendment"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityAmendment"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/ActivityAmendment/{id}":{"get":{"tags":["ActivityAmendment"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityAmendment"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityAmendment"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityAmendment"}}}}}},"put":{"tags":["ActivityAmendment"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityAmendment"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityAmendment"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityAmendment"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["ActivityAmendment"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/ActivityResource":{"get":{"tags":["ActivityResource"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityResourceItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceItemList"}}}}}},"post":{"tags":["ActivityResource"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/ActivityResource/{id}":{"get":{"tags":["ActivityResource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}}}}}},"put":{"tags":["ActivityResource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityResource"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["ActivityResource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/ActivityResourceReport":{"get":{"tags":["ActivityResourceReport"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityResourceReportItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceReportItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceReportItemList"}}}}}},"post":{"tags":["ActivityResourceReport"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceReport"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceReport"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityResourceReport"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/ActivityResourceReport/{id}":{"get":{"tags":["ActivityResourceReport"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityResourceReport"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceReport"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceReport"}}}}}},"put":{"tags":["ActivityResourceReport"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceReport"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityResourceReport"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityResourceReport"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["ActivityResourceReport"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/ActivityTracking":{"get":{"tags":["ActivityTracking"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityTrackingItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityTrackingItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityTrackingItemList"}}}}}},"post":{"tags":["ActivityTracking"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/ActivityTracking/{id}":{"get":{"tags":["ActivityTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"application/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}}}}}},"put":{"tags":["ActivityTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ActivityTracking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["ActivityTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Asset":{"get":{"tags":["Asset"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetItemList"}}}}}},"post":{"tags":["Asset"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Asset"}},"text/json":{"schema":{"$ref":"#/components/schemas/Asset"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Asset"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Asset/{id}":{"get":{"tags":["Asset"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Asset"}},"application/json":{"schema":{"$ref":"#/components/schemas/Asset"}},"text/json":{"schema":{"$ref":"#/components/schemas/Asset"}}}}}},"put":{"tags":["Asset"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Asset"}},"text/json":{"schema":{"$ref":"#/components/schemas/Asset"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Asset"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Asset"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/AssetGroup":{"get":{"tags":["AssetGroup"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetGroupItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroupItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroupItemList"}}}}}},"post":{"tags":["AssetGroup"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/AssetGroup/{id}":{"get":{"tags":["AssetGroup"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}}}}}},"put":{"tags":["AssetGroup"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"text/json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/AssetGroup"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["AssetGroup"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
@@ -661,6 +662,7 @@
 "/api/Contractor":{"get":{"tags":["Contractor"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ContractorItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ContractorItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ContractorItemList"}}}}}},"post":{"tags":["Contractor"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Contractor"}},"text/json":{"schema":{"$ref":"#/components/schemas/Contractor"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Contractor"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Contractor/{id}":{"get":{"tags":["Contractor"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Contractor"}},"application/json":{"schema":{"$ref":"#/components/schemas/Contractor"}},"text/json":{"schema":{"$ref":"#/components/schemas/Contractor"}}}}}},"put":{"tags":["Contractor"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Contractor"}},"text/json":{"schema":{"$ref":"#/components/schemas/Contractor"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Contractor"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Contractor"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Department":{"get":{"tags":["Department"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/DepartmentItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/DepartmentItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/DepartmentItemList"}}}}}},"post":{"tags":["Department"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Department"}},"text/json":{"schema":{"$ref":"#/components/schemas/Department"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Department"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Department/{id}":{"get":{"tags":["Department"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Department"}},"application/json":{"schema":{"$ref":"#/components/schemas/Department"}},"text/json":{"schema":{"$ref":"#/components/schemas/Department"}}}}}},"put":{"tags":["Department"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Department"}},"text/json":{"schema":{"$ref":"#/components/schemas/Department"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Department"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Department"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Dependency":{"get":{"tags":["Dependency"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/DependencyItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/DependencyItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/DependencyItemList"}}}}}},"post":{"tags":["Dependency"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Dependency"}},"text/json":{"schema":{"$ref":"#/components/schemas/Dependency"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Dependency"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Dependency/{id}":{"get":{"tags":["Dependency"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Dependency"}},"application/json":{"schema":{"$ref":"#/components/schemas/Dependency"}},"text/json":{"schema":{"$ref":"#/components/schemas/Dependency"}}}}}},"put":{"tags":["Dependency"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Dependency"}},"text/json":{"schema":{"$ref":"#/components/schemas/Dependency"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Dependency"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Dependency"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/DependencyResource":{"get":{"tags":["DependencyResource"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/DependencyResourceItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/DependencyResourceItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/DependencyResourceItemList"}}}}}},"post":{"tags":["DependencyResource"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DependencyResource"}},"text/json":{"schema":{"$ref":"#/components/schemas/DependencyResource"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/DependencyResource"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/DependencyResource/{id}":{"get":{"tags":["DependencyResource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/DependencyResource"}},"application/json":{"schema":{"$ref":"#/components/schemas/DependencyResource"}},"text/json":{"schema":{"$ref":"#/components/schemas/DependencyResource"}}}}}},"put":{"tags":["DependencyResource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DependencyResource"}},"text/json":{"schema":{"$ref":"#/components/schemas/DependencyResource"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/DependencyResource"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["DependencyResource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/FinancialYear":{"get":{"tags":["FinancialYear"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FinancialYearItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/FinancialYearItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/FinancialYearItemList"}}}}}},"post":{"tags":["FinancialYear"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"text/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/FinancialYear/{id}":{"get":{"tags":["FinancialYear"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"application/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"text/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}}}}}},"put":{"tags":["FinancialYear"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"text/json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FinancialYear"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["FinancialYear"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/FlatTemplate":{"get":{"tags":["FlatTemplate"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FlatTemplateItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateItemList"}}}}}},"post":{"tags":["FlatTemplate"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/FlatTemplate/{id}":{"get":{"tags":["FlatTemplate"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}}}}}},"put":{"tags":["FlatTemplate"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FlatTemplate"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["FlatTemplate"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/FlatTemplateDetails":{"get":{"tags":["FlatTemplateDetails"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetailsItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetailsItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetailsItemList"}}}}}},"post":{"tags":["FlatTemplateDetails"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/FlatTemplateDetails/{id}":{"get":{"tags":["FlatTemplateDetails"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}}}}}},"put":{"tags":["FlatTemplateDetails"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"text/json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/FlatTemplateDetails"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["FlatTemplateDetails"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
@@ -672,6 +674,7 @@
 "/api/Parking":{"get":{"tags":["Parking"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ParkingItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ParkingItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ParkingItemList"}}}}}},"post":{"tags":["Parking"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Parking"}},"text/json":{"schema":{"$ref":"#/components/schemas/Parking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Parking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Parking/{id}":{"get":{"tags":["Parking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Parking"}},"application/json":{"schema":{"$ref":"#/components/schemas/Parking"}},"text/json":{"schema":{"$ref":"#/components/schemas/Parking"}}}}}},"put":{"tags":["Parking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Parking"}},"text/json":{"schema":{"$ref":"#/components/schemas/Parking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Parking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Parking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/ParkingType":{"get":{"tags":["ParkingType"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ParkingTypeItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ParkingTypeItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ParkingTypeItemList"}}}}}},"post":{"tags":["ParkingType"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"text/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ParkingType"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/ParkingType/{id}":{"get":{"tags":["ParkingType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"application/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"text/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}}}}}},"put":{"tags":["ParkingType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"text/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ParkingType"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["ParkingType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Plan":{"get":{"tags":["Plan"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/PlanItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/PlanItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/PlanItemList"}}}}}},"post":{"tags":["Plan"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Plan"}},"text/json":{"schema":{"$ref":"#/components/schemas/Plan"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Plan"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Plan/{id}":{"get":{"tags":["Plan"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Plan"}},"application/json":{"schema":{"$ref":"#/components/schemas/Plan"}},"text/json":{"schema":{"$ref":"#/components/schemas/Plan"}}}}}},"put":{"tags":["Plan"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Plan"}},"text/json":{"schema":{"$ref":"#/components/schemas/Plan"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Plan"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Plan"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/PostWorkPeriodicChecking":{"get":{"tags":["PostWorkPeriodicChecking"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicCheckingItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicCheckingItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicCheckingItemList"}}}}}},"post":{"tags":["PostWorkPeriodicChecking"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"text/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/PostWorkPeriodicChecking/{id}":{"get":{"tags":["PostWorkPeriodicChecking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"application/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"text/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}}}}}},"put":{"tags":["PostWorkPeriodicChecking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"text/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["PostWorkPeriodicChecking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Project":{"get":{"tags":["Project"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ProjectItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ProjectItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ProjectItemList"}}}}}},"post":{"tags":["Project"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Project"}},"text/json":{"schema":{"$ref":"#/components/schemas/Project"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Project"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Project/{id}":{"get":{"tags":["Project"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Project"}},"application/json":{"schema":{"$ref":"#/components/schemas/Project"}},"text/json":{"schema":{"$ref":"#/components/schemas/Project"}}}}}},"put":{"tags":["Project"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Project"}},"text/json":{"schema":{"$ref":"#/components/schemas/Project"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Project"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Project"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/ProjectDocNoTracking":{"get":{"tags":["ProjectDocNoTracking"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTrackingItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTrackingItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTrackingItemList"}}}}}},"post":{"tags":["ProjectDocNoTracking"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTracking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTracking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/ProjectDocNoTracking/{id}":{"get":{"tags":["ProjectDocNoTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTracking"}},"application/json":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTracking"}}}}}},"put":{"tags":["ProjectDocNoTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTracking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ProjectDocNoTracking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["ProjectDocNoTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Resource":{"get":{"tags":["Resource"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ResourceItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ResourceItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ResourceItemList"}}}}}},"post":{"tags":["Resource"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Resource"}},"text/json":{"schema":{"$ref":"#/components/schemas/Resource"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Resource"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Resource/{id}":{"get":{"tags":["Resource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Resource"}},"application/json":{"schema":{"$ref":"#/components/schemas/Resource"}},"text/json":{"schema":{"$ref":"#/components/schemas/Resource"}}}}}},"put":{"tags":["Resource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Resource"}},"text/json":{"schema":{"$ref":"#/components/schemas/Resource"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Resource"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Resource"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
@@ -681,6 +684,7 @@
 "/api/UnitOfWork":{"get":{"tags":["UnitOfWork"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/UnitOfWorkItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/UnitOfWorkItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/UnitOfWorkItemList"}}}}}},"post":{"tags":["UnitOfWork"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnitOfWork"}},"text/json":{"schema":{"$ref":"#/components/schemas/UnitOfWork"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/UnitOfWork"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/UnitOfWork/{id}":{"get":{"tags":["UnitOfWork"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/UnitOfWork"}},"application/json":{"schema":{"$ref":"#/components/schemas/UnitOfWork"}},"text/json":{"schema":{"$ref":"#/components/schemas/UnitOfWork"}}}}}},"put":{"tags":["UnitOfWork"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnitOfWork"}},"text/json":{"schema":{"$ref":"#/components/schemas/UnitOfWork"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/UnitOfWork"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["UnitOfWork"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Uom":{"get":{"tags":["Uom"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/UomItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/UomItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/UomItemList"}}}}}},"post":{"tags":["Uom"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Uom"}},"text/json":{"schema":{"$ref":"#/components/schemas/Uom"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Uom"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Uom/{id}":{"get":{"tags":["Uom"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Uom"}},"application/json":{"schema":{"$ref":"#/components/schemas/Uom"}},"text/json":{"schema":{"$ref":"#/components/schemas/Uom"}}}}}},"put":{"tags":["Uom"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Uom"}},"text/json":{"schema":{"$ref":"#/components/schemas/Uom"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Uom"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Uom"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Wonership":{"get":{"tags":["Wonership"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WonershipItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/WonershipItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/WonershipItemList"}}}}}},"post":{"tags":["Wonership"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Wonership"}},"text/json":{"schema":{"$ref":"#/components/schemas/Wonership"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Wonership"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Wonership/{id}":{"get":{"tags":["Wonership"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Wonership"}},"application/json":{"schema":{"$ref":"#/components/schemas/Wonership"}},"text/json":{"schema":{"$ref":"#/components/schemas/Wonership"}}}}}},"put":{"tags":["Wonership"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Wonership"}},"text/json":{"schema":{"$ref":"#/components/schemas/Wonership"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Wonership"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Wonership"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/WorkCheckpoints":{"get":{"tags":["WorkCheckpoints"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WorkCheckpointsItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckpointsItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckpointsItemList"}}}}}},"post":{"tags":["WorkCheckpoints"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckpoints"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckpoints"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/WorkCheckpoints"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/WorkCheckpoints/{id}":{"get":{"tags":["WorkCheckpoints"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WorkCheckpoints"}},"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckpoints"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckpoints"}}}}}},"put":{"tags":["WorkCheckpoints"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckpoints"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckpoints"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/WorkCheckpoints"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["WorkCheckpoints"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Workflow":{"get":{"tags":["Workflow"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WorkflowItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/WorkflowItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkflowItemList"}}}}}},"post":{"tags":["Workflow"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Workflow"}},"text/json":{"schema":{"$ref":"#/components/schemas/Workflow"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Workflow"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Workflow/{id}":{"get":{"tags":["Workflow"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Workflow"}},"application/json":{"schema":{"$ref":"#/components/schemas/Workflow"}},"text/json":{"schema":{"$ref":"#/components/schemas/Workflow"}}}}}},"put":{"tags":["Workflow"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Workflow"}},"text/json":{"schema":{"$ref":"#/components/schemas/Workflow"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Workflow"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Workflow"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 
   },
@@ -1478,6 +1482,39 @@
 "type": "string",
 "nullable": true
 },
+"ActivityId": {
+"type": "string",
+"nullable": true
+},
+"Activities": {
+"type": "string",
+},
+"UOMId": {
+"type": "string",
+"nullable": true
+},
+"Uoms": {
+"type": "string",
+},
+"NotificationStartDate": {
+"type": "string",
+"nullable": true
+},
+"AvailabilityStatus": {
+"type": "string",
+"nullable": true
+},
+"AssignedUser": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Remarks": {
+"type": "string",
+},
+"AssignedList": {
+"type": "string",
+},
 "Id": {
 "type": "string",
 },
@@ -1521,6 +1558,80 @@
 "type": "array",
 "items": {
 "$ref": "#/components/schemas/ActivityResource"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
+"ActivityResourceReport": {
+"type": "object",
+"properties": {
+"ResourceType": {
+"type": "string",
+},
+"UnitCost": {
+"type": "string",
+"nullable": true
+},
+"Quantity": {
+"type": "string",
+"nullable": true
+},
+"TotalCost": {
+"type": "string",
+"nullable": true
+},
+"UOMId": {
+"type": "string",
+"nullable": true
+},
+"Uoms": {
+"type": "string",
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"OldValues": {
+"type": "string",
+},
+},
+"additionalProperties": false
+},
+"ActivityResourceReportItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/ActivityResourceReport"
 },
 "nullable": true
 }
@@ -2373,6 +2484,10 @@
 "Description": {
 "type": "string",
 },
+"ExpectedDuration": {
+"type": "string",
+"nullable": true
+},
 "ParentId": {
 "type": "string",
 "nullable": true
@@ -2433,6 +2548,102 @@
 "type": "array",
 "items": {
 "$ref": "#/components/schemas/Dependency"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
+"DependencyResource": {
+"type": "object",
+"properties": {
+"ResourceType": {
+"type": "string",
+},
+"UnitCost": {
+"type": "string",
+"nullable": true
+},
+"Quantity": {
+"type": "string",
+"nullable": true
+},
+"TotalCost": {
+"type": "string",
+"nullable": true
+},
+"DependencyId": {
+"type": "string",
+"nullable": true
+},
+"Dependencies": {
+"type": "string",
+},
+"UOMId": {
+"type": "string",
+"nullable": true
+},
+"Uoms": {
+"type": "string",
+},
+"NotifyBefore": {
+"type": "string",
+"nullable": true
+},
+"AvailabilityStatus": {
+"type": "string",
+},
+"AssignedUser": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Remarks": {
+"type": "string",
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"OldValues": {
+"type": "string",
+},
+},
+"additionalProperties": false
+},
+"DependencyResourceItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/DependencyResource"
 },
 "nullable": true
 }
@@ -2585,6 +2796,9 @@
 "nullable": true
 },
 "Plans": {
+"type": "string",
+},
+"Workflows": {
 "type": "string",
 },
 "Id": {
@@ -3209,6 +3423,10 @@
 "MarkerJson": {
 "type": "string",
 },
+"PriorityStatus": {
+"type": "string",
+"nullable": true
+},
 "status": {
 "$ref": "#/components/schemas/StatusType"
 },
@@ -3344,6 +3562,72 @@
 "type": "array",
 "items": {
 "$ref": "#/components/schemas/Plan"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
+"PostWorkPeriodicChecking": {
+"type": "object",
+"properties": {
+"Description": {
+"type": "string",
+},
+"Type": {
+"type": "string",
+},
+"IsPhoto": {
+"type": "string",
+"nullable": true
+},
+"IsCalendar": {
+"type": "string",
+"nullable": true
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"OldValues": {
+"type": "string",
+},
+},
+"additionalProperties": false
+},
+"PostWorkPeriodicCheckingItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/PostWorkPeriodicChecking"
 },
 "nullable": true
 }
@@ -3679,6 +3963,9 @@
 "type": "string",
 },
 "FlatTemplates": {
+"type": "string",
+},
+"Workflows": {
 "type": "string",
 },
 "Id": {
@@ -4091,6 +4378,72 @@
 },
 "additionalProperties": false
 },
+"WorkCheckpoints": {
+"type": "object",
+"properties": {
+"Description": {
+"type": "string",
+},
+"Type": {
+"type": "string",
+},
+"IsPhoto": {
+"type": "string",
+"nullable": true
+},
+"IsCalendar": {
+"type": "string",
+"nullable": true
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"OldValues": {
+"type": "string",
+},
+},
+"additionalProperties": false
+},
+"WorkCheckpointsItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/WorkCheckpoints"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
 "Workflow": {
 "type": "object",
 "properties": {
@@ -4132,6 +4485,20 @@
 "nullable": true
 },
 "Flat": {
+"type": "string",
+},
+"FlatTemplateId": {
+"type": "string",
+"nullable": true
+},
+"FlatTemplate": {
+"type": "string",
+},
+"RoomId": {
+"type": "string",
+"nullable": true
+},
+"Room": {
 "type": "string",
 },
 "Activity": {
