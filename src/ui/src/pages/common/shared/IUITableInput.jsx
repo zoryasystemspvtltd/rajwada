@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Col, Form, Row, Button } from "react-bootstrap";
 import Table from 'react-bootstrap/Table';
 import { Link } from "react-router-dom";
@@ -9,6 +9,7 @@ import { notify } from '../../../store/notification';
 import IUILookUp from '../../common/shared/IUILookUp';
 import IUITableInputElement from './IUITableInputElement';
 import { formatStringDate } from '../../../store/datetime-formatter';
+import ItemAssignAccordion from './ItemAssignAccordion';
 
 const IUITableInput = (props) => {
     // Properties
@@ -29,6 +30,7 @@ const IUITableInput = (props) => {
     const [dataArray, setDataArray] = useState([]);
     const [editingIndex, setEditingIndex] = useState(null);
     const [isNewAdd, setIsNewAdd] = useState(true);
+    const [assignOpenIndex, setAssignOpenIndex] = useState(null);
 
     useEffect(() => {
         async function fetchData() {
@@ -193,12 +195,28 @@ const IUITableInput = (props) => {
         setDisabled(true);
 
         let updatedArray = [...dataArray];
+
         if (editingIndex !== null) {
-            updatedArray[editingIndex] = data;
+            updatedArray[editingIndex] = {
+                ...data,
+                assign: updatedArray[editingIndex]?.assign || {
+                    department: "",
+                    people: [],
+                    notifyDuration: 0
+                }
+            };
             setEditingIndex(null);
         } else {
-            updatedArray.push(data);
+            updatedArray.push({
+                ...data,
+                assign: {
+                    department: "",
+                    people: [],
+                    notifyDuration: 0
+                }
+            });
         }
+
         setDataArray(updatedArray);
 
         // Reset form
@@ -217,7 +235,6 @@ const IUITableInput = (props) => {
         props.onChange(modifiedEvent);
     };
 
-
     const savePageValue = (e) => {
         e.preventDefault();
         const modifiedEvent = {
@@ -230,6 +247,35 @@ const IUITableInput = (props) => {
         props.onChange(modifiedEvent);
         notify("success", `${schema?.title} List Updation Successful!`);
     }
+
+    useEffect(() => {
+        if (!props?.onChange) return;
+
+        const modifiedEvent = {
+            target: {
+                id: props?.id,
+                value: JSON.stringify(dataArray)
+            },
+            preventDefault() { }
+        };
+
+        props.onChange(modifiedEvent);
+    }, [dataArray]);
+
+    const handleAssignChange = useCallback((index, assign) => {
+        setDataArray(prev => {
+            const updated = [...prev];
+
+            updated[index] = {
+                ...updated[index],
+                assign: {
+                    ...(updated[index]?.assign || {}),
+                    ...assign
+                }
+            };
+            return updated;
+        });
+    }, []);
 
     return (
         <>
@@ -324,37 +370,77 @@ const IUITableInput = (props) => {
                                                             </thead>
                                                             {
                                                                 <tbody>
-                                                                    {
-                                                                        dataArray?.map((item, i) => (
-                                                                            <tr key={i}>
+                                                                    {dataArray?.map((item, i) => (
+                                                                        <React.Fragment key={i}>
+                                                                            <tr>
                                                                                 {schema?.fields?.map((fld, f) => (
                                                                                     <td key={f}>
-                                                                                        {fld.type === 'link' &&
+                                                                                        {fld.type === 'link' && (
                                                                                             <Link to={`${item.id}`}>{item[fld.field]}</Link>
-                                                                                        }
+                                                                                        )}
                                                                                         {(!fld.type || fld.type === 'text') && item[fld.field]}
-                                                                                        {(fld.type === 'number') && item[fld.field]}
+                                                                                        {fld.type === 'number' && item[fld.field]}
                                                                                         {fld.type === 'date' && formatStringDate(item[fld.field])}
-                                                                                        {(fld.type === 'lookup') &&
+                                                                                        {fld.type === 'lookup' && (
                                                                                             <IUILookUp
                                                                                                 value={parseInt(item[fld.field])}
                                                                                                 schema={fld.schema}
                                                                                                 readonly={true}
                                                                                                 textonly={true}
                                                                                             />
-                                                                                        }
+                                                                                        )}
                                                                                     </td>
                                                                                 ))}
-                                                                                {
-                                                                                    (!schema?.readonly) && (<td>
-                                                                                        <button className='btn btn-pill btn-shadow btn-hover-shine btn btn-warning btn-sm mr-2' onClick={(e) => handleEdit(e, i)}>Edit</button>
-                                                                                        <button className='btn btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm' onClick={(e) => handleDelete(e, i)}>Delete</button>
-                                                                                    </td>)
-                                                                                }
+
+
+                                                                                {!schema?.readonly && (
+                                                                                    <td>
+                                                                                        <button
+                                                                                            className="btn btn-pill btn-shadow btn-hover-shine btn btn-warning btn-sm mr-2"
+                                                                                            onClick={(e) => handleEdit(e, i)}
+                                                                                        >
+                                                                                            Edit
+                                                                                        </button>
+
+
+                                                                                        <button
+                                                                                            className="btn btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm"
+                                                                                            onClick={(e) => handleDelete(e, i)}
+                                                                                        >
+                                                                                            Delete
+                                                                                        </button>
+
+
+                                                                                        {schema?.assign && (
+                                                                                            <button
+                                                                                                className="btn btn-pill btn-shadow btn-hover-shine btn btn-info btn-sm ml-2"
+                                                                                                onClick={(e) => {
+                                                                                                    e.preventDefault()
+                                                                                                    setAssignOpenIndex(assignOpenIndex === i ? null : i)
+                                                                                                }
+                                                                                                }
+                                                                                            >
+                                                                                                Assign
+                                                                                            </button>
+                                                                                        )}
+                                                                                    </td>
+                                                                                )}
                                                                             </tr>
-                                                                        ))
-                                                                    }
+
+                                                                            {assignOpenIndex === i && (
+                                                                                <tr>
+                                                                                    <td colSpan={schema.fields.length + 1}>
+                                                                                        <ItemAssignAccordion
+                                                                                            value={item.assign || { department: "", people: [], notifyDuration: 0 }}
+                                                                                            onChange={(assign) => handleAssignChange(i, assign)}
+                                                                                        />
+                                                                                    </td>
+                                                                                </tr>
+                                                                            )}
+                                                                        </React.Fragment>
+                                                                    ))}
                                                                 </tbody>
+
                                                             }
                                                         </Table>
                                                     </Row>
@@ -367,6 +453,7 @@ const IUITableInput = (props) => {
                                                 <Col>
                                                     {!schema?.readonly && schema?.save &&
                                                         <>
+
 
                                                             <Button variant="contained"
                                                                 disabled={disabled}

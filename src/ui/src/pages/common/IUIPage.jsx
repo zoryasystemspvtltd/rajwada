@@ -12,6 +12,7 @@ import IUIApprover from './shared/IUIApprover';
 import { notify } from "../../store/notification";
 import IUIMultiAssign from './shared/IUIMultiAssign';
 import IUICopy from './shared/IUICopy';
+import IUIMultiCopyFilter from './shared/IUIMultiCopyFilter';
 
 const IUIPage = (props) => {
     // Properties
@@ -29,6 +30,7 @@ const IUIPage = (props) => {
     const [dirty, setDirty] = useState(false)
     // Local State
     const [data, setData] = useState({});
+    const [multiCopiedData, setMultiCopiedData] = useState([]);
     const [amendmentData, setAmendmentData] = useState({});
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
@@ -43,6 +45,13 @@ const IUIPage = (props) => {
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const computeDeps = schema?.fields?.flatMap(f => f?.fields)
+        ?.filter(f => f?.type?.startsWith('compute'))
+        ?.flatMap(f => f?.dependsOn);
+    const defaultDeps = schema?.fields?.flatMap(f => f?.fields)
+        ?.filter(f => f?.type?.startsWith('default'))
+        ?.flatMap(f => f?.dependsOnField);
+
 
     useEffect(() => {
         async function fetchData() {
@@ -62,9 +71,9 @@ const IUIPage = (props) => {
             }
         }
 
-
         fetchData();
     }, [id]);
+
 
     useEffect(() => {
         if (props?.defaultValues) {
@@ -76,6 +85,7 @@ const IUIPage = (props) => {
             setData(newData);
         }
     }, [props?.defaultValues]);
+
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
@@ -89,6 +99,7 @@ const IUIPage = (props) => {
         }
     }, [loggedInUser, module]);
 
+
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === "auditLog")?.map(p => p.name);
         let access = {};
@@ -100,6 +111,56 @@ const IUIPage = (props) => {
             localStorage.removeItem("dependency-flow");
         }
     }, [loggedInUser, module]);
+
+    useEffect(() => {
+        const updates = {};
+
+        schema?.fields?.flatMap(f => f?.fields)?.forEach(fld => {
+            if (fld?.type?.startsWith('compute')) {
+                updates[fld.field] = fld.compute(data);
+            }
+        });
+
+        setData(prev => ({ ...prev, ...updates }));
+        // console.log(updates)
+    }, computeDeps.map(dep => data[dep]));
+
+    const prepareDefaultValue = async (schema) => {
+        // write logic to fetch the duration
+    }
+
+    const prepareDefaultValues = async (schema) => {
+        const fields = schema?.fields?.flatMap(f => f?.fields) || [];
+        const updates = {};
+
+        for (const fld of fields) {
+            if (fld?.type?.startsWith('default')) {
+                updates[fld.field] = await prepareDefaultValue(fld);
+            }
+        }
+
+        return updates;
+    };
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const initDefaults = async () => {
+            const updates = await prepareDefaultValues(schema);
+
+            if (isMounted) {
+                setData(prev => ({ ...prev, ...updates }));
+                // console.log(updates);
+            }
+        };
+
+        initDefaults();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [schema]);
+
 
     const handleAuditClick = () => {
         navigate("/audit-logs", { state: { id: id, childModule: module, disableSelection: true } });
@@ -122,6 +183,13 @@ const IUIPage = (props) => {
         e.preventDefault();
         const newData = { ...data, ...e.target.value }
         setData(newData);
+    }
+
+    const handleMultiCopyChange = (e) => {
+        e.preventDefault();
+        console.log(e.target.value);
+        notify('info', `Selected items for ${schema?.title} copied, provide other inputs and click the Save button`)
+        setMultiCopiedData(e.target.value);
     }
 
     const handleRemarksChange = (event) => {
@@ -238,7 +306,6 @@ const IUIPage = (props) => {
     }
 
     const multiUserAssignment = async (dataId, userList) => {
-        let isAllAssignSuccessful = true;
         for (let user of userList) {
             let action = {};
             if (module === 'activity') {
@@ -253,17 +320,14 @@ const IUIPage = (props) => {
                 dispatch(setSave({ module: module }));
                 //navigate(-1);
 
-
             } catch (e) {
                 // TODO
-                isAllAssignSuccessful = false;
             }
         }
         return;
     }
 
     const multiUserUnassignment = async (dataId, uncheckedUserList) => {
-        let isAllUnassignSuccessful = true;
         for (let user of uncheckedUserList) {
             let action = {};
             if (module === 'activity') {
@@ -277,10 +341,8 @@ const IUIPage = (props) => {
                 dispatch(setSave({ module: module }));
                 //navigate(-1);
 
-
             } catch (e) {
                 // TODO
-                isAllUnassignSuccessful = false;
             }
         }
         return;
@@ -295,7 +357,6 @@ const IUIPage = (props) => {
             dispatch(setSave({ module: module }))
             //navigate(-1);
 
-
         } catch (e) {
             // TODO
         }
@@ -309,18 +370,14 @@ const IUIPage = (props) => {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
 
-
             const timeId = setTimeout(() => {
                 // After 3 seconds set the show value to false
                 navigate(0);
             }, 1000)
 
-
             return () => {
                 clearTimeout(timeId)
             }
-
-
         } catch (e) {
             // TODO
         }
@@ -341,7 +398,6 @@ const IUIPage = (props) => {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }));
 
-
             const timeId = setTimeout(async () => {
                 // After 3 seconds set the show value to false
                 setShowRemarksModal(false);
@@ -357,11 +413,9 @@ const IUIPage = (props) => {
                 navigate(0);
             }, 1000)
 
-
             return () => {
                 clearTimeout(timeId)
             }
-
 
         } catch (e) {
             // TODO
@@ -387,6 +441,31 @@ const IUIPage = (props) => {
             clearTimeout(timeId)
         }
     }
+
+    const addIndividualForMultiCopy = async (copiedData) => {
+        const newData = { ...data, [schema?.multiCopySchema?.copyField]: copiedData[schema?.multiCopySchema?.copyField] };
+        console.log(newData); // remove after check
+        const response = await api.addData({ module: schema?.module, data: newData });
+        return response.data;
+    }
+
+    const addSingleDependencyItem = async (item, dependencyId) => {
+        const updatedItem = {
+            ...item,
+            dependencyId: parseInt(dependencyId)
+        };
+        return await api.addData({ module: 'dependencyResource', data: updatedItem });
+    }
+
+    const saveDependencyResources = async (data, dependencyId) => {
+        const dependencyItems = JSON.parse(data?.items);
+
+        if (dependencyItems?.length > 0) {
+            const addPromises = dependencyItems.map(item => addSingleDependencyItem(item, dependencyId));
+            await Promise.all(addPromises);
+        }
+    }
+
     const savePageValue = async (e) => {
         e.preventDefault();
 
@@ -394,7 +473,31 @@ const IUIPage = (props) => {
             setDirty(true);
             const error = validate(data, schema?.fields)
             setErrors(error);
-            if (Object.keys(error).length === 0) {
+
+            if (schema?.multiCopy && multiCopiedData?.length > 0) {
+                // Add logic to add items
+                try {
+                    if (Object.keys(error).length === 0) {
+
+                        const addPromises = multiCopiedData?.map(data => addIndividualForMultiCopy(data));
+                        await Promise.all(addPromises);
+
+                        const timeId = setTimeout(() => {
+                            // After 3 seconds set the show value to false
+                            navigate(-1);
+                            localStorage.removeItem(flowchartKey);
+                        }, 1000)
+
+                        return () => {
+                            clearTimeout(timeId)
+                        }
+                    }
+                }
+                catch (e) {
+                    // TODO
+                }
+            }
+            else if (Object.keys(error).length === 0) {
                 if (!data)
                     return
                 setDisabled(true)
@@ -443,7 +546,11 @@ const IUIPage = (props) => {
                     }
                 else
                     try {
+                        console.log(data);
                         let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
+                        if (module === 'dependency') {
+                            await saveDependencyResources(data, response?.data);
+                        }
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
@@ -521,7 +628,6 @@ const IUIPage = (props) => {
                                                                     <Button variant="contained"
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save </Button>
-
 
                                                                     <Button variant="contained"
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
@@ -618,13 +724,19 @@ const IUIPage = (props) => {
                                                 </Col>
                                             </Row>
                                             {
-                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity' && schema?.editing) ?
+                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity' && (schema?.editing || schema?.back)) ?
                                                     <hr /> : null
                                             }
                                             {
                                                 schema?.copy && <IUICopy
                                                     schema={schema?.copySchema}
                                                     onChange={handleCopyChange}
+                                                />
+                                            }
+                                            {
+                                                schema?.multiCopy && <IUIMultiCopyFilter
+                                                    schema={schema?.multiCopySchema}
+                                                    onChange={handleMultiCopyChange}
                                                 />
                                             }
                                             <Row>
@@ -677,9 +789,6 @@ const IUIPage = (props) => {
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save
                                                                     </Button>
-
-
-
 
                                                                     {
                                                                         ((module !== 'activity') || (module === 'activity' && !schema?.adding)) && (

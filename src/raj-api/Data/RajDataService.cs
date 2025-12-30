@@ -144,6 +144,7 @@ namespace ILab.Data
 
                     case "ACTIVITY":
                         await SaveSubTaskAsync(model, Id, token);
+                        await SaveActivityResourceAsync(data, Id, token);
                         break;
                 }
 
@@ -449,7 +450,45 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");               
+                logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
+            }
+        }
+
+        private async Task SaveActivityResourceAsync(dynamic data, long activityId, CancellationToken token)
+        {
+            try
+            {
+                if (data.Item != null)
+                {
+                    var type = GetType("ActivityResource");
+                    dynamic jsonString = data.Item.ToString();
+                    DateOnly StartDate = Convert.ToDateTime(data.StartDate);
+                    var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+                    var activityResourceList = JsonConvert.DeserializeObject<List<ActivityResource>>(jsonData.TemplateDetails);
+                    foreach (ActivityResource mainitem in activityResourceList)
+                    {
+                        foreach (var item in mainitem.AssignedList)
+                        {
+                            var date = StartDate.AddDays(-item.NotifyBefore);
+                            ActivityResource details = new()
+                            {
+                                AssignedUser = item?.Member,
+                                Quantity = mainitem?.Quantity,
+                                UOMId = mainitem?.UOMId,
+                                ResourceType = "Item",
+                                AvailabilityStatus = AvailablityStatus.NotAvailable,
+                                NotificationStartDate = date
+                            };
+
+                            await SaveDataAsync("ActivityResource", details, token);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
             }
         }
         private async Task SavaDataIntoDataBase(string model, Activity main, CancellationToken token)
@@ -510,7 +549,7 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Exception in SavaDataIntoDataBase method, message:'{ex.Message}'");               
+                logger.LogError(ex, $"Exception in SavaDataIntoDataBase method, message:'{ex.Message}'");
             }
         }
         private string? GetWorkId(string name, int index, long? DependencyId, long? projectId, CancellationToken token)
@@ -576,7 +615,7 @@ namespace ILab.Data
             }
             catch (Exception ex)
             {
-                logger.LogError("Exception in UpdateProjcetDocNoTracing method and details: " + ex.Message);               
+                logger.LogError("Exception in UpdateProjcetDocNoTracing method and details: " + ex.Message);
             }
         }
         public dynamic GetChallanReport(long id)
@@ -712,6 +751,36 @@ namespace ILab.Data
                 return 0;
             }
         }
+        internal dynamic GetAllAssignedModules(string module, string member)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetAllAssignedModules));
+                object[] parameters = [module, member];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetAllAssignedModules method and details: " + ex.Message);
+                return 0;
+            }
+        }
+
+        internal dynamic GetAllNotification(string member)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetAllNotification));
+                object[] parameters = [member];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetAllNotification method and details: " + ex.Message);
+                return 0;
+            }
+        }
+
         internal dynamic GetAllAssignedProjects(string member)
         {
             try

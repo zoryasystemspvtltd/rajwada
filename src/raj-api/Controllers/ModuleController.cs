@@ -11,9 +11,12 @@ namespace RajApi.Controllers;
 [Authorize]
 public class ModuleController : ControllerBase
 {
-
-    public ModuleController()
+    private readonly ILogger<ModuleController> logger;
+    private readonly RajDataService dataService;
+    public ModuleController(ILogger<ModuleController> logger, RajDataService dataService)
     {
+        this.logger = logger;
+        this.dataService = dataService;
     }
 
     [HttpGet()]
@@ -37,6 +40,27 @@ public class ModuleController : ControllerBase
             .ToList();
 
         return type;
+    }
+
+    /// <summary>
+    /// Get all the assigned module details for member
+    /// </summary>
+    /// <param name="module">Module Name</param>
+    ///<param name="member">Member EmailId</param>
+    /// <returns></returns>
+    [HttpGet("{module}/{member}")]
+    public dynamic Get(string module, string member)
+    {
+        try
+        {
+            var users = dataService.GetAllAssignedModules(module, member);
+            return users;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in Get module: '{module}' member: '{member}' message:'{ex.Message}'");
+            throw;
+        }
     }
 }
 

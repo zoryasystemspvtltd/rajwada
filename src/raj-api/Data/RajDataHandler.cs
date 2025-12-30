@@ -660,6 +660,28 @@ public class RajDataHandler : LabDataHandler
 
         return result;
     }
+
+    public dynamic GetAllAssignedModules(string module, string member)
+    {
+        var result = dbContext.Set<ApplicationLog>()
+                    .Where(x => x.Member.Equals(member) && x.Name.Equals(module))
+                    .Select(a => new { a.EntityId })
+                    .Distinct();
+
+        return result;
+    }
+
+    public dynamic GetAllNotification(string member)
+    {
+        DateTime currentDateTime = DateTime.Now;
+        DateOnly dateOnly = DateOnly.FromDateTime(currentDateTime);
+        var result = dbContext.Set<ActivityResource>()
+                    .Where(x => x.Member.Equals(member) && x.NotificationStartDate <= dateOnly)                   
+                    .Distinct();
+
+        return result;
+    }
+
     private List<long> GetAllAssignedActivities(string member)
     {
         var query = "select distinct act.Id from [Activities] act" +
@@ -974,7 +996,7 @@ public class RajDataHandler : LabDataHandler
     }
 
     public dynamic GetCopyData(long id, string type)
-    {       
+    {
         dynamic entities;
         if (type.Equals("tower", StringComparison.CurrentCultureIgnoreCase))
         {
@@ -1079,7 +1101,7 @@ public class RajDataHandler : LabDataHandler
         else
             return 0;
     }
-    internal dynamic GetGetHierarchyTree(long id)
+    public dynamic GetGetHierarchyTree(long id)
     {
         try
         {

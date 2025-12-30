@@ -35,7 +35,7 @@ public class ApplicationDbContext : DbContext
        .Property(e => e.AmendmentStatus).HasDefaultValue(0);
 
         SeedData(builder);
-       
+
     }
     private void SeedData(ModelBuilder builder)
     {
@@ -138,8 +138,8 @@ public class ApplicationDbContext : DbContext
                  Key = rootKey,
                  Member = "super@rajwada.com",
              });
-    }    
-        
+    }
+
     public virtual DbSet<ApplicationLog> ApplicationLogs { get; set; }
     public virtual DbSet<AuditLog> AuditLogs { get; set; }
 
@@ -148,8 +148,10 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Project> Projects { get; set; }
     public virtual DbSet<Plan> Plans { get; set; }
     public virtual DbSet<Activity> Activities { get; set; }
-    public virtual DbSet<ActivityTracking> ActivityTrackings { get; set; }
+    public virtual DbSet<ActivityTracking> ActivityTrackings { get; set; }    
     public virtual DbSet<ActivityResource> ActivityResources { get; set; }
+    public virtual DbSet<ActivityResourceReport> ActivityResourceReports { get; set; }
+    public virtual DbSet<DependencyResource> DependencyResources { get; set; }
     public virtual DbSet<AssetGroup> AssetGroups { get; set; }
     public virtual DbSet<Asset> Assets { get; set; }
     public virtual DbSet<AssetType> AssetTypes { get; set; }
@@ -178,6 +180,8 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<ParkingType> ParkingTypes { get; set; }
     public virtual DbSet<ProjectDocNoTracking> ProjectDocNoTrackings { get; set; }
     public virtual DbSet<FinancialYear> FinancialYears { get; set; }
+    public virtual DbSet<WorkCheckpoints> WorkCheckpoints { get; set; }
+    public virtual DbSet<PostWorkPeriodicChecking> PostWorkPeriodicCheckings { get; set; }
     #endregion
 
 }

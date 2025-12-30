@@ -39,10 +39,10 @@ export const ViewWorkflow = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', type: 'label', width: 4 },
-                    { text: 'Alias', field: 'code', type: 'label', width: 4 },
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', type: 'label', width: 3 },
+                    { text: 'Alias', field: 'code', type: 'label', width: 3 },
                     {
-                        text: 'Type', field: 'type', type: 'lookup-link', width: 4,
+                        text: 'Type', field: 'type', type: 'lookup-link', width: 3,
                         schema: {
                             items: [ // or use items for fixed value
                                 { name: 'Inside' },
@@ -65,6 +65,10 @@ export const ViewWorkflow = () => {
                     {
                         text: 'Flat', field: 'flatId', type: 'lookup-link', width: 3,
                         schema: { module: 'plan', path: 'flats' }
+                    },
+                    {
+                        text: 'Room', field: 'roomId', type: 'lookup-link', width: 3,
+                        schema: { module: 'room', path: 'rooms' }
                     },
                     { field: 'data', type: 'ilab-flowchart', width: 12 }
                 ]
@@ -160,20 +164,73 @@ export const AddWorkflow = () => {
         module: 'workflow',
         title: 'Dependency',
         path: 'dependencies',
-        copy: true,
-        copySchema: {
+        multiCopy: true,
+        multiCopySchema: {
             copyLabel: 'Dependency',
-            module: 'workflow'
+            module: 'workflow',
+            readonly: false,
+            copyField: 'data',
+            fields: [
+                {
+                    type: "area", width: 12
+                    , fields: [
+                        {
+                            text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
+                            schema: { module: 'project' }
+                        },
+                        {
+                            type: 'lookup-relation',
+                            parent: 'projectId',
+                            field: 'towerId',
+                            text: 'Tower',
+                            width: 3,
+                            schema: {
+                                module: 'plan',
+                                relationKey: "projectId",
+                                path: 'towers'
+                            },
+                        },
+                        {
+                            type: 'lookup-relation',
+                            parent: 'towerId',
+                            field: 'floorId',
+                            text: 'Floor',
+                            width: 3,
+                            schema: {
+                                module: 'plan',
+                                relationKey: "parentId",
+                                path: 'floors'
+                            },
+                        },
+                        {
+                            type: 'lookup-relation',
+                            parent: 'floorId',
+                            field: 'flatId',
+                            text: 'Flat',
+                            width: 3,
+                            schema: {
+                                module: 'plan',
+                                relationKey: "parentId",
+                                path: 'flats'
+                            },
+                        }
+                    ]
+                },
+            ]
         },
         back: true,
         fields: [
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 4 },
-                    { text: 'Alias', field: 'code', type: 'text', required: true, width: 4 },
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 3 },
+                    { text: 'Alias', field: 'code', type: 'text', required: true, width: 3 },
                     {
-                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
+                        schema: { module: 'project' }
+                    },
+                    {
+                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 3,
                         schema: {
                             items: [ // or use items for fixed value
                                 { name: 'Inside' },
@@ -186,10 +243,6 @@ export const AddWorkflow = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    {
-                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
-                        schema: { module: 'project' }
-                    },
                     {
                         type: 'lookup-relation',
                         parent: 'projectId',
@@ -237,6 +290,38 @@ export const AddWorkflow = () => {
                             relationKey: "parentId",
                             path: 'flats'
                         },
+                    },
+                    {
+                        type: 'lookup-relation-rooms',
+                        parent: 'flatId',
+                        field: 'roomId',
+                        // exclusionCondition:{
+                        //     field: 'type',
+                        //     value: 'Inside'
+                        // },
+                        text: 'Room',
+                        width: 3,
+                        schema: {
+                            module: 'plan',
+                            parentModule: 'flatTemplateDetails',
+                            childModule: 'room',
+                            field: 'flatTemplateId',
+                            parentFilterFields: [
+                                {
+                                    name: "projectId", // search key in parentData
+                                    key: "projectId" // key used in query for filtering
+                                },
+                                {
+                                    name: "floorId",
+                                    key: "parentId"
+                                },
+                                {
+                                    name: "type",
+                                    key: "type",
+                                    value: "flat"
+                                }
+                            ]
+                        }
                     }
                 ]
             },
