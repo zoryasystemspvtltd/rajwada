@@ -144,7 +144,7 @@ namespace ILab.Data
 
                     case "ACTIVITY":
                         await SaveSubTaskAsync(model, Id, token);
-                        await SaveActivityResourceAsync(data, Id, token);
+                        await SaveActivityResourceAsync(type, data, Id, token);
                         break;
                 }
 
@@ -202,31 +202,32 @@ namespace ILab.Data
         /// <returns></returns>
         private async Task<long> SaveFlatData(dynamic? jsonData, long floorId, CancellationToken token)
         {
-            long flatId = 0;
             try
             {
                 var data = jsonData?.FlatTemplates;
-                List<FlatTemplateRawData> templateList = JsonConvert.DeserializeObject<List<FlatTemplateRawData>>(data);
+                var templateList = JsonConvert.DeserializeObject<List<FlatTemplateRawData>>(data);
                 var data1 = jsonData as Plan;
                 var str = data1?.Name?.Split('/');
-                string floorName = str?[0] + "/" + str?[1] + "/" + (str?[2]).Substring(5, 1);
-                char c = 'A';
+                var floorName = $"{str?[0]}/{str?[1]}/{str?[2]?.Substring(5, 1)}";
+                var descriptionPrefix = jsonData?.Description ?? "";
 
-                for (int i = 0; i < templateList.Count; i++)
+                foreach (var template in templateList)
                 {
-                    long templateId = templateList[i].flatTemplateId;
-                    var flatType = Get("FlatTemplate", templateId);
-                    if (flatType == null)
-                        return 0;
+                    long templateId = template.flatTemplateId;
+                    var flatType = await Get("FlatTemplate", templateId);
+                    if (flatType == null) return 0;
 
-                    for (int j = 1; j <= templateList[i].noOfFlats; j++)
+                    var flatTypeName = flatType.Result.Name;
+                    int totalFlats = template.noOfFlats;
+                    int generated = 0;
+
+                    while (generated < totalFlats)
                     {
-                        string flatName = string.Empty, description = string.Empty;
+                        var suffix = GenerateFlatSuffix(generated); // Reusable generator
+                        var flatName = $"{floorName}-{suffix}";
+                        var description = $"{descriptionPrefix}_{flatTypeName}{suffix}";
 
-                        flatName = floorName + "-" + c;
-                        description = jsonData?.Description + "_" + flatType.Result.Name + c;
-
-                        Plan plan = new()
+                        var plan = new Plan
                         {
                             Type = "flat",
                             Name = flatName,
@@ -237,22 +238,33 @@ namespace ILab.Data
                             Blueprint = jsonData?.Blueprint,
                         };
 
-                        //Save Flat 
-                        flatId = await SaveDataAsync("Plan", plan, token);
-
-                        //Save Resource
+                        long flatId = await SaveDataAsync("Plan", plan, token);
                         await SaveResource(templateId, flatName, flatId, token);
-                        c++;
+
+                        generated++;
                     }
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Exception in SaveFlatData method and details: '{ex.Message}'");
+                logger.LogError(ex, "Exception in SaveFlatData: {Message}", ex.Message);
                 throw;
             }
-            return flatId;
+
+            return 0; // Or last flatId if needed
         }
+
+        private string GenerateFlatSuffix(int index)
+        {
+            if (index < 26)
+                return ((char)('A' + index)).ToString();
+
+            index -= 26;
+            char first = (char)('A' + (index / 26));
+            char second = (char)('A' + (index % 26));
+            return $"{first}{second}";
+        }
+
 
         private async Task SaveResource(long templateId, string flatName, long flatId, CancellationToken token)
         {
@@ -454,27 +466,28 @@ namespace ILab.Data
             }
         }
 
-        private async Task SaveActivityResourceAsync(dynamic data, long activityId, CancellationToken token)
+        private async Task SaveActivityResourceAsync(Type type, dynamic data, long activityId, CancellationToken token)
         {
             try
             {
-                if (data.Item != null)
+                dynamic jsonString = data.ToString();
+                var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+                DateOnly StartDate = DateOnly.FromDateTime(jsonData.StartDate);
+                var activityResourceList = JsonConvert.DeserializeObject<List<ActivityResource>>(jsonData.Items);
+                foreach (ActivityResource mainitem in activityResourceList)
                 {
-                    var type = GetType("ActivityResource");
-                    dynamic jsonString = data.Item.ToString();
-                    DateOnly StartDate = Convert.ToDateTime(data.StartDate);
-                    var jsonData = JsonConvert.DeserializeObject(jsonString, type);
-                    var activityResourceList = JsonConvert.DeserializeObject<List<ActivityResource>>(jsonData.TemplateDetails);
-                    foreach (ActivityResource mainitem in activityResourceList)
+                    if (mainitem.AssignedList?.Count > 0)
                     {
                         foreach (var item in mainitem.AssignedList)
                         {
                             var date = StartDate.AddDays(-item.NotifyBefore);
                             ActivityResource details = new()
                             {
+                                ActivityId = activityId,
                                 AssignedUser = item?.Member,
                                 Quantity = mainitem?.Quantity,
                                 UOMId = mainitem?.UOMId,
+                                AssetId = mainitem?.AssetId,
                                 ResourceType = "Item",
                                 AvailabilityStatus = AvailablityStatus.NotAvailable,
                                 NotificationStartDate = date
@@ -483,8 +496,20 @@ namespace ILab.Data
                             await SaveDataAsync("ActivityResource", details, token);
                         }
                     }
+                    else
+                    {
+                        ActivityResource details = new()
+                        {
+                            ActivityId = activityId,
+                            Quantity = mainitem?.Quantity,
+                            UOMId = mainitem?.UOMId,
+                            AssetId = mainitem?.AssetId,
+                            ResourceType = "Item",
+                            AvailabilityStatus = AvailablityStatus.NotAvailable
+                        };
+                        await SaveDataAsync("ActivityResource", details, token);
+                    }
                 }
-
             }
             catch (Exception ex)
             {
