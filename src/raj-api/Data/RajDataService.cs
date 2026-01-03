@@ -217,7 +217,7 @@ namespace ILab.Data
                     var flatType = await Get("FlatTemplate", templateId);
                     if (flatType == null) return 0;
 
-                    var flatTypeName = flatType.Result.Name;
+                    var flatTypeName = flatType.Name;
                     int totalFlats = template.noOfFlats;
                     int generated = 0;
 
