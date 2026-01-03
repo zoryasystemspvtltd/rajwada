@@ -30,7 +30,6 @@ export const ListActivity = () => {
         ]
     }
 
-
     return (<IUIListFilter schema={schema} filter='Main Task' />)
 }
 
@@ -131,11 +130,12 @@ export const ViewActivity = () => {
                             module: 'activity',
                             paging: true,
                             searching: true,
-                            editing: true,
-                            adding: true,
+                            editing: false,
+                            adding: false,
+                            delete: false,
                             fields: [
                                 {
-                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
                                     schema: { module: 'asset' }
                                 },
                                 { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
@@ -224,13 +224,13 @@ export const EditActivity = () => {
                         text: 'Flat', field: 'flatId', type: 'lookup-filter', required: false, width: 4, readonly: true,
                         schema: { module: 'plan', filter: 'type', value: 'flat' }
                     },
-                  { text: 'Expected Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
+                    { text: 'Expected Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
                     {
                         text: 'Expected Duration (Days)',
                         field: 'duration',
                         placeholder: 'Duration here...',
                         width: 4,
-                        type: 'default',
+                        type: 'number',
                         dependsOnModule: 'dependency',
                         dependsOnField: 'expectedDuration',
                         required: true
@@ -241,11 +241,12 @@ export const EditActivity = () => {
                         width: 4,
                         type: 'compute-number',
                         placeholder: 'End Date here...',
-                        inputType: 'number',
+                        inputType: 'date',
                         dependsOn: ['startDate', 'duration'],
                         required: true,
                         compute: ({ startDate, duration }) => {
                             if (!startDate || !duration) return '';
+
 
                             const start = new Date(startDate);
                             // Ensure duration is a number
@@ -253,6 +254,7 @@ export const EditActivity = () => {
                             if (isNaN(days) || days <= 0) return '';
                             const end = new Date(start);
                             end.setDate(start.getDate() + days);
+
 
                             return end;
                         }
@@ -286,14 +288,14 @@ export const EditActivity = () => {
                         }
                     },
                     {
-                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup', required: true,
-                        schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'Normal' },
-                                { name: 'Urgent' },
-                                { name: 'Very Urgent' }
-                            ]
-                        }
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: true,
+                        hasDefaultValue: true,
+                        defaultType: 'indirect',
+                        dependsOnModule: 'plan',
+                        dependsOnField: 'priorityStatus',
+                        ownSearchField: 'flatId',
+                        otherModuleSearchField: 'id',
+                        schema: { module: 'priorityStatusType' }
                     }
                 ]
             },
@@ -363,10 +365,11 @@ export const EditActivity = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            delete: true,
                             assign: true,
                             fields: [
                                 {
-                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
                                     schema: { module: 'asset' }
                                 },
                                 { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
@@ -551,9 +554,13 @@ export const AddActivity = () => {
                         field: 'duration',
                         placeholder: 'Duration here...',
                         width: 4,
-                        type: 'default',
+                        type: 'number',
+                        hasDefaultValue: true,
+                        defaultType: 'indirect',
                         dependsOnModule: 'dependency',
                         dependsOnField: 'expectedDuration',
+                        ownSearchField: 'dependencyId',
+                        otherModuleSearchField: 'id',
                         required: false
                     },
                     {
@@ -562,21 +569,24 @@ export const AddActivity = () => {
                         width: 4,
                         type: 'compute-number',
                         placeholder: 'End Date here...',
-                        inputType: 'number',
+                        inputType: 'date',
                         dependsOn: ['startDate', 'duration'],
                         required: false,
                         compute: ({ startDate, duration }) => {
                             if (!startDate || !duration) return '';
 
                             const start = new Date(startDate);
-                            // Ensure duration is a number
                             const days = Number(duration);
+
                             if (isNaN(days) || days <= 0) return '';
+
                             const end = new Date(start);
                             end.setDate(start.getDate() + days);
 
-                            return end;
+                            // ✅ Convert to YYYY-MM-DD
+                            return end.toISOString().split('T')[0];
                         }
+
                     }
 
                     // {
@@ -608,14 +618,14 @@ export const AddActivity = () => {
                         }
                     },
                     {
-                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup', required: true,
-                        schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'Normal' },
-                                { name: 'Urgent' },
-                                { name: 'Very Urgent' }
-                            ]
-                        }
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: false,
+                        hasDefaultValue: true,
+                        defaultType: 'indirect',
+                        dependsOnModule: 'plan',
+                        dependsOnField: 'priorityStatus',
+                        ownSearchField: 'flatId',
+                        otherModuleSearchField: 'id',
+                        schema: { module: 'priorityStatusType' }
                     }
                 ]
             },
@@ -674,6 +684,12 @@ export const AddActivity = () => {
                 , fields: [
                     {
                         text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
+                        hasDefaultValue: true,
+                        defaultType: 'indirect',
+                        dependsOnModule: 'dependency',
+                        dependsOnField: 'items',
+                        ownSearchField: 'dependencyId',
+                        otherModuleSearchField: 'id',
                         schema: {
                             title: 'Item',
                             module: 'activity',
@@ -681,10 +697,11 @@ export const AddActivity = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            delete: true,
                             assign: true, // for assign accordion
                             fields: [
                                 {
-                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
                                     schema: { module: 'asset' }
                                 },
                                 { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },

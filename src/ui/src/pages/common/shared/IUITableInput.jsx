@@ -291,7 +291,7 @@ const IUITableInput = (props) => {
                                     <div>
                                         <Form>
                                             {
-                                                (!schema?.readonly) && (
+                                                (!schema?.readonly && schema?.adding) && (
                                                     <Row>
                                                         {schema?.fields?.map((fld, f) => (
                                                             <Col md={fld.width || 6} key={f}>
@@ -327,6 +327,7 @@ const IUITableInput = (props) => {
                                                                 }
                                                             </Col>
                                                         ))}
+                                                        
                                                         <Col>
                                                             <button
                                                                 className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md'
@@ -395,20 +396,23 @@ const IUITableInput = (props) => {
 
                                                                                 {!schema?.readonly && (
                                                                                     <td>
-                                                                                        <button
-                                                                                            className="btn btn-pill btn-shadow btn-hover-shine btn btn-warning btn-sm mr-2"
-                                                                                            onClick={(e) => handleEdit(e, i)}
-                                                                                        >
-                                                                                            Edit
-                                                                                        </button>
+                                                                                        {schema?.editing && (
+                                                                                            <button
+                                                                                                className="btn btn-pill btn-shadow btn-hover-shine btn btn-warning btn-sm mr-2"
+                                                                                                onClick={(e) => handleEdit(e, i)}
+                                                                                            >
+                                                                                                Edit
+                                                                                            </button>
+                                                                                        )}
 
-
-                                                                                        <button
-                                                                                            className="btn btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm"
-                                                                                            onClick={(e) => handleDelete(e, i)}
-                                                                                        >
-                                                                                            Delete
-                                                                                        </button>
+                                                                                        {schema?.delete && (
+                                                                                            <button
+                                                                                                className="btn btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm"
+                                                                                                onClick={(e) => handleDelete(e, i)}
+                                                                                            >
+                                                                                                Delete
+                                                                                            </button>
+                                                                                        )}
 
 
                                                                                         {schema?.assign && (

@@ -171,6 +171,7 @@ export const EditFloor = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            delete: true,
                             save: false,
                             fields: [
                                 {

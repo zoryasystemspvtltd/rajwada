@@ -48,10 +48,13 @@ const IUIPage = (props) => {
     const computeDeps = schema?.fields?.flatMap(f => f?.fields)
         ?.filter(f => f?.type?.startsWith('compute'))
         ?.flatMap(f => f?.dependsOn);
-    const defaultDeps = schema?.fields?.flatMap(f => f?.fields)
-        ?.filter(f => f?.type?.startsWith('default'))
-        ?.flatMap(f => f?.dependsOnField);
-
+    const defaultDeps = React.useMemo(() => {
+        return schema?.fields
+            ?.flatMap(f => f?.fields || [])
+            ?.filter(f => f?.hasDefaultValue)
+            ?.map(f => f?.ownSearchField)
+            ?.filter(Boolean) || [];
+    }, [schema]);
 
     useEffect(() => {
         async function fetchData() {
@@ -71,20 +74,29 @@ const IUIPage = (props) => {
             }
         }
 
+
         fetchData();
     }, [id]);
 
-
     useEffect(() => {
-        if (props?.defaultValues) {
-            setDefaultValues(props?.defaultValues);
-            const newData = { ...data };
-            schema?.defaultFields?.forEach((fld) => {
-                newData[fld.field] = (!["photo", "text"].includes(fld.type)) ? parseInt(props?.defaultValues[fld.field]) : props?.defaultValues[fld.field];
-            })
-            setData(newData);
-        }
-    }, [props?.defaultValues]);
+        if (!props?.defaultValues || !schema) return;
+
+        const newData = { ...data };
+
+        schema?.defaultFields?.forEach((fld) => {
+            newData[fld.field] =
+                !["photo", "text"].includes(fld.type)
+                    ? parseInt(props?.defaultValues[fld.field])
+                    : props?.defaultValues[fld.field];
+        });
+
+        setData(newData);
+    }, [props?.defaultValues, schema]);
+
+    const isDataReadyForDefaults = React.useMemo(() => {
+        if (!defaultDeps.length) return true;
+        return defaultDeps.every(dep => data?.[dep] != null);
+    }, [data, defaultDeps]);
 
 
     useEffect(() => {
@@ -98,7 +110,6 @@ const IUIPage = (props) => {
             localStorage.removeItem("dependency-flow");
         }
     }, [loggedInUser, module]);
-
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === "auditLog")?.map(p => p.name);
@@ -115,6 +126,7 @@ const IUIPage = (props) => {
     useEffect(() => {
         const updates = {};
 
+
         schema?.fields?.flatMap(f => f?.fields)?.forEach(fld => {
             if (fld?.type?.startsWith('compute')) {
                 updates[fld.field] = fld.compute(data);
@@ -125,17 +137,50 @@ const IUIPage = (props) => {
         // console.log(updates)
     }, computeDeps.map(dep => data[dep]));
 
-    const prepareDefaultValue = async (schema) => {
-        // write logic to fetch the duration
-    }
+
+    const prepareDefaultValue = async (fld) => {
+        const defaultType = fld?.defaultType;
+        //console.log(fld)
+        if (defaultType === 'direct') {
+            return fld?.defaultValue;
+        }
+
+        if (defaultType === 'indirect') {
+            const { dependsOnModule, dependsOnField, ownSearchField, otherModuleSearchField } = fld;
+            // ⛔ Do NOT permanently exit — wait for data
+            if (!data?.[ownSearchField]) {
+                return undefined;
+            }
+
+            const pageOptions = {
+                recordPerPage: 0,
+                searchCondition: {
+                    name: otherModuleSearchField,
+                    value: parseInt(data[ownSearchField])
+                }
+            };
+
+            const response = await api.getData({
+                module: dependsOnModule,
+                options: pageOptions
+            });
+            return response?.data?.items?.[0]?.[dependsOnField];
+        }
+
+        return undefined;
+    };
+
 
     const prepareDefaultValues = async (schema) => {
-        const fields = schema?.fields?.flatMap(f => f?.fields) || [];
+        const fields = schema?.fields?.flatMap(f => f?.fields) || {};
         const updates = {};
 
         for (const fld of fields) {
-            if (fld?.type?.startsWith('default')) {
-                updates[fld.field] = await prepareDefaultValue(fld);
+            if (fld?.hasDefaultValue) {
+                const value = await prepareDefaultValue(fld);
+                if (value !== undefined) {
+                    updates[fld.field] = value;
+                }
             }
         }
 
@@ -143,23 +188,24 @@ const IUIPage = (props) => {
     };
 
     useEffect(() => {
-        let isMounted = true;
+        if (!schema || !isDataReadyForDefaults) return;
+
+        let cancelled = false;
 
         const initDefaults = async () => {
             const updates = await prepareDefaultValues(schema);
 
-            if (isMounted) {
+            if (!cancelled && Object.keys(updates).length) {
                 setData(prev => ({ ...prev, ...updates }));
-                // console.log(updates);
             }
         };
 
         initDefaults();
 
         return () => {
-            isMounted = false;
+            cancelled = true;
         };
-    }, [schema]);
+    }, [schema, isDataReadyForDefaults]);
 
 
     const handleAuditClick = () => {
@@ -187,7 +233,7 @@ const IUIPage = (props) => {
 
     const handleMultiCopyChange = (e) => {
         e.preventDefault();
-        console.log(e.target.value);
+        // console.log(e.target.value);
         notify('info', `Selected items for ${schema?.title} copied, provide other inputs and click the Save button`)
         setMultiCopiedData(e.target.value);
     }
@@ -357,6 +403,7 @@ const IUIPage = (props) => {
             dispatch(setSave({ module: module }))
             //navigate(-1);
 
+
         } catch (e) {
             // TODO
         }
@@ -428,17 +475,22 @@ const IUIPage = (props) => {
     }
 
     const deletePageValue = (e) => {
-        e.preventDefault();
-        api.deleteData({ module: module, id: id });
-        dispatch(setSave({ module: module }))
+        try {
+            e.preventDefault();
+            api.deleteData({ module: module, id: id });
+            dispatch(setSave({ module: module }))
 
-        const timeId = setTimeout(() => {
-            // After 3 seconds set the show value to false
-            navigate(-1);
-        }, 1000)
+            const timeId = setTimeout(() => {
+                // After 3 seconds set the show value to false
+                navigate(-1);
+            }, 1000)
 
-        return () => {
-            clearTimeout(timeId)
+            return () => {
+                clearTimeout(timeId)
+            }
+        }
+        catch (error) {
+            notify("error", "Deletion failed ! Kindly check for relation constraints");
         }
     }
 
@@ -449,12 +501,38 @@ const IUIPage = (props) => {
         return response.data;
     }
 
-    const addSingleDependencyItem = async (item, dependencyId) => {
-        const updatedItem = {
+    const saveDependencyItemWithPeople = async (people, dependencyId, departmentId, item) => {
+        const addPayload = {
             ...item,
-            dependencyId: parseInt(dependencyId)
+            resourceType: "item",
+            notifyBefore: people?.notifyDuration,
+            availabilityStatus: 0,
+            assignedUser: people?.member,
+            dependencyId: parseInt(dependencyId),
+            departmentId: parseInt(departmentId)
         };
-        return await api.addData({ module: 'dependencyResource', data: updatedItem });
+        return await api.addData({ module: 'dependencyResource', data: addPayload });
+    }
+
+    const addSingleDependencyItem = async (item, dependencyId) => {
+        const itemPeople = item?.assign?.people;
+        const departmentId = item?.assign?.department;
+
+        if (itemPeople?.length > 0) {
+            // Item has 1 or more people assigned
+            const addPromises = itemPeople.map(p => saveDependencyItemWithPeople(p, dependencyId, departmentId, item));
+            return await Promise.all(addPromises);
+        }
+        else {
+            // Item has no people assigned
+            const addPayload = {
+                ...item,
+                resourceType: "item",
+                availabilityStatus: 0,
+                dependencyId: parseInt(dependencyId)
+            };
+            return await api.addData({ module: 'dependencyResource', data: addPayload });
+        }
     }
 
     const saveDependencyResources = async (data, dependencyId) => {
@@ -464,6 +542,55 @@ const IUIPage = (props) => {
             const addPromises = dependencyItems.map(item => addSingleDependencyItem(item, dependencyId));
             await Promise.all(addPromises);
         }
+        return;
+    }
+
+    const deleteDependencyResource = async (itemId) => {
+        const response = await api.deleteData({ module: 'dependencyResource', id: itemId });
+        return response.data;
+    }
+
+    const updateDependencyResources = async (data, dependencyId) => {
+        const newBaseFilter = {
+            name: 'dependencyId',
+            value: parseInt(dependencyId)
+        }
+
+        const pageOptions = {
+            recordPerPage: 0,
+            searchCondition: newBaseFilter
+        }
+
+        const response = await api.getData({ module: 'dependencyResource', options: pageOptions });
+        let itemData = response?.data?.items;
+
+        if (itemData.length > 0) {
+            const deletePromises = itemData.map(unit => deleteDependencyResource(unit.id));
+            await Promise.all(deletePromises);
+        }
+
+        return await saveDependencyResources(data, dependencyId);
+    }
+
+    const prepareItemsForActivity = (data) => {
+        const items = JSON.parse(data?.items);
+        if (items?.length === 0) return;
+
+        let output = [];
+        items?.forEach((item) => {
+            let people = item?.assign?.people;
+            let assignedList = [];
+
+            people?.forEach((p) => {
+                let newAssign = { member: p?.member, notifyBefore: item?.assign?.notifyDuration, departmentId: item?.assign?.departmentId };
+                assignedList.push(newAssign);
+            })
+
+            delete item?.assign;
+            output.push({ ...item, assignedList: assignedList })
+        });
+
+        return JSON.stringify(output);
     }
 
     const savePageValue = async (e) => {
@@ -479,14 +606,17 @@ const IUIPage = (props) => {
                 try {
                     if (Object.keys(error).length === 0) {
 
+
                         const addPromises = multiCopiedData?.map(data => addIndividualForMultiCopy(data));
                         await Promise.all(addPromises);
+
 
                         const timeId = setTimeout(() => {
                             // After 3 seconds set the show value to false
                             navigate(-1);
                             localStorage.removeItem(flowchartKey);
                         }, 1000)
+
 
                         return () => {
                             clearTimeout(timeId)
@@ -520,6 +650,9 @@ const IUIPage = (props) => {
                         }
                         else {
                             await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: JSON.stringify(oldData), data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: JSON.stringify(oldData) } });
+                            if (module === 'dependency') {
+                                await updateDependencyResources(data, id);
+                            }
                         }
                         dispatch(setSave({ module: module }))
 
@@ -547,7 +680,14 @@ const IUIPage = (props) => {
                 else
                     try {
                         console.log(data);
-                        let response = await api.addData({ module: module, data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : data });
+                        let response = await api.addData(
+                            {
+                                module: module,
+                                data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } :
+                                    (module === 'activity') ? { ...data, items: prepareItemsForActivity(data) } : data
+                            }
+                        );
+                        console.log(response)
                         if (module === 'dependency') {
                             await saveDependencyResources(data, response?.data);
                         }
@@ -577,6 +717,7 @@ const IUIPage = (props) => {
                         }
                     } catch (e) {
                         // TODO
+                        console.log(e)
                         if (module === 'activity') {
                             props?.activityCallback({ status: false, id: -1 });
                             return;
@@ -628,6 +769,7 @@ const IUIPage = (props) => {
                                                                     <Button variant="contained"
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save </Button>
+
 
                                                                     <Button variant="contained"
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
@@ -774,7 +916,6 @@ const IUIPage = (props) => {
                                                 ))}
                                             </Row>
 
-
                                             {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
                                                 <hr />
                                             }
@@ -789,6 +930,7 @@ const IUIPage = (props) => {
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>Save
                                                                     </Button>
+
 
                                                                     {
                                                                         ((module !== 'activity') || (module === 'activity' && !schema?.adding)) && (
