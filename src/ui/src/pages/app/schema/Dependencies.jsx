@@ -44,31 +44,32 @@ export const ViewWorkItem = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
-                    { text: 'Code', field: 'code', type: 'text', required: true, width: 6 },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'text', required: true, width: 6 },
+                    { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'label', required: true, width: 6 },
+                    { text: 'Code', field: 'code', type: 'label', required: true, width: 6 },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'label', required: true, width: 6 },
+                    { text: 'Expected Duration', field: 'expectedDuration', type: 'label', required: true, width: 6 },
                     {
-                        text: 'Parent', field: 'parentId', width: 4, type: 'lookup-link',
+                        text: 'Parent', field: 'parentId', width: 6, type: 'lookup-link',
                         schema: { module: 'dependency', path: 'activities' }
                     },
                     {
-                        text: 'Belongs To', field: 'belongsTo', width: 4, type: 'lookup-link',
+                        text: 'Belongs To', field: 'belongsTo', width: 6, type: 'lookup-link',
                         schema: { module: 'dependency', path: 'activities' }
                     },
-                    { text: 'Expected Duration', field: 'expectedDuration', type: 'text', required: true, width: 6 },
                     {
-                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: false,
                         schema: {
                             title: 'Item',
                             module: 'dependency',
                             paging: true,
                             searching: true,
-                            editing: true,
-                            adding: true,
-                            assign: true, // for assign accordion
+                            editing: false,
+                            adding: false,
+                            delete: false,
+                            assign: false, // for assign accordion
                             fields: [
                                 {
-                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
                                     schema: { module: 'asset' }
                                 },
                                 { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
@@ -124,32 +125,28 @@ export const EditWorkItem = () => {
                     },
                     { text: 'Expected Duration', field: 'expectedDuration', type: 'number', required: true, width: 6 },
                     {
-                        type: "area", width: 12
-                        , fields: [
-                            {
-                                text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
-                                schema: {
-                                    title: 'Item',
-                                    module: 'activity',
-                                    paging: true,
-                                    searching: true,
-                                    editing: true,
-                                    adding: true,
-                                    assign: true, // for assign accordion
-                                    fields: [
-                                        {
-                                            text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
-                                            schema: { module: 'asset' }
-                                        },
-                                        { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
-                                        {
-                                            text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
-                                            schema: { module: 'uom' }
-                                        },
-                                    ]
-                                }
-                            },
-                        ]
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
+                        schema: {
+                            title: 'Item',
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            delete: true,
+                            assign: true, // for assign accordion
+                            fields: [
+                                {
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
+                            ]
+                        }
                     },
                 ]
             },
@@ -188,12 +185,13 @@ export const AddWorkItem = () => {
                             module: 'dependency',
                             paging: true,
                             searching: true,
-                            editing: true,
+                           editing: true,
                             adding: true,
+                            delete: true,
                             assign: true, // for assign accordion
                             fields: [
                                 {
-                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
                                     schema: { module: 'asset' }
                                 },
                                 { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },

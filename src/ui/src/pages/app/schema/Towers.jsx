@@ -255,6 +255,7 @@ export const AddTower = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            delete: true,
                             save: false,
                             fields: [
                                 {

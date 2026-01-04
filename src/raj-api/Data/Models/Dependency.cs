@@ -21,6 +21,7 @@ namespace RajApi.Data.Models
         public virtual long? BelongsTo { get; set; }
         [JsonIgnore]
         public virtual Dependency? Belongs { get; set; }
+        public virtual string? Items { get; set; }
 
         [JsonIgnore]
         public virtual ICollection<Activity>? Activity { get; set; }

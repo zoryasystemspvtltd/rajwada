@@ -57,7 +57,7 @@ export const ViewFlatTemplate = () => {
                             childPath: 'flat-template-mappings',
                             paging: true,
                             searching: true,
-                            editing: false,
+                            editing: true,
                             adding: false,
                             fields: [
                                 {
@@ -90,29 +90,6 @@ export const EditFlatTemplate = () => {
                 , fields: [
                     { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'text', required: true, width: 6 },
-                ]
-            },
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        text: 'Room Details', field: 'templateDetails', width: 12, type: 'table-input', required: true,
-                        schema: {
-                            title: 'Rooms',
-                            module: 'flatTemplateDetails',
-                            paging: true,
-                            searching: true,
-                            editing: true,
-                            adding: true,
-                            fields: [
-                                {
-                                    text: 'Type', field: 'roomId', type: 'lookup', required: true, width: 6,
-                                    schema: { module: 'room' }
-                                },
-                                { text: 'Count', field: 'roomCount', placeholder: 'Room count here...', type: 'number', width: 6, required: true }
-                            ]
-                        }
-                    },
                 ]
             },
         ]
@@ -149,6 +126,7 @@ export const AddFlatTemplate = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            delete: true,
                             save: false,
                             fields: [
                                 {

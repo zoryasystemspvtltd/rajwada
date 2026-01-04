@@ -12,6 +12,10 @@ namespace RajApi.Data.Models
         public virtual decimal? Quantity { get; set; }
         public virtual decimal? TotalCost { get; set; }
 
+        [ForeignKey("Assets")]
+        public virtual long? AssetId { get; set; }
+        [JsonIgnore]
+        public virtual Asset? Assets { get; set; }
         [ForeignKey("Dependencies")]
         public virtual long? DependencyId { get; set; }
         [JsonIgnore]
@@ -24,6 +28,10 @@ namespace RajApi.Data.Models
         public string? AvailabilityStatus { get; set; }
         [StringLength(255)]
         public string? AssignedUser { get; set; }
+        [ForeignKey("Departments")]
+        public virtual long? DepartmentId { get; set; }
+        [JsonIgnore]
+        public virtual Department? Departments { get; set; }
         public string? Remarks { get; set; }
     }
 }

@@ -199,7 +199,7 @@
                 "path": "/amendments",
                 "access": "activity"
             },
-             {
+            {
                 "name": "workTransfer",
                 "text": "Work Transfer",
                 "icon": "vector-square",
@@ -212,6 +212,13 @@
                 "icon": "vector-square",
                 "path": "/site-material-approvals",
                 "access": "levelSetup"
+            },
+            {
+                "name": "itemAvailability",
+                "text": "Work Item Availability",
+                "icon": "vector-square",
+                "path": "/work-item-availabilities",
+                "access": "activityResource"
             }
         ],
         "report": [

@@ -281,6 +281,8 @@ export const EditAmendment = () => {
                             searching: true,
                             editing: true,
                             adding: true,
+                            delete: true,
+                            assign: false,
                             fields: [
                                 {
                                     text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,

@@ -50,6 +50,8 @@ import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/sche
 import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
 import { AddWorkCheckpoint, EditWorkCheckpoint, ListWorkCheckpoint, ViewWorkCheckpoint } from "../pages/app/schema/WorkCheckpoints";
 import WorkTransfer from "../pages/common/WorkTransfer";
+import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from "../pages/common/ItemAvailabilityTrack";
+import { EditFlatTemplateMapping } from "../pages/app/schema/FlatTemplateMappings";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -553,6 +555,10 @@ const Routes = () => {
                     element: <AddFlatTemplate />
                 },
                 {
+                    path: "/flat-templates/:templateId/flat-template-mappings/:id/edit",
+                    element: <EditFlatTemplateMapping />
+                },
+                {
                     path: "/audit-logs",
                     element: <ListAuditLog id={null} childModule={null} />
                 },
@@ -595,6 +601,14 @@ const Routes = () => {
                 {
                     path: "/worktransfers",
                     element: <WorkTransfer />
+                },
+                {
+                    path: "/work-item-availabilities",
+                    element: <ListActivityForItemAvailability />
+                },
+                {
+                    path: "/work-item-availabilities/:id",
+                    element: <ViewActivityForItemAvailability />
                 }
             ],
         },
