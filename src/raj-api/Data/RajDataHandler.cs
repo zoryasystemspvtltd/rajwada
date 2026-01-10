@@ -3,6 +3,7 @@ using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RajApi.Data.Models;
 using System.Data;
 using System.Text;
@@ -676,7 +677,7 @@ public class RajDataHandler : LabDataHandler
         DateTime currentDateTime = DateTime.Now;
         DateOnly dateOnly = DateOnly.FromDateTime(currentDateTime);
         var result = dbContext.Set<ActivityResource>()
-                    .Where(x => x.Member.Equals(member) && x.NotificationStartDate <= dateOnly)                   
+                    .Where(x => x.Member.Equals(member) && x.NotificationStartDate <= dateOnly)
                     .Distinct();
 
         return result;
@@ -923,61 +924,56 @@ public class RajDataHandler : LabDataHandler
     private async Task<long> SaveAuditLogs<T>(T item, StatusType activityType, string? remarks, string? modifiedBy, CancellationToken cancellationToken)
     where T : LabModel
     {
-        var module = typeof(T);
-        var jitem = JsonConvert.SerializeObject(item,
-            Formatting.None,
-        new JsonSerializerSettings()
-        {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-        });
-
-
-        var log = new AuditLog
-        {
-            Date = DateTime.UtcNow,
-            EntityId = item.Id,
-            Name = module.Name,
-            Member = item.Member,
-            Key = item.Key,
-            Remarks = remarks
-        };
-
-        switch (activityType)
-        {
-            case StatusType.Draft:
-                log.ActionType = "Insert";
-                log.NewValues = jitem;
-                break;
-            case StatusType.Modified:
-            case StatusType.QCAssigned:
-            case StatusType.Assigned:
-            case StatusType.Approved:
-            case StatusType.Hold:
-            case StatusType.Rejected:
-            case StatusType.HODAssigned:
-                log.ActionType = activityType.ToString();
-                log.OldValues = item.OldValues;
-                log.ModifiedDate = DateTime.UtcNow;
-                log.ModifiedBy = modifiedBy;
-                log.NewValues = jitem;
-                break;
-            default:
-                log.OldValues = item.OldValues;
-                log.NewValues = jitem;
-                log.ModifiedDate = DateTime.UtcNow;
-                log.ModifiedBy = modifiedBy;
-                break;
-        }
-
-
         try
         {
+            var moduleName = typeof(T).Name;
+            var jsonNew = JObject.FromObject(item, new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            var jonNewValues = jsonNew.ToString(Formatting.None);
+            var now = DateTime.UtcNow;
+
+            var log = new AuditLog
+            {
+                Date = now,
+                EntityId = item.Id,
+                Name = moduleName,
+                Member = item.Member,
+                Key = item.Key,
+                Remarks = remarks,
+                NewValues = jonNewValues,
+                ModifiedDate = now,
+                ModifiedBy = modifiedBy
+            };
+
+            // Set ActionType and OldValues based on activityType
+            switch (activityType)
+            {
+                case StatusType.Draft:
+                    log.ActionType = "Insert";
+                    log.OldValues = null;
+                    break;
+                case StatusType.Modified:
+                case StatusType.QCAssigned:
+                case StatusType.Assigned:
+                case StatusType.Approved:
+                case StatusType.Hold:
+                case StatusType.Rejected:
+                case StatusType.HODAssigned:
+                    log.ActionType = activityType.ToString();
+                    log.OldValues = item.OldValues;
+                    break;
+                default:
+                    log.ActionType = activityType.ToString();
+                    log.OldValues = item.OldValues;
+                    break;
+            }
+
+
             dbContext.Set<AuditLog>().Add(log);
             return await dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
+            logger.LogError(ex, "Failed to log audit trail for {EntityId}: {Message}", item.Id, ex.Message);
             throw;
         }
     }
