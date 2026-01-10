@@ -10,6 +10,7 @@ import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIAssign from './shared/IUIAssign';
 import IUIApprover from './shared/IUIApprover';
 import { notify } from "../../store/notification";
+import { isDeleteAllowed } from '../../store/delete-service';
 import IUIMultiAssign from './shared/IUIMultiAssign';
 import IUICopy from './shared/IUICopy';
 import IUIMultiCopyFilter from './shared/IUIMultiCopyFilter';
@@ -474,19 +475,26 @@ const IUIPage = (props) => {
         setRemarks('');
     }
 
-    const deletePageValue = (e) => {
+    const deletePageValue = async (e) => {
         try {
             e.preventDefault();
-            api.deleteData({ module: module, id: id });
-            dispatch(setSave({ module: module }))
+            const isAllowed = await isDeleteAllowed(module, id);
 
-            const timeId = setTimeout(() => {
-                // After 3 seconds set the show value to false
-                navigate(-1);
-            }, 1000)
+            if (isAllowed) {
+                api.deleteData({ module: module, id: id });
+                dispatch(setSave({ module: module }))
 
-            return () => {
-                clearTimeout(timeId)
+                const timeId = setTimeout(() => {
+                    // After 3 seconds set the show value to false
+                    navigate(-1);
+                }, 1000)
+
+                return () => {
+                    clearTimeout(timeId)
+                }
+            }
+            else {
+                notify("error", "Deletion failed ! Kindly check for relation constraints");
             }
         }
         catch (error) {
