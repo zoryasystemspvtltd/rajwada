@@ -906,7 +906,7 @@ public class RajDataHandler : LabDataHandler
             ActivityType = activityType,
             Member = item.Member,
             Key = item.Key,
-            ContentHistory = jitem
+            //ContentHistory = jitem
         };
         try
         {
