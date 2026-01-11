@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RajApi.Data.Models;
+using RajApi.Helpers;
 using System.Data;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
@@ -927,8 +928,15 @@ public class RajDataHandler : LabDataHandler
         try
         {
             var moduleName = typeof(T).Name;
+            if(item.OldValues != null)
+            {
+                item.OldValues = JsonNodeRemover.RemoveNode(item.OldValues, "blueprint");
+            }
+            
             var jsonNew = JObject.FromObject(item, new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-            var jonNewValues = jsonNew.ToString(Formatting.None);
+            var jsonNewValues = jsonNew.ToString(Formatting.None);
+            jsonNewValues = JsonNodeRemover.RemoveNode(jsonNewValues, "blueprint");
+            jsonNewValues = JsonNodeRemover.RemoveNode(jsonNewValues, "OldValues");
             var now = DateTime.UtcNow;
 
             var log = new AuditLog
@@ -939,7 +947,7 @@ public class RajDataHandler : LabDataHandler
                 Member = item.Member,
                 Key = item.Key,
                 Remarks = remarks,
-                NewValues = jonNewValues,
+                NewValues = jsonNewValues,
                 ModifiedDate = now,
                 ModifiedBy = modifiedBy
             };
