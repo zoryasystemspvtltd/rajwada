@@ -155,6 +155,8 @@ app.UseCors(builder => builder
     .AllowAnyMethod()
     .AllowAnyHeader());
 
+app.UseCors("AllowFrontend");
+
 //Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 {
