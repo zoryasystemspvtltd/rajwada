@@ -1482,6 +1482,13 @@
 "type": "string",
 "nullable": true
 },
+"AssetId": {
+"type": "string",
+"nullable": true
+},
+"Assets": {
+"type": "string",
+},
 "ActivityId": {
 "type": "string",
 "nullable": true
@@ -1508,6 +1515,13 @@
 "type": "string",
 "maxLength": 255,
 "minLength": 0,
+},
+"DepartmentId": {
+"type": "string",
+"nullable": true
+},
+"Departments": {
+"type": "string",
 },
 "Remarks": {
 "type": "string",
@@ -2502,6 +2516,9 @@
 "Belongs": {
 "type": "string",
 },
+"Items": {
+"type": "string",
+},
 "Activity": {
 "type": "string",
 },
@@ -2572,6 +2589,13 @@
 "type": "string",
 "nullable": true
 },
+"AssetId": {
+"type": "string",
+"nullable": true
+},
+"Assets": {
+"type": "string",
+},
 "DependencyId": {
 "type": "string",
 "nullable": true
@@ -2597,6 +2621,13 @@
 "type": "string",
 "maxLength": 255,
 "minLength": 0,
+},
+"DepartmentId": {
+"type": "string",
+"nullable": true
+},
+"Departments": {
+"type": "string",
 },
 "Remarks": {
 "type": "string",
