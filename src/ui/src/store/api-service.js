@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const apiBaseUrl = process.env.REACT_APP_API_URL || "https://localhost:7018/api";
+// const apiBaseUrl = "https://civiliererp.live/api";
+// const apiBaseUrl = "https://zoryademo-001-site1.ktempurl.com/backend/api";
 console.log(`Server is running on port ${apiBaseUrl}.`)
 const api = axios.create({ baseURL: apiBaseUrl });
 
@@ -39,7 +41,7 @@ api.interceptors.response.use(
                 const newToken = response.data;
                 sessionStorage.setItem("token", JSON.stringify(newToken));
                 // For Default Menu Role
-                sessionStorage.setItem("menuRole", "admin");
+                // sessionStorage.setItem("menuRole", "admin");
 
                 // Retry the original request with the new token
                 originalRequest.headers.Authorization = `Bearer ${newToken.accessToken}`;

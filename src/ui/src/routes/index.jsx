@@ -39,6 +39,7 @@ import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
 import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
+import { EditFlatTemplateMapping } from "../pages/app/schema/FlatTemplateMappings";
 import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate } from "../pages/app/schema/FlatTemplates";
 import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
 import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/Mouzas";
@@ -49,9 +50,9 @@ import { AddRoomMapping, EditRoomMapping } from "../pages/app/schema/RoomMapping
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
 import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
 import { AddWorkCheckpoint, EditWorkCheckpoint, ListWorkCheckpoint, ViewWorkCheckpoint } from "../pages/app/schema/WorkCheckpoints";
-import WorkTransfer from "../pages/common/WorkTransfer";
 import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from "../pages/common/ItemAvailabilityTrack";
-import { EditFlatTemplateMapping } from "../pages/app/schema/FlatTemplateMappings";
+import WorkTransfer from "../pages/common/WorkTransfer";
+import { AddTowerParking, EditTowerParking, ListTowerParking, ViewTowerParking } from "../pages/app/schema/TowerParkings";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -609,7 +610,23 @@ const Routes = () => {
                 {
                     path: "/work-item-availabilities/:id",
                     element: <ViewActivityForItemAvailability />
-                }
+                },
+                {
+                    path: "/parkings",
+                    element: <ListTowerParking />
+                },
+                {
+                    path: "/parkings/:id",
+                    element: <ViewTowerParking />
+                },
+                {
+                    path: "/parkings/:id/edit",
+                    element: <EditTowerParking />
+                },
+                {
+                    path: "/parkings/add",
+                    element: <AddTowerParking />
+                },
             ],
         },
     ];

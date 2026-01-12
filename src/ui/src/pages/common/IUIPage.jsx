@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Col, Row, Form, Modal } from "react-bootstrap";
+import { Button, Col, Row, Form, Modal, Spinner } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSingleData, editData, addData, setSave } from '../../store/api-db'
 import { useDispatch, useSelector } from 'react-redux'
@@ -21,6 +21,7 @@ const IUIPage = (props) => {
     const module = schema?.module;
     const [defaultValues, setDefaultValues] = useState({});
     const flowchartKey = "dependency-flow";
+    const [isInProgress, setIsInProgress] = useState(false);
     // Parameter
     const { id } = useParams();
     const { parentId } = useParams();
@@ -148,7 +149,7 @@ const IUIPage = (props) => {
 
         if (defaultType === 'indirect') {
             const { dependsOnModule, dependsOnField, ownSearchField, otherModuleSearchField } = fld;
-            // ⛔ Do NOT permanently exit — wait for data
+            // Do NOT permanently exit — wait for data
             if (!data?.[ownSearchField]) {
                 return undefined;
             }
@@ -258,6 +259,11 @@ const IUIPage = (props) => {
             if (item.required && values && !values[item?.field]) {
                 errors[item.field] = `Required field.`;
             }
+            if (item.type === 'text' && values && values[item?.field]) {
+                if (values[item?.field]?.includes("/")) {
+                    errors[item.field] = 'Text cannot contain /';
+                }
+            }
             if (item.type === 'email' && values && values[item?.field]) {
                 if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
                     errors[item.field] = 'Invalid email address.'
@@ -307,7 +313,7 @@ const IUIPage = (props) => {
             await api.editPartialData(action);
             dispatch(setSave({ module: module }))
             //navigate(-1);
-            notify("success", "Assignment Successful!");
+            notify("success", "Assignment Successful !");
         } catch (e) {
             // TODO
         }
@@ -344,10 +350,10 @@ const IUIPage = (props) => {
             }
         }
         if (isAllAssignSuccessful) {
-            notify("success", "Assignments Successful!");
+            notify("success", "Assignments Successful !");
         }
         else {
-            notify("error", "One or more assignments failed!");
+            notify("error", "One or more assignments failed !");
         }
         window.location.reload();
     }
@@ -434,7 +440,7 @@ const IUIPage = (props) => {
     const approvedPageValue = async (e, isApproved) => {
         e.preventDefault();
         if (!remarks || remarks === '') {
-            notify("error", "Remarks is mandatory!");
+            notify("error", "Remarks is mandatory !");
             return;
         }
         const current = new Date();
@@ -478,6 +484,8 @@ const IUIPage = (props) => {
     const deletePageValue = async (e) => {
         try {
             e.preventDefault();
+            setIsInProgress(true);
+
             const isAllowed = await isDeleteAllowed(module, id);
 
             if (isAllowed) {
@@ -487,6 +495,7 @@ const IUIPage = (props) => {
                 const timeId = setTimeout(() => {
                     // After 3 seconds set the show value to false
                     navigate(-1);
+                    notify('success', 'Deletion successful !');
                 }, 1000)
 
                 return () => {
@@ -499,6 +508,9 @@ const IUIPage = (props) => {
         }
         catch (error) {
             notify("error", "Deletion failed ! Kindly check for relation constraints");
+        }
+        finally {
+            setIsInProgress(false);
         }
     }
 
@@ -642,6 +654,8 @@ const IUIPage = (props) => {
                 if (id != undefined)
                     // Check for Amendment Data
                     try {
+                        setIsInProgress(true);
+
                         if (schema?.isAmendment) {
                             // Update the data in amendment table
                             // Change planned end date in activity table
@@ -676,6 +690,7 @@ const IUIPage = (props) => {
                                 navigate(-1);
                                 localStorage.removeItem(flowchartKey);
                             }
+                            notify('success', 'Edit successful !');
                         }, 1000)
 
                         return () => {
@@ -684,10 +699,15 @@ const IUIPage = (props) => {
 
                     } catch (e) {
                         // TODO
+                        notify('error', 'Edit operation failed !');
+                    }
+                    finally {
+                        setIsInProgress(false);
                     }
                 else
                     try {
-                        console.log(data);
+                        // console.log(data);
+                        setIsInProgress(true);
                         let response = await api.addData(
                             {
                                 module: module,
@@ -704,7 +724,7 @@ const IUIPage = (props) => {
                             // After 3 seconds set the show value to false
                             if (module === 'activity') {
                                 props?.activityCallback({ status: true, id: response?.data });
-                                notify('success', `Activity ${data?.name} created successfully!`);
+                                notify('success', `Activity ${data?.name} created successfully !`);
                                 return;
                             }
                             else {
@@ -718,6 +738,7 @@ const IUIPage = (props) => {
                                     localStorage.removeItem(flowchartKey);
                                 }
                             }
+                            notify('success', 'Creation successful !')
                         }, 1000)
 
                         return () => {
@@ -725,11 +746,15 @@ const IUIPage = (props) => {
                         }
                     } catch (e) {
                         // TODO
-                        console.log(e)
+                        console.log(e);
+                        notify('error', 'Creation failed !')
                         if (module === 'activity') {
                             props?.activityCallback({ status: false, id: -1 });
                             return;
                         }
+                    }
+                    finally {
+                        setIsInProgress(false);
                     }
             }
         }
@@ -936,7 +961,13 @@ const IUIPage = (props) => {
                                                                     <Button variant="contained"
                                                                         disabled={disabled}
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
-                                                                        onClick={savePageValue}>Save
+                                                                        onClick={savePageValue}>
+                                                                        Save 
+                                                                        {
+                                                                            isInProgress && <Spinner size='sm' className='ml-2' animation='border' role='status'>
+                                                                                <span className='visually-hidden'>Loading....</span>
+                                                                            </Spinner>
+                                                                        }
                                                                     </Button>
 
 

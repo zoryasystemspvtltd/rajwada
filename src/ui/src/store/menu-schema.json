@@ -146,10 +146,17 @@
             },
             {
                 "name": "parkingType",
-                "text": "Parking",
+                "text": "Parking Type",
                 "icon": "cubes-stacked",
                 "path": "/parking-types",
                 "access": "parkingType"
+            },
+            {
+                "name": "parking",
+                "text": "Tower Parking",
+                "icon": "cubes-stacked",
+                "path": "/parkings",
+                "access": "parking"
             },
             {
                 "name": "workCheckpoints",

@@ -22,7 +22,7 @@ const AuthProvider = ({ children }) => {
 
     if (token && !token.logout) {
       sessionStorage.setItem("token", JSON.stringify(token));
-      menuRole ? sessionStorage.setItem("menuRole", menuRole) : sessionStorage.setItem("menuRole", "admin");
+      // menuRole ? sessionStorage.setItem("menuRole", menuRole) : sessionStorage.setItem("menuRole", "admin");
       setRefreshToken_(token?.refreshToken)
     }
 
