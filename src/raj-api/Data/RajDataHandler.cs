@@ -773,6 +773,22 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
+    public override async Task<long> BulkDataAsync<T>(IEnumerable<T> items, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var id = await base.BulkDataAsync(items, cancellationToken);
+            await LogBulkLabModelLog(items, StatusType.Draft, cancellationToken);
+            await SaveBulkAuditLogs(items, StatusType.Draft, null, null, cancellationToken);
+            return id;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in AddAsync method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
     public override async Task<long> EditAsync<T>(T item, CancellationToken cancellationToken)
     {
         item.Status = StatusType.Modified;
@@ -922,17 +938,54 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
+    private async Task LogBulkLabModelLog<T>(IEnumerable<T> items, StatusType activityType, CancellationToken cancellationToken)
+    where T : LabModel
+    {
+        try
+        {
+            var module = typeof(T);
+            List<ApplicationLog> listlog = new();
+            foreach (var item in items)
+            {
+                var jitem = JsonConvert.SerializeObject(item, Formatting.None,
+            new JsonSerializerSettings()
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+
+                var log = new ApplicationLog()
+                {
+                    Date = DateTime.UtcNow,
+                    EntityId = item.Id,
+                    Name = module.Name,
+                    ActivityType = activityType,
+                    Member = item.Member,
+                    Key = item.Key,
+                    //ContentHistory = jitem
+                };
+                listlog.Add(log);
+            }
+
+            await base.BulkDataAsync(listlog, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
     private async Task<long> SaveAuditLogs<T>(T item, StatusType activityType, string? remarks, string? modifiedBy, CancellationToken cancellationToken)
     where T : LabModel
     {
         try
         {
             var moduleName = typeof(T).Name;
-            if(item.OldValues != null)
+            if (item.OldValues != null)
             {
                 item.OldValues = JsonNodeRemover.RemoveNode(item.OldValues, "blueprint");
             }
-            
+
             var jsonNew = JObject.FromObject(item, new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
             var jsonNewValues = jsonNew.ToString(Formatting.None);
             jsonNewValues = JsonNodeRemover.RemoveNode(jsonNewValues, "blueprint");
@@ -985,6 +1038,75 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
+
+    private async Task SaveBulkAuditLogs<T>(IEnumerable<T> items, StatusType activityType, string? remarks, string? modifiedBy, CancellationToken cancellationToken)
+    where T : LabModel
+    {
+        try
+        {
+            var moduleName = typeof(T).Name;
+            var now = DateTime.UtcNow;
+            List<AuditLog> listLog = new();
+            foreach (var item in items)
+            {
+                if (item.OldValues != null)
+                {
+                    item.OldValues = JsonNodeRemover.RemoveNode(item.OldValues, "blueprint");
+                }
+
+                var jsonNew = JObject.FromObject(item, new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                var jsonNewValues = jsonNew.ToString(Formatting.None);
+                jsonNewValues = JsonNodeRemover.RemoveNode(jsonNewValues, "blueprint");
+                jsonNewValues = JsonNodeRemover.RemoveNode(jsonNewValues, "OldValues");
+
+                var log = new AuditLog
+                {
+                    Date = now,
+                    EntityId = item.Id,
+                    Name = moduleName,
+                    Member = item.Member,
+                    Key = item.Key,
+                    Remarks = remarks,
+                    NewValues = jsonNewValues,
+                    ModifiedDate = now,
+                    ModifiedBy = modifiedBy
+                };
+
+                // Set ActionType and OldValues based on activityType
+                switch (activityType)
+                {
+                    case StatusType.Draft:
+                        log.ActionType = "Insert";
+                        log.OldValues = null;
+                        break;
+                    case StatusType.Modified:
+                    case StatusType.QCAssigned:
+                    case StatusType.Assigned:
+                    case StatusType.Approved:
+                    case StatusType.Hold:
+                    case StatusType.Rejected:
+                    case StatusType.HODAssigned:
+                        log.ActionType = activityType.ToString();
+                        log.OldValues = item.OldValues;
+                        break;
+                    default:
+                        log.ActionType = activityType.ToString();
+                        log.OldValues = item.OldValues;
+                        break;
+                }
+                listLog.Add(log);
+            }
+
+            await base.BulkDataAsync(listLog, cancellationToken);
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to log audit trail for {Message}",  ex.Message);
+            throw;
+        }
+    }
+
 
     public string? GetFinancialYear(object code)
     {

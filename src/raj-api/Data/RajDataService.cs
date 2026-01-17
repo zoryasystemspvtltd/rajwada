@@ -3,6 +3,7 @@ using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
+using System.Numerics;
 using System.Text;
 
 namespace ILab.Data
@@ -113,6 +114,21 @@ namespace ILab.Data
                 return 0;
             }
         }
+
+        public async Task<long> SaveBulkkDataAsync(string model, IEnumerable<dynamic> data, CancellationToken token)
+        {
+            var type = GetType(model);
+            if (type == null) { return -1; }
+            var method = typeof(LabDataHandler).GetMethod(nameof(LabDataHandler.BulkDataAsync));
+            var generic = method?.MakeGenericMethod(type);
+            object[] parameters = { data, token };
+            var task = (Task<long>)generic.Invoke(handler, parameters);
+
+            var result = await task;
+
+            return result;
+        }
+
         public async Task<long> SaveDataAsync(string model, dynamic data, CancellationToken token)
         {
             var type = GetType(model);
@@ -330,6 +346,7 @@ namespace ILab.Data
                 dynamic jsonString = data.ToString();
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);
                 List<FlatTemplateDetails> templatList = JsonConvert.DeserializeObject<List<FlatTemplateDetails>>(jsonData.TemplateDetails);
+                List<FlatTemplateDetails> flatTemplateDetails = new();  
                 foreach (var item in templatList)
                 {
                     FlatTemplateDetails details = new()
@@ -338,9 +355,9 @@ namespace ILab.Data
                         RoomId = item?.RoomId,
                         RoomCount = item?.RoomCount
                     };
-
-                    await SaveDataAsync("FlatTemplateDetails", details, token);
+                    flatTemplateDetails.Add(details);
                 }
+                await SaveBulkkDataAsync("FlatTemplateDetails", flatTemplateDetails, token);
             }
             catch (Exception ex)
             {
@@ -364,6 +381,8 @@ namespace ILab.Data
             {
                 var parkingData = jsonData.Parkings;
                 List<ParkingRawData> parkingsList = JsonConvert.DeserializeObject<List<ParkingRawData>>(parkingData);
+
+                List<Parking> parkings = new();
                 foreach (var item in parkingsList)
                 {
                     var parkingType = Get("ParkingType", item.parkingTypeId);
@@ -378,10 +397,10 @@ namespace ILab.Data
                             ProjectId = jsonData?.ProjectId,
                             Name = name,
                         };
-
-                        await SaveDataAsync("Parking", parking, token);
+                        parkings.Add(parking);
                     }
                 }
+                await SaveBulkkDataAsync("Parking", parkings, token);   
             }
             catch (Exception ex)
             {
@@ -399,11 +418,12 @@ namespace ILab.Data
         /// <param name="projectCode">Project Code</param>
         /// <param name="token">Token</param>
         /// <returns></returns>
-        private async Task<long> SaveFloorData(dynamic jsonData, long towerId, string projectName, string projectCode, CancellationToken token)
+        private async Task SaveFloorData(dynamic jsonData, long towerId, string projectName, string projectCode, CancellationToken token)
         {
-            long activityId = 0;
+
             try
             {
+                List<Plan> listplan = new();
                 for (int i = 0; i < jsonData.NoOfFloors; i++)
                 {
                     string floorName = string.Empty, description = string.Empty;
@@ -419,6 +439,10 @@ namespace ILab.Data
                     }
                     Plan plan = new()
                     {
+                        Status = StatusType.Draft,
+                        Date = DateTime.UtcNow,
+                        Member = Identity.Member,
+                        Key = Identity.Key,
                         Type = "floor",
                         Name = floorName,
                         Description = description,
@@ -426,16 +450,16 @@ namespace ILab.Data
                         ProjectId = jsonData.ProjectId,
                         Blueprint = jsonData.Blueprint,
                     };
-
-                    activityId = await SaveDataAsync("Plan", plan, token);
+                    listplan.Add(plan);
                 }
+                await SaveBulkkDataAsync("Plan", listplan, token);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, $"Exception in SaveFloorData method and details: '{ex.Message}'");
                 throw;
             }
-            return activityId;
+
         }
         private async Task SaveSubTaskAsync(string model, long activityId, CancellationToken token)
         {
@@ -526,6 +550,7 @@ namespace ILab.Data
 
                 if (lists != null)
                 {
+                    List<Activity> activities = new();
                     foreach (var item in lists)
                     {
                         int quantity = (int)item.Quantity;
@@ -566,10 +591,10 @@ namespace ILab.Data
                             {
                                 activity.TowerId = main.TowerId;
                             }
-
-                            await SaveDataAsync(model, activity, token);
+                            activities.Add(activity);
                         }
                     }
+                    await SaveBulkkDataAsync(model, activities, token);
                 }
             }
             catch (Exception ex)
