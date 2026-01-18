@@ -60,8 +60,9 @@ public class LabModelController : ControllerBase
             dataService.Identity = new ModuleIdentity(member, key);
             long Id = 0;
 
-            Id = await dataService.AddAsync(module, data, token);
-            await dataService.ProcessAddDataAsync(module, data, Id,token);
+            var updatedata = await dataService.ConvertBase64toFile(module, data);
+            Id = await dataService.AddAsync(module, updatedata, token);
+            await dataService.ProcessAddDataAsync(module, updatedata, Id, token);
             return Id;
 
         }
@@ -71,7 +72,7 @@ public class LabModelController : ControllerBase
             throw;
         }
     }
-    
+
 
     [HasPrivileges("edit")]
     [HttpPut("{module}/{id}")]
@@ -82,22 +83,22 @@ public class LabModelController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-           
+
             if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
             {
                 data = UpdateAcutualDate(module, data);
             }
-           
-            var activityId = await dataService.EditAsync(module, id, data, token);
-            await dataService.ProcessEditDataAsync(module, data, id, token);            
-            return activityId;
+            var updatedata = await dataService.ConvertBase64toFile(module, data);
+            await dataService.EditAsync(module, id, updatedata, token);
+            await dataService.ProcessEditDataAsync(module, updatedata, id, token);
+            return id;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, $"Exception in PutAsync module: '{module}' message:'{ex.Message}'");
             throw;
         }
-    }    
+    }
 
     // [HasPrivileges("edit")]
     [HttpPatch("{module}/{id}")]
@@ -135,7 +136,7 @@ public class LabModelController : ControllerBase
             throw;
         }
     }
-   
+
     private dynamic UpdateAcutualDate(string model, dynamic data)
     {
         Type type = dataService.GetType(model);

@@ -773,11 +773,11 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public override async Task<long> BulkDataAsync<T>(IEnumerable<T> items, CancellationToken cancellationToken)
+    public override async Task<long> BulkAddAsync<T>(IEnumerable<T> items, CancellationToken cancellationToken)
     {
         try
         {
-            var id = await base.BulkDataAsync(items, cancellationToken);
+            var id = await base.BulkAddAsync(items, cancellationToken);
             await LogBulkLabModelLog(items, StatusType.Draft, cancellationToken);
             await SaveBulkAuditLogs(items, StatusType.Draft, null, null, cancellationToken);
             return id;
@@ -966,7 +966,7 @@ public class RajDataHandler : LabDataHandler
                 listlog.Add(log);
             }
 
-            await base.BulkDataAsync(listlog, cancellationToken);
+            await base.BulkAddAsync(listlog, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -1097,7 +1097,7 @@ public class RajDataHandler : LabDataHandler
                 listLog.Add(log);
             }
 
-            await base.BulkDataAsync(listLog, cancellationToken);
+            await base.BulkAddAsync(listLog, cancellationToken);
 
         }
         catch (Exception ex)

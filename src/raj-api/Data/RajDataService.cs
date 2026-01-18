@@ -3,6 +3,7 @@ using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
+using RajApi.Helpers;
 using System.Numerics;
 using System.Text;
 
@@ -11,10 +12,12 @@ namespace ILab.Data
     public class RajDataService : ILabDataService
     {
         public readonly RajDataHandler dataHandler;
-        public RajDataService(RajDataHandler handler
+        private readonly IConfiguration _configuration;
+        public RajDataService(RajDataHandler handler, IConfiguration configuration
             , ILogger<RajDataService> logger)
             : base(handler, logger)
         {
+            _configuration = configuration;
             dataHandler = handler;
         }
 
@@ -119,7 +122,7 @@ namespace ILab.Data
         {
             var type = GetType(model);
             if (type == null) { return -1; }
-            var method = typeof(LabDataHandler).GetMethod(nameof(LabDataHandler.BulkDataAsync));
+            var method = typeof(LabDataHandler).GetMethod(nameof(LabDataHandler.BulkAddAsync));
             var generic = method?.MakeGenericMethod(type);
             object[] parameters = { data, token };
             var task = (Task<long>)generic.Invoke(handler, parameters);
@@ -235,8 +238,7 @@ namespace ILab.Data
 
                     var flatTypeName = flatType.Name;
                     int totalFlats = template.noOfFlats;
-                    int generated = 0;
-
+                    int generated = 0;                   
                     while (generated < totalFlats)
                     {
                         var suffix = GenerateFlatSuffix(generated); // Reusable generator
@@ -288,8 +290,10 @@ namespace ILab.Data
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetFlatTemplateDetails));
                 object[] parameters = [templateId];
-                var ftDetails = (List<FlatTemplateDetails>)method?.Invoke(handler, parameters);
-                foreach (var item in ftDetails)
+                var flatTemplateDetails = (List<FlatTemplateDetails>)method?.Invoke(handler, parameters);
+
+                List<Resource> Resources = new();
+                foreach (var item in flatTemplateDetails)
                 {
                     var roomDetails = Get("Room", (long)item.RoomId);
                     var roomName = flatName + "/" + roomDetails.Result.Code;
@@ -302,10 +306,9 @@ namespace ILab.Data
                         PlanId = flatId,
                         Name = roomName
                     };
-
-                    await SaveDataAsync("Resource", rec, token);
+                    Resources.Add(rec);                    
                 }
-
+                await SaveBulkkDataAsync("Resource", Resources, token);
             }
             catch (Exception ex)
             {
@@ -346,7 +349,7 @@ namespace ILab.Data
                 dynamic jsonString = data.ToString();
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);
                 List<FlatTemplateDetails> templatList = JsonConvert.DeserializeObject<List<FlatTemplateDetails>>(jsonData.TemplateDetails);
-                List<FlatTemplateDetails> flatTemplateDetails = new();  
+                List<FlatTemplateDetails> flatTemplateDetails = new();
                 foreach (var item in templatList)
                 {
                     FlatTemplateDetails details = new()
@@ -400,7 +403,7 @@ namespace ILab.Data
                         parkings.Add(parking);
                     }
                 }
-                await SaveBulkkDataAsync("Parking", parkings, token);   
+                await SaveBulkkDataAsync("Parking", parkings, token);
             }
             catch (Exception ex)
             {
@@ -901,6 +904,51 @@ namespace ILab.Data
             {
                 logger.LogError("Exception in GetData method and details: " + ex.Message);
                 return 0;
+            }
+        }
+
+
+        public async Task<dynamic> ConvertBase64toFile(string module, dynamic data)
+        {
+            try
+            {
+                var folderPath = _configuration["FileUploadSettings:UploadFolderPath"];
+                var type = GetType(module);
+                dynamic jsonString = data.ToString();
+                var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+                dynamic modelData;
+                modelData = jsonData;
+                switch (module?.ToUpper())
+                {
+                    case "COMPANY":
+                        modelData.Logo = Utility.Base64ToFile(modelData.Logo, folderPath);
+                        break;
+                    case "PROJECT":
+                        modelData.Blueprint = Utility.Base64ToFile(modelData.Blueprint, folderPath);
+                        break;
+                    case "PLAN":
+                        modelData.Blueprint = Utility.Base64ToFile(modelData.Blueprint, folderPath);
+                        break;
+                    case "ACTIVITY":
+                        modelData.PhotoUrl = Utility.Base64ToFile(modelData.PhotoUrl, folderPath);
+                        break;
+                    case "ATTACHMENT":
+                        modelData.File = Utility.Base64ToFile(modelData.File, folderPath);
+                        break;
+                    case "NAMEMASTER":
+                        modelData.FatherCertificate = Utility.Base64ToFile(modelData.FatherCertificate, folderPath);
+                        modelData.MotherCertificate = Utility.Base64ToFile(modelData.MotherCertificate, folderPath);
+                        modelData.GrandFatherCertificate = Utility.Base64ToFile(modelData.GrandFatherCertificate, folderPath);
+                        modelData.GrandMotherCertificate = Utility.Base64ToFile(modelData.GrandMotherCertificate, folderPath);
+                        break;
+                }
+                return JsonConvert.SerializeObject(modelData);
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in ConvertBase64toVarbinary method and details: '{ex.Message}'");
+                throw;
             }
         }
     }
