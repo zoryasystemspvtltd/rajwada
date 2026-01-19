@@ -238,7 +238,7 @@ namespace ILab.Data
 
                     var flatTypeName = flatType.Name;
                     int totalFlats = template.noOfFlats;
-                    int generated = 0;                   
+                    int generated = 0;
                     while (generated < totalFlats)
                     {
                         var suffix = GenerateFlatSuffix(generated); // Reusable generator
@@ -300,13 +300,17 @@ namespace ILab.Data
 
                     Resource rec = new()
                     {
+                        Status = StatusType.Draft,
+                        Date = DateTime.UtcNow,
+                        Member = Identity.Member,
+                        Key = Identity.Key,
                         Type = "room",
                         RoomId = item.RoomId,
                         Quantity = (decimal)item.RoomCount,
                         PlanId = flatId,
                         Name = roomName
                     };
-                    Resources.Add(rec);                    
+                    Resources.Add(rec);
                 }
                 await SaveBulkkDataAsync("Resource", Resources, token);
             }
@@ -354,6 +358,10 @@ namespace ILab.Data
                 {
                     FlatTemplateDetails details = new()
                     {
+                        Status = StatusType.Draft,
+                        Date = DateTime.UtcNow,
+                        Member = Identity.Member,
+                        Key = Identity.Key,
                         FlatTemplateId = templateId,
                         RoomId = item?.RoomId,
                         RoomCount = item?.RoomCount
@@ -395,6 +403,10 @@ namespace ILab.Data
 
                         Parking parking = new()
                         {
+                            Status = StatusType.Draft,
+                            Date = DateTime.UtcNow,
+                            Member = Identity.Member,
+                            Key = Identity.Key,
                             ParkingTypeId = item.parkingTypeId,
                             TowerId = towerId,
                             ProjectId = jsonData?.ProjectId,
@@ -501,6 +513,8 @@ namespace ILab.Data
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);
                 DateOnly StartDate = DateOnly.FromDateTime(jsonData.StartDate);
                 var activityResourceList = JsonConvert.DeserializeObject<List<ActivityResource>>(jsonData.Items);
+                List<ActivityResource> activityResources = new();
+
                 foreach (ActivityResource mainitem in activityResourceList)
                 {
                     if (mainitem.AssignedList?.Count > 0)
@@ -510,6 +524,10 @@ namespace ILab.Data
                             var date = StartDate.AddDays(-item.NotifyBefore);
                             ActivityResource details = new()
                             {
+                                Status = StatusType.Draft,
+                                Date = DateTime.UtcNow,
+                                Member = Identity.Member,
+                                Key = Identity.Key,
                                 ActivityId = activityId,
                                 AssignedUser = item?.Member,
                                 Quantity = mainitem?.Quantity,
@@ -519,14 +537,17 @@ namespace ILab.Data
                                 AvailabilityStatus = AvailablityStatus.NotAvailable,
                                 NotificationStartDate = date
                             };
-
-                            await SaveDataAsync("ActivityResource", details, token);
+                            activityResources.Add(details);
                         }
                     }
                     else
                     {
                         ActivityResource details = new()
                         {
+                            Status = StatusType.Draft,
+                            Date = DateTime.UtcNow,
+                            Member = Identity.Member,
+                            Key = Identity.Key,
                             ActivityId = activityId,
                             Quantity = mainitem?.Quantity,
                             UOMId = mainitem?.UOMId,
@@ -534,9 +555,10 @@ namespace ILab.Data
                             ResourceType = "Item",
                             AvailabilityStatus = AvailablityStatus.NotAvailable
                         };
-                        await SaveDataAsync("ActivityResource", details, token);
+                        activityResources.Add(details);
                     }
                 }
+                await SaveBulkkDataAsync("ActivityResource", activityResources, token);
             }
             catch (Exception ex)
             {
@@ -562,6 +584,10 @@ namespace ILab.Data
                             var desc = string.Concat(item.Name, "-", index);
                             Activity activity = new()
                             {
+                                Status = StatusType.Draft,
+                                Date = DateTime.UtcNow,
+                                Member = Identity.Member,
+                                Key = Identity.Key,
                                 Type = "Sub Task",
                                 ParentId = main.Id,
                                 ProjectId = main.ProjectId,
