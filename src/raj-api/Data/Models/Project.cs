@@ -1,5 +1,4 @@
 ﻿using ILab.Extensionss.Data.Models;
-using Microsoft.Extensions.Hosting;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 

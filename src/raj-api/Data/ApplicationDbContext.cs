@@ -148,14 +148,15 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Project> Projects { get; set; }
     public virtual DbSet<Plan> Plans { get; set; }
     public virtual DbSet<Activity> Activities { get; set; }
-    public virtual DbSet<ActivityTracking> ActivityTrackings { get; set; }    
+    public virtual DbSet<ActivityTracking> ActivityTrackings { get; set; }
+    public virtual DbSet<ActivityCheckPoint> ActivityCheckPoints { get; set; }
     public virtual DbSet<ActivityResource> ActivityResources { get; set; }
     public virtual DbSet<ActivityResourceReport> ActivityResourceReports { get; set; }
     public virtual DbSet<DependencyResource> DependencyResources { get; set; }
     public virtual DbSet<AssetGroup> AssetGroups { get; set; }
     public virtual DbSet<Asset> Assets { get; set; }
     public virtual DbSet<AssetType> AssetTypes { get; set; }
-    public virtual DbSet<Resource> Resources { get; set; }
+    public virtual DbSet<RoomDetails> RoomDetails { get; set; }
     public virtual DbSet<LevelSetupDetails> LevelSetupDetails { get; set; }
     public virtual DbSet<Comment> Comments { get; set; }
     public virtual DbSet<Attachment> Attachments { get; set; }
@@ -171,7 +172,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Mouza> Mouzas { get; set; }
     public virtual DbSet<RsDaag> RsDaags { get; set; }
     public virtual DbSet<NameMaster> NameMasters { get; set; }
-    public virtual DbSet<Room> Rooms { get; set; }
+    public virtual DbSet<RoomType> RoomTypes { get; set; }
     public virtual DbSet<Contractor> Contractors { get; set; }
     public virtual DbSet<Supplier> Suppliers { get; set; }
     public virtual DbSet<LevelSetup> LevelSetup { get; set; }
@@ -180,7 +181,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<ParkingType> ParkingTypes { get; set; }
     public virtual DbSet<ProjectDocNoTracking> ProjectDocNoTrackings { get; set; }
     public virtual DbSet<FinancialYear> FinancialYears { get; set; }
-    public virtual DbSet<WorkCheckpoints> WorkCheckpoints { get; set; }
+    public virtual DbSet<WorkCheckPoint> WorkCheckpoints { get; set; }
     public virtual DbSet<PostWorkPeriodicChecking> PostWorkPeriodicCheckings { get; set; }
     #endregion
 

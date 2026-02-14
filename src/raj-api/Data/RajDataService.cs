@@ -1,4 +1,5 @@
-﻿using ILab.Extensionss.Data;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
@@ -257,7 +258,7 @@ namespace ILab.Data
                         };
 
                         long flatId = await SaveDataAsync("Plan", plan, token);
-                        await SaveResource(templateId, flatName, flatId, token);
+                        await SaveRoomDetails(templateId, flatName, flatId, token);
 
                         generated++;
                     }
@@ -284,7 +285,7 @@ namespace ILab.Data
         }
 
 
-        private async Task SaveResource(long templateId, string flatName, long flatId, CancellationToken token)
+        private async Task SaveRoomDetails(long templateId, string flatName, long flatId, CancellationToken token)
         {
             try
             {
@@ -292,25 +293,30 @@ namespace ILab.Data
                 object[] parameters = [templateId];
                 var flatTemplateDetails = (List<FlatTemplateDetails>)method?.Invoke(handler, parameters);
 
-                List<Resource> Resources = new();
+                List<RoomDetails> Resources = new();
                 foreach (var item in flatTemplateDetails)
                 {
-                    var roomDetails = Get("Room", (long)item.RoomId);
-                    var roomName = flatName + "/" + roomDetails.Result.Code;
+                    var rooms = Get("RoomType", (long)item.RoomTypeId);
 
-                    Resource rec = new()
+
+                    for (int i = 1; i <= item.RoomCount; i++)
                     {
-                        Status = StatusType.Draft,
-                        Date = DateTime.UtcNow,
-                        Member = Identity.Member,
-                        Key = Identity.Key,
-                        Type = "room",
-                        RoomId = item.RoomId,
-                        Quantity = (decimal)item.RoomCount,
-                        PlanId = flatId,
-                        Name = roomName
-                    };
-                    Resources.Add(rec);
+                        var roomId = flatName + "/" + rooms.Result.Code + "-" + i;
+                        RoomDetails rec = new()
+                        {
+                            RoomId = roomId,
+                            Status = StatusType.Draft,
+                            Date = DateTime.UtcNow,
+                            Member = Identity.Member,
+                            Key = Identity.Key,
+                            RoomTypeId = item.RoomTypeId,
+                            PlanId = flatId,
+                            Name = rooms.Result.Code + "-" + i,
+                        };
+                        Resources.Add(rec);
+
+                    }
+
                 }
                 await SaveBulkkDataAsync("Resource", Resources, token);
             }
@@ -363,7 +369,7 @@ namespace ILab.Data
                         Member = Identity.Member,
                         Key = Identity.Key,
                         FlatTemplateId = templateId,
-                        RoomId = item?.RoomId,
+                        RoomTypeId = item?.RoomTypeId,
                         RoomCount = item?.RoomCount
                     };
                     flatTemplateDetails.Add(details);
@@ -571,57 +577,56 @@ namespace ILab.Data
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetResourceDetails));
                 object[] parameters = [main.FlatId];
-                var lists = (List<Resource>)method?.Invoke(handler, parameters);
+                var lists = (List<RoomDetails>)method?.Invoke(handler, parameters);
 
                 if (lists != null)
                 {
                     List<Activity> activities = new();
                     foreach (var item in lists)
                     {
-                        int quantity = (int)item.Quantity;
-                        for (int index = 1; index <= quantity; index++)
+                        //for (int index = 1; index <= quantity; index++)
+                        //{
+                        var desc = item.RoomId;
+                        Activity activity = new()
                         {
-                            var desc = string.Concat(item.Name, "-", index);
-                            Activity activity = new()
-                            {
-                                Status = StatusType.Draft,
-                                Date = DateTime.UtcNow,
-                                Member = Identity.Member,
-                                Key = Identity.Key,
-                                Type = "Sub Task",
-                                ParentId = main.Id,
-                                ProjectId = main.ProjectId,
-                                WorkflowId = main.WorkflowId,
-                                UserId = main.UserId,
-                                Name = string.Concat(main.Name, "-", desc),
-                                Description = string.Concat(main.Description, "-", desc),
-                                StartDate = main.StartDate,
-                                EndDate = main.EndDate,
-                                Items = main.Items,
-                                ContractorId = main.ContractorId,
-                                PhotoUrl = main.PhotoUrl,
-                                DependencyId = main.DependencyId,
-                                MaterialProvidedBy = main.MaterialProvidedBy,
-                                LabourProvidedBy = main.LabourProvidedBy
-                            };
-                            if (main.FlatId != null)
-                            {
-                                activity.TowerId = main.TowerId;
-                                activity.FloorId = main.FloorId;
-                                activity.FlatId = main.FlatId;
-                                activity.WorkId = GetWorkId(item.Name, index, main.DependencyId, main.ProjectId, token);
-                            }
-                            else if (main.FloorId != null)
-                            {
-                                activity.TowerId = main.TowerId;
-                                activity.FloorId = main.FloorId;
-                            }
-                            else if (main.TowerId != null)
-                            {
-                                activity.TowerId = main.TowerId;
-                            }
-                            activities.Add(activity);
+                            Status = StatusType.Draft,
+                            Date = DateTime.UtcNow,
+                            Member = Identity.Member,
+                            Key = Identity.Key,
+                            Type = "Sub Task",
+                            ParentId = main.Id,
+                            ProjectId = main.ProjectId,
+                            WorkflowId = main.WorkflowId,
+                           // UserId = main.UserId,
+                            Name = string.Concat(main.Name, "-", desc),
+                            Description = string.Concat(main.Description, "-", desc),
+                            StartDate = main.StartDate,
+                            EndDate = main.EndDate,
+                            Items = main.Items,
+                            ContractorId = main.ContractorId,
+                            PhotoUrl = main.PhotoUrl,
+                            DependencyId = main.DependencyId,
+                            MaterialProvidedBy = main.MaterialProvidedBy,
+                            LabourProvidedBy = main.LabourProvidedBy
+                        };
+                        if (main.FlatId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                            activity.FloorId = main.FloorId;
+                            activity.FlatId = main.FlatId;
+                            activity.WorkId = GetWorkId(item.RoomId, main.DependencyId, main.ProjectId, token);
                         }
+                        else if (main.FloorId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                            activity.FloorId = main.FloorId;
+                        }
+                        else if (main.TowerId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                        }
+                        activities.Add(activity);
+                        //}
                     }
                     await SaveBulkkDataAsync(model, activities, token);
                 }
@@ -631,7 +636,7 @@ namespace ILab.Data
                 logger.LogError(ex, $"Exception in SavaDataIntoDataBase method, message:'{ex.Message}'");
             }
         }
-        private string? GetWorkId(string name, int index, long? DependencyId, long? projectId, CancellationToken token)
+        private string? GetWorkId(string name, long? DependencyId, long? projectId, CancellationToken token)
         {
             try
             {
@@ -649,9 +654,7 @@ namespace ILab.Data
 
                     string nextDocNo = newNo.ToString("D3");
                     StringBuilder workId = new();
-                    workId.Append(name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>
-                    workId.Append("-");
-                    workId.Append(index); //<Room-Count-Index>
+                    workId.Append(name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>                   
                     workId.Append("/");
                     workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
                     workId.Append("/");

@@ -8,13 +8,7 @@ namespace RajApi.Data.Models
     {
         public virtual string? Description { get; set; }
         public required string Type { get; set; }
-        public virtual bool? IsSubSubType { get; set; }
         public virtual string? PhotoUrl { get; set; }
-        public virtual string? DocumentLinks { get; set; }
-        public virtual string? Notes { get; set; }
-        public virtual long? UserId { get; set; }
-        public virtual DateTime? CuringDate { get; set; }
-        public virtual bool? IsCuringDone { get; set; }
         public virtual bool? IsCancelled { get; set; }
         /// <summary>
         /// Is used for QC
@@ -62,23 +56,17 @@ namespace RajApi.Data.Models
                 
         public string? ActualItems { get; set; }
         public string? WorkId { get; set; }
-
-        #region Workflow
+       
         /// <summary>
         /// Priority Status 
         /// </summary>
         public virtual PriorityStatusType? PriorityStatus { get; set; }
 
         /// <summary>
-        /// Workflow State 
-        /// </summary>
-        public virtual string? WorkflowState { get; set; }
-
-        /// <summary>
         /// Approval Status
         /// </summary>
         public virtual ApprovalStatusType? ApprovalStatus { get; set; }
-        #endregion
+       
 
         #region Cost and Assessment
         /// <summary>
@@ -200,6 +188,11 @@ namespace RajApi.Data.Models
         public virtual long? AmendmentId { get; set; }
         [JsonIgnore]
         public virtual ActivityAmendment? Amendments { get; set; }
+
+        [ForeignKey("RoomDetails")]
+        public virtual long? RoomId { get; set; }
+        [JsonIgnore]
+        public virtual RoomDetails? RoomDetails { get; set; }
         #endregion
 
         [NotMapped]
