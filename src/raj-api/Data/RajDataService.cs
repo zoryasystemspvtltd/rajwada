@@ -936,6 +936,24 @@ namespace ILab.Data
             }
         }
 
+        public dynamic GetFileFromFileSystem(string fileName)
+        {
+            try
+            {
+                var folderPath = _configuration["FileUploadSettings:UploadFolderPath"];
+                var fullPath = Path.Combine(folderPath, fileName);
+                if (!System.IO.File.Exists(fullPath))
+                    return "File not found.";
+                byte[] fileBytes = System.IO.File.ReadAllBytes(fullPath);
+                string base64String = Convert.ToBase64String(fileBytes);
+                return base64String;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetFileFromFileSystem method and details: '{ex.Message}'");
+                throw;
+            }
+        }
 
         public async Task<dynamic> ConvertBase64toFile(string module, dynamic data)
         {
