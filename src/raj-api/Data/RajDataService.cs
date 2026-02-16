@@ -1,11 +1,9 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using ILab.Extensionss.Data;
+﻿using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
-using System.Numerics;
 using System.Text;
 
 namespace ILab.Data
@@ -597,7 +595,7 @@ namespace ILab.Data
                             ParentId = main.Id,
                             ProjectId = main.ProjectId,
                             WorkflowId = main.WorkflowId,
-                           // UserId = main.UserId,
+                            // UserId = main.UserId,
                             Name = string.Concat(main.Name, "-", desc),
                             Description = string.Concat(main.Description, "-", desc),
                             StartDate = main.StartDate,
@@ -936,15 +934,15 @@ namespace ILab.Data
             }
         }
 
-        public dynamic GetFileFromFileSystem(string fileName)
+        public dynamic GetFileFromFileSystem(string module, string fileName)
         {
             try
             {
-                var folderPath = _configuration["FileUploadSettings:UploadFolderPath"];
+                var folderPath = _configuration["FileUploadSettings:UploadFolderPath"] + "/" + module;
                 var fullPath = Path.Combine(folderPath, fileName);
-                if (!System.IO.File.Exists(fullPath))
+                if (!File.Exists(fullPath))
                     return "File not found.";
-                byte[] fileBytes = System.IO.File.ReadAllBytes(fullPath);
+                byte[] fileBytes = File.ReadAllBytes(fullPath);
                 string base64String = Convert.ToBase64String(fileBytes);
                 return base64String;
             }
@@ -959,7 +957,7 @@ namespace ILab.Data
         {
             try
             {
-                var folderPath = _configuration["FileUploadSettings:UploadFolderPath"];
+                var folderPath = _configuration["FileUploadSettings:UploadFolderPath"] + "/" + module;
                 var type = GetType(module);
                 dynamic jsonString = data.ToString();
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);

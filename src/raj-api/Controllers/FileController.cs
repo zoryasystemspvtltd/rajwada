@@ -17,8 +17,8 @@ namespace RajApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("{fileName}")]
-        public async Task<IActionResult> Get(string fileName)
+        [HttpGet("{module}/{fileName}")]
+        public async Task<IActionResult> Get(string module, string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
                 return BadRequest("FileName is required.");
@@ -27,7 +27,7 @@ namespace RajApi.Controllers
                 return BadRequest("Invalid file name.");
             try
             {
-                string base64String = dataService.GetFileFromFileSystem(fileName);
+                string base64String = dataService.GetFileFromFileSystem(module,fileName);
                 return Ok(new
                 {
                     FileName = fileName,
