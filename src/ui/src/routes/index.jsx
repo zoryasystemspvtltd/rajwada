@@ -14,7 +14,6 @@ import { AddItemGroup, EditItemGroup, ListItemGroup, ViewItemGroup } from "../pa
 import { AddItemMaster, EditItemMaster, ListItemMaster, ViewItemMaster } from "../pages/app/schema/ItemMasters";
 import { AddProject, EditProject, ListProject, ViewProject } from "../pages/app/schema/Projects";
 import { AddRole, EditRole, ListRole, ViewRole } from "../pages/app/schema/Roles";
-import { AddRoom, EditRoom, ListRoom, ViewRoom } from "../pages/app/schema/Rooms";
 import { AddTower, EditTower, ListTower, ViewTower } from "../pages/app/schema/Towers";
 import { AddUser, EditUser, ListUser, ResetPasswordUser, ViewUser } from "../pages/app/schema/Users";
 
@@ -53,6 +52,7 @@ import { AddWorkCheckpoint, EditWorkCheckpoint, ListWorkCheckpoint, ViewWorkChec
 import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from "../pages/common/ItemAvailabilityTrack";
 import WorkTransfer from "../pages/common/WorkTransfer";
 import { AddTowerParking, EditTowerParking, ListTowerParking, ViewTowerParking } from "../pages/app/schema/TowerParkings";
+import { AddRoomType, EditRoomType, ListRoomType, ViewRoomType } from "../pages/app/schema/RoomTypes";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -444,20 +444,20 @@ const Routes = () => {
                     element: <AddNameMaster />
                 },
                 {
-                    path: "/rooms",
-                    element: <ListRoom />
+                    path: "/roomtypes",
+                    element: <ListRoomType />
                 },
                 {
-                    path: "/rooms/:id",
-                    element: <ViewRoom />
+                    path: "/roomtypes/:id",
+                    element: <ViewRoomType />
                 },
                 {
-                    path: "/rooms/:id/edit",
-                    element: <EditRoom />
+                    path: "/roomtypes/:id/edit",
+                    element: <EditRoomType />
                 },
                 {
-                    path: "/rooms/add",
-                    element: <AddRoom />
+                    path: "/roomtypes/add",
+                    element: <AddRoomType />
                 },
                 {
                     path: "/contractors",

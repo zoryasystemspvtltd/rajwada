@@ -1,10 +1,10 @@
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage"
 
-export const ListRoom = () => {
+export const ListRoomType = () => {
 
     const schema = {
-        module: 'room',
+        module: 'roomtype',
         title: 'Room Type',
         path: 'rooms',
         paging: true,
@@ -21,9 +21,9 @@ export const ListRoom = () => {
     return (<IUIList schema={schema} />)
 }
 
-export const ViewRoom = () => {
+export const ViewRoomType = () => {
     const schema = {
-        module: 'room',
+        module: 'roomtype',
         title: 'Room Type',
         path: 'rooms',
         showBreadcrumbs: true,
@@ -47,9 +47,9 @@ export const ViewRoom = () => {
     return (<IUIPage schema={schema} />)
 }
 
-export const EditRoom = () => {
+export const EditRoomType = () => {
     const schema = {
-        module: 'room',
+        module: 'roomtype',
         title: 'Room Type',
         path: 'rooms',
         back: false,
@@ -68,9 +68,9 @@ export const EditRoom = () => {
     return (<IUIPage schema={schema} />)
 }
 
-export const AddRoom = () => {
+export const AddRoomType = () => {
     const schema = {
-        module: 'room',
+        module: 'roomtype',
         title: 'Room Type',
         path: 'rooms',
         back: true,

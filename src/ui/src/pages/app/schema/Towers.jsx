@@ -142,7 +142,7 @@ export const ViewTower = () => {
                             path: 'floors',
                             paging: true,
                             searching: true,
-                            editing: true,
+                            editing: false,
                             adding: true,
                             uploading: false,
                             downloading: false,

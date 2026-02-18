@@ -260,7 +260,7 @@ const IUIPage = (props) => {
                 errors[item.field] = `Required field.`;
             }
             if (item.type === 'text' && values && values[item?.field]) {
-                if (values[item?.field]?.includes("/")) {
+                if (values[item?.field]?.includes("/") && !id) {
                     errors[item.field] = 'Text cannot contain /';
                 }
             }

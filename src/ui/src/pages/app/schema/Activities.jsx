@@ -231,9 +231,13 @@ export const EditActivity = () => {
                         placeholder: 'Duration here...',
                         width: 4,
                         type: 'number',
+                        hasDefaultValue: true,
+                        defaultType: 'indirect',
                         dependsOnModule: 'dependency',
                         dependsOnField: 'expectedDuration',
-                        required: true
+                        ownSearchField: 'dependencyId',
+                        otherModuleSearchField: 'id',
+                        required: false
                     },
                     {
                         text: 'Expected End Date',
@@ -243,22 +247,23 @@ export const EditActivity = () => {
                         placeholder: 'End Date here...',
                         inputType: 'date',
                         dependsOn: ['startDate', 'duration'],
-                        required: true,
+                        required: false,
                         compute: ({ startDate, duration }) => {
                             if (!startDate || !duration) return '';
 
-
                             const start = new Date(startDate);
-                            // Ensure duration is a number
                             const days = Number(duration);
+
                             if (isNaN(days) || days <= 0) return '';
+
                             const end = new Date(start);
                             end.setDate(start.getDate() + days);
 
-
-                            return end;
+                            // ✅ Convert to YYYY-MM-DD
+                            return end.toISOString().split('T')[0];
                         }
-                    },
+
+                    }
                     // {
                     //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-enum', required: false,
                     //     schema: { module: 'priorityStatusType' }
