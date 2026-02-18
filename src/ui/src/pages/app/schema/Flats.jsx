@@ -88,6 +88,7 @@ export const ViewFlat = () => {
                 , fields: [
                     {
                         text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+                        imageModule: 'plan',
                         schema: {
                             readonly: true,
                             upload: false,
@@ -117,7 +118,7 @@ export const ViewFlat = () => {
                         type: 'module-mapping',
                         schema: {
                             title: 'Room', // title of child
-                            module: 'resource', // module for child
+                            module: 'roomDetails', // module for child
                             relationKey: "planId", // foreign key field in child schema
                             parentPath: 'flats', //
                             childPath: 'roommappings',
@@ -127,8 +128,8 @@ export const ViewFlat = () => {
                             adding: true,
                             fields: [
                                 {
-                                    text: 'Room', field: 'roomId', type: 'lookup', sorting: true, searching: true, width: 100,
-                                    schema: { module: 'room' }
+                                    text: 'Room', field: 'roomTypeId', type: 'lookup', sorting: true, searching: true, width: 100,
+                                    schema: { module: 'roomType' }
                                 },
                                 { text: 'Count', field: 'quantity', type: 'text', sorting: false, searching: false },
                             ]
@@ -231,6 +232,7 @@ export const AddFlat = () => {
                     {
                         text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect', required: true,
                         parent: 'parentId',
+                        module: 'plan',
                         schema: {
                             type: "lookup-filter",
                             module: 'plan',

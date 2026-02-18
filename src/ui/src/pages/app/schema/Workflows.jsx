@@ -68,7 +68,7 @@ export const ViewWorkflow = () => {
                     },
                     {
                         text: 'Room', field: 'roomId', type: 'lookup-link', width: 3,
-                        schema: { module: 'room', path: 'rooms' }
+                        schema: { module: 'roomType', path: 'rooms' }
                     },
                     { field: 'data', type: 'ilab-flowchart', width: 12 }
                 ]
@@ -304,7 +304,7 @@ export const AddWorkflow = () => {
                         schema: {
                             module: 'plan',
                             parentModule: 'flatTemplateDetails',
-                            childModule: 'room',
+                            childModule: 'roomType',
                             field: 'flatTemplateId',
                             parentFilterFields: [
                                 {

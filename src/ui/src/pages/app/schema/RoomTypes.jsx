@@ -4,9 +4,9 @@ import IUIPage from "../../common/IUIPage"
 export const ListRoomType = () => {
 
     const schema = {
-        module: 'roomtype',
+        module: 'roomType',
         title: 'Room Type',
-        path: 'rooms',
+        path: 'roomtypes',
         paging: true,
         searching: true,
         editing: true,
@@ -17,15 +17,15 @@ export const ListRoomType = () => {
             { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
         ]
     }
-
+    
     return (<IUIList schema={schema} />)
 }
 
 export const ViewRoomType = () => {
     const schema = {
-        module: 'roomtype',
+        module: 'roomType',
         title: 'Room Type',
-        path: 'rooms',
+        path: 'roomtypes',
         showBreadcrumbs: true,
         editing: true,
         adding: false,
@@ -49,9 +49,9 @@ export const ViewRoomType = () => {
 
 export const EditRoomType = () => {
     const schema = {
-        module: 'roomtype',
+        module: 'roomType',
         title: 'Room Type',
-        path: 'rooms',
+        path: 'roomtypes',
         back: false,
         fields: [
             {
@@ -70,9 +70,9 @@ export const EditRoomType = () => {
 
 export const AddRoomType = () => {
     const schema = {
-        module: 'roomtype',
+        module: 'roomType',
         title: 'Room Type',
-        path: 'rooms',
+        path: 'roomtypes',
         back: true,
         fields: [
             {

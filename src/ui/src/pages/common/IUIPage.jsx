@@ -962,7 +962,7 @@ const IUIPage = (props) => {
                                                                         disabled={disabled}
                                                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                         onClick={savePageValue}>
-                                                                        Save 
+                                                                        Save
                                                                         {
                                                                             isInProgress && <Spinner size='sm' className='ml-2' animation='border' role='status'>
                                                                                 <span className='visually-hidden'>Loading....</span>

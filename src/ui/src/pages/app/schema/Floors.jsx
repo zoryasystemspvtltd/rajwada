@@ -93,7 +93,7 @@ export const ViewFloor = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect' },
+                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', module: 'plan' },
                 ]
             },
             {
@@ -215,7 +215,7 @@ export const EditFloor = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    { text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true, module: 'plan' },
                 ]
             },
             { field: 'type', type: 'hidden-filter', value: "floor" }
@@ -275,6 +275,7 @@ export const AddFloor = () => {
                     {
                         text: 'Floor Blueprint', field: 'blueprint', placeholder: 'Floor Blueprint here...', type: 'picture-upload', shape: 'rect', required: true,
                         parent: 'parentId',
+                        module: 'plan',
                         schema: {
                             type: "lookup-filter",
                             module: 'plan',

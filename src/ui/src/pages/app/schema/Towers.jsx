@@ -127,7 +127,7 @@ export const ViewTower = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect' },
+                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', module: 'plan' },
                 ]
             },
             {
@@ -206,7 +206,7 @@ export const EditTower = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    { text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true, module: 'plan' },
                 ]
             },
             {
@@ -299,6 +299,7 @@ export const AddTower = () => {
                     {
                         text: 'Tower Blueprint', field: 'blueprint', placeholder: 'Tower Blueprint here...', type: 'picture-upload', shape: 'rect', required: true,
                         parent: 'projectId',
+                        module: 'plan',
                         schema: {
                             type: "lookup",
                             module: 'project',

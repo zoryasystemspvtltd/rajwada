@@ -32,7 +32,7 @@ export const Rectangle = (props) => {
             { field: 'label', type: 'text', text: 'Unit Of Work Label', placeholder: 'Unit of Work Label', required: true },
             {
                 field: 'room', text: 'Room Type', type: 'lookup', required: true,
-                schema: { module: 'room' }
+                schema: { module: 'roomType' }
             },
         ]
     }

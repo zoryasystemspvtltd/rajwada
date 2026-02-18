@@ -18,8 +18,8 @@ export const EditFlatTemplateMapping = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Type', field: 'roomId', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'room' }
+                        text: 'Type', field: 'roomTypeId', type: 'lookup', required: true, width: 4,
+                        schema: { module: 'roomType' }
                     },
                     { text: 'Count', field: 'roomCount', type: 'text', width: 4, required: true },
                     {
