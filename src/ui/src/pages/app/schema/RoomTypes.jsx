@@ -1,12 +1,12 @@
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage"
 
-export const ListRoom = () => {
+export const ListRoomType = () => {
 
     const schema = {
-        module: 'room',
+        module: 'roomType',
         title: 'Room Type',
-        path: 'rooms',
+        path: 'roomtypes',
         paging: true,
         searching: true,
         editing: true,
@@ -17,15 +17,15 @@ export const ListRoom = () => {
             { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
         ]
     }
-
+    
     return (<IUIList schema={schema} />)
 }
 
-export const ViewRoom = () => {
+export const ViewRoomType = () => {
     const schema = {
-        module: 'room',
+        module: 'roomType',
         title: 'Room Type',
-        path: 'rooms',
+        path: 'roomtypes',
         showBreadcrumbs: true,
         editing: true,
         adding: false,
@@ -47,11 +47,11 @@ export const ViewRoom = () => {
     return (<IUIPage schema={schema} />)
 }
 
-export const EditRoom = () => {
+export const EditRoomType = () => {
     const schema = {
-        module: 'room',
+        module: 'roomType',
         title: 'Room Type',
-        path: 'rooms',
+        path: 'roomtypes',
         back: false,
         fields: [
             {
@@ -68,11 +68,11 @@ export const EditRoom = () => {
     return (<IUIPage schema={schema} />)
 }
 
-export const AddRoom = () => {
+export const AddRoomType = () => {
     const schema = {
-        module: 'room',
+        module: 'roomType',
         title: 'Room Type',
-        path: 'rooms',
+        path: 'roomtypes',
         back: true,
         fields: [
             {

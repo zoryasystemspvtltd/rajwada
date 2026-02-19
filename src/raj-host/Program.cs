@@ -95,6 +95,7 @@ builder.Services.AddScoped<RajDataService>();
 builder.Services.AddTransient<PrivilegeMiddleware>();
 
 builder.Services.AddTransient<ModuleIdentityMiddleware>();
+builder.Services.Configure<FileUploadSettings>(builder.Configuration.GetSection("FileUploadSettings"));
 
 var smtpSettings = configuration.GetSection("SmtpSettings").Get<SmtpSettings>();
 var emailSettings = configuration.GetSection("EmailSettings").Get<EmailSettings>();

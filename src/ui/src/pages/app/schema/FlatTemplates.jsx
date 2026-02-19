@@ -61,8 +61,8 @@ export const ViewFlatTemplate = () => {
                             adding: false,
                             fields: [
                                 {
-                                    text: 'Type', field: 'roomId', type: 'lookup', required: true, width: 6,
-                                    schema: { module: 'room' }
+                                    text: 'Type', field: 'roomTypeId', type: 'lookup', required: true, width: 6,
+                                    schema: { module: 'roomType' }
                                 },
                                 { text: 'Count', field: 'roomCount', type: 'text', width: 6, required: true },
                             ]
@@ -130,8 +130,8 @@ export const AddFlatTemplate = () => {
                             save: false,
                             fields: [
                                 {
-                                    text: 'Type', field: 'roomId', type: 'lookup', required: true, width: 6,
-                                    schema: { module: 'room' }
+                                    text: 'Type', field: 'roomTypeId', type: 'lookup', required: true, width: 6,
+                                    schema: { module: 'roomType' }
                                 },
                                 { text: 'Count', field: 'roomCount', placeholder: 'Room count here...', type: 'number', width: 6, required: true }
                             ]

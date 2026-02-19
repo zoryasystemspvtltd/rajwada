@@ -308,3 +308,7 @@ public class DatabaseSettings
     public int? CommandTimeout { get; set; }
 }
 
+public class FileUploadSettings
+{
+    public string UploadFolderPath { get; set; } = string.Empty;
+}

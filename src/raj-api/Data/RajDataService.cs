@@ -3,7 +3,7 @@ using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Data.Models;
-using System.Numerics;
+using RajApi.Helpers;
 using System.Text;
 
 namespace ILab.Data
@@ -11,10 +11,12 @@ namespace ILab.Data
     public class RajDataService : ILabDataService
     {
         public readonly RajDataHandler dataHandler;
-        public RajDataService(RajDataHandler handler
+        private readonly IConfiguration _configuration;
+        public RajDataService(RajDataHandler handler, IConfiguration configuration
             , ILogger<RajDataService> logger)
             : base(handler, logger)
         {
+            _configuration = configuration;
             dataHandler = handler;
         }
 
@@ -119,7 +121,7 @@ namespace ILab.Data
         {
             var type = GetType(model);
             if (type == null) { return -1; }
-            var method = typeof(LabDataHandler).GetMethod(nameof(LabDataHandler.BulkDataAsync));
+            var method = typeof(LabDataHandler).GetMethod(nameof(LabDataHandler.BulkAddAsync));
             var generic = method?.MakeGenericMethod(type);
             object[] parameters = { data, token };
             var task = (Task<long>)generic.Invoke(handler, parameters);
@@ -236,7 +238,6 @@ namespace ILab.Data
                     var flatTypeName = flatType.Name;
                     int totalFlats = template.noOfFlats;
                     int generated = 0;
-
                     while (generated < totalFlats)
                     {
                         var suffix = GenerateFlatSuffix(generated); // Reusable generator
@@ -255,7 +256,7 @@ namespace ILab.Data
                         };
 
                         long flatId = await SaveDataAsync("Plan", plan, token);
-                        await SaveResource(templateId, flatName, flatId, token);
+                        await SaveRoomDetails(templateId, flatName, flatId, token);
 
                         generated++;
                     }
@@ -282,30 +283,40 @@ namespace ILab.Data
         }
 
 
-        private async Task SaveResource(long templateId, string flatName, long flatId, CancellationToken token)
+        private async Task SaveRoomDetails(long templateId, string flatName, long flatId, CancellationToken token)
         {
             try
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetFlatTemplateDetails));
                 object[] parameters = [templateId];
-                var ftDetails = (List<FlatTemplateDetails>)method?.Invoke(handler, parameters);
-                foreach (var item in ftDetails)
+                var flatTemplateDetails = (List<FlatTemplateDetails>)method?.Invoke(handler, parameters);
+
+                List<RoomDetails> Resources = new();
+                foreach (var item in flatTemplateDetails)
                 {
-                    var roomDetails = Get("Room", (long)item.RoomId);
-                    var roomName = flatName + "/" + roomDetails.Result.Code;
+                    var rooms = Get("RoomType", (long)item.RoomTypeId);
 
-                    Resource rec = new()
+
+                    for (int i = 1; i <= item.RoomCount; i++)
                     {
-                        Type = "room",
-                        RoomId = item.RoomId,
-                        Quantity = (decimal)item.RoomCount,
-                        PlanId = flatId,
-                        Name = roomName
-                    };
+                        var roomId = flatName + "/" + rooms.Result.Code + "-" + i;
+                        RoomDetails rec = new()
+                        {
+                            RoomId = roomId,
+                            Status = StatusType.Draft,
+                            Date = DateTime.UtcNow,
+                            Member = Identity.Member,
+                            Key = Identity.Key,
+                            RoomTypeId = item.RoomTypeId,
+                            PlanId = flatId,
+                            Name = rooms.Result.Code + "-" + i,
+                        };
+                        Resources.Add(rec);
 
-                    await SaveDataAsync("Resource", rec, token);
+                    }
+
                 }
-
+                await SaveBulkkDataAsync("Resource", Resources, token);
             }
             catch (Exception ex)
             {
@@ -346,13 +357,17 @@ namespace ILab.Data
                 dynamic jsonString = data.ToString();
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);
                 List<FlatTemplateDetails> templatList = JsonConvert.DeserializeObject<List<FlatTemplateDetails>>(jsonData.TemplateDetails);
-                List<FlatTemplateDetails> flatTemplateDetails = new();  
+                List<FlatTemplateDetails> flatTemplateDetails = new();
                 foreach (var item in templatList)
                 {
                     FlatTemplateDetails details = new()
                     {
+                        Status = StatusType.Draft,
+                        Date = DateTime.UtcNow,
+                        Member = Identity.Member,
+                        Key = Identity.Key,
                         FlatTemplateId = templateId,
-                        RoomId = item?.RoomId,
+                        RoomTypeId = item?.RoomTypeId,
                         RoomCount = item?.RoomCount
                     };
                     flatTemplateDetails.Add(details);
@@ -392,6 +407,10 @@ namespace ILab.Data
 
                         Parking parking = new()
                         {
+                            Status = StatusType.Draft,
+                            Date = DateTime.UtcNow,
+                            Member = Identity.Member,
+                            Key = Identity.Key,
                             ParkingTypeId = item.parkingTypeId,
                             TowerId = towerId,
                             ProjectId = jsonData?.ProjectId,
@@ -400,7 +419,7 @@ namespace ILab.Data
                         parkings.Add(parking);
                     }
                 }
-                await SaveBulkkDataAsync("Parking", parkings, token);   
+                await SaveBulkkDataAsync("Parking", parkings, token);
             }
             catch (Exception ex)
             {
@@ -498,6 +517,8 @@ namespace ILab.Data
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);
                 DateOnly StartDate = DateOnly.FromDateTime(jsonData.StartDate);
                 var activityResourceList = JsonConvert.DeserializeObject<List<ActivityResource>>(jsonData.Items);
+                List<ActivityResource> activityResources = new();
+
                 foreach (ActivityResource mainitem in activityResourceList)
                 {
                     if (mainitem.AssignedList?.Count > 0)
@@ -507,6 +528,10 @@ namespace ILab.Data
                             var date = StartDate.AddDays(-item.NotifyBefore);
                             ActivityResource details = new()
                             {
+                                Status = StatusType.Draft,
+                                Date = DateTime.UtcNow,
+                                Member = Identity.Member,
+                                Key = Identity.Key,
                                 ActivityId = activityId,
                                 AssignedUser = item?.Member,
                                 Quantity = mainitem?.Quantity,
@@ -516,14 +541,17 @@ namespace ILab.Data
                                 AvailabilityStatus = AvailablityStatus.NotAvailable,
                                 NotificationStartDate = date
                             };
-
-                            await SaveDataAsync("ActivityResource", details, token);
+                            activityResources.Add(details);
                         }
                     }
                     else
                     {
                         ActivityResource details = new()
                         {
+                            Status = StatusType.Draft,
+                            Date = DateTime.UtcNow,
+                            Member = Identity.Member,
+                            Key = Identity.Key,
                             ActivityId = activityId,
                             Quantity = mainitem?.Quantity,
                             UOMId = mainitem?.UOMId,
@@ -531,9 +559,10 @@ namespace ILab.Data
                             ResourceType = "Item",
                             AvailabilityStatus = AvailablityStatus.NotAvailable
                         };
-                        await SaveDataAsync("ActivityResource", details, token);
+                        activityResources.Add(details);
                     }
                 }
+                await SaveBulkkDataAsync("ActivityResource", activityResources, token);
             }
             catch (Exception ex)
             {
@@ -546,53 +575,56 @@ namespace ILab.Data
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetResourceDetails));
                 object[] parameters = [main.FlatId];
-                var lists = (List<Resource>)method?.Invoke(handler, parameters);
+                var lists = (List<RoomDetails>)method?.Invoke(handler, parameters);
 
                 if (lists != null)
                 {
                     List<Activity> activities = new();
                     foreach (var item in lists)
                     {
-                        int quantity = (int)item.Quantity;
-                        for (int index = 1; index <= quantity; index++)
+                        //for (int index = 1; index <= quantity; index++)
+                        //{
+                        var desc = item.RoomId;
+                        Activity activity = new()
                         {
-                            var desc = string.Concat(item.Name, "-", index);
-                            Activity activity = new()
-                            {
-                                Type = "Sub Task",
-                                ParentId = main.Id,
-                                ProjectId = main.ProjectId,
-                                WorkflowId = main.WorkflowId,
-                                UserId = main.UserId,
-                                Name = string.Concat(main.Name, "-", desc),
-                                Description = string.Concat(main.Description, "-", desc),
-                                StartDate = main.StartDate,
-                                EndDate = main.EndDate,
-                                Items = main.Items,
-                                ContractorId = main.ContractorId,
-                                PhotoUrl = main.PhotoUrl,
-                                DependencyId = main.DependencyId,
-                                MaterialProvidedBy = main.MaterialProvidedBy,
-                                LabourProvidedBy = main.LabourProvidedBy
-                            };
-                            if (main.FlatId != null)
-                            {
-                                activity.TowerId = main.TowerId;
-                                activity.FloorId = main.FloorId;
-                                activity.FlatId = main.FlatId;
-                                activity.WorkId = GetWorkId(item.Name, index, main.DependencyId, main.ProjectId, token);
-                            }
-                            else if (main.FloorId != null)
-                            {
-                                activity.TowerId = main.TowerId;
-                                activity.FloorId = main.FloorId;
-                            }
-                            else if (main.TowerId != null)
-                            {
-                                activity.TowerId = main.TowerId;
-                            }
-                            activities.Add(activity);
+                            Status = StatusType.Draft,
+                            Date = DateTime.UtcNow,
+                            Member = Identity.Member,
+                            Key = Identity.Key,
+                            Type = "Sub Task",
+                            ParentId = main.Id,
+                            ProjectId = main.ProjectId,
+                            WorkflowId = main.WorkflowId,
+                            // UserId = main.UserId,
+                            Name = string.Concat(main.Name, "-", desc),
+                            Description = string.Concat(main.Description, "-", desc),
+                            StartDate = main.StartDate,
+                            EndDate = main.EndDate,
+                            Items = main.Items,
+                            ContractorId = main.ContractorId,
+                            PhotoUrl = main.PhotoUrl,
+                            DependencyId = main.DependencyId,
+                            MaterialProvidedBy = main.MaterialProvidedBy,
+                            LabourProvidedBy = main.LabourProvidedBy
+                        };
+                        if (main.FlatId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                            activity.FloorId = main.FloorId;
+                            activity.FlatId = main.FlatId;
+                            activity.WorkId = GetWorkId(item.RoomId, main.DependencyId, main.ProjectId, token);
                         }
+                        else if (main.FloorId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                            activity.FloorId = main.FloorId;
+                        }
+                        else if (main.TowerId != null)
+                        {
+                            activity.TowerId = main.TowerId;
+                        }
+                        activities.Add(activity);
+                        //}
                     }
                     await SaveBulkkDataAsync(model, activities, token);
                 }
@@ -602,7 +634,7 @@ namespace ILab.Data
                 logger.LogError(ex, $"Exception in SavaDataIntoDataBase method, message:'{ex.Message}'");
             }
         }
-        private string? GetWorkId(string name, int index, long? DependencyId, long? projectId, CancellationToken token)
+        private string? GetWorkId(string name, long? DependencyId, long? projectId, CancellationToken token)
         {
             try
             {
@@ -620,9 +652,7 @@ namespace ILab.Data
 
                     string nextDocNo = newNo.ToString("D3");
                     StringBuilder workId = new();
-                    workId.Append(name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>
-                    workId.Append("-");
-                    workId.Append(index); //<Room-Count-Index>
+                    workId.Append(name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>                   
                     workId.Append("/");
                     workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
                     workId.Append("/");
@@ -901,6 +931,69 @@ namespace ILab.Data
             {
                 logger.LogError("Exception in GetData method and details: " + ex.Message);
                 return 0;
+            }
+        }
+
+        public dynamic GetFileFromFileSystem(string module, string fileName)
+        {
+            try
+            {
+                var folderPath = _configuration["FileUploadSettings:UploadFolderPath"] + "/" + module;
+                var fullPath = Path.Combine(folderPath, fileName);
+                if (!File.Exists(fullPath))
+                    return "File not found.";
+                byte[] fileBytes = File.ReadAllBytes(fullPath);
+                string base64String = Convert.ToBase64String(fileBytes);
+                return base64String;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetFileFromFileSystem method and details: '{ex.Message}'");
+                throw;
+            }
+        }
+
+        public async Task<dynamic> ConvertBase64toFile(string module, dynamic data)
+        {
+            try
+            {
+                var folderPath = _configuration["FileUploadSettings:UploadFolderPath"] + "/" + module;
+                var type = GetType(module);
+                dynamic jsonString = data.ToString();
+                var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+                dynamic modelData;
+                modelData = jsonData;
+                switch (module?.ToUpper())
+                {
+                    case "COMPANY":
+                        modelData.Logo = Utility.Base64ToFile(modelData.Logo, folderPath);
+                        break;
+                    case "PROJECT":
+                        modelData.Blueprint = Utility.Base64ToFile(modelData.Blueprint, folderPath);
+                        break;
+                    case "PLAN":
+                        modelData.Blueprint = Utility.Base64ToFile(modelData.Blueprint, folderPath);
+                        break;
+                    case "ACTIVITY":
+                        modelData.PhotoUrl = Utility.Base64ToFile(modelData.PhotoUrl, folderPath);
+                        break;
+                    case "ATTACHMENT":
+                        modelData.File = Utility.Base64ToFile(modelData.File, folderPath);
+                        break;
+                    case "NAMEMASTER":
+                        modelData.FatherCertificate = Utility.Base64ToFile(modelData.FatherCertificate, folderPath);
+                        modelData.MotherCertificate = Utility.Base64ToFile(modelData.MotherCertificate, folderPath);
+                        modelData.GrandFatherCertificate = Utility.Base64ToFile(modelData.GrandFatherCertificate, folderPath);
+                        modelData.GrandMotherCertificate = Utility.Base64ToFile(modelData.GrandMotherCertificate, folderPath);
+                        break;
+                }
+                return JsonConvert.SerializeObject(modelData);
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in ConvertBase64toVarbinary method and details: '{ex.Message}'");
+                throw;
             }
         }
     }

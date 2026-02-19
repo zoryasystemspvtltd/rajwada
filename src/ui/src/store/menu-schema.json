@@ -127,8 +127,8 @@
                 "name": "roomManagement",
                 "text": "Room Type",
                 "icon": "cubes",
-                "path": "/rooms",
-                "access": "plan"
+                "path": "/roomtypes",
+                "access": "roomType"
             },
             {
                 "name": "activityCreation",

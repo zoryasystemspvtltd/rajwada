@@ -23,8 +23,8 @@ export const EditRoomMapping = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Room Type', field: 'roomId', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'room' }
+                        text: 'Room Type', field: 'roomTypeId', type: 'lookup', required: true, width: 4,
+                        schema: { module: 'roomType' }
                     },
                     { text: 'Count', field: 'quantity', placeholder: 'Room Count', type: 'number', required: true, width: 4 },
                     {
@@ -61,8 +61,8 @@ export const AddRoomMapping = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Room Type', field: 'roomId', type: 'lookup', required: true, width: 4,
-                        schema: { module: 'room' }
+                        text: 'Room Type', field: 'roomTypeId', type: 'lookup', required: true, width: 4,
+                        schema: { module: 'roomType' }
                     },
                     { text: 'Count', field: 'quantity', placeholder: 'Room Count', type: 'number', required: true, width: 4 },
                     {

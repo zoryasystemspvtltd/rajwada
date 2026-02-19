@@ -12,7 +12,7 @@ export const ViewProfile = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload' },
+                    { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload', module: 'identity' },
                     // { text: 'Email', field: 'email', type: 'link', to: 'mailto://' },
                 ]
             },
@@ -41,7 +41,7 @@ export const EditProfile = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload' },
+                    { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload', module: 'identity' },
                     // { text: 'Email', field: 'email', type: 'link', to: 'mailto://' },
                 ]
             },

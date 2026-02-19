@@ -38,7 +38,7 @@ export const ViewUser = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload' },
+                    { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload', module: 'user' },
                     // { text: 'Email', field: 'email', type: 'link', to: 'mailto://' },
                 ]
             },
@@ -89,7 +89,7 @@ export const EditUser = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload' },
+                    { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload', module: 'user' },
                 ]
             },
             {
@@ -146,7 +146,7 @@ export const AddUser = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload' },
+                    { text: 'Profile Picture', field: 'photoUrl', placeholder: 'PhotoUrl here...', type: 'picture-upload', module: 'user' },
                 ]
             },
             {

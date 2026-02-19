@@ -590,6 +590,7 @@ const IUIPageElement = (props) => {
                                                 onChange={handleChange}
                                                 readonly={props.readonly || fld.readonly || false}
                                                 shape={fld.shape || "circle"}
+                                                module={fld.module}
                                             />
                                         </Form.Group>
                                         <br />
@@ -743,8 +744,9 @@ const IUIPageElement = (props) => {
                                         </Form.Label>
 
                                         {
-                                            (data[fld.field]?.split(';')[0] !== "data:application/pdf") ?
+                                            (data[fld.field]?.split('.')[1] !== "pdf") ?
                                                 <ILab.MarkerCanvas
+                                                    imageModule={fld.imageModule}
                                                     id={fld.field}
                                                     value={data[fld.field] || []}
                                                     className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}

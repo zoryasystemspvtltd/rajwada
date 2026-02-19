@@ -136,7 +136,7 @@ public class RajDataHandler : LabDataHandler
             Name = "PlanId",
             Value = flatId
         };
-        var resouces = Load<Resource>(option).Items.ToList();
+        var resouces = Load<RoomDetails>(option).Items.ToList();
         return resouces;
     }
     public dynamic GetFlatTemplateDetails(long templateId)
@@ -287,8 +287,7 @@ public class RajDataHandler : LabDataHandler
         {
             var activities = dbContext.Set<Activity>()
                      .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
-                     && l.TowerId == towerId && l.FloorId == floorId
-                     && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
+                     && l.TowerId == towerId && l.FloorId == floorId).ToList();
             if (flatId > 0)
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
@@ -310,8 +309,7 @@ public class RajDataHandler : LabDataHandler
         {
             var activities = dbContext.Set<Activity>()
                      .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
-                     && l.TowerId == towerId && l.FloorId == floorId
-                     && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
+                     && l.TowerId == towerId && l.FloorId == floorId).ToList();
             if (flatId > 0)
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
@@ -357,43 +355,43 @@ public class RajDataHandler : LabDataHandler
             table.Columns.Add("CommentDate");
 
         }
-        var resources = dbContext.Set<Resource>().Where(a => a.PlanId == item.FlatId).ToList();
+        var roomDetails = dbContext.Set<RoomDetails>().Where(a => a.PlanId == item.FlatId).ToList();
 
-        foreach (var rec in resources)
+        foreach (var rec in roomDetails)
         {
-            var room = dbContext.Set<Room>().Where(a => a.Id == rec.RoomId).FirstOrDefault(); // Ex- Bedroom
-            for (int index = 1; index <= rec.Quantity; index++)
+            //var room = dbContext.Set<RoomType>().Where(a => a.Id == rec.RoomTypeId).FirstOrDefault(); // Ex- Bedroom
+            //for (int index = 1; index <= rec.Quantity; index++)
+            //{
+            var roomName = rec?.Name; //+ "-" + index.ToString(); // Ex: Bedroom-1
+            var filteredActivities = statuslist?.Where(a => a.ActivityName.Contains(roomName)).ToList();
+            foreach (var fact in filteredActivities)
             {
-                var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
-                var filteredActivities = statuslist?.Where(a => a.ActivityName.Contains(roomName)).ToList();
-                foreach (var fact in filteredActivities)
+                var activity = activities?.Where(a => a.Id == fact.Id).FirstOrDefault();
+                DataRow row = table.NewRow();
+                row["Project Name"] = project?.Name;
+                row["Tower Name"] = tower?.Name;
+                row["Floor Name"] = floor?.Name;
+                row["Flat Name"] = flat?.Name;
+                row["Room Name"] = roomName;
+                row["Activity Name"] = fact?.ActivityName;
+                row["Activity Status"] = fact?.ActivityStatus;
+                row["ProgressPercentage"] = fact?.ProgressPercentage;
+                row["Duration"] = fact?.Duration;
+                row["StartDate"] = activity?.StartDate;
+                row["EndDate"] = activity?.EndDate;
+                row["ActualStartDate"] = activity?.ActualStartDate;
+                row["ActualEndDate"] = activity?.ActualEndDate;
+                if (flag)
                 {
-                    var activity = activities?.Where(a => a.Id == fact.Id).FirstOrDefault();
-                    DataRow row = table.NewRow();
-                    row["Project Name"] = project?.Name;
-                    row["Tower Name"] = tower?.Name;
-                    row["Floor Name"] = floor?.Name;
-                    row["Flat Name"] = flat?.Name;
-                    row["Room Name"] = roomName;
-                    row["Activity Name"] = fact?.ActivityName;
-                    row["Activity Status"] = fact?.ActivityStatus;
-                    row["ProgressPercentage"] = fact?.ProgressPercentage;
-                    row["Duration"] = fact?.Duration;
-                    row["StartDate"] = activity?.StartDate;
-                    row["EndDate"] = activity?.EndDate;
-                    row["ActualStartDate"] = activity?.ActualStartDate;
-                    row["ActualEndDate"] = activity?.ActualEndDate;
-                    if (flag)
-                    {
-                        var comments = dbContext.Set<Comment>().Where(a => a.Id == fact.Id).FirstOrDefault();
+                    var comments = dbContext.Set<Comment>().Where(a => a.Id == fact.Id).FirstOrDefault();
 
-                        row["Comment"] = comments?.Remarks;
-                        row["CommentDate"] = comments?.Date;
-                    }
-                    table.Rows.Add(row);
+                    row["Comment"] = comments?.Remarks;
+                    row["CommentDate"] = comments?.Date;
                 }
-
+                table.Rows.Add(row);
             }
+
+            //}
         }
 
         return table;
@@ -439,8 +437,7 @@ public class RajDataHandler : LabDataHandler
         {
             var activities = dbContext.Set<Activity>()
                      .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
-                     && l.TowerId == towerId && l.FloorId == floorId
-                     && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
+                     && l.TowerId == towerId && l.FloorId == floorId).ToList();
             if (flatId > 0)
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
@@ -571,27 +568,27 @@ public class RajDataHandler : LabDataHandler
     }
     private DataTable GetRoomNames(long flatId, DataTable table, List<WorkerStatusReport> activities)
     {
-        var resources = dbContext.Set<Resource>().Where(a => a.PlanId == flatId).ToList();
+        var roomDetails = dbContext.Set<RoomDetails>().Where(a => a.PlanId == flatId).ToList();
 
-        foreach (var item in resources)
+        foreach (var item in roomDetails)
         {
-            var room = dbContext.Set<Room>().Where(a => a.Id == item.RoomId).FirstOrDefault(); // Ex- Bedroom
-            for (int index = 1; index <= item.Quantity; index++)
+            //var room = dbContext.Set<RoomType>().Where(a => a.Id == item.RoomTypeId).FirstOrDefault(); // Ex- Bedroom
+            //for (int index = 1; index <= item.Quantity; index++)
+            //{
+            DataRow row = table.NewRow();
+            var roomName = item?.Name; //+ "-" + index.ToString(); // Ex: Bedroom-1
+            row["RoomName"] = roomName;
+
+            for (int j = 1; j < table.Columns.Count; j += 3)
             {
-                DataRow row = table.NewRow();
-                var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
-                row["RoomName"] = roomName;
-
-                for (int j = 1; j < table.Columns.Count; j += 3)
-                {
-                    var filteredActivities = activities.Where(a => a.ActivityName.Contains(roomName) && a.ActivityName.Contains(table.Columns[j].ColumnName)).FirstOrDefault();
-                    row[table.Columns[j].ColumnName] = filteredActivities?.ActivityStatus;
-                    row[table.Columns[j + 1].ColumnName] = filteredActivities?.ProgressPercentage;
-                    row[table.Columns[j + 2].ColumnName] = filteredActivities?.Duration;
-                }
-
-                table.Rows.Add(row);
+                var filteredActivities = activities.Where(a => a.ActivityName.Contains(roomName) && a.ActivityName.Contains(table.Columns[j].ColumnName)).FirstOrDefault();
+                row[table.Columns[j].ColumnName] = filteredActivities?.ActivityStatus;
+                row[table.Columns[j + 1].ColumnName] = filteredActivities?.ProgressPercentage;
+                row[table.Columns[j + 2].ColumnName] = filteredActivities?.Duration;
             }
+
+            table.Rows.Add(row);
+            //}
         }
 
         return table;
@@ -773,11 +770,11 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public override async Task<long> BulkDataAsync<T>(IEnumerable<T> items, CancellationToken cancellationToken)
+    public override async Task<long> BulkAddAsync<T>(IEnumerable<T> items, CancellationToken cancellationToken)
     {
         try
         {
-            var id = await base.BulkDataAsync(items, cancellationToken);
+            var id = await base.BulkAddAsync(items, cancellationToken);
             await LogBulkLabModelLog(items, StatusType.Draft, cancellationToken);
             await SaveBulkAuditLogs(items, StatusType.Draft, null, null, cancellationToken);
             return id;
@@ -966,7 +963,7 @@ public class RajDataHandler : LabDataHandler
                 listlog.Add(log);
             }
 
-            await base.BulkDataAsync(listlog, cancellationToken);
+            await base.BulkAddAsync(listlog, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -1097,12 +1094,12 @@ public class RajDataHandler : LabDataHandler
                 listLog.Add(log);
             }
 
-            await base.BulkDataAsync(listLog, cancellationToken);
+            await base.BulkAddAsync(listLog, cancellationToken);
 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to log audit trail for {Message}",  ex.Message);
+            logger.LogError(ex, "Failed to log audit trail for {Message}", ex.Message);
             throw;
         }
     }
