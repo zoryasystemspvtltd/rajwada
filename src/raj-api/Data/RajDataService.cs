@@ -291,11 +291,10 @@ namespace ILab.Data
                 object[] parameters = [templateId];
                 var flatTemplateDetails = (List<FlatTemplateDetails>)method?.Invoke(handler, parameters);
 
-                List<RoomDetails> Resources = new();
+                List<RoomDetails> roomDetails = new();
                 foreach (var item in flatTemplateDetails)
                 {
                     var rooms = Get("RoomType", (long)item.RoomTypeId);
-
 
                     for (int i = 1; i <= item.RoomCount; i++)
                     {
@@ -311,16 +310,14 @@ namespace ILab.Data
                             PlanId = flatId,
                             Name = rooms.Result.Code + "-" + i,
                         };
-                        Resources.Add(rec);
-
+                        roomDetails.Add(rec);
                     }
-
                 }
-                await SaveBulkkDataAsync("Resource", Resources, token);
+                await SaveBulkkDataAsync("RoomDetails", roomDetails, token);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Exception in SaveResource method and details: '{ex.Message}'");
+                logger.LogError(ex, $"Exception in SaveRoomDetails method and details: '{ex.Message}'");
                 throw;
             }
         }
