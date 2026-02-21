@@ -540,25 +540,25 @@ namespace ILab.Data
             }
         }
        
-        private string? GetWorkId(string name, long? DependencyId, long? projectId, CancellationToken token)
+        private string? GetWorkId(long? RoomId, long? DependencyId, long? projectId, CancellationToken token)
         {
             try
             {
                 //Work Id formate
                 //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
                 var dependency = Get("Dependency", (long)DependencyId);
-
+                var roomDetails = Get("RoomDetails", (long)RoomId);
                 var docno = GetDocumentNo((long)projectId);
 
                 string year = GetFinancialYear();
-                if (dependency != null && docno != null)
+                if (dependency != null && roomDetails != null && docno != null)
                 {
                     int newNo = docno?.LastDocumentNo + 1;
                     UpdateProjcetDocNoTracing(docno, newNo, token);
 
                     string nextDocNo = newNo.ToString("D3");
                     StringBuilder workId = new();
-                    workId.Append(name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>                   
+                    workId.Append(roomDetails?.Result.RoomId); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>                   
                     workId.Append("/");
                     workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
                     workId.Append("/");
