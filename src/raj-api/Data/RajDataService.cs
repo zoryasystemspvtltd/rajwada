@@ -161,7 +161,7 @@ namespace ILab.Data
                         break;
 
                     case "ACTIVITY":
-                        await SaveSubTaskAsync(model, Id, token);
+                        //await SaveSubTaskAsync(model, Id, token);
                         await SaveActivityResourceAsync(type, data, Id, token);
                         break;
                 }
@@ -477,34 +477,7 @@ namespace ILab.Data
             }
 
         }
-        private async Task SaveSubTaskAsync(string model, long activityId, CancellationToken token)
-        {
-            try
-            {
-                var subact = await Get(model, activityId);
-                if (subact != null)
-                {
-                    if (subact.FlatId != null)
-                    {
-                        await SavaDataIntoDataBase(model, subact, token);
-                    }
-                    //else if (subact.FloorId != null)
-                    //{
-                    //    var floors = GetResourceDetails("Resource", subact.FloorId, token);
-                    //    await SavaDataIntoDataBase(floors, model, subact, token);
-                    //}
-                    //else if (subact.TowerId != null)
-                    //{
-                    //    var towers = GetResourceDetails("Resource", subact.TowerId, token);
-                    //    await SavaDataIntoDataBase(towers, model, subact, token);
-                    //}
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
-            }
-        }
+        
 
         private async Task SaveActivityResourceAsync(Type type, dynamic data, long activityId, CancellationToken token)
         {
@@ -566,71 +539,7 @@ namespace ILab.Data
                 logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
             }
         }
-        private async Task SavaDataIntoDataBase(string model, Activity main, CancellationToken token)
-        {
-            try
-            {
-                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetResourceDetails));
-                object[] parameters = [main.FlatId];
-                var lists = (List<RoomDetails>)method?.Invoke(handler, parameters);
-
-                if (lists != null)
-                {
-                    List<Activity> activities = new();
-                    foreach (var item in lists)
-                    {
-                        //for (int index = 1; index <= quantity; index++)
-                        //{
-                        var desc = item.RoomId;
-                        Activity activity = new()
-                        {
-                            Status = StatusType.Draft,
-                            Date = DateTime.UtcNow,
-                            Member = Identity.Member,
-                            Key = Identity.Key,
-                            Type = "Sub Task",
-                            ParentId = main.Id,
-                            ProjectId = main.ProjectId,
-                            WorkflowId = main.WorkflowId,
-                            // UserId = main.UserId,
-                            Name = string.Concat(main.Name, "-", desc),
-                            Description = string.Concat(main.Description, "-", desc),
-                            StartDate = main.StartDate,
-                            EndDate = main.EndDate,
-                            Items = main.Items,
-                            ContractorId = main.ContractorId,
-                            PhotoUrl = main.PhotoUrl,
-                            DependencyId = main.DependencyId,
-                            MaterialProvidedBy = main.MaterialProvidedBy,
-                            LabourProvidedBy = main.LabourProvidedBy
-                        };
-                        if (main.FlatId != null)
-                        {
-                            activity.TowerId = main.TowerId;
-                            activity.FloorId = main.FloorId;
-                            activity.FlatId = main.FlatId;
-                            activity.WorkId = GetWorkId(item.RoomId, main.DependencyId, main.ProjectId, token);
-                        }
-                        else if (main.FloorId != null)
-                        {
-                            activity.TowerId = main.TowerId;
-                            activity.FloorId = main.FloorId;
-                        }
-                        else if (main.TowerId != null)
-                        {
-                            activity.TowerId = main.TowerId;
-                        }
-                        activities.Add(activity);
-                        //}
-                    }
-                    await SaveBulkkDataAsync(model, activities, token);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Exception in SavaDataIntoDataBase method, message:'{ex.Message}'");
-            }
-        }
+       
         private string? GetWorkId(string name, long? DependencyId, long? projectId, CancellationToken token)
         {
             try
@@ -983,6 +892,7 @@ namespace ILab.Data
                         modelData.GrandFatherCertificate = Utility.Base64ToFile(modelData.GrandFatherCertificate, folderPath);
                         modelData.GrandMotherCertificate = Utility.Base64ToFile(modelData.GrandMotherCertificate, folderPath);
                         break;
+
                 }
                 return JsonConvert.SerializeObject(modelData);
 
@@ -992,6 +902,18 @@ namespace ILab.Data
                 logger.LogError(ex, $"Exception in ConvertBase64toVarbinary method and details: '{ex.Message}'");
                 throw;
             }
+        }
+
+        internal dynamic GenerateWorkId(string module, dynamic data, CancellationToken token)
+        {
+            var type = GetType(module);
+            dynamic jsonString = data.ToString();
+            var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+
+            //Generate WorkId based on RoomId, DependencyId and Project
+            jsonData.WorkId = GetWorkId(jsonData.RoomId, jsonData.DependencyId, jsonData.ProjectId, token);
+
+            return JsonConvert.SerializeObject(jsonData);
         }
     }
 }
