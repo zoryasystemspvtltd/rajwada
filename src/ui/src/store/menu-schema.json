@@ -176,7 +176,7 @@
         "transaction": [
             {
                 "name": "work",
-                "text": "Work",
+                "text": "Work Planning",
                 "icon": "vector-square",
                 "path": "/works",
                 "access": "activity"

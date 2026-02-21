@@ -2,7 +2,6 @@ import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage"
 
 export const ListWorkflow = () => {
-
     const schema = {
         module: 'workflow',
         title: 'Dependency',
@@ -17,6 +16,22 @@ export const ListWorkflow = () => {
             {
                 text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
                 schema: { module: 'project' }
+            },
+            {
+                text: 'Tower', field: 'towerId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'plan' }
+            },
+            {
+                text: 'Floor', field: 'floorId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'plan' }
+            },
+            {
+                text: 'Flat', field: 'flatId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'plan' }
+            },
+            {
+                text: 'Room', field: 'roomId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'roomDetails' }
             }
         ]
     }
@@ -144,6 +159,22 @@ export const EditWorkflow = () => {
                             relationKey: "parentId",
                             path: 'flats'
                         },
+                    },
+                    {
+                        type: 'lookup-relation',
+                        parent: 'flatId',
+                        field: 'roomId',
+                        // exclusionCondition:{
+                        //     field: 'type',
+                        //     value: 'Inside'
+                        // },
+                        text: 'Room',
+                        width: 3,
+                        schema: {
+                            module: 'roomDetails',
+                            relationKey: "planId",
+                            path: 'roomMappings'
+                        },
                     }
                 ]
             },
@@ -158,6 +189,7 @@ export const EditWorkflow = () => {
 
     return (<IUIPage schema={schema} />)
 }
+
 
 export const AddWorkflow = () => {
     const schema = {
@@ -243,21 +275,25 @@ export const AddWorkflow = () => {
             {
                 type: "area", width: 12
                 , fields: [
+                    // {
+                    //     type: 'lookup-relation',
+                    //     parent: 'projectId',
+                    //     field: 'towerId',
+                    //     // exclusionCondition:{
+                    //     //     field: 'type',
+                    //     //     value: 'Inside'
+                    //     // },
+                    //     text: 'Tower',
+                    //     width: 3,
+                    //     schema: {
+                    //         module: 'plan',
+                    //         relationKey: "projectId",
+                    //         path: 'towers'
+                    //     },
+                    // },
                     {
-                        type: 'lookup-relation',
-                        parent: 'projectId',
-                        field: 'towerId',
-                        // exclusionCondition:{
-                        //     field: 'type',
-                        //     value: 'Inside'
-                        // },
-                        text: 'Tower',
-                        width: 3,
-                        schema: {
-                            module: 'plan',
-                            relationKey: "projectId",
-                            path: 'towers'
-                        },
+                        text: 'Tower', field: 'towerId', type: 'lookup-filter', required: false, width: 3,
+                        schema: { module: 'plan', filter: 'type', value: 'tower' }
                     },
                     {
                         type: 'lookup-relation',
@@ -292,7 +328,7 @@ export const AddWorkflow = () => {
                         },
                     },
                     {
-                        type: 'lookup-relation-rooms',
+                        type: 'lookup-relation',
                         parent: 'flatId',
                         field: 'roomId',
                         // exclusionCondition:{
@@ -302,26 +338,10 @@ export const AddWorkflow = () => {
                         text: 'Room',
                         width: 3,
                         schema: {
-                            module: 'plan',
-                            parentModule: 'flatTemplateDetails',
-                            childModule: 'roomType',
-                            field: 'flatTemplateId',
-                            parentFilterFields: [
-                                {
-                                    name: "projectId", // search key in parentData
-                                    key: "projectId" // key used in query for filtering
-                                },
-                                {
-                                    name: "floorId",
-                                    key: "parentId"
-                                },
-                                {
-                                    name: "type",
-                                    key: "type",
-                                    value: "flat"
-                                }
-                            ]
-                        }
+                            module: 'roomDetails',
+                            relationKey: "planId",
+                            path: 'roommappings'
+                        },
                     }
                 ]
             },
