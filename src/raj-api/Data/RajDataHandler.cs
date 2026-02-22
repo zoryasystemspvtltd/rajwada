@@ -1216,9 +1216,14 @@ public class RajDataHandler : LabDataHandler
 
     public dynamic GetNullData(string model)
     {
-        if (model != null)
+        if (model != null && model == "activityAmendment")
         {
             var data = dbContext.Set<ActivityAmendment>().Where(e => e.ParentId == null).ToList();
+            return data;
+        }
+        else if (model != null && model == "activity")
+        {
+            var data = dbContext.Set<Activity>().Where(e => e.ActualStartDate == null).ToList();
             return data;
         }
         else

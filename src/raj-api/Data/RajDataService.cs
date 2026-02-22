@@ -596,7 +596,12 @@ namespace ILab.Data
                     var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.EditAsync));
                     var generic = method?.MakeGenericMethod(type);
                     object[] parameters = { data, token };
-                    generic?.Invoke(handler, parameters);
+                    var result = generic?.Invoke(handler, parameters);
+                    if (result is System.Threading.Tasks.Task task)
+                    {
+                        // Complete the operation before continuing to avoid concurrent DbContext use
+                        task.GetAwaiter().GetResult();
+                    }
                 }
             }
             catch (Exception ex)

@@ -236,7 +236,7 @@ const IUIActivityWizard = (props) => {
             }
         }
 
-
+        console.log(props?.sequence, props?.dependencyData)
         if (props?.sequence && props?.dependencyData) {
             fetchActivities();
         }

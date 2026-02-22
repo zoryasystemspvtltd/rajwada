@@ -53,6 +53,8 @@ import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from
 import WorkTransfer from "../pages/common/WorkTransfer";
 import { AddTowerParking, EditTowerParking, ListTowerParking, ViewTowerParking } from "../pages/app/schema/TowerParkings";
 import { AddRoomType, EditRoomType, ListRoomType, ViewRoomType } from "../pages/app/schema/RoomTypes";
+import { AddFinancialYear, EditFinancialYear, ListFinancialYear, ViewFinancialYear } from "../pages/app/schema/FinancialYears";
+import ActivityStatusDashboard from "../pages/app/status-check/ActivityDashboard";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -230,6 +232,22 @@ const Routes = () => {
                 {
                     path: "/projects/add",
                     element: <AddProject />
+                },
+                 {
+                    path: "/financialyears",
+                    element: <ListFinancialYear />
+                },
+                {
+                    path: "/financialyears/:id",
+                    element: <ViewFinancialYear />
+                },
+                {
+                    path: "/financialyears/:id/edit",
+                    element: <EditFinancialYear />
+                },
+                {
+                    path: "/financialyears/add",
+                    element: <AddFinancialYear />
                 },
                 {
                     path: "/towers",
@@ -627,6 +645,10 @@ const Routes = () => {
                     path: "/parkings/add",
                     element: <AddTowerParking />
                 },
+                 {
+                    path: "/workstatus",
+                    element: <ActivityStatusDashboard />
+                }
             ],
         },
     ];
