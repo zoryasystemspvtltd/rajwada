@@ -41,7 +41,7 @@ const Calendar = () => {
     });
     const [progress, setProgress] = useState(0);
     // const [previousProgress, setPreviousProgress] = useState(0);
-    const [blueprint, setBlueprint] = useState([]);
+    const [blueprint, setBlueprint] = useState("");
     const [itemList, setItemList] = useState('');
     const [actualCost, setActualCost] = useState(0);
     const [manPower, setManPower] = useState(0);
@@ -50,6 +50,7 @@ const Calendar = () => {
     const [error, setError] = useState(null);
     const [canvasSchema, setCanvasSchema] = useState({
         text: 'Activity Blueprint', field: 'photoUrl', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
+        imageModule: 'plan',
         schema: {
             readonly: true,
             upload: false,
@@ -391,7 +392,7 @@ const Calendar = () => {
 
             setSelectedTasks(filteredTasks);
             setSelectedMainTask(task);
-            setModalOpen(true);
+            setModalOpen(false);
         } catch (error) {
             setError('Failed to fetch tasks');
         }
@@ -462,7 +463,8 @@ const Calendar = () => {
                     ...canvasSchema,
                     schema: {
                         ...canvasSchema.schema,
-                        parentId: parseInt(task?.parentId ? task.parentId : task.id),
+                        // parentId: parseInt(task?.parentId ? task.parentId : task.id),
+                        parentId: -1,
                         readonly: true,
                         save: false,
                         controls: {
@@ -494,7 +496,8 @@ const Calendar = () => {
                     ...canvasSchema,
                     schema: {
                         ...canvasSchema.schema,
-                        parentId: parseInt(task?.parentId ? task.parentId : task.id),
+                        // parentId: parseInt(task?.parentId ? task.parentId : task.id),
+                        parentId: -1,
                         readonly: false,
                         save: true,
                         controls: {
@@ -910,7 +913,7 @@ const Calendar = () => {
                                             <Button
                                                 variant="contained"
                                                 className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-lg btn-primary'
-                                                onClick={() => handleMainTaskClick(task)}
+                                                onClick={() => handleTaskClick(task)}
                                                 style={{ width: '100%' }}
                                             >
                                                 {task.name}
@@ -1205,14 +1208,16 @@ const Calendar = () => {
                                     </Form.Label>
 
                                     {
-                                        (blueprint?.split(';')[0] !== "data:application/pdf") ?
+                                        (blueprint?.split('.')[1] !== "pdf") ?
                                             <ILab.MarkerCanvas
+                                                imageModule={canvasSchema.imageModule}
                                                 id={canvasSchema.field}
                                                 value={blueprint || []}
                                                 schema={canvasSchema.schema}
                                                 onChange={handleBlueprintChange}
                                                 readonly={canvasSchema.readonly || !isSameDay(selectedDate, startOfToday())}
-                                            /> :
+                                            />
+                                            :
                                             <IUIPdfTool
                                                 displayToolbar={!canvasSchema.readonly || isSameDay(selectedDate, startOfToday())}
                                                 height={800}
