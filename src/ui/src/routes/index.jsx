@@ -38,6 +38,7 @@ import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
 import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
+import { AddFinancialYear, EditFinancialYear, ListFinancialYear, ViewFinancialYear } from "../pages/app/schema/FinancialYears";
 import { EditFlatTemplateMapping } from "../pages/app/schema/FlatTemplateMappings";
 import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate } from "../pages/app/schema/FlatTemplates";
 import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
@@ -46,13 +47,15 @@ import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from ".
 import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } from "../pages/app/schema/ParkingTypes";
 import { AddPostWorkPeriodicCheck, EditPostWorkPeriodicCheck, ListPostWorkPeriodicCheck, ViewPostWorkPeriodicCheck } from "../pages/app/schema/PostWorkPeriodicCheck";
 import { AddRoomMapping, EditRoomMapping } from "../pages/app/schema/RoomMappings";
+import { AddRoomType, EditRoomType, ListRoomType, ViewRoomType } from "../pages/app/schema/RoomTypes";
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
 import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
+import { AddTowerParking, EditTowerParking, ListTowerParking, ViewTowerParking } from "../pages/app/schema/TowerParkings";
 import { AddWorkCheckpoint, EditWorkCheckpoint, ListWorkCheckpoint, ViewWorkCheckpoint } from "../pages/app/schema/WorkCheckpoints";
+import ActivityListByStatus from "../pages/app/status-check/ActivityStatusList";
 import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from "../pages/common/ItemAvailabilityTrack";
 import WorkTransfer from "../pages/common/WorkTransfer";
-import { AddTowerParking, EditTowerParking, ListTowerParking, ViewTowerParking } from "../pages/app/schema/TowerParkings";
-import { AddRoomType, EditRoomType, ListRoomType, ViewRoomType } from "../pages/app/schema/RoomTypes";
+import ViewActivityStatus from "../pages/app/status-check/IndividualActivityStatus";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -230,6 +233,22 @@ const Routes = () => {
                 {
                     path: "/projects/add",
                     element: <AddProject />
+                },
+                {
+                    path: "/financialyears",
+                    element: <ListFinancialYear />
+                },
+                {
+                    path: "/financialyears/:id",
+                    element: <ViewFinancialYear />
+                },
+                {
+                    path: "/financialyears/:id/edit",
+                    element: <EditFinancialYear />
+                },
+                {
+                    path: "/financialyears/add",
+                    element: <AddFinancialYear />
                 },
                 {
                     path: "/towers",
@@ -627,6 +646,14 @@ const Routes = () => {
                     path: "/parkings/add",
                     element: <AddTowerParking />
                 },
+                {
+                    path: "/workstatus",
+                    element: <ActivityListByStatus />
+                },
+                {
+                    path: "/workstatus/:id",
+                    element: <ViewActivityStatus />
+                }
             ],
         },
     ];

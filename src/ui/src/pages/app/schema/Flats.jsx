@@ -124,14 +124,13 @@ export const ViewFlat = () => {
                             childPath: 'roommappings',
                             paging: true,
                             searching: true,
-                            editing: true,
-                            adding: true,
+                            editing: false,
+                            adding: false,
                             fields: [
                                 {
-                                    text: 'Room', field: 'roomTypeId', type: 'lookup', sorting: true, searching: true, width: 100,
-                                    schema: { module: 'roomType' }
+                                    text: 'Room ID', field: 'roomId', type: 'text', sorting: true, searching: true,
                                 },
-                                { text: 'Count', field: 'quantity', type: 'text', sorting: false, searching: false },
+                                { text: 'Name', field: 'name', type: 'text', sorting: false, searching: false },
                             ]
                         },
                     }

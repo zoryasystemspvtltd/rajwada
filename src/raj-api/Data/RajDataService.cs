@@ -161,7 +161,7 @@ namespace ILab.Data
                         break;
 
                     case "ACTIVITY":
-                        await SaveSubTaskAsync(model, Id, token);
+                        //await SaveSubTaskAsync(model, Id, token);
                         await SaveActivityResourceAsync(type, data, Id, token);
                         break;
                 }
@@ -291,11 +291,10 @@ namespace ILab.Data
                 object[] parameters = [templateId];
                 var flatTemplateDetails = (List<FlatTemplateDetails>)method?.Invoke(handler, parameters);
 
-                List<RoomDetails> Resources = new();
+                List<RoomDetails> roomDetails = new();
                 foreach (var item in flatTemplateDetails)
                 {
                     var rooms = Get("RoomType", (long)item.RoomTypeId);
-
 
                     for (int i = 1; i <= item.RoomCount; i++)
                     {
@@ -311,16 +310,14 @@ namespace ILab.Data
                             PlanId = flatId,
                             Name = rooms.Result.Code + "-" + i,
                         };
-                        Resources.Add(rec);
-
+                        roomDetails.Add(rec);
                     }
-
                 }
-                await SaveBulkkDataAsync("Resource", Resources, token);
+                await SaveBulkkDataAsync("RoomDetails", roomDetails, token);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Exception in SaveResource method and details: '{ex.Message}'");
+                logger.LogError(ex, $"Exception in SaveRoomDetails method and details: '{ex.Message}'");
                 throw;
             }
         }
@@ -480,34 +477,7 @@ namespace ILab.Data
             }
 
         }
-        private async Task SaveSubTaskAsync(string model, long activityId, CancellationToken token)
-        {
-            try
-            {
-                var subact = await Get(model, activityId);
-                if (subact != null)
-                {
-                    if (subact.FlatId != null)
-                    {
-                        await SavaDataIntoDataBase(model, subact, token);
-                    }
-                    //else if (subact.FloorId != null)
-                    //{
-                    //    var floors = GetResourceDetails("Resource", subact.FloorId, token);
-                    //    await SavaDataIntoDataBase(floors, model, subact, token);
-                    //}
-                    //else if (subact.TowerId != null)
-                    //{
-                    //    var towers = GetResourceDetails("Resource", subact.TowerId, token);
-                    //    await SavaDataIntoDataBase(towers, model, subact, token);
-                    //}
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
-            }
-        }
+        
 
         private async Task SaveActivityResourceAsync(Type type, dynamic data, long activityId, CancellationToken token)
         {
@@ -569,90 +539,26 @@ namespace ILab.Data
                 logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
             }
         }
-        private async Task SavaDataIntoDataBase(string model, Activity main, CancellationToken token)
-        {
-            try
-            {
-                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetResourceDetails));
-                object[] parameters = [main.FlatId];
-                var lists = (List<RoomDetails>)method?.Invoke(handler, parameters);
-
-                if (lists != null)
-                {
-                    List<Activity> activities = new();
-                    foreach (var item in lists)
-                    {
-                        //for (int index = 1; index <= quantity; index++)
-                        //{
-                        var desc = item.RoomId;
-                        Activity activity = new()
-                        {
-                            Status = StatusType.Draft,
-                            Date = DateTime.UtcNow,
-                            Member = Identity.Member,
-                            Key = Identity.Key,
-                            Type = "Sub Task",
-                            ParentId = main.Id,
-                            ProjectId = main.ProjectId,
-                            WorkflowId = main.WorkflowId,
-                            // UserId = main.UserId,
-                            Name = string.Concat(main.Name, "-", desc),
-                            Description = string.Concat(main.Description, "-", desc),
-                            StartDate = main.StartDate,
-                            EndDate = main.EndDate,
-                            Items = main.Items,
-                            ContractorId = main.ContractorId,
-                            PhotoUrl = main.PhotoUrl,
-                            DependencyId = main.DependencyId,
-                            MaterialProvidedBy = main.MaterialProvidedBy,
-                            LabourProvidedBy = main.LabourProvidedBy
-                        };
-                        if (main.FlatId != null)
-                        {
-                            activity.TowerId = main.TowerId;
-                            activity.FloorId = main.FloorId;
-                            activity.FlatId = main.FlatId;
-                            activity.WorkId = GetWorkId(item.RoomId, main.DependencyId, main.ProjectId, token);
-                        }
-                        else if (main.FloorId != null)
-                        {
-                            activity.TowerId = main.TowerId;
-                            activity.FloorId = main.FloorId;
-                        }
-                        else if (main.TowerId != null)
-                        {
-                            activity.TowerId = main.TowerId;
-                        }
-                        activities.Add(activity);
-                        //}
-                    }
-                    await SaveBulkkDataAsync(model, activities, token);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Exception in SavaDataIntoDataBase method, message:'{ex.Message}'");
-            }
-        }
-        private string? GetWorkId(string name, long? DependencyId, long? projectId, CancellationToken token)
+       
+        private string? GetWorkId(long? RoomId, long? DependencyId, long? projectId, CancellationToken token)
         {
             try
             {
                 //Work Id formate
                 //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
                 var dependency = Get("Dependency", (long)DependencyId);
-
+                var roomDetails = Get("RoomDetails", (long)RoomId);
                 var docno = GetDocumentNo((long)projectId);
 
                 string year = GetFinancialYear();
-                if (dependency != null && docno != null)
+                if (dependency != null && roomDetails != null && docno != null)
                 {
                     int newNo = docno?.LastDocumentNo + 1;
                     UpdateProjcetDocNoTracing(docno, newNo, token);
 
                     string nextDocNo = newNo.ToString("D3");
                     StringBuilder workId = new();
-                    workId.Append(name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>                   
+                    workId.Append(roomDetails?.Result.RoomId); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>                   
                     workId.Append("/");
                     workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
                     workId.Append("/");
@@ -690,7 +596,12 @@ namespace ILab.Data
                     var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.EditAsync));
                     var generic = method?.MakeGenericMethod(type);
                     object[] parameters = { data, token };
-                    generic?.Invoke(handler, parameters);
+                    var result = generic?.Invoke(handler, parameters);
+                    if (result is System.Threading.Tasks.Task task)
+                    {
+                        // Complete the operation before continuing to avoid concurrent DbContext use
+                        task.GetAwaiter().GetResult();
+                    }
                 }
             }
             catch (Exception ex)
@@ -986,6 +897,7 @@ namespace ILab.Data
                         modelData.GrandFatherCertificate = Utility.Base64ToFile(modelData.GrandFatherCertificate, folderPath);
                         modelData.GrandMotherCertificate = Utility.Base64ToFile(modelData.GrandMotherCertificate, folderPath);
                         break;
+
                 }
                 return JsonConvert.SerializeObject(modelData);
 
@@ -995,6 +907,18 @@ namespace ILab.Data
                 logger.LogError(ex, $"Exception in ConvertBase64toVarbinary method and details: '{ex.Message}'");
                 throw;
             }
+        }
+
+        internal dynamic GenerateWorkId(string module, dynamic data, CancellationToken token)
+        {
+            var type = GetType(module);
+            dynamic jsonString = data.ToString();
+            var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+
+            //Generate WorkId based on RoomId, DependencyId and Project
+            jsonData.WorkId = GetWorkId(jsonData.RoomId, jsonData.DependencyId, jsonData.ProjectId, token);
+
+            return JsonConvert.SerializeObject(jsonData);
         }
     }
 }

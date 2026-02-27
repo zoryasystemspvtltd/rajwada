@@ -1,0 +1,81 @@
+/* Premium Compact Card (Color Restored & Enhanced) */
+.premium-card {
+  position: relative;
+  border-radius: 14px;
+  padding: 16px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+
+  /* Stronger depth */
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+}
+
+/* Add subtle gradient shine overlay */
+.premium-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 180%;
+  height: 100%;
+  background: linear-gradient(120deg,
+      rgba(255, 255, 255, 0.15),
+      rgba(255, 255, 255, 0.05),
+      transparent);
+  transform: skewX(-20deg);
+  transition: 0.6s;
+}
+
+.premium-card:hover::before {
+  left: 100%;
+}
+
+/* Hover */
+.premium-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.18);
+}
+
+/* Active state */
+.card-active {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7),
+    0 18px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* ICON */
+.card-icon {
+  font-size: 22px;
+  opacity: 0.95;
+}
+
+/* Title */
+.status-title {
+  font-weight: 600;
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+/* Count */
+.count-number {
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.primary-gradient {
+  background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+}
+
+.warning-gradient {
+  background: linear-gradient(135deg, #fbbf24, #b45309);
+}
+
+.danger-gradient {
+  background: linear-gradient(135deg, #f87171, #991b1b);
+}
+
+.success-gradient {
+  background: linear-gradient(135deg, #34d399, #065f46);
+}

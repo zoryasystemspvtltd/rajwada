@@ -14,6 +14,7 @@ import { isDeleteAllowed } from '../../store/delete-service';
 import IUIMultiAssign from './shared/IUIMultiAssign';
 import IUICopy from './shared/IUICopy';
 import IUIMultiCopyFilter from './shared/IUIMultiCopyFilter';
+import { preprocess } from '../../store/preprocesser';
 
 const IUIPage = (props) => {
     // Properties
@@ -707,15 +708,16 @@ const IUIPage = (props) => {
                 else
                     try {
                         // console.log(data);
+                        let transformedData = preprocess(data);
                         setIsInProgress(true);
                         let response = await api.addData(
                             {
                                 module: module,
-                                data: (module === 'workflow') ? { ...data, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } :
-                                    (module === 'activity') ? { ...data, items: prepareItemsForActivity(data) } : data
+                                data: (module === 'workflow') ? { ...transformedData, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } :
+                                    (module === 'activity') ? { ...transformedData, items: prepareItemsForActivity(transformedData), type: "Main Task" } : transformedData
                             }
                         );
-                        console.log(response)
+                        // console.log(response)
                         if (module === 'dependency') {
                             await saveDependencyResources(data, response?.data);
                         }

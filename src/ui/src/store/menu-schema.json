@@ -37,6 +37,13 @@
                 "icon": "sitemap",
                 "path": "/projects",
                 "access": "project"
+            },
+            {
+                "name": "financialYear",
+                "text": "Financial Year",
+                "icon": "cubes-stacked",
+                "path": "/financialyears",
+                "access": "financialYear"
             }
         ],
         "transaction": [
@@ -176,9 +183,16 @@
         "transaction": [
             {
                 "name": "work",
-                "text": "Work",
+                "text": "Work Planning",
                 "icon": "vector-square",
                 "path": "/works",
+                "access": "activity"
+            },
+            {
+                "name": "workStatus",
+                "text": "Work Status Check",
+                "icon": "vector-square",
+                "path": "/workstatus",
                 "access": "activity"
             },
             {
