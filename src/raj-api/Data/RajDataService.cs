@@ -164,21 +164,20 @@ namespace ILab.Data
                         //await SaveSubTaskAsync(model, Id, token);
                         await SaveActivityResourceAsync(type, data, Id, token);
                         break;
-                }
 
-                if (model?.Equals("PLAN", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    var jsonString = data.ToString();
-                    var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+                    case "PLAN":
+                        var jsonString = data.ToString();
+                        var jsonData = JsonConvert.DeserializeObject(jsonString, type);
 
-                    if (jsonData != null && string.Equals(jsonData?.Type?.ToString(), "tower", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var projectTask = Get("Project", jsonData?.ProjectId);
-                        var project = await projectTask; // Assuming Get returns Task or Task<T> and Result is awaited here properly
+                        if (jsonData != null && string.Equals(jsonData?.Type?.ToString(), "tower", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var projectTask = Get("Project", jsonData?.ProjectId);
+                            var project = await projectTask; // Assuming Get returns Task or Task<T> and Result is awaited here properly
 
-                        await SaveFloorData(jsonData, Id, project.Name, project.Code, token);
-                        await SaveParkingData(jsonData, Id, project.Name, project.Code, token);
-                    }
+                            await SaveFloorData(jsonData, Id, project.Name, project.Code, token);
+                            await SaveParkingData(jsonData, Id, project.Name, project.Code, token);
+                        }
+                        break;
                 }
             }
             catch (Exception ex)
@@ -394,7 +393,7 @@ namespace ILab.Data
                 var parkingData = jsonData.Parkings;
                 List<ParkingRawData> parkingsList = JsonConvert.DeserializeObject<List<ParkingRawData>>(parkingData);
 
-                List<Parking> parkings = new();
+                List<OutsideEntity> parkings = new();
                 foreach (var item in parkingsList)
                 {
                     var parkingType = Get("ParkingType", item.parkingTypeId);
@@ -402,7 +401,7 @@ namespace ILab.Data
                     {
                         string name = projectName + "/" + jsonData?.Name + "/Parking/" + parkingType.Result.Name + i;
 
-                        Parking parking = new()
+                        OutsideEntity parking = new()
                         {
                             Status = StatusType.Draft,
                             Date = DateTime.UtcNow,
@@ -416,7 +415,7 @@ namespace ILab.Data
                         parkings.Add(parking);
                     }
                 }
-                await SaveBulkkDataAsync("Parking", parkings, token);
+                await SaveBulkkDataAsync("OutsideEntity", parkings, token);
             }
             catch (Exception ex)
             {
@@ -477,7 +476,7 @@ namespace ILab.Data
             }
 
         }
-        
+
 
         private async Task SaveActivityResourceAsync(Type type, dynamic data, long activityId, CancellationToken token)
         {
@@ -539,7 +538,7 @@ namespace ILab.Data
                 logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
             }
         }
-       
+
         private string? GetWorkId(long? RoomId, long? DependencyId, long? projectId, CancellationToken token)
         {
             try

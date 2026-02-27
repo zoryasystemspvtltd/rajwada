@@ -193,6 +193,12 @@ namespace RajApi.Data.Models
         public virtual long? RoomId { get; set; }
         [JsonIgnore]
         public virtual RoomDetails? RoomDetails { get; set; }
+
+
+        [ForeignKey("OutsideEntity")]
+        public virtual long? OutsideEntityId { get; set; }
+        [JsonIgnore]
+        public virtual OutsideEntity? OutsideEntity { get; set; }
         #endregion
 
         [NotMapped]

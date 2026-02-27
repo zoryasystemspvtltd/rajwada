@@ -8,5 +8,5 @@ public class ParkingType : LabModel, IGlobal
     public string? Code { get; set; }
 
     [JsonIgnore]
-    public virtual ICollection<Parking>? Parkings { get; set; }
+    public virtual ICollection<OutsideEntity>? OutsideEntity { get; set; }
 }

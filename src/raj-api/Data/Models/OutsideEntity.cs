@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RajApi.Data.Models;
 
-public class Parking : LabModel, IGlobal
+public class OutsideEntity : LabModel, IGlobal
 {
     public string? Code { get; set; }
     /// <summary>
