@@ -332,6 +332,7 @@ namespace ILab.Data
                             ProjectId = jsonData?.ProjectId,
                             FlatTemplateId = templateId,
                             Blueprint = jsonData?.Blueprint,
+                            PriorityStatus = PriorityStatusType.Normal,
                         };
 
                         long flatId = await SaveDataAsync("Plan", plan, token);
@@ -544,6 +545,7 @@ namespace ILab.Data
                         ParentId = towerId,
                         ProjectId = jsonData.ProjectId,
                         Blueprint = jsonData.Blueprint,
+                        PriorityStatus = PriorityStatusType.Normal,
                     };
                     listplan.Add(plan);
                 }
