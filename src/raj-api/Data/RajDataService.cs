@@ -1,9 +1,13 @@
-﻿using ILab.Extensionss.Data;
+﻿using DocumentFormat.OpenXml.Drawing.Spreadsheet;
+using ILab.Extensionss.Common;
+using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
+using RajApi.Migrations;
 using System.Text;
 
 namespace ILab.Data
@@ -76,10 +80,13 @@ namespace ILab.Data
                 }
                 if (type == typeof(Activity))
                 {
+                    //When Activity Assigned
                     if (jsonData != null && jsonData?.Status != null)
                     {
                         existingData.Status = jsonData?.Status;
                         modifiedBy = jsonData?.ModifiedBy;
+                        //Assigned also Project,Tower,Floor,Flat,Room
+                        await AssginedLinkedModule(existingData, token);
                     }
                     //When QC Approved
                     if (jsonData != null && jsonData?.IsQCApproved != null)
@@ -114,6 +121,79 @@ namespace ILab.Data
             {
                 logger.LogError("Exception in EditPartialAsync method and details: " + ex.Message);
                 return 0;
+            }
+        }
+
+        private async Task AssginedLinkedModule(dynamic existingData, CancellationToken token)
+        {
+            try
+            {
+                if (existingData.Status.Equals(StatusType.Assigned))
+                {
+                    var project = await Get("Project", (long)existingData.ProjectId);
+
+                    if (project != null)
+                    {
+                        await SaveApplicationLogForLinkedModule("Project", project, StatusType.Assigned, token);
+                    }
+                    if (existingData.TowerId != null)
+                    {
+                        var tower = await Get("Plan", (long)existingData.TowerId);
+
+                        if (tower != null)
+                        {
+                            await SaveApplicationLogForLinkedModule("Plan", tower, StatusType.Assigned, token);
+                        }
+                    }
+
+                    if (existingData.FlatId != null)
+                    {
+                        var flat = await Get("Plan", (long)existingData.FlatId);
+
+                        if (flat != null)
+                        {
+                            await SaveApplicationLogForLinkedModule("Plan", flat, StatusType.Assigned, token);
+                        }
+                    }
+
+                    if (existingData.FloorId != null)
+                    {
+                        var floor = await Get("Plan", (long)existingData.FloorId);
+
+                        if (floor != null)
+                        {
+                            await SaveApplicationLogForLinkedModule("Plan", floor, StatusType.Assigned, token);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in AssginedLinkedModule method and details: " + ex.Message);
+            }
+
+        }
+
+        private async Task SaveApplicationLogForLinkedModule(string moduel, dynamic data, StatusType activityType, CancellationToken token)
+        {
+
+            try
+            {
+                var type = GetType(moduel);
+                if (type != null)
+                {
+                    var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.LogLabModelLog));
+                    var generic = method?.MakeGenericMethod(type);
+                    object[] parameters = { data, activityType, token };
+                    var task = (Task<long>)generic.Invoke(handler, parameters);
+
+                    var result = await task;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in SaveApplicationLogForLinkedModule method and details: " + ex.Message);
             }
         }
 
@@ -164,21 +244,20 @@ namespace ILab.Data
                         //await SaveSubTaskAsync(model, Id, token);
                         await SaveActivityResourceAsync(type, data, Id, token);
                         break;
-                }
 
-                if (model?.Equals("PLAN", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    var jsonString = data.ToString();
-                    var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+                    case "PLAN":
+                        var jsonString = data.ToString();
+                        var jsonData = JsonConvert.DeserializeObject(jsonString, type);
 
-                    if (jsonData != null && string.Equals(jsonData?.Type?.ToString(), "tower", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var projectTask = Get("Project", jsonData?.ProjectId);
-                        var project = await projectTask; // Assuming Get returns Task or Task<T> and Result is awaited here properly
+                        if (jsonData != null && string.Equals(jsonData?.Type?.ToString(), "tower", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var projectTask = Get("Project", jsonData?.ProjectId);
+                            var project = await projectTask; // Assuming Get returns Task or Task<T> and Result is awaited here properly
 
-                        await SaveFloorData(jsonData, Id, project.Name, project.Code, token);
-                        await SaveParkingData(jsonData, Id, project.Name, project.Code, token);
-                    }
+                            await SaveFloorData(jsonData, Id, project.Name, project.Code, token);
+                            await SaveParkingData(jsonData, Id, project.Name, project.Code, token);
+                        }
+                        break;
                 }
             }
             catch (Exception ex)
@@ -253,6 +332,7 @@ namespace ILab.Data
                             ProjectId = jsonData?.ProjectId,
                             FlatTemplateId = templateId,
                             Blueprint = jsonData?.Blueprint,
+                            PriorityStatus = PriorityStatusType.Normal,
                         };
 
                         long flatId = await SaveDataAsync("Plan", plan, token);
@@ -465,6 +545,7 @@ namespace ILab.Data
                         ParentId = towerId,
                         ProjectId = jsonData.ProjectId,
                         Blueprint = jsonData.Blueprint,
+                        PriorityStatus = PriorityStatusType.Normal,
                     };
                     listplan.Add(plan);
                 }
@@ -477,7 +558,7 @@ namespace ILab.Data
             }
 
         }
-        
+
 
         private async Task SaveActivityResourceAsync(Type type, dynamic data, long activityId, CancellationToken token)
         {
@@ -539,44 +620,7 @@ namespace ILab.Data
                 logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
             }
         }
-       
-        private string? GetWorkId(long? RoomId, long? DependencyId, long? projectId, CancellationToken token)
-        {
-            try
-            {
-                //Work Id formate
-                //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
-                var dependency = Get("Dependency", (long)DependencyId);
-                var roomDetails = Get("RoomDetails", (long)RoomId);
-                var docno = GetDocumentNo((long)projectId);
 
-                string year = GetFinancialYear();
-                if (dependency != null && roomDetails != null && docno != null)
-                {
-                    int newNo = docno?.LastDocumentNo + 1;
-                    UpdateProjcetDocNoTracing(docno, newNo, token);
-
-                    string nextDocNo = newNo.ToString("D3");
-                    StringBuilder workId = new();
-                    workId.Append(roomDetails?.Result.RoomId); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>                   
-                    workId.Append("/");
-                    workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
-                    workId.Append("/");
-                    workId.Append(nextDocNo); //<Document_Number>
-                    workId.Append("/");
-                    workId.Append(year); //<Year>
-                    return workId.ToString();
-                }
-                else
-                { return null; }
-
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Exception in GetWorkId method, message:'{ex.Message}'");
-                throw;
-            }
-        }
 
         /// <summary>
         /// Update the doc with latest no
@@ -909,16 +953,153 @@ namespace ILab.Data
             }
         }
 
-        internal dynamic GenerateWorkId(string module, dynamic data, CancellationToken token)
+        internal async Task<dynamic> GenerateWorkId(string module, dynamic data, CancellationToken token)
         {
             var type = GetType(module);
             dynamic jsonString = data.ToString();
             var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+            if (jsonData.Type.ToString().ToUpper() == "INSIDE")
+            {
+                //Generate WorkId for Inside based on RoomId, DependencyId and Project
 
-            //Generate WorkId based on RoomId, DependencyId and Project
-            jsonData.WorkId = GetWorkId(jsonData.RoomId, jsonData.DependencyId, jsonData.ProjectId, token);
+                jsonData.WorkId = await GenerateInsideWorkId(jsonData.DependencyId, jsonData.ProjectId, jsonData.RoomId, token);
+            }
+            else
+            {
+                jsonData.WorkId = await GenerateOutSideWorkId(jsonData.DependencyId, jsonData.ProjectId, jsonData.TowerId, jsonData.FloorId, jsonData.OutSideEntityId, token);
+
+            }
 
             return JsonConvert.SerializeObject(jsonData);
+        }
+        private async Task<string?> GenerateInsideWorkId(long dependencyId, long projectId, long roomId, CancellationToken token)
+        {
+            try
+            {
+                //Work Id formate
+                //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
+                var dependency = await Get("Dependency", dependencyId);
+                var roomDetails = await Get("RoomDetails", roomId);
+                var docno = GetDocumentNo(projectId);
+
+                string year = GetFinancialYear();
+                if (dependency != null && roomDetails != null && docno != null)
+                {
+                    int newNo = docno?.LastDocumentNo + 1;
+                    UpdateProjcetDocNoTracing(docno, newNo, token);
+
+                    string nextDocNo = newNo.ToString("D3");
+                    StringBuilder workId = new();
+                    workId.Append(roomDetails?.Result.RoomId); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>                   
+                    workId.Append("/");
+                    workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
+                    workId.Append("/");
+                    workId.Append(nextDocNo); //<Document_Number>
+                    workId.Append("/");
+                    workId.Append(year); //<Year>
+                    return workId.ToString();
+                }
+                else
+                { return null; }
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GenerateInsideWorkId method, message:'{ex.Message}'");
+                throw;
+            }
+        }
+
+        private async Task<string> GenerateOutSideWorkId(long dependencyId, long projectId, long? towerId, long? floorId, long? outSideEntityId, CancellationToken token)
+        {
+            try
+            {
+                //Work Id formate
+                //<Project_Alias>/<Tower_Alias>/<Floor_Number>/<OutSidet-Entity TypeId>-<OutSideEntity-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
+                var dependency = await Get("Dependency", dependencyId);
+                var project = await Get("Project", projectId);
+                var docno = GetDocumentNo(projectId);
+                string year = GetFinancialYear();
+
+                StringBuilder workId = new();
+                if (project != null)
+                {
+                    workId.Append(project?.Result.Code); //<Project_Alias>
+                    workId.Append("/");
+                }
+                if (dependency != null)
+                {
+                    workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
+                    workId.Append("/");
+                }
+                if (towerId != null)
+                {
+                    var tower = await Get("Plan", (long)towerId);
+
+                    if (tower != null)
+                    {
+                        workId.Append(tower?.Result.Code);//<Tower_Alias>
+                        workId.Append("/");
+                    }
+                }
+                if (floorId != null)
+                {
+                    var floor = await Get("Plan", (long)floorId);
+                    if (floor != null)
+                    {
+                        workId.Append(floor?.Result.Code);//<Floor_Number>
+                        workId.Append("/");
+                    }
+                }
+                if (outSideEntityId != null)
+                {
+                    var outSideEntity = await Get("OutSideEntity", (long)outSideEntityId);
+                    if (outSideEntity != null)
+                    {
+                        var outSideEntityType = await Get("OutSideEntityType", (long)outSideEntity?.Result.OutSideEntityTypeId);
+                        if (outSideEntityType != null)
+                        {
+                            workId.Append(outSideEntityType?.Result.Code);//<OutSidet-Entity Type>
+                            workId.Append("/");
+                        }
+                    }
+                }
+
+                if (docno != null)
+                {
+                    int newNo = docno?.LastDocumentNo + 1;
+                    UpdateProjcetDocNoTracing(docno, newNo, token);
+
+                    string nextDocNo = newNo.ToString("D3");
+                    workId.Append(nextDocNo); //<Document_Number>
+                    workId.Append("/");
+                }
+                if (year != null)
+                {
+                    workId.Append(year); //<Year>
+                }
+                return workId.ToString();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GenerateOutSideWorkId method, message:'{ex.Message}'");
+                throw;
+            }
+        }
+
+        public dynamic GetActivtyDetailsForUser(AssigneUserRequestPayload request)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetActivtyDetailsForUser));
+                object[] parameters = [request.Member, request.ProjectId, request.TowerId, request.FloorId, request.FlatId];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetAllAssignedUsers method and details: " + ex.Message);
+                return 0;
+            }
         }
     }
 }

@@ -193,6 +193,17 @@ namespace RajApi.Data.Models
         public virtual long? RoomId { get; set; }
         [JsonIgnore]
         public virtual RoomDetails? RoomDetails { get; set; }
+
+
+        [ForeignKey("OutSideEntity")]
+        public virtual long? OutSideEntityId { get; set; }
+        [JsonIgnore]
+        public virtual OutSideEntity? OutSideEntity { get; set; }
+
+        [ForeignKey("Parkings")]
+        public virtual long? ParkingId { get; set; }
+        [JsonIgnore]
+        public virtual Parking? Parkings { get; set; }
         #endregion
 
         [NotMapped]
@@ -207,6 +218,16 @@ namespace RajApi.Data.Models
         public long FlatId { get; set; }
        // public bool IsDownload { get; set; }
     }
+
+    public class AssigneUserRequestPayload
+    {
+        public string Member { get; set; }
+        public long ProjectId { get; set; }
+        public long? TowerId { get; set; }
+        public long? FloorId { get; set; }
+        public long? FlatId { get; set; }
+    }
+
     public class WorkerStatusReport
     {
         public long? Id { get; set; }

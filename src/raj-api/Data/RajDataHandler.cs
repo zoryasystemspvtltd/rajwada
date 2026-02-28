@@ -901,7 +901,7 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    private async Task<long> LogLabModelLog<T>(T item, StatusType activityType, CancellationToken cancellationToken)
+    public async Task<long> LogLabModelLog<T>(T item, StatusType activityType, CancellationToken cancellationToken)
     where T : LabModel
     {
         var module = typeof(T);
@@ -1345,7 +1345,35 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
+    public dynamic GetActivtyDetailsForUser(string member, long projectId, long? towerId, long? floorId, long? flatId)
+    {
+        var logs = dbContext.Set<ApplicationLog>()
+                    .Where(l => l.Member == member && l.Name == "Activity").Select(a=>a.EntityId).Distinct();
 
+        var activityQuery = dbContext.Set<Activity>()
+                            .Where(a => a.ProjectId == projectId);
+
+        if (towerId != null)
+        {
+            activityQuery = activityQuery.Where(a => a.TowerId == towerId);
+        }
+        if (floorId != null)
+        {
+            activityQuery = activityQuery.Where(a => a.FloorId == floorId);
+        }
+        if (flatId != null)
+        {
+            activityQuery = activityQuery.Where(a => a.FlatId == flatId);
+        }
+
+        var query =
+            from a in activityQuery
+            join l in logs on a.Id equals l
+            select a;
+
+        var result = query.ToList();
+        return result;
+    }
 }
 
 public class ModuleIdentity

@@ -161,6 +161,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Comment> Comments { get; set; }
     public virtual DbSet<Attachment> Attachments { get; set; }
     public virtual DbSet<Parking> Parkings { get; set; }
+    public virtual DbSet<OutSideEntity> OutSideEntity { get; set; }
     public virtual DbSet<FlatTemplateDetails> FlatTemplateDetails { get; set; }
     #endregion
 
@@ -179,6 +180,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<UnitOfWork> UnitOfWorks { get; set; }
     public virtual DbSet<FlatTemplate> FlatTemplates { get; set; }
     public virtual DbSet<ParkingType> ParkingTypes { get; set; }
+    public virtual DbSet<OutSideEntityType> OutSideEntityTypes { get; set; }
     public virtual DbSet<ProjectDocNoTracking> ProjectDocNoTrackings { get; set; }
     public virtual DbSet<FinancialYear> FinancialYears { get; set; }
     public virtual DbSet<WorkCheckPoint> WorkCheckpoints { get; set; }
