@@ -3,14 +3,13 @@ import { Button, Col, Row } from "react-bootstrap";
 import Table from 'react-bootstrap/Table';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
+import statusList from '../../../store/activity-status-check';
 import api from '../../../store/api-service';
 import { formatStringDate } from '../../../store/datetime-formatter';
+import { notify } from '../../../store/notification';
 import IUILookUp from '../../common/shared/IUILookUp';
-import IUIResetPasswordElement from '../../ResetUserPassword';
 import IUIPageElement from '../../common/shared/IUIPageElement';
 import ActivityStatusDashboard from './ActivityDashboard';
-import statusList from '../../../store/activity-status-check';
-import { notify } from '../../../store/notification';
 
 const ActivityListByStatus = () => {
     // Properties

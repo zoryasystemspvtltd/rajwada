@@ -211,16 +211,8 @@ export const AddWorkflow = () => {
                             schema: { module: 'project' }
                         },
                         {
-                            type: 'lookup-relation',
-                            parent: 'projectId',
-                            field: 'towerId',
-                            text: 'Tower',
-                            width: 3,
-                            schema: {
-                                module: 'plan',
-                                relationKey: "projectId",
-                                path: 'towers'
-                            },
+                            text: 'Tower', field: 'towerId', parent: 'projectId', type: 'lookup-filter', required: false, width: 3,
+                            schema: { module: 'plan', filter: 'type', value: 'tower' }
                         },
                         {
                             type: 'lookup-relation',

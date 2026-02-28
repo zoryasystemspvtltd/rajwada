@@ -56,6 +56,7 @@ import ActivityListByStatus from "../pages/app/status-check/ActivityStatusList";
 import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from "../pages/common/ItemAvailabilityTrack";
 import WorkTransfer from "../pages/common/WorkTransfer";
 import ViewActivityStatus from "../pages/app/status-check/IndividualActivityStatus";
+import ReportDetailsPage from "../pages/app/status-check/ReportDetailsPage";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -653,6 +654,10 @@ const Routes = () => {
                 {
                     path: "/workstatus/:id",
                     element: <ViewActivityStatus />
+                },
+                {
+                    path: "/reports/:date",
+                    element: <ReportDetailsPage />
                 }
             ],
         },

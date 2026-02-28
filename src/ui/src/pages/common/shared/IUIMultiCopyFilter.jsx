@@ -23,7 +23,8 @@ const IUIMultiCopyFilter = (props) => {
     const [privileges, setPrivileges] = useState({});
     const [dependencySelectParams, setDependencySelectParams] = useState(initialParams);
     const [allDependencies, setAllDependencies] = useState([]); // API should be in backend to filter and fetch dependencies
-    const [selectedValues, setSelectedValues] = useState([])
+    const [selectedValues, setSelectedValues] = useState([]);
+    const [selectedValue, setSelectedValue] = useState(null);
     const [disabled, setDisabled] = useState(false);
 
     const filteredDependencies = allDependencies.filter(item => {
@@ -89,38 +90,35 @@ const IUIMultiCopyFilter = (props) => {
     };
 
     const handleDependencySelection = (event) => {
-        setDependencySelectParams({ ...dependencySelectParams, workflowId: event.target.value });
+        const value = parseInt(event.target.value);
 
-        const { value, checked } = event.target;
         if (!props?.readonly) {
-            if (checked) {
-                setSelectedValues([...selectedValues, parseInt(value)]);
+            setSelectedValue(value);
 
-
-            } else {
-                let newValues = selectedValues.filter((v) => v !== parseInt(value));
-                setSelectedValues(newValues);
-            }
-            // props.onChange(event);
+            setDependencySelectParams({
+                ...dependencySelectParams,
+                workflowId: value
+            });
         }
     };
 
-    const handleAllDependencySelection = (event) => {
-        const { checked } = event.target;
-        if (!props?.readonly) {
-            if (checked) {
-                setSelectedValues([...(filteredDependencies?.map(x => x?.id))]);
+    // const handleAllDependencySelection = (event) => {
+    //     const { checked } = event.target;
+    //     if (!props?.readonly) {
+    //         if (checked) {
+    //             setSelectedValues([...(filteredDependencies?.map(x => x?.id))]);
 
-            } else {
-                setSelectedValues([]);
-            }
-            // props.onChange(event);
-        }
-    };
+    //         } else {
+    //             setSelectedValues([]);
+    //         }
+    //         // props.onChange(event);
+    //     }
+    // };
 
     const prepareDependencyCopy = async (e) => {
         e.preventDefault();
-        const selectedDependencies = allDependencies?.filter((dependency) => selectedValues.includes(dependency.id));
+        console.log(selectedValue);
+        const selectedDependencies = [allDependencies?.find((dependency) => selectedValue === dependency.id)];
         const customEvent = { target: { id: 'multicopy', value: selectedDependencies }, preventDefault: function () { } };
         props.onChange(customEvent);
     };
@@ -181,7 +179,7 @@ const IUIMultiCopyFilter = (props) => {
                                                     ))}
                                                 </Row>
 
-                                                <Row>
+                                                {/* <Row>
                                                     {
                                                         (dependencySelectParams.projectId !== null && filteredDependencies.length > 0) && (
                                                             <Form.Group className="position-relative form-group">
@@ -233,6 +231,47 @@ const IUIMultiCopyFilter = (props) => {
                                                             </Form.Group>
                                                         )
                                                     }
+                                                </Row> */}
+
+                                                <Row>
+                                                    {
+                                                        (dependencySelectParams.projectId !== null && filteredDependencies.length > 0) && (
+                                                            <Form.Group className="position-relative form-group">
+                                                                <Form.Label className='text-uppercase mb-2'>
+                                                                    Select a Dependency Label Setting
+                                                                </Form.Label>
+
+                                                                {
+                                                                    filteredDependencies?.map((x, i) =>
+                                                                        <div key={i}>
+                                                                            <Form.Check
+                                                                                className='text-capitalize'
+                                                                                type="radio"
+                                                                                name="dependencySelection"   // important for grouping
+                                                                                id={x?.id}
+                                                                                value={x?.id}
+                                                                                checked={selectedValue === x?.id}
+                                                                                onChange={handleDependencySelection}
+                                                                                disabled={props.readonly}
+                                                                                label={x?.name}
+                                                                            />
+                                                                        </div>
+                                                                    )
+                                                                }
+
+                                                            </Form.Group>
+                                                        )
+                                                    }
+
+                                                    {
+                                                        (dependencySelectParams.projectId !== null && filteredDependencies.length === 0) && (
+                                                            <Form.Group className="position-relative form-group">
+                                                                <Form.Label className='text-uppercase mb-2'>
+                                                                    No Matching Dependencies Found
+                                                                </Form.Label>
+                                                            </Form.Group>
+                                                        )
+                                                    }
                                                 </Row>
 
                                                 {(!schema?.readonly && (privileges?.add || privileges?.edit)) &&
@@ -245,7 +284,7 @@ const IUIMultiCopyFilter = (props) => {
                                                                 {(privileges?.add || privileges?.edit) &&
                                                                     <>
                                                                         {
-                                                                            (selectedValues.length > 0) ? <Button variant="contained"
+                                                                            (selectedValue) ? <Button variant="contained"
                                                                                 disabled={disabled}
                                                                                 className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
                                                                                 onClick={prepareDependencyCopy}>Copy Selected</Button> : null

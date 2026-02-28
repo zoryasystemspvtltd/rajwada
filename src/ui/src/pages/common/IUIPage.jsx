@@ -236,9 +236,11 @@ const IUIPage = (props) => {
 
     const handleMultiCopyChange = (e) => {
         e.preventDefault();
-        // console.log(e.target.value);
+        let copiedDependency = e.target.value;
         notify('info', `Selected items for ${schema?.title} copied, provide other inputs and click the Save button`)
         setMultiCopiedData(e.target.value);
+        const newData = { ...data, [schema?.multiCopySchema?.copyField]: copiedDependency[0]?.[schema?.multiCopySchema?.copyField] };
+        setData(newData);
     }
 
     const handleRemarksChange = (event) => {
@@ -517,7 +519,7 @@ const IUIPage = (props) => {
 
     const addIndividualForMultiCopy = async (copiedData) => {
         const newData = { ...data, [schema?.multiCopySchema?.copyField]: copiedData[schema?.multiCopySchema?.copyField] };
-        console.log(newData); // remove after check
+        // console.log(newData); // remove after check
         const response = await api.addData({ module: schema?.module, data: newData });
         return response.data;
     }
@@ -626,7 +628,6 @@ const IUIPage = (props) => {
                 // Add logic to add items
                 try {
                     if (Object.keys(error).length === 0) {
-
 
                         const addPromises = multiCopiedData?.map(data => addIndividualForMultiCopy(data));
                         await Promise.all(addPromises);

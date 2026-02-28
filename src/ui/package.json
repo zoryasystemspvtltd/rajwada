@@ -23,6 +23,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.1",
+    "dayjs": "^1.11.19",
     "dhtmlx-gantt": "^9.0.14",
     "file-saver": "^2.0.5",
     "gantt-task-react": "^0.3.9",

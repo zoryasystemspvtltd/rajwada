@@ -1,4 +1,11 @@
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Button, Card, Spinner } from "react-bootstrap";
+import { useParams } from "react-router-dom";
+import api from '../../../store/api-service';
 import IUIPage from "../../common/IUIPage";
+import ReportModal from "./ReportModal";
+import ReportsList from "./ReportsList";
+import dayjs from "./dayjsConfig";
 
 const ViewActivityStatus = () => {
     const schema = {
@@ -61,7 +68,7 @@ const ViewActivityStatus = () => {
                     // },
                     { text: 'Duration', field: 'duration', width: 4, type: 'label' },
                     { text: 'Progress(%)', field: 'progressPercentage', width: 4, type: 'label' },
-                   
+
                     { text: 'Estimate Cost', field: 'costEstimate', width: 4, type: 'label' },
                     { text: 'Actual Cost', field: 'actualCost', width: 4, type: 'label' },
                     {
@@ -110,7 +117,114 @@ const ViewActivityStatus = () => {
         ]
     }
 
-    return (<IUIPage schema={schema} />);
+    const { id } = useParams();
+
+    const [reports, setReports] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [modalOpen, setModalOpen] = useState(false);
+
+    const loadReports = async () => {
+        try {
+            setLoading(true);
+
+            const pageOptions = {
+                recordPerPage: 0,
+                searchCondition: {
+                    name: "activityId",
+                    value: parseInt(id)
+                }
+            }
+
+            const response = await api.getData({ module: 'activitytracking', options: pageOptions });
+            setReports(response?.data?.items || []);
+        } catch (err) {
+            setError("Failed to load reports");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadReports();
+    }, []);
+
+    /**
+     * 🔥 GROUPING LOGIC (UI SIDE)
+     */
+    const groupedReports = useMemo(() => {
+        const map = {};
+
+        reports.forEach((report) => {
+            const dateKey = dayjs
+                .utc(report.date)
+                .tz("Asia/Kolkata")
+                .format("YYYY-MM-DD");
+
+            if (!map[dateKey]) {
+                map[dateKey] = [];
+            }
+
+            map[dateKey].push(report);
+        });
+
+        return Object.keys(map)
+            .sort((a, b) => new Date(b) - new Date(a))
+            .map((date) => ({
+                date,
+                count: map[date].length,
+                reports: map[date],
+            }));
+    }, [reports]);
+
+    return (
+        <>
+            <div>
+                <div className="row">
+                    <div className="col">
+                        <IUIPage schema={schema} />
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Card className="shadow-sm p-3">
+                            <div className="d-flex justify-content-between align-items-center flex-wrap">
+                                <h5>Daily Activity Reports</h5>
+                                <Button
+                                    variant="contained"
+                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md"
+                                    onClick={() => setModalOpen(true)}
+                                >
+                                    Submit Today's Report
+                                </Button>
+                            </div>
+                        </Card>
+
+                        {loading && (
+                            <div className="text-center mt-4">
+                                <Spinner animation="border" />
+                            </div>
+                        )}
+
+                        {error && <Alert variant="danger">{error}</Alert>}
+
+                        {!loading && (
+                            <ReportsList groupedReports={groupedReports} />
+                        )}
+
+                        <ReportModal
+                            activityId={id}
+                            show={modalOpen}
+                            onClose={() => {
+                                setModalOpen(false);
+                                loadReports();
+                            }}
+                        />
+                    </div>
+                </div>
+            </div>
+        </>
+    );
 }
 
 export default ViewActivityStatus;
