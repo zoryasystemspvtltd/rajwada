@@ -3,10 +3,10 @@ using Newtonsoft.Json;
 
 namespace RajApi.Data.Models;
 
-public class ParkingType : LabModel, IGlobal
+public class OutSideEntityType : LabModel, IGlobal
 {
     public string? Code { get; set; }
 
     [JsonIgnore]
-    public virtual ICollection<Parking>? Parkings { get; set; }
+    public virtual ICollection<OutSideEntity>? OutsideEntity { get; set; }
 }

@@ -672,7 +672,9 @@
 "/api/LevelSetupDetails":{"get":{"tags":["LevelSetupDetails"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/LevelSetupDetailsItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/LevelSetupDetailsItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/LevelSetupDetailsItemList"}}}}}},"post":{"tags":["LevelSetupDetails"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/LevelSetupDetails"}},"text/json":{"schema":{"$ref":"#/components/schemas/LevelSetupDetails"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/LevelSetupDetails"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/LevelSetupDetails/{id}":{"get":{"tags":["LevelSetupDetails"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/LevelSetupDetails"}},"application/json":{"schema":{"$ref":"#/components/schemas/LevelSetupDetails"}},"text/json":{"schema":{"$ref":"#/components/schemas/LevelSetupDetails"}}}}}},"put":{"tags":["LevelSetupDetails"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/LevelSetupDetails"}},"text/json":{"schema":{"$ref":"#/components/schemas/LevelSetupDetails"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/LevelSetupDetails"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["LevelSetupDetails"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Mouza":{"get":{"tags":["Mouza"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/MouzaItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/MouzaItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/MouzaItemList"}}}}}},"post":{"tags":["Mouza"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Mouza"}},"text/json":{"schema":{"$ref":"#/components/schemas/Mouza"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Mouza"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Mouza/{id}":{"get":{"tags":["Mouza"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Mouza"}},"application/json":{"schema":{"$ref":"#/components/schemas/Mouza"}},"text/json":{"schema":{"$ref":"#/components/schemas/Mouza"}}}}}},"put":{"tags":["Mouza"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Mouza"}},"text/json":{"schema":{"$ref":"#/components/schemas/Mouza"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Mouza"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Mouza"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/NameMaster":{"get":{"tags":["NameMaster"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/NameMasterItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/NameMasterItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/NameMasterItemList"}}}}}},"post":{"tags":["NameMaster"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/NameMaster"}},"text/json":{"schema":{"$ref":"#/components/schemas/NameMaster"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/NameMaster"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/NameMaster/{id}":{"get":{"tags":["NameMaster"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/NameMaster"}},"application/json":{"schema":{"$ref":"#/components/schemas/NameMaster"}},"text/json":{"schema":{"$ref":"#/components/schemas/NameMaster"}}}}}},"put":{"tags":["NameMaster"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/NameMaster"}},"text/json":{"schema":{"$ref":"#/components/schemas/NameMaster"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/NameMaster"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["NameMaster"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
-"/api/OutsideEntity":{"get":{"tags":["OutsideEntity"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/OutsideEntityItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/OutsideEntityItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutsideEntityItemList"}}}}}},"post":{"tags":["OutsideEntity"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OutsideEntity"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutsideEntity"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/OutsideEntity"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/OutsideEntity/{id}":{"get":{"tags":["OutsideEntity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/OutsideEntity"}},"application/json":{"schema":{"$ref":"#/components/schemas/OutsideEntity"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutsideEntity"}}}}}},"put":{"tags":["OutsideEntity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OutsideEntity"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutsideEntity"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/OutsideEntity"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["OutsideEntity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/OutSideEntity":{"get":{"tags":["OutSideEntity"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/OutSideEntityItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/OutSideEntityItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutSideEntityItemList"}}}}}},"post":{"tags":["OutSideEntity"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OutSideEntity"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutSideEntity"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/OutSideEntity"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/OutSideEntity/{id}":{"get":{"tags":["OutSideEntity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/OutSideEntity"}},"application/json":{"schema":{"$ref":"#/components/schemas/OutSideEntity"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutSideEntity"}}}}}},"put":{"tags":["OutSideEntity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OutSideEntity"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutSideEntity"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/OutSideEntity"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["OutSideEntity"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/OutSideEntityType":{"get":{"tags":["OutSideEntityType"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/OutSideEntityTypeItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/OutSideEntityTypeItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutSideEntityTypeItemList"}}}}}},"post":{"tags":["OutSideEntityType"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OutSideEntityType"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutSideEntityType"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/OutSideEntityType"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/OutSideEntityType/{id}":{"get":{"tags":["OutSideEntityType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/OutSideEntityType"}},"application/json":{"schema":{"$ref":"#/components/schemas/OutSideEntityType"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutSideEntityType"}}}}}},"put":{"tags":["OutSideEntityType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OutSideEntityType"}},"text/json":{"schema":{"$ref":"#/components/schemas/OutSideEntityType"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/OutSideEntityType"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["OutSideEntityType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/Parking":{"get":{"tags":["Parking"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ParkingItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ParkingItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ParkingItemList"}}}}}},"post":{"tags":["Parking"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Parking"}},"text/json":{"schema":{"$ref":"#/components/schemas/Parking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Parking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Parking/{id}":{"get":{"tags":["Parking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Parking"}},"application/json":{"schema":{"$ref":"#/components/schemas/Parking"}},"text/json":{"schema":{"$ref":"#/components/schemas/Parking"}}}}}},"put":{"tags":["Parking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Parking"}},"text/json":{"schema":{"$ref":"#/components/schemas/Parking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Parking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Parking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/ParkingType":{"get":{"tags":["ParkingType"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ParkingTypeItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/ParkingTypeItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/ParkingTypeItemList"}}}}}},"post":{"tags":["ParkingType"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"text/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ParkingType"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/ParkingType/{id}":{"get":{"tags":["ParkingType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"application/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"text/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}}}}}},"put":{"tags":["ParkingType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"text/json":{"schema":{"$ref":"#/components/schemas/ParkingType"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/ParkingType"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["ParkingType"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Plan":{"get":{"tags":["Plan"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/PlanItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/PlanItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/PlanItemList"}}}}}},"post":{"tags":["Plan"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Plan"}},"text/json":{"schema":{"$ref":"#/components/schemas/Plan"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Plan"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Plan/{id}":{"get":{"tags":["Plan"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Plan"}},"application/json":{"schema":{"$ref":"#/components/schemas/Plan"}},"text/json":{"schema":{"$ref":"#/components/schemas/Plan"}}}}}},"put":{"tags":["Plan"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Plan"}},"text/json":{"schema":{"$ref":"#/components/schemas/Plan"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Plan"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Plan"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/PostWorkPeriodicChecking":{"get":{"tags":["PostWorkPeriodicChecking"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicCheckingItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicCheckingItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicCheckingItemList"}}}}}},"post":{"tags":["PostWorkPeriodicChecking"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"text/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/PostWorkPeriodicChecking/{id}":{"get":{"tags":["PostWorkPeriodicChecking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"application/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"text/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}}}}}},"put":{"tags":["PostWorkPeriodicChecking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"text/json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/PostWorkPeriodicChecking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["PostWorkPeriodicChecking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
@@ -1302,11 +1304,18 @@
 "RoomDetails": {
 "type": "string",
 },
-"OutsideEntityId": {
+"OutSideEntityId": {
 "type": "string",
 "nullable": true
 },
-"OutsideEntity": {
+"OutSideEntity": {
+"type": "string",
+},
+"ParkingId": {
+"type": "string",
+"nullable": true
+},
+"Parkings": {
 "type": "string",
 },
 "ModifiedBy": {
@@ -3367,7 +3376,7 @@
 },
 "additionalProperties": false
 },
-"OutsideEntity": {
+"OutSideEntity": {
 "type": "object",
 "properties": {
 "Code": {
@@ -3426,7 +3435,7 @@
 },
 "additionalProperties": false
 },
-"OutsideEntityItemList": {
+"OutSideEntityItemList": {
 "type": "object",
 "properties": {
 "totalRecord": {
@@ -3436,7 +3445,141 @@
 "items": {
 "type": "array",
 "items": {
-"$ref": "#/components/schemas/OutsideEntity"
+"$ref": "#/components/schemas/OutSideEntity"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
+"OutSideEntityType": {
+"type": "object",
+"properties": {
+"Code": {
+"type": "string",
+},
+"OutsideEntity": {
+"type": "string",
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"OldValues": {
+"type": "string",
+},
+},
+"additionalProperties": false
+},
+"OutSideEntityTypeItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/OutSideEntityType"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
+"Parking": {
+"type": "object",
+"properties": {
+"Code": {
+"type": "string",
+},
+"ProjectId": {
+"type": "string",
+"nullable": true
+},
+"Project": {
+"type": "string",
+},
+"TowerId": {
+"type": "string",
+"nullable": true
+},
+"Plan": {
+"type": "string",
+},
+"ParkingTypeId": {
+"type": "string",
+"nullable": true
+},
+"ParkingType": {
+"type": "string",
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"OldValues": {
+"type": "string",
+},
+},
+"additionalProperties": false
+},
+"ParkingItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/Parking"
 },
 "nullable": true
 }
@@ -3449,7 +3592,7 @@
 "Code": {
 "type": "string",
 },
-"OutsideEntity": {
+"Parkings": {
 "type": "string",
 },
 "Id": {
@@ -3839,7 +3982,7 @@
 "Plans": {
 "type": "string",
 },
-"OutsideEntity": {
+"OutSideEntity": {
 "type": "string",
 },
 "ProjectDocNoTrackings": {

@@ -1,4 +1,6 @@
-﻿using ILab.Extensionss.Data;
+﻿using DocumentFormat.OpenXml.Drawing.Spreadsheet;
+using ILab.Extensionss.Common;
+using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
 using RajApi.Data;
@@ -393,7 +395,7 @@ namespace ILab.Data
                 var parkingData = jsonData.Parkings;
                 List<ParkingRawData> parkingsList = JsonConvert.DeserializeObject<List<ParkingRawData>>(parkingData);
 
-                List<OutsideEntity> parkings = new();
+                List<Parking> parkings = new();
                 foreach (var item in parkingsList)
                 {
                     var parkingType = Get("ParkingType", item.parkingTypeId);
@@ -401,7 +403,7 @@ namespace ILab.Data
                     {
                         string name = projectName + "/" + jsonData?.Name + "/Parking/" + parkingType.Result.Name + i;
 
-                        OutsideEntity parking = new()
+                        Parking parking = new()
                         {
                             Status = StatusType.Draft,
                             Date = DateTime.UtcNow,
@@ -415,7 +417,7 @@ namespace ILab.Data
                         parkings.Add(parking);
                     }
                 }
-                await SaveBulkkDataAsync("OutsideEntity", parkings, token);
+                await SaveBulkkDataAsync("Parking", parkings, token);
             }
             catch (Exception ex)
             {
@@ -539,43 +541,6 @@ namespace ILab.Data
             }
         }
 
-        private string? GetWorkId(long? RoomId, long? DependencyId, long? projectId, CancellationToken token)
-        {
-            try
-            {
-                //Work Id formate
-                //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
-                var dependency = Get("Dependency", (long)DependencyId);
-                var roomDetails = Get("RoomDetails", (long)RoomId);
-                var docno = GetDocumentNo((long)projectId);
-
-                string year = GetFinancialYear();
-                if (dependency != null && roomDetails != null && docno != null)
-                {
-                    int newNo = docno?.LastDocumentNo + 1;
-                    UpdateProjcetDocNoTracing(docno, newNo, token);
-
-                    string nextDocNo = newNo.ToString("D3");
-                    StringBuilder workId = new();
-                    workId.Append(roomDetails?.Result.RoomId); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>                   
-                    workId.Append("/");
-                    workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
-                    workId.Append("/");
-                    workId.Append(nextDocNo); //<Document_Number>
-                    workId.Append("/");
-                    workId.Append(year); //<Year>
-                    return workId.ToString();
-                }
-                else
-                { return null; }
-
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Exception in GetWorkId method, message:'{ex.Message}'");
-                throw;
-            }
-        }
 
         /// <summary>
         /// Update the doc with latest no
@@ -913,11 +878,133 @@ namespace ILab.Data
             var type = GetType(module);
             dynamic jsonString = data.ToString();
             var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+            if (jsonData.Type.ToString().ToUpper() == "INSIDE")
+            {
+                //Generate WorkId for Inside based on RoomId, DependencyId and Project
 
-            //Generate WorkId based on RoomId, DependencyId and Project
-            jsonData.WorkId = GetWorkId(jsonData.RoomId, jsonData.DependencyId, jsonData.ProjectId, token);
+                jsonData.WorkId = GenerateInsideWorkId(jsonData.DependencyId, jsonData.ProjectId, jsonData.RoomId, token);
+            }
+            else
+            {
+                jsonData.WorkId = GenerateOutSideWorkId(jsonData.DependencyId, jsonData.ProjectId, jsonData.TowerId, jsonData.FloorId, jsonData.OutSideEntityId, token);
+
+            }
 
             return JsonConvert.SerializeObject(jsonData);
+        }
+        private string? GenerateInsideWorkId(long dependencyId, long projectId, long roomId, CancellationToken token)
+        {
+            try
+            {
+                //Work Id formate
+                //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
+                var dependency = Get("Dependency", dependencyId);
+                var roomDetails = Get("RoomDetails", roomId);
+                var docno = GetDocumentNo(projectId);
+
+                string year = GetFinancialYear();
+                if (dependency != null && roomDetails != null && docno != null)
+                {
+                    int newNo = docno?.LastDocumentNo + 1;
+                    UpdateProjcetDocNoTracing(docno, newNo, token);
+
+                    string nextDocNo = newNo.ToString("D3");
+                    StringBuilder workId = new();
+                    workId.Append(roomDetails?.Result.RoomId); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>                   
+                    workId.Append("/");
+                    workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
+                    workId.Append("/");
+                    workId.Append(nextDocNo); //<Document_Number>
+                    workId.Append("/");
+                    workId.Append(year); //<Year>
+                    return workId.ToString();
+                }
+                else
+                { return null; }
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GenerateInsideWorkId method, message:'{ex.Message}'");
+                throw;
+            }
+        }
+
+        private dynamic GenerateOutSideWorkId(long dependencyId, long projectId, long? towerId, long? floorId, long? outSideEntityId, CancellationToken token)
+        {
+            try
+            {
+                //Work Id formate
+                //<Project_Alias>/<Tower_Alias>/<Floor_Number>/<OutSidet-Entity TypeId>-<OutSideEntity-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
+                var dependency = Get("Dependency", dependencyId);
+                var project = Get("Project", projectId);
+                var docno = GetDocumentNo(projectId);
+                string year = GetFinancialYear();
+
+                StringBuilder workId = new();
+                if (project != null)
+                {
+                    workId.Append(project?.Result.Code); //<Project_Alias>
+                    workId.Append("/");
+                }
+                if (dependency != null)
+                {
+                    workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
+                    workId.Append("/");
+                }
+                if (towerId != null)
+                {
+                    var tower = Get("Plan", (long)towerId);
+
+                    if (tower != null)
+                    {
+                        workId.Append(tower?.Result.Code);//<Tower_Alias>
+                        workId.Append("/");
+                    }
+                }
+                if (floorId != null)
+                {
+                    var floor = Get("Plan", (long)floorId);
+                    if (floor != null)
+                    {
+                        workId.Append(floor?.Result.Code);//<Floor_Number>
+                        workId.Append("/");
+                    }
+                }
+                if (outSideEntityId != null)
+                {
+                    var outSideEntity = Get("OutSideEntity", (long)outSideEntityId);
+                    if (outSideEntity != null)
+                    {
+                        var outSideEntityType = Get("OutSideEntityType", (long)outSideEntity?.Result.OutSideEntityTypeId);
+                        if (outSideEntityType != null)
+                        {
+                            workId.Append(outSideEntityType?.Result.Code);//<OutSidet-Entity Type>
+                            workId.Append("/");
+                        } 
+                    }
+                }
+
+                if (docno != null)
+                {
+                    int newNo = docno?.LastDocumentNo + 1;
+                    UpdateProjcetDocNoTracing(docno, newNo, token);
+
+                    string nextDocNo = newNo.ToString("D3");
+                    workId.Append(nextDocNo); //<Document_Number>
+                    workId.Append("/");
+                }
+                if (year != null)
+                {
+                    workId.Append(year); //<Year>
+                }
+                return workId.ToString();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GenerateOutSideWorkId method, message:'{ex.Message}'");
+                throw;
+            }
         }
     }
 }

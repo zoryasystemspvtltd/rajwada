@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RajApi.Data.Models;
 
-public class OutSideEntity : LabModel, IGlobal
+public class Parking : LabModel, IGlobal
 {
     public string? Code { get; set; }
     /// <summary>
@@ -23,10 +23,16 @@ public class OutSideEntity : LabModel, IGlobal
     public virtual Plan? Plan { get; set; }
 
     /// <summary>
-    /// OutSideEntityTypeId belongs to OutSideEntityType
+    /// ParkingTypeId belongs to ParkingType
     /// </summary>
-    [ForeignKey("OutSideEntityType")]
-    public virtual long? OutSideEntityTypeId { get; set; }
+    [ForeignKey("ParkingType")]
+    public virtual long? ParkingTypeId { get; set; }
     [JsonIgnore]
-    public virtual OutSideEntityType? OutSideEntityType { get; set; }
+    public virtual ParkingType? ParkingType { get; set; }
+}
+
+public class ParkingRawData
+{
+    public long parkingTypeId { get; set; }
+    public int? noOfParking { get; set; }
 }

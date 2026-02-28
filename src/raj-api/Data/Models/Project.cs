@@ -127,7 +127,7 @@ namespace RajApi.Data.Models
         public virtual ICollection<Plan>? Plans { get; set; }
 
         [JsonIgnore]
-        public virtual ICollection<OutsideEntity>? OutsideEntity { get; set; }
+        public virtual ICollection<OutSideEntity>? OutSideEntity { get; set; }
 
         [JsonIgnore]
         public virtual ICollection<ProjectDocNoTracking>? ProjectDocNoTrackings { get; set; }
