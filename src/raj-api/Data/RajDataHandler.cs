@@ -901,7 +901,7 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    private async Task<long> LogLabModelLog<T>(T item, StatusType activityType, CancellationToken cancellationToken)
+    public async Task<long> LogLabModelLog<T>(T item, StatusType activityType, CancellationToken cancellationToken)
     where T : LabModel
     {
         var module = typeof(T);

@@ -3,9 +3,11 @@ using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
+using RajApi.Migrations;
 using System.Text;
 
 namespace ILab.Data
@@ -78,10 +80,13 @@ namespace ILab.Data
                 }
                 if (type == typeof(Activity))
                 {
+                    //When Activity Assigned
                     if (jsonData != null && jsonData?.Status != null)
                     {
                         existingData.Status = jsonData?.Status;
                         modifiedBy = jsonData?.ModifiedBy;
+                        //Assigned also Project,Tower,Floor,Flat,Room
+                        await AssginedLinkedModule(existingData, token);
                     }
                     //When QC Approved
                     if (jsonData != null && jsonData?.IsQCApproved != null)
@@ -116,6 +121,79 @@ namespace ILab.Data
             {
                 logger.LogError("Exception in EditPartialAsync method and details: " + ex.Message);
                 return 0;
+            }
+        }
+
+        private async Task AssginedLinkedModule(dynamic existingData, CancellationToken token)
+        {
+            try
+            {
+                if (existingData.Status.Equals(StatusType.Assigned))
+                {
+                    var project = await Get("Project", (long)existingData.ProjectId);
+
+                    if (project != null)
+                    {
+                        await SaveApplicationLogForLinkedModule("Project", project, StatusType.Assigned, token);
+                    }
+                    if (existingData.TowerId != null)
+                    {
+                        var tower = await Get("Plan", (long)existingData.TowerId);
+
+                        if (tower != null)
+                        {
+                            await SaveApplicationLogForLinkedModule("Plan", tower, StatusType.Assigned, token);
+                        }
+                    }
+
+                    if (existingData.FlatId != null)
+                    {
+                        var flat = await Get("Plan", (long)existingData.FlatId);
+
+                        if (flat != null)
+                        {
+                            await SaveApplicationLogForLinkedModule("Plan", flat, StatusType.Assigned, token);
+                        }
+                    }
+
+                    if (existingData.FloorId != null)
+                    {
+                        var floor = await Get("Plan", (long)existingData.FloorId);
+
+                        if (floor != null)
+                        {
+                            await SaveApplicationLogForLinkedModule("Plan", floor, StatusType.Assigned, token);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in AssginedLinkedModule method and details: " + ex.Message);
+            }
+
+        }
+
+        private async Task SaveApplicationLogForLinkedModule(string moduel, dynamic data, StatusType activityType, CancellationToken token)
+        {
+
+            try
+            {
+                var type = GetType(moduel);
+                if (type != null)
+                {
+                    var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.LogLabModelLog));
+                    var generic = method?.MakeGenericMethod(type);
+                    object[] parameters = { data, activityType, token };
+                    var task = (Task<long>)generic.Invoke(handler, parameters);
+
+                    var result = await task;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in SaveApplicationLogForLinkedModule method and details: " + ex.Message);
             }
         }
 
@@ -873,7 +951,7 @@ namespace ILab.Data
             }
         }
 
-        internal dynamic GenerateWorkId(string module, dynamic data, CancellationToken token)
+        internal async Task<dynamic> GenerateWorkId(string module, dynamic data, CancellationToken token)
         {
             var type = GetType(module);
             dynamic jsonString = data.ToString();
@@ -882,24 +960,24 @@ namespace ILab.Data
             {
                 //Generate WorkId for Inside based on RoomId, DependencyId and Project
 
-                jsonData.WorkId = GenerateInsideWorkId(jsonData.DependencyId, jsonData.ProjectId, jsonData.RoomId, token);
+                jsonData.WorkId = await GenerateInsideWorkId(jsonData.DependencyId, jsonData.ProjectId, jsonData.RoomId, token);
             }
             else
             {
-                jsonData.WorkId = GenerateOutSideWorkId(jsonData.DependencyId, jsonData.ProjectId, jsonData.TowerId, jsonData.FloorId, jsonData.OutSideEntityId, token);
+                jsonData.WorkId = await GenerateOutSideWorkId(jsonData.DependencyId, jsonData.ProjectId, jsonData.TowerId, jsonData.FloorId, jsonData.OutSideEntityId, token);
 
             }
 
             return JsonConvert.SerializeObject(jsonData);
         }
-        private string? GenerateInsideWorkId(long dependencyId, long projectId, long roomId, CancellationToken token)
+        private async Task<string?> GenerateInsideWorkId(long dependencyId, long projectId, long roomId, CancellationToken token)
         {
             try
             {
                 //Work Id formate
                 //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
-                var dependency = Get("Dependency", dependencyId);
-                var roomDetails = Get("RoomDetails", roomId);
+                var dependency = await Get("Dependency", dependencyId);
+                var roomDetails = await Get("RoomDetails", roomId);
                 var docno = GetDocumentNo(projectId);
 
                 string year = GetFinancialYear();
@@ -930,14 +1008,14 @@ namespace ILab.Data
             }
         }
 
-        private dynamic GenerateOutSideWorkId(long dependencyId, long projectId, long? towerId, long? floorId, long? outSideEntityId, CancellationToken token)
+        private async Task<string> GenerateOutSideWorkId(long dependencyId, long projectId, long? towerId, long? floorId, long? outSideEntityId, CancellationToken token)
         {
             try
             {
                 //Work Id formate
                 //<Project_Alias>/<Tower_Alias>/<Floor_Number>/<OutSidet-Entity TypeId>-<OutSideEntity-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
-                var dependency = Get("Dependency", dependencyId);
-                var project = Get("Project", projectId);
+                var dependency = await Get("Dependency", dependencyId);
+                var project = await Get("Project", projectId);
                 var docno = GetDocumentNo(projectId);
                 string year = GetFinancialYear();
 
@@ -954,7 +1032,7 @@ namespace ILab.Data
                 }
                 if (towerId != null)
                 {
-                    var tower = Get("Plan", (long)towerId);
+                    var tower = await Get("Plan", (long)towerId);
 
                     if (tower != null)
                     {
@@ -964,7 +1042,7 @@ namespace ILab.Data
                 }
                 if (floorId != null)
                 {
-                    var floor = Get("Plan", (long)floorId);
+                    var floor = await Get("Plan", (long)floorId);
                     if (floor != null)
                     {
                         workId.Append(floor?.Result.Code);//<Floor_Number>
@@ -973,15 +1051,15 @@ namespace ILab.Data
                 }
                 if (outSideEntityId != null)
                 {
-                    var outSideEntity = Get("OutSideEntity", (long)outSideEntityId);
+                    var outSideEntity = await Get("OutSideEntity", (long)outSideEntityId);
                     if (outSideEntity != null)
                     {
-                        var outSideEntityType = Get("OutSideEntityType", (long)outSideEntity?.Result.OutSideEntityTypeId);
+                        var outSideEntityType = await Get("OutSideEntityType", (long)outSideEntity?.Result.OutSideEntityTypeId);
                         if (outSideEntityType != null)
                         {
                             workId.Append(outSideEntityType?.Result.Code);//<OutSidet-Entity Type>
                             workId.Append("/");
-                        } 
+                        }
                     }
                 }
 

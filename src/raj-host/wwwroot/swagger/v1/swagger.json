@@ -3396,11 +3396,11 @@
 "Plan": {
 "type": "string",
 },
-"ParkingTypeId": {
+"OutSideEntityTypeId": {
 "type": "string",
 "nullable": true
 },
-"ParkingType": {
+"OutSideEntityType": {
 "type": "string",
 },
 "Id": {

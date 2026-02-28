@@ -63,7 +63,7 @@ public class LabModelController : ControllerBase
             var updatedata = await dataService.ConvertBase64toFile(module, data);
             if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
             {
-                updatedata = dataService.GenerateWorkId(module, data, token);
+                updatedata = await dataService.GenerateWorkId(module, data, token);
             }
 
             Id = await dataService.AddAsync(module, updatedata, token);
