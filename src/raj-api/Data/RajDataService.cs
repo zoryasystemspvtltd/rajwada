@@ -1086,5 +1086,20 @@ namespace ILab.Data
                 throw;
             }
         }
+
+        public dynamic GetActivtyDetailsForUser(AssigneUserRequestPayload request)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetActivtyDetailsForUser));
+                object[] parameters = [request.Member, request.ProjectId, request.TowerId, request.FloorId, request.FlatId];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetAllAssignedUsers method and details: " + ex.Message);
+                return 0;
+            }
+        }
     }
 }

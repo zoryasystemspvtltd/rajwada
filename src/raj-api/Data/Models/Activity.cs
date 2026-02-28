@@ -218,6 +218,16 @@ namespace RajApi.Data.Models
         public long FlatId { get; set; }
        // public bool IsDownload { get; set; }
     }
+
+    public class AssigneUserRequestPayload
+    {
+        public string Member { get; set; }
+        public long ProjectId { get; set; }
+        public long? TowerId { get; set; }
+        public long? FloorId { get; set; }
+        public long? FlatId { get; set; }
+    }
+
     public class WorkerStatusReport
     {
         public long? Id { get; set; }
