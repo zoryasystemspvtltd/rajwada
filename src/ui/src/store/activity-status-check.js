@@ -2,18 +2,30 @@ import {
     FaPauseCircle,
     FaTools,
     FaExclamationTriangle,
-    FaCheckCircle
+    FaCheckCircle,
+    FaRedo
 } from "react-icons/fa";
+import { FaHourglassStart } from "react-icons/fa6";
+
 
 const statusList = [
+    {
+        key: "notStarted",
+        label: "Not Started",
+        gradient: "info-gradient",
+        icon: FaHourglassStart,
+        query: {
+            "nullValue": "actualStartDate"
+        }
+    },
     {
         key: "hold",
         label: "On Hold",
         gradient: "warning-gradient",
         icon: FaPauseCircle,
         query: {
-            name: "status",
-            value: 5
+            name: "isOnHold",
+            value: true
         }
     },
     {
@@ -22,7 +34,9 @@ const statusList = [
         gradient: "primary-gradient",
         icon: FaTools,
         query: {
-            "nullValue": "actualStartDate"
+            name: 'actualStartDate',
+            value: new Date(),
+            operator: 'lessThan'
         }
     },
     {
@@ -44,7 +58,17 @@ const statusList = [
             name: "isCompleted",
             value: true
         }
+    },
+    {
+        key: "rework",
+        label: "Rework",
+        gradient: "rework-gradient",
+        icon: FaRedo,
+        query: {
+            module: "activityAmendment"
+        }
     }
 ];
+
 
 export default statusList;

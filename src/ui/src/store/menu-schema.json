@@ -110,6 +110,13 @@
                 "access": "flatTemplate"
             },
             {
+                "name": "outsideEntityTypeManagement",
+                "text": "Outside Entity Type",
+                "icon": "vector-square",
+                "path": "/outside-entity-types",
+                "access": "outSideEntityType"
+            },
+            {
                 "name": "towerManagement",
                 "text": "Tower",
                 "icon": "industry",
@@ -164,6 +171,13 @@
                 "icon": "cubes-stacked",
                 "path": "/parkings",
                 "access": "parking"
+            },
+            {
+                "name": "outsideEntity",
+                "text": "Outside Entity",
+                "icon": "vector-square",
+                "path": "/outside-entities",
+                "access": "outSideEntity"
             },
             {
                 "name": "workCheckpoints",

@@ -57,6 +57,8 @@ import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from
 import WorkTransfer from "../pages/common/WorkTransfer";
 import ViewActivityStatus from "../pages/app/status-check/IndividualActivityStatus";
 import ReportDetailsPage from "../pages/app/status-check/ReportDetailsPage";
+import { AddOutsideEntityType, EditOutsideEntityType, ListOutsideEntityType, ViewOutsideEntityType } from "../pages/app/schema/OutsideEntityTypes";
+import { AddOutsideEntityMappings, EditOutsideEntityMappings, ListOutsideEntityMappings, ViewOutsideEntityMappings } from "../pages/app/schema/OutsideEntityMappings";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -658,6 +660,38 @@ const Routes = () => {
                 {
                     path: "/reports/:date",
                     element: <ReportDetailsPage />
+                },
+                {
+                    path: "/outside-entity-types",
+                    element: <ListOutsideEntityType />
+                },
+                {
+                    path: "/outside-entity-types/:id",
+                    element: <ViewOutsideEntityType />
+                },
+                {
+                    path: "/outside-entity-types/:id/edit",
+                    element: <EditOutsideEntityType />
+                },
+                {
+                    path: "/outside-entity-types/add",
+                    element: <AddOutsideEntityType />
+                },
+                {
+                    path: "/outside-entities",
+                    element: <ListOutsideEntityMappings />
+                },
+                {
+                    path: "/outside-entities/:id",
+                    element: <ViewOutsideEntityMappings />
+                },
+                {
+                    path: "/outside-entities/:id/edit",
+                    element: <EditOutsideEntityMappings />
+                },
+                {
+                    path: "/outside-entities/add",
+                    element: <AddOutsideEntityMappings />
                 }
             ],
         },

@@ -10,7 +10,7 @@ const ActivityStatusDashboard = ({ counts = {}, selected = null, onStatusChange 
         <div className="container-fluid dashboard-bg">
             <div className="row g-2">
                 {statusList.map(status => (
-                    <div key={status.key} className="col-12 col-md-6 col-xl-3">
+                    <div key={status.key} className="col-12 col-md-6 col-xl-2">
                         <StatusCard
                             status={status}
                             count={counts[status.key] || 0}

@@ -29,6 +29,7 @@ import IUILookUpMultiColumn from './IUILookUpMultiColumn';
 import IUIJsonTable from './IUIJsonTable';
 import IUILookUpNullFilter from './IUILookUpNullFilter';
 import IUILookUpRelationRooms from './IUILookUpRelationRooms';
+import IUILookUpAsync from './IUILookUpAsync';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -690,6 +691,27 @@ const IUIPageElement = (props) => {
                                             readonly={props.readonly || fld.readonly || false}
                                         />
                                         <br />
+                                    </>
+                                }
+                                {fld.type === 'lookup-async' &&
+                                    <>
+                                        <>
+                                            <Form.Group className="position-relative form-group">
+                                                <Form.Label htmlFor={fld.field} >{fld.text}
+                                                    {fld.required &&
+                                                        <span className="text-danger">*</span>
+                                                    }
+                                                </Form.Label>
+
+                                                <IUILookUpAsync value={data[fld.field] || []}
+                                                    id={fld.field}
+                                                    text={fld.text}
+                                                    onChange={handleChange}
+                                                    readonly={props.readonly || fld.readonly || false}
+                                                />
+                                            </Form.Group>
+                                            <p className="text-danger">{errors[fld.field]}</p>
+                                        </>
                                     </>
                                 }
                                 {fld.type === 'lookup-relation' &&

@@ -3,13 +3,14 @@ import { Button, Col, Row } from "react-bootstrap";
 import Table from 'react-bootstrap/Table';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
-import statusList from '../../../store/activity-status-check';
 import api from '../../../store/api-service';
 import { formatStringDate } from '../../../store/datetime-formatter';
-import { notify } from '../../../store/notification';
 import IUILookUp from '../../common/shared/IUILookUp';
+import IUIResetPasswordElement from '../../ResetUserPassword';
 import IUIPageElement from '../../common/shared/IUIPageElement';
 import ActivityStatusDashboard from './ActivityDashboard';
+import statusList from '../../../store/activity-status-check';
+import { notify } from '../../../store/notification';
 
 const ActivityListByStatus = () => {
     // Properties
@@ -101,20 +102,23 @@ const ActivityListByStatus = () => {
 
     // 🔥 NEW STATE
     const [counts, setCounts] = useState({
+        notStarted: 0,
         hold: 0,
         inprogress: 0,
         delayed: 0,
-        closed: 0
+        closed: 0,
+        rework: 0
     });
     const [countsByFilter, setCountsByFilter] = useState({
+        notStarted: 0,
         hold: 0,
         inprogress: 0,
         delayed: 0,
-        closed: 0
+        closed: 0,
+        rework: 0
     });
 
     const [selectedStatus, setSelectedStatus] = useState(null);
-
     const navigate = useNavigate();
 
     // Privileges
@@ -122,6 +126,7 @@ const ActivityListByStatus = () => {
         const modulePrivileges = loggedInUser?.privileges
             ?.filter(p => p.module === module)
             ?.map(p => p.name);
+
 
         let access = {};
         modulePrivileges?.forEach(p => {
@@ -137,7 +142,19 @@ const ActivityListByStatus = () => {
 
     const fetchStatusCount = async (status) => {
         try {
-            if (!Object.keys(status.query).includes("nullValue")) {
+            if (Object.keys(status.query).includes("nullValue")) {
+                const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
+                return activitiesByNullValue?.data?.length;
+            }
+            else if (Object.keys(status.query).includes("module")) {
+                const pageOptions = {
+                    recordPerPage: 0,
+                }
+
+                const response = await api.getData({ module: status.query.module, options: pageOptions });
+                return response?.data?.items?.length;
+            }
+            else {
                 const pageOptions = {
                     recordPerPage: 0,
                     searchCondition: status.query
@@ -145,10 +162,6 @@ const ActivityListByStatus = () => {
 
                 const response = await api.getData({ module: 'activity', options: pageOptions });
                 return response?.data?.items?.length;
-            }
-            else {
-                const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
-                return activitiesByNullValue?.data?.length;
             }
         } catch (error) {
             console.error(`Error fetching ${status.key} count`, error);
@@ -158,19 +171,7 @@ const ActivityListByStatus = () => {
 
     const fetchStatusCountByFilter = async (baseFilter, status) => {
         try {
-            if (!Object.keys(status.query).includes("nullValue")) {
-                const pageOptions = {
-                    recordPerPage: 0,
-                    searchCondition: {
-                        ...baseFilter,
-                        and: status.query
-                    }
-                }
-
-                const response = await api.getData({ module: 'activity', options: pageOptions });
-                return response?.data?.items?.length;
-            }
-            else {
+            if (Object.keys(status.query).includes("nullValue")) {
                 const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
                 const nullValueActivityIds = activitiesByNullValue?.data?.map(activity => activity.id);
 
@@ -183,6 +184,27 @@ const ActivityListByStatus = () => {
                 const allActivites = response?.data?.items;
 
                 return allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id))?.length;
+            }
+            else if (Object.keys(status.query).includes("module")) {
+                const pageOptions = {
+                    recordPerPage: 0,
+                    searchCondition: baseFilter
+                }
+
+                const response = await api.getData({ module: status.query.module, options: pageOptions });
+                return response?.data?.items?.length;
+            }
+            else {
+                const pageOptions = {
+                    recordPerPage: 0,
+                    searchCondition: {
+                        ...baseFilter,
+                        and: status.query
+                    }
+                }
+
+                const response = await api.getData({ module: 'activity', options: pageOptions });
+                return response?.data?.items?.length;
             }
         } catch (error) {
             console.error(`Error fetching ${status.key} count`, error);
@@ -237,10 +259,10 @@ const ActivityListByStatus = () => {
 
     const prepareActivityCreation = async () => {
 
-        // if (!selectedStatus) {
-        //     notify("info", "Please select an activity status!");
-        //     return;
-        // }
+        if (!selectedStatus) {
+            notify("info", "Please select an activity status!");
+            return;
+        }
 
         try {
             const baseSelectQuery = {
@@ -260,39 +282,39 @@ const ActivityListByStatus = () => {
                 }
             };
 
-            const pageOptions = {
-                recordPerPage: 0,
-                searchCondition: baseSelectQuery
+            // const pageOptions = {
+            //     recordPerPage: 0,
+            //     searchCondition: baseSelectQuery
+            // }
+
+            // const response = await api.getData({ module: 'activity', options: pageOptions });
+            // setActivities(response?.data?.items);
+
+            const selectedStatusObj = statusList.find(status => status.key === selectedStatus);
+
+            if (!Object.keys(selectedStatusObj.query).includes("nullValue")) {
+                const pageOptions = {
+                    recordPerPage: 0,
+                    searchCondition: { ...selectedStatusObj.query, and: baseSelectQuery }
+                }
+
+                const response = await api.getData({ module: 'activity', options: pageOptions });
+                setActivities(response?.data?.items);
             }
+            else {
+                const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
+                const nullValueActivityIds = activitiesByNullValue?.data?.map(activity => activity.id);
 
-            const response = await api.getData({ module: 'activity', options: pageOptions });
-            setActivities(response?.data?.items);
+                const pageOptions = {
+                    recordPerPage: 0,
+                    searchCondition: baseSelectQuery
+                }
 
-            // const selectedStatusObj = statusList.find(status => status.key === selectedStatus);
+                const response = await api.getData({ module: 'activity', options: pageOptions });
+                const allActivites = response?.data?.items;
 
-            // if (!Object.keys(selectedStatusObj.query).includes("nullValue")) {
-            //     const pageOptions = {
-            //         recordPerPage: 0,
-            //         searchCondition: { ...selectedStatusObj.query, and: baseSelectQuery }
-            //     }
-
-            //     const response = await api.getData({ module: 'activity', options: pageOptions });
-            //     setActivities(response?.data?.items);
-            // }
-            // else {
-            //     const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
-            //     const nullValueActivityIds = activitiesByNullValue?.data?.map(activity => activity.id);
-
-            //     const pageOptions = {
-            //         recordPerPage: 0,
-            //         searchCondition: baseSelectQuery
-            //     }
-
-            //     const response = await api.getData({ module: 'activity', options: pageOptions });
-            //     const allActivites = response?.data?.items;
-
-            //     setActivities(allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id)));
-            // }
+                setActivities(allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id)));
+            }
 
             const promises = statusList.map(status =>
                 fetchStatusCountByFilter(baseSelectQuery, status)
@@ -362,7 +384,6 @@ const ActivityListByStatus = () => {
                                                     </Col>
                                                 </Row>
                                             ))}
-
 
                                             <Row>
                                                 <Col>

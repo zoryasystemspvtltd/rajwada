@@ -5,12 +5,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from '../../../store/api-service';
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
 import { bfsTraversal, findSourceNodes } from '../../flowchart-helper/GraphHelper';
-import IUIActivityWizard from './IUIActivityWizard';
-import IUIBreadcrumb from './IUIBreadcrumb';
-import IUIModuleMessage from './IUIModuleMessage';
-import IUIPageElement from './IUIPageElement';
+import IUIActivityWizard from '../../common/shared/IUIActivityWizard';
+import IUIBreadcrumb from '../../common/shared/IUIBreadcrumb';
+import IUIModuleMessage from '../../common/shared/IUIModuleMessage';
+import IUIPageElement from '../../common/shared/IUIPageElement';
 
-const IUIActivityCreate = (props) => {
+const IUIInsideActivityCreate = (props) => {
     // Properties
     const setupSchema = props?.setupSchema;
     const creationSchema = props?.creationSchema;
@@ -423,4 +423,4 @@ const IUIActivityCreate = (props) => {
     )
 }
 
-export default IUIActivityCreate;
+export default IUIInsideActivityCreate;

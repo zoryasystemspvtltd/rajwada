@@ -79,3 +79,11 @@
 .success-gradient {
   background: linear-gradient(135deg, #34d399, #065f46);
 }
+
+.info-gradient {
+  background: linear-gradient(135deg, #5076b3, #182b5f);
+}
+
+.rework-gradient {
+  background: linear-gradient(135deg, #7a6868, #452525);
+}

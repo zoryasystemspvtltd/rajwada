@@ -1,6 +1,6 @@
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage";
-import IUIActivityCreate from "../../common/shared/IUIActivityCreate.jsx";
+import IUIActivityCreate from "../work-plan/IUIActivityCreate.jsx";
 
 export const ListActivity = () => {
 
@@ -484,6 +484,10 @@ export const AddActivity = () => {
                 type: "lookup"
             },
             {
+                field: "type",
+                type: "lookup"
+            },
+            {
                 field: "photoUrl",
                 type: "photo"
             }
@@ -494,15 +498,15 @@ export const AddActivity = () => {
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', width: 4, type: 'text', required: true },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: true },
-                    // {
-                    //     text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
-                    //     schema: {
-                    //         items: [ // or use items for fixed value
-                    //             { name: 'Main Task' },
-                    //             { name: 'Sub Task' }
-                    //         ]
-                    //     }
-                    // },
+                    {
+                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'Inside' },
+                                { name: 'Outside' }
+                            ]
+                        }
+                    },
                     {
                         text: 'Project', field: 'projectId', width: 4, type: 'lookup', required: true,
                         schema: { module: 'project' }

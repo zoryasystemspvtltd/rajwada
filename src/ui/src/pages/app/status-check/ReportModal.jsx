@@ -34,13 +34,13 @@ const ReportModal = ({ activityId, show, onClose }) => {
             delete: true,
             fields: [
                 {
-                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
-                    schema: { module: 'asset' }
+                    text: 'Item', field: 'assetId', type: 'lookup-intersection', required: true, width: 4,
+                    schema: { module: 'asset', intersection: { module: 'activity', id: parseInt(activityId), field: 'items', identifier: 'assetId' } }
                 },
                 { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
                 {
-                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
-                    schema: { module: 'uom' }
+                    text: 'UOM', field: 'uomId', type: 'lookup-intersection', required: true, width: 4,
+                    schema: { module: 'uom', intersection: { module: 'activity', id: parseInt(activityId), field: 'items', identifier: 'uomId' } }
                 },
             ]
         }
@@ -67,6 +67,14 @@ const ReportModal = ({ activityId, show, onClose }) => {
             setError("");
 
             await api.addData({ module: 'activitytracking', data: formData });
+
+            if (!activityData?.actualStartDate) {
+                const updatedActivityData = {
+                    ...activityData,
+                    actualStartDate: new Date()
+                };
+                await api.editData({ module: 'activity', data: updatedActivityData });
+            }
             onClose();
         } catch (err) {
             setError(
