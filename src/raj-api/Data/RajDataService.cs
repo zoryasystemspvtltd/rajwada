@@ -502,10 +502,10 @@ namespace ILab.Data
                 string locationPrefix = projectName + "/";
 
                 if (tower != null)
-                    locationPrefix += tower.Code + "/";
+                    locationPrefix += tower.Name + "/";
 
                 if (floor != null)
-                    locationPrefix += floor.Code + "/";
+                    locationPrefix += floor.Name + "/";
 
                 foreach (var item in outSideList)
                 {
