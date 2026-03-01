@@ -5,10 +5,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from '../../../store/api-service';
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
 import { bfsTraversal, findSourceNodes } from '../../flowchart-helper/GraphHelper';
-import IUIActivityWizard from '../../common/shared/IUIActivityWizard';
 import IUIBreadcrumb from '../../common/shared/IUIBreadcrumb';
 import IUIModuleMessage from '../../common/shared/IUIModuleMessage';
 import IUIPageElement from '../../common/shared/IUIPageElement';
+import IUIActivityWizard from '../../common/shared/IUIActivityWizard';
 
 const IUIOutsideActivityCreate = (props) => {
     // Properties
@@ -37,7 +37,7 @@ const IUIOutsideActivityCreate = (props) => {
         type: "area", width: 12
         , fields: [
             {
-                text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: true,
+                text: 'Activity Blueprint', field: 'photoUrl', width: 12, type: 'ilab-canvas', required: false,
                 imageModule: 'plan',
                 schema: {
                     readonly: false,
@@ -75,12 +75,15 @@ const IUIOutsideActivityCreate = (props) => {
 
     // Usage
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     useEffect(() => {
         async function fetchData() {
             const pageOptions = {
-                recordPerPage: 0
+                recordPerPage: 0,
+                searchCondition: {
+                    name: "type",
+                    value: "Outside"
+                }
             }
 
             const response = await api.getData({ module: dependencyModule, options: pageOptions });
@@ -159,13 +162,11 @@ const IUIOutsideActivityCreate = (props) => {
         setImageField(tempImage);
         setBfsSequence(result?.filter(node => node !== undefined)?.map(node => ({ label: node?.data?.label, activityId: node?.node?.id })));
         setIsSetupComplete(true);
+        props?.onProceed(false);
     };
 
     return (
         <>
-            <div className="app-page-title">
-                <div className="page-title-heading"> {setupSchema?.title}</div>
-            </div>
             <div className="tab-content">
                 <div className="tabs-animation">
                     <div className={isSetupComplete ? "d-none" : "row"}>

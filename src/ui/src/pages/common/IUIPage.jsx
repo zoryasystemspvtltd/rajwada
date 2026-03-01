@@ -150,6 +150,7 @@ const IUIPage = (props) => {
 
         if (defaultType === 'indirect') {
             const { dependsOnModule, dependsOnField, ownSearchField, otherModuleSearchField } = fld;
+
             // Do NOT permanently exit — wait for data
             if (!data?.[ownSearchField]) {
                 return undefined;

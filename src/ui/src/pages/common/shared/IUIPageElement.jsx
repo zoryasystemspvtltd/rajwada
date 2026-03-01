@@ -717,15 +717,15 @@ const IUIPageElement = (props) => {
                                 {fld.type === 'lookup-relation' &&
                                     <>
                                         {
-                                            (data[fld.parent]) ? (
+                                            data[fld.parent] &&
+                                            (
+                                                !fld?.enableIf ||
+                                                data[fld.enableIf.field] === fld.enableIf.value
+                                            ) && (
                                                 <Form.Group className="position-relative form-group">
-                                                    <Form.Label htmlFor={fld.field} >{fld.text}
-                                                        {fld.required &&
-                                                            <span className="text-danger">*</span>
-                                                        }
-                                                        {/* {(fld?.exclusionCondition && data[fld?.exclusionCondition?.field] === fld?.exclusionCondition?.value) &&
-                                                            <span className="text-danger">*</span>
-                                                        } */}
+                                                    <Form.Label htmlFor={fld.field}>
+                                                        {fld.text}
+                                                        {fld.required && <span className="text-danger">*</span>}
                                                     </Form.Label>
 
                                                     <IUILookUpRelation
@@ -738,7 +738,7 @@ const IUIPageElement = (props) => {
                                                         readonly={props.readonly || fld.readonly || false}
                                                     />
                                                 </Form.Group>
-                                            ) : <></>
+                                            )
                                         }
                                         <br />
                                     </>

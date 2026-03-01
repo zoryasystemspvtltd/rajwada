@@ -12,7 +12,7 @@ export const ListWorkflow = () => {
         adding: true,
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
-            { text: 'Alias', field: 'code', type: 'text', sorting: true, searching: true },
+            // { text: 'Alias', field: 'code', type: 'text', sorting: true, searching: true },
             {
                 text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
                 schema: { module: 'project' }
@@ -32,6 +32,10 @@ export const ListWorkflow = () => {
             {
                 text: 'Room', field: 'roomId', type: 'lookup', sorting: false, searching: false,
                 schema: { module: 'roomDetails' }
+            },
+            {
+                text: 'Outside Entity', field: 'outSideEntityId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'outSideEntity' }
             }
         ]
     }
@@ -312,6 +316,10 @@ export const AddWorkflow = () => {
                         //     value: 'Inside'
                         // },
                         text: 'Flat',
+                        enableIf: {
+                            field: 'type',
+                            value: 'Inside'
+                        },
                         width: 3,
                         schema: {
                             module: 'plan',
@@ -323,16 +331,32 @@ export const AddWorkflow = () => {
                         type: 'lookup-relation',
                         parent: 'flatId',
                         field: 'roomId',
-                        // exclusionCondition:{
-                        //     field: 'type',
-                        //     value: 'Inside'
-                        // },
+                        enableIf: {
+                            field: 'type',
+                            value: 'Inside'
+                        },
                         text: 'Room',
                         width: 3,
                         schema: {
                             module: 'roomDetails',
                             relationKey: "planId",
                             path: 'roommappings'
+                        },
+                    },
+                    {
+                        type: 'lookup-relation',
+                        parent: 'towerId',
+                        field: 'outSideEntityId',
+                        enableIf: {
+                            field: 'type',
+                            value: 'Outside'
+                        },
+                        text: 'Outside Entity',
+                        width: 3,
+                        schema: {
+                            module: 'outSideEntity',
+                            relationKey: "towerId",
+                            path: 'outside-entities'
                         },
                     }
                 ]

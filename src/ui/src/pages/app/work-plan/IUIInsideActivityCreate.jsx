@@ -5,10 +5,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from '../../../store/api-service';
 import FlowchartInit from '../../flowchart-helper/FlowchartInit';
 import { bfsTraversal, findSourceNodes } from '../../flowchart-helper/GraphHelper';
-import IUIActivityWizard from '../../common/shared/IUIActivityWizard';
 import IUIBreadcrumb from '../../common/shared/IUIBreadcrumb';
 import IUIModuleMessage from '../../common/shared/IUIModuleMessage';
 import IUIPageElement from '../../common/shared/IUIPageElement';
+import IUIActivityWizard from '../../common/shared/IUIActivityWizard';
 
 const IUIInsideActivityCreate = (props) => {
     // Properties
@@ -16,7 +16,7 @@ const IUIInsideActivityCreate = (props) => {
     const creationSchema = props?.creationSchema;
     const module = setupSchema?.module;
     const dependencyModule = 'workflow';
-    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, roomId: null, workflowId: null, dependencyId: null, photoUrl: null };
+    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, roomId: null, type: "Inside", workflowId: null, dependencyId: null, photoUrl: null };
     // Parameter
     const { id } = useParams();
     // console.log(parentId)
@@ -81,7 +81,11 @@ const IUIInsideActivityCreate = (props) => {
     useEffect(() => {
         async function fetchData() {
             const pageOptions = {
-                recordPerPage: 0
+                recordPerPage: 0,
+                searchCondition: {
+                    name: "type",
+                    value: "Inside"
+                }
             }
 
             const response = await api.getData({ module: dependencyModule, options: pageOptions });
@@ -140,7 +144,8 @@ const IUIInsideActivityCreate = (props) => {
             floorId: selectedDependency?.floorId,
             flatId: selectedDependency?.flatId,
             roomId: selectedDependency?.roomId,
-            photoUrl: item?.data?.blueprint
+            photoUrl: item?.data?.blueprint,
+            type: "Inside"
         });
         let activityParentId = -1;
         if (selectedDependency?.flatId !== null) {
@@ -160,13 +165,11 @@ const IUIInsideActivityCreate = (props) => {
         setImageField(tempImage);
         setBfsSequence(result?.filter(node => node !== undefined)?.map(node => ({ label: node?.data?.label, activityId: node?.node?.id })));
         setIsSetupComplete(true);
+        props?.onProceed(false);
     };
 
     return (
         <>
-            <div className="app-page-title">
-                <div className="page-title-heading"> {setupSchema?.title}</div>
-            </div>
             <div className="tab-content">
                 <div className="tabs-animation">
                     <div className={isSetupComplete ? "d-none" : "row"}>

@@ -94,7 +94,7 @@ export const EditOutsideEntityMappings = () => {
                         field: 'towerId',
                         text: 'Tower',
                         width: 6,
-                        required: true,
+                        required: false,
                         readonly: true,
                         schema: {
                             module: 'plan',
@@ -108,7 +108,7 @@ export const EditOutsideEntityMappings = () => {
                         field: 'floorId',
                         text: 'Floor',
                         width: 6,
-                        required: true,
+                        required: false,
                         readonly: true,
                         schema: {
                             module: 'plan',
