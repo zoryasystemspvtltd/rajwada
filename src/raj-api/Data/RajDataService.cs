@@ -1,16 +1,12 @@
-﻿using DocumentFormat.OpenXml.Drawing.Spreadsheet;
+﻿
 using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
-using RajApi.Migrations;
 using System.Text;
-using System.Timers;
 
 namespace ILab.Data
 {
@@ -254,7 +250,7 @@ namespace ILab.Data
                         {
                             var project = await Get("Project", jsonData?.ProjectId);
 
-                            if (string.Equals(jsonData?.Type?.tostring(), "TOWER", StringComparison.OrdinalIgnoreCase))
+                            if (string.Equals(jsonData?.Type?.ToString(), "TOWER", StringComparison.OrdinalIgnoreCase))
                             {
                                 await SaveFloorData(jsonData, Id, project.Name, project.Code, token);
                                 await SaveParkingData(jsonData, Id, project.Name, token);
@@ -395,11 +391,11 @@ namespace ILab.Data
                 List<RoomDetails> roomDetails = new();
                 foreach (var item in flatTemplateDetails)
                 {
-                    var rooms = Get("RoomType", (long)item.RoomTypeId);
+                    var rooms = await Get("RoomType", (long)item.RoomTypeId);
 
                     for (int i = 1; i <= item.RoomCount; i++)
                     {
-                        var roomId = flatName + "/" + rooms.Result.Code + "-" + i;
+                        var roomId = flatName + "/" + rooms.Code + "-" + i;
                         RoomDetails rec = new()
                         {
                             RoomId = roomId,
@@ -409,7 +405,7 @@ namespace ILab.Data
                             Key = Identity.Key,
                             RoomTypeId = item.RoomTypeId,
                             PlanId = flatId,
-                            Name = rooms.Result.Code + "-" + i,
+                            Name = rooms.Code + "-" + i,
                         };
                         roomDetails.Add(rec);
                     }
@@ -511,10 +507,12 @@ namespace ILab.Data
                 {
                     var entityType = await Get("OutSideEntityType", item.outSideEntityTypeId);
                     if (entityType == null) continue;
+                    var oldName = $"{locationPrefix}{entityType.Name}";
 
+                    var maxCount = GetMaxCount("OutSideEntity", "Name", oldName);
                     for (int i = 1; i <= item.noOfEntity; i++)
                     {
-                        var name = $"{locationPrefix}{entityType.Name}-{i}";
+                        var name = $"{oldName}-{maxCount + i}";
 
                         entityList.Add(new OutSideEntity
                         {
@@ -559,10 +557,14 @@ namespace ILab.Data
                 List<Parking> parkings = new();
                 foreach (var item in parkingsList)
                 {
-                    var parkingType = Get("ParkingType", item.parkingTypeId);
+                    var parkingType = await Get("ParkingType", item.parkingTypeId);
+                    string oldName = projectName + "/" + jsonData?.Name + "/Parking/" + parkingType.Name;
+                    var maxCount = GetMaxCount("Parking", "Name", oldName);
+
                     for (int i = 1; i <= item.noOfParking; i++)
                     {
-                        string name = projectName + "/" + jsonData?.Name + "/Parking/" + parkingType.Result.Name + i;
+                        int count = maxCount + i;
+                        string name = oldName + "-" + count;
 
                         Parking parking = new()
                         {
@@ -640,7 +642,41 @@ namespace ILab.Data
             }
 
         }
+        private int GetMaxCount(string model, string? name, string? value)
+        {
+            try
+            {
+                ListOptions option = new();
+                Condition con = new()
+                {
+                    //Operator blank mean Equality
+                    Name = name,
+                    Value = value,
+                    Operator = OperatorType.Likelihood
+                };
+                option.SortColumnName = "Id";
+                option.SortDirection = true;
+                option.SearchCondition = con;
+                var data = Get(model, option);
 
+                if (data != null && data?.Items.Count > 0)
+                {
+                    var entity = data.Items[data?.Items.Count - 1];
+                    var nameValue = entity.Name as string;
+                    return Convert.ToInt32(nameValue.Split('-').LastOrDefault());
+                }
+                else
+                {
+                    logger.LogError("No data retrive from GetMaxCount for " + model + "  name:" + value);
+                    return 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetMaxCount method, message:'{ex.Message}'");
+                return 0;
+            }
+        }
 
         private async Task SaveActivityResourceAsync(Type type, dynamic data, long activityId, CancellationToken token)
         {
@@ -1048,7 +1084,7 @@ namespace ILab.Data
             }
             else
             {
-                jsonData.WorkId = await GenerateOutSideWorkId(jsonData.DependencyId, jsonData.ProjectId, jsonData.TowerId, jsonData.FloorId, jsonData.OutSideEntityId, token);
+                jsonData.WorkId = await GenerateOutSideWorkId(jsonData.DependencyId, jsonData.ProjectId, jsonData.OutSideEntityId, token);
 
             }
 
@@ -1072,9 +1108,9 @@ namespace ILab.Data
 
                     string nextDocNo = newNo.ToString("D3");
                     StringBuilder workId = new();
-                    workId.Append(roomDetails?.Result.RoomId); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>                   
+                    workId.Append(roomDetails?.RoomId); //<Project_Alias>/<Tower_Alias>/<Floor_Number>-<Flat-Number>/<Room-Type-Alias>-<Room-Count-Index>                   
                     workId.Append("/");
-                    workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
+                    workId.Append(dependency?.Code); //<Activity_Type_Alias>
                     workId.Append("/");
                     workId.Append(nextDocNo); //<Document_Number>
                     workId.Append("/");
@@ -1092,7 +1128,7 @@ namespace ILab.Data
             }
         }
 
-        private async Task<string> GenerateOutSideWorkId(long dependencyId, long projectId, long? towerId, long? floorId, long? outSideEntityId, CancellationToken token)
+        private async Task<string> GenerateOutSideWorkId(long dependencyId, long projectId, long? outSideEntityId, CancellationToken token)
         {
             try
             {
@@ -1110,9 +1146,9 @@ namespace ILab.Data
                     UpdateProjcetDocNoTracing(docno, newNo, token);
                     string nextDocNo = newNo.ToString("D3");
 
-                    workId.Append(outSideEntity?.Result.Name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>/<Out Side Entity-Type-Alias>-<outSideEntity-Index>                   
+                    workId.Append(outSideEntity?.Name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>/<Out Side Entity-Type-Alias>-<outSideEntity-Index>                   
                     workId.Append("/");
-                    workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
+                    workId.Append(dependency?.Code); //<Activity_Type_Alias>
                     workId.Append("/");
                     workId.Append(nextDocNo); //<Document_Number>
                     workId.Append("/");
