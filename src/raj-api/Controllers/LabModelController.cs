@@ -65,8 +65,11 @@ public class LabModelController : ControllerBase
             {
                 updatedata = await dataService.GenerateWorkId(module, data, token);
             }
-
-            Id = await dataService.AddAsync(module, updatedata, token);
+            if (module.ToUpper() != "OUTSIDEENTITY")
+            {
+                Id = await dataService.AddAsync(module, updatedata, token);
+            }
+           
             await dataService.ProcessAddDataAsync(module, updatedata, Id, token);
             return Id;
 

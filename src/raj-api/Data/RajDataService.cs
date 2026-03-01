@@ -2,6 +2,7 @@
 using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RajApi.Data;
@@ -9,6 +10,7 @@ using RajApi.Data.Models;
 using RajApi.Helpers;
 using RajApi.Migrations;
 using System.Text;
+using System.Timers;
 
 namespace ILab.Data
 {
@@ -246,16 +248,24 @@ namespace ILab.Data
                         break;
 
                     case "PLAN":
+                    case "OUTSIDEENTITY":
                         var jsonString = data.ToString();
                         var jsonData = JsonConvert.DeserializeObject(jsonString, type);
 
-                        if (jsonData != null && string.Equals(jsonData?.Type?.ToString(), "tower", StringComparison.OrdinalIgnoreCase))
+                        if (jsonData != null)
                         {
                             var projectTask = Get("Project", jsonData?.ProjectId);
                             var project = await projectTask; // Assuming Get returns Task or Task<T> and Result is awaited here properly
 
-                            await SaveFloorData(jsonData, Id, project.Name, project.Code, token);
-                            await SaveParkingData(jsonData, Id, project.Name, project.Code, token);
+                            if (string.Equals(jsonData?.Type?.ToString(), "tower", StringComparison.OrdinalIgnoreCase))
+                            {
+                                await SaveFloorData(jsonData, Id, project.Name, project.Code, token);
+                                await SaveParkingData(jsonData, Id, project.Name, token);
+                            }
+                            if (string.Equals(model.ToUpper(), "OUTSIDEENTITY", StringComparison.OrdinalIgnoreCase))
+                            {
+                                await SaveOutSideEntitiesData(jsonData, project.Name, token);
+                            }
                         }
                         break;
                 }
@@ -457,7 +467,68 @@ namespace ILab.Data
                 throw;
             }
         }
+        private async Task SaveOutSideEntitiesData(dynamic? jsonData, string projectName, CancellationToken token)
+        {
+            try
+            {
+                if (jsonData?.EntitiesList == null)
+                    return;
 
+                var outSideList = JsonConvert.DeserializeObject<List<EntitiesList>>(jsonData.EntitiesList);
+                if (outSideList == null || outSideList.Count == 0)
+                    return;
+
+                var entityList = new List<OutSideEntity>();
+
+                var tower = jsonData?.TowerId != null
+                    ? await Get("Plan", jsonData.TowerId)
+                    : null;
+
+                var floor = jsonData?.FloorId != null
+                    ? await Get("Plan", jsonData.FloorId)
+                    : null;
+
+                string locationPrefix = projectName + "/";
+
+                if (tower != null)
+                    locationPrefix += tower.Code + "/";
+
+                if (floor != null)
+                    locationPrefix += floor.Code + "/";
+
+                foreach (var item in outSideList)
+                {
+                    var entityType = await Get("OutSideEntityType", item.outSideEntityTypeId);
+                    if (entityType == null) continue;
+
+                    for (int i = 1; i <= item.noOfEntity; i++)
+                    {
+                        var name = $"{locationPrefix}{entityType.Name}-{i}";
+
+                        entityList.Add(new OutSideEntity
+                        {
+                            Status = StatusType.Draft,
+                            Date = DateTime.UtcNow,
+                            Member = Identity.Member,
+                            Key = Identity.Key,
+                            OutSideEntityTypeId = item.outSideEntityTypeId,
+                            TowerId = jsonData?.TowerId,
+                            FloorId = jsonData?.FloorId,
+                            ProjectId = jsonData?.ProjectId,
+                            Name = name
+                        });
+                    }
+                }
+
+                if (entityList.Count > 0)
+                    await SaveBulkkDataAsync("OutSideEntity", entityList, token);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in SaveOutSideEntitiesData: {ex.Message}");
+                throw;
+            }
+        }
         /// <summary>
         /// Save parking data
         /// </summary>
@@ -467,7 +538,7 @@ namespace ILab.Data
         /// <param name="projectCode">Project Code</param>
         /// <param name="token">Token</param>
         /// <returns></returns>
-        private async Task SaveParkingData(dynamic jsonData, long towerId, string projectName, string projectCode, CancellationToken token)
+        private async Task SaveParkingData(dynamic jsonData, long towerId, string projectName, CancellationToken token)
         {
             try
             {
