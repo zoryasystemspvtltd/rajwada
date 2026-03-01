@@ -224,7 +224,13 @@ const IUIActivityWizard = (props) => {
 
                 // Updated logic for no planning for group activities
                 const groupActivities = await filterGroupActivities();
-                setSequence(finalSequence?.filter(activity => groupActivities.includes(activity?.label)));
+                let tempFinalSequence = finalSequence?.filter(activity => groupActivities.includes(activity?.label));
+                if (tempFinalSequence?.length === 0) {
+                    setAlreadyCreationNote("Activities have already been created for the selected Tower, Floor, Flat and Dependency details !");
+                }
+                else {
+                    setSequence(tempFinalSequence);
+                }
                 if (finalSequence?.length === 0) {
                     setAlreadyCreationNote("Activities have already been created for the selected Tower, Floor, Flat and Dependency details !");
                 }
@@ -236,7 +242,7 @@ const IUIActivityWizard = (props) => {
             }
         }
 
-
+        // console.log(props?.sequence, props?.dependencyData)
         if (props?.sequence && props?.dependencyData) {
             fetchActivities();
         }

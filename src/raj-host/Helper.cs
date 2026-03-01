@@ -305,5 +305,10 @@ public class DatabaseSettings
     public string? Database { get; set; }
     public string? Username { get; set; }
     public string? Password { get; set; }
+    public int? CommandTimeout { get; set; }
 }
 
+public class FileUploadSettings
+{
+    public string UploadFolderPath { get; set; } = string.Empty;
+}

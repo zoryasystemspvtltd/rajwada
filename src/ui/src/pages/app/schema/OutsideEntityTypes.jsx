@@ -1,12 +1,11 @@
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage"
 
-export const ListRoom = () => {
-
+export const ListOutsideEntityType = () => {
     const schema = {
-        module: 'room',
-        title: 'Room Type',
-        path: 'rooms',
+        module: 'outSideEntityType',
+        title: 'Outside Entity Type',
+        path: 'outside-entity-types',
         paging: true,
         searching: true,
         editing: true,
@@ -14,18 +13,17 @@ export const ListRoom = () => {
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Alias', field: 'code', type: 'text', sorting: true, searching: true },
-            { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
         ]
     }
 
     return (<IUIList schema={schema} />)
 }
 
-export const ViewRoom = () => {
+export const ViewOutsideEntityType = () => {
     const schema = {
-        module: 'room',
-        title: 'Room Type',
-        path: 'rooms',
+        module: 'outSideEntityType',
+        title: 'Outside Entity Type',
+        path: 'outside-entity-types',
         showBreadcrumbs: true,
         editing: true,
         adding: false,
@@ -38,7 +36,6 @@ export const ViewRoom = () => {
                 , fields: [
                     { text: 'Name', field: 'name', type: 'label', width: 6 },
                     { text: 'Alias', field: 'code', type: 'label', width: 6 },
-                    { text: 'Description', field: 'description', type: 'label', width: 6 },
                 ]
             }
         ]
@@ -47,11 +44,11 @@ export const ViewRoom = () => {
     return (<IUIPage schema={schema} />)
 }
 
-export const EditRoom = () => {
+export const EditOutsideEntityType = () => {
     const schema = {
-        module: 'room',
-        title: 'Room Type',
-        path: 'rooms',
+        module: 'outSideEntityType',
+        title: 'Outside Entity Type',
+        path: 'outside-entity-types',
         back: false,
         fields: [
             {
@@ -59,7 +56,6 @@ export const EditRoom = () => {
                 , fields: [
                     { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Alias', field: 'code', placeholder: 'Code here...', type: 'text', required: true, width: 6 },
-                    { text: 'Description', field: 'description',placeholder: 'Description here...',  type: 'text', required: true, width: 6 },
                 ]
             }
         ]
@@ -68,19 +64,18 @@ export const EditRoom = () => {
     return (<IUIPage schema={schema} />)
 }
 
-export const AddRoom = () => {
+export const AddOutsideEntityType = () => {
     const schema = {
-        module: 'room',
-        title: 'Room Type',
-        path: 'rooms',
+        module: 'outSideEntityType',
+        title: 'Outside Entity Type',
+        path: 'outside-entity-types',
         back: true,
         fields: [
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name',placeholder: 'Name here...', type: 'text', required: true, width: 6 },
+                    { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Alias', field: 'code', type: 'text', required: true, width: 6 },
-                    { text: 'Description', field: 'description',placeholder: 'Description here...', type: 'text', required: true, width: 6 },
                 ]
             }
         ]

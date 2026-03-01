@@ -1,5 +1,4 @@
 ﻿using ILab.Extensionss.Data.Models;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,7 +12,7 @@ namespace RajApi.Data.Models
         public virtual bool? IsCuringDone { get; set; }
         public virtual decimal? Cost { get; set; }
         public virtual string? Item { get; set; }
-
+        public virtual string? ActivityTrackStatus { get; set; }
         #region Relations
         /// <summary>
         /// Activity is also a collection of other Activity tracking

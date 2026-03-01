@@ -60,11 +60,15 @@ const IUITableInput = (props) => {
     }, [data, dirty, schema?.fields]);
 
     useEffect(() => {
+
         async function collateData() {
             let collateSchema = schema?.collateSchema;
+
+            if (!collateSchema) return;
+
             const baseFilter = {
-                name: collateSchema?.parentKey,
-                value: parseInt(collateSchema?.parentValue)
+                name: collateSchema.parentKey,
+                value: parseInt(collateSchema.parentValue)
             };
 
             const pageOptions = {
@@ -72,25 +76,52 @@ const IUITableInput = (props) => {
                 searchCondition: baseFilter
             };
 
-            const response = await api.getData({ module: collateSchema?.module, options: pageOptions });
+            const response = await api.getData({
+                module: collateSchema.module,
+                options: pageOptions
+            });
+
             let tempArray = [];
+
             if (response?.data?.items) {
-                for (let data of response?.data?.items) {
-                    let collection = data[collateSchema?.searchKey];
+                for (let data of response.data.items) {
+                    let collection = data[collateSchema.searchKey];
                     tempArray = [...tempArray, ...JSON.parse(collection)];
                 }
-                setDataArray(tempArray);
             }
+
+            setDataArray(prev => {
+                const isSame =
+                    JSON.stringify(prev) === JSON.stringify(tempArray);
+                return isSame ? prev : tempArray;
+            });
         }
 
         if (props?.value && !props?.collate) {
-            (typeof props?.value === 'string') ? setDataArray(JSON.parse(props?.value)) : setDataArray(props?.value);
+            const parsed =
+                typeof props.value === 'string'
+                    ? JSON.parse(props.value)
+                    : props.value;
+
+            setDataArray(prev => {
+                const isSame =
+                    JSON.stringify(prev) === JSON.stringify(parsed);
+                return isSame ? prev : parsed;
+            });
         }
+
         else if (props?.collate) {
-            // Logic to collate
-            collateData()
+            collateData();
         }
-    }, [props?.value, props?.collate, schema]);
+
+    }, [
+        props?.value,
+        props?.collate,
+        schema?.collateSchema?.parentKey,
+        schema?.collateSchema?.parentValue,
+        schema?.collateSchema?.module,
+        schema?.collateSchema?.searchKey
+    ]);
 
     useEffect(() => {
         if (dataArray.length > 0) {
@@ -196,25 +227,39 @@ const IUITableInput = (props) => {
 
         let updatedArray = [...dataArray];
 
-        if (editingIndex !== null) {
-            updatedArray[editingIndex] = {
-                ...data,
-                assign: updatedArray[editingIndex]?.assign || {
-                    department: "",
-                    people: [],
-                    notifyDuration: 0
-                }
-            };
-            setEditingIndex(null);
-        } else {
-            updatedArray.push({
-                ...data,
-                assign: {
-                    department: "",
-                    people: [],
-                    notifyDuration: 0
-                }
-            });
+        if (schema?.assign) {
+            if (editingIndex !== null) {
+                updatedArray[editingIndex] = {
+                    ...data,
+                    assign: updatedArray[editingIndex]?.assign || {
+                        department: "",
+                        people: [],
+                        notifyDuration: 0
+                    }
+                };
+                setEditingIndex(null);
+            } else {
+                updatedArray.push({
+                    ...data,
+                    assign: {
+                        department: "",
+                        people: [],
+                        notifyDuration: 0
+                    }
+                });
+            }
+        }
+        else {
+            if (editingIndex !== null) {
+                updatedArray[editingIndex] = {
+                    ...data
+                };
+                setEditingIndex(null);
+            } else {
+                updatedArray.push({
+                    ...data
+                });
+            }
         }
 
         setDataArray(updatedArray);
@@ -327,7 +372,7 @@ const IUITableInput = (props) => {
                                                                 }
                                                             </Col>
                                                         ))}
-                                                        
+
                                                         <Col>
                                                             <button
                                                                 className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md'
@@ -382,7 +427,7 @@ const IUITableInput = (props) => {
                                                                                         {(!fld.type || fld.type === 'text') && item[fld.field]}
                                                                                         {fld.type === 'number' && item[fld.field]}
                                                                                         {fld.type === 'date' && formatStringDate(item[fld.field])}
-                                                                                        {fld.type === 'lookup' && (
+                                                                                        {fld.type.includes('lookup') && (
                                                                                             <IUILookUp
                                                                                                 value={parseInt(item[fld.field])}
                                                                                                 schema={fld.schema}

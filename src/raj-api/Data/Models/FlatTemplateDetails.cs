@@ -13,13 +13,13 @@ public class FlatTemplateDetails : LabModel, IGlobal
     public virtual long FlatTemplateId { get; set; }
     [JsonIgnore]
     public virtual FlatTemplate? FlatTemplate { get; set; }
-    
+
     /// <summary>
-    /// RoomId belongs to Room
+    /// RoomTypeId belongs to RoomType
     /// </summary>
-    [ForeignKey("Room")]    
-    public virtual long? RoomId { get; set; }
-    public virtual Room? Room { get; set; }
+    [ForeignKey("RoomType")]    
+    public virtual long? RoomTypeId { get; set; }
+    public virtual RoomType? RoomType { get; set; }
 
     public virtual int? RoomCount { get; set; }
 

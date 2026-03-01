@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Drawing.Spreadsheet;
-using ILab.Extensionss.Data.Models;
+﻿using ILab.Extensionss.Data.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -40,10 +39,15 @@ namespace RajApi.Data.Models
         [JsonIgnore]
         public virtual FlatTemplate? FlatTemplate { get; set; }
 
-        [ForeignKey("Room")]
+        [ForeignKey("RoomDetails")]
         public virtual long? RoomId { get; set; }
         [JsonIgnore]
-        public virtual Room? Room { get; set; }
+        public virtual RoomDetails? RoomDetails { get; set; }
+
+        [ForeignKey("OutSideEntities")]
+        public virtual long? OutSideEntityId { get; set; }
+        [JsonIgnore]
+        public virtual OutSideEntity? OutSideEntities { get; set; }
 
         [JsonIgnore]
         public virtual ICollection<Activity>? Activity { get; set; }

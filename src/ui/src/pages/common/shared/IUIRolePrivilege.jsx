@@ -64,7 +64,8 @@ const IUIRolePrivilege = (props) => {
                             ? privileges.concat([
                                 { id: 5, name: "assign" },
                                 { id: 6, name: "approve" },
-                                { id: 7, name: "report" }
+                                { id: 7, name: "report" },
+                                { id: 8, name: "statusCheck" }
                             ])
                             : privileges
                     )

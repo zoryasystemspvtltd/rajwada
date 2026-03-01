@@ -1,16 +1,11 @@
 ﻿using ILab.Extensions;
 using ILab.Extensionss.Common;
-using ILab.Extensionss.Data;
 using IlabAuthentication.Data;
 using IlabAuthentication.Data.Models;
 using IlabAuthentication.Helpers;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Security;
-using System.Security.Principal;
 
 namespace IlabAuthentication.Controllers
 {
@@ -21,14 +16,16 @@ namespace IlabAuthentication.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly AuthenticationDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
         public UserController(ILogger<UserController> logger
             , AuthenticationDbContext dbContext
-            , UserManager<ApplicationUser> userManager)
+            , UserManager<ApplicationUser> userManager,
+IConfiguration configuration)
         {
             _logger = logger;
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _userManager = userManager;
-
+            _configuration = configuration;
         }
 
         [HasPrivileges("user", "list")]
@@ -198,7 +195,13 @@ namespace IlabAuthentication.Controllers
                 existingUser.Department = user.Department;
                 existingUser.EmailConfirmed = !user.Disable;
                 existingUser.Disable = user.Disable;
-                existingUser.PhotoUrl = user.PhotoUrl;
+                var photourl = string.Empty;
+                if (!string.IsNullOrEmpty(user.PhotoUrl))
+                {
+                    var folderPath = _configuration["FileUploadSettings:UploadFolderPath"];
+                    photourl = Utility.Base64ToFile(user.PhotoUrl, folderPath);
+                }
+                existingUser.PhotoUrl = photourl;
                 existingUser.Address = user.Address;
                 existingUser.Member = identity.Member;
                 //existingUser.UserName = user.Email;// Eser name can't be changed

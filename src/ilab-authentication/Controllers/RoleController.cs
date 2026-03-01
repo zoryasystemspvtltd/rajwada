@@ -104,6 +104,7 @@ namespace IlabAuthentication.Controllers
             var newPrivileges = role.Privileges.ToList();
             newPrivileges.ForEach(p =>
             {
+                p.Id = 0; //Add this line for copy role features
                 p.Member = identity.Member;
                 p.Key = identity.Key;
             });

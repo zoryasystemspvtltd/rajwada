@@ -68,7 +68,7 @@ export const ViewProject = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect' },
+                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', module: 'project' },
                 ]
             },
         ]
@@ -114,7 +114,7 @@ export const EditProject = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', required: true, module: 'project' },
                 ]
             }
         ]
@@ -160,7 +160,7 @@ export const AddProject = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', required: true, module: 'project' },
                 ]
             }
         ]

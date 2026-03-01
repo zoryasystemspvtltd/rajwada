@@ -2,7 +2,6 @@ import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage"
 
 export const ListWorkflow = () => {
-
     const schema = {
         module: 'workflow',
         title: 'Dependency',
@@ -13,10 +12,30 @@ export const ListWorkflow = () => {
         adding: true,
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
-            { text: 'Alias', field: 'code', type: 'text', sorting: true, searching: true },
+            // { text: 'Alias', field: 'code', type: 'text', sorting: true, searching: true },
             {
                 text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
                 schema: { module: 'project' }
+            },
+            {
+                text: 'Tower', field: 'towerId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'plan' }
+            },
+            {
+                text: 'Floor', field: 'floorId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'plan' }
+            },
+            {
+                text: 'Flat', field: 'flatId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'plan' }
+            },
+            {
+                text: 'Room', field: 'roomId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'roomDetails' }
+            },
+            {
+                text: 'Outside Entity', field: 'outSideEntityId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'outSideEntity' }
             }
         ]
     }
@@ -68,7 +87,7 @@ export const ViewWorkflow = () => {
                     },
                     {
                         text: 'Room', field: 'roomId', type: 'lookup-link', width: 3,
-                        schema: { module: 'room', path: 'rooms' }
+                        schema: { module: 'roomType', path: 'rooms' }
                     },
                     { field: 'data', type: 'ilab-flowchart', width: 12 }
                 ]
@@ -144,6 +163,22 @@ export const EditWorkflow = () => {
                             relationKey: "parentId",
                             path: 'flats'
                         },
+                    },
+                    {
+                        type: 'lookup-relation',
+                        parent: 'flatId',
+                        field: 'roomId',
+                        // exclusionCondition:{
+                        //     field: 'type',
+                        //     value: 'Inside'
+                        // },
+                        text: 'Room',
+                        width: 3,
+                        schema: {
+                            module: 'roomDetails',
+                            relationKey: "planId",
+                            path: 'roomMappings'
+                        },
                     }
                 ]
             },
@@ -158,6 +193,7 @@ export const EditWorkflow = () => {
 
     return (<IUIPage schema={schema} />)
 }
+
 
 export const AddWorkflow = () => {
     const schema = {
@@ -179,16 +215,8 @@ export const AddWorkflow = () => {
                             schema: { module: 'project' }
                         },
                         {
-                            type: 'lookup-relation',
-                            parent: 'projectId',
-                            field: 'towerId',
-                            text: 'Tower',
-                            width: 3,
-                            schema: {
-                                module: 'plan',
-                                relationKey: "projectId",
-                                path: 'towers'
-                            },
+                            text: 'Tower', field: 'towerId', parent: 'projectId', type: 'lookup-filter', required: false, width: 3,
+                            schema: { module: 'plan', filter: 'type', value: 'tower' }
                         },
                         {
                             type: 'lookup-relation',
@@ -243,21 +271,25 @@ export const AddWorkflow = () => {
             {
                 type: "area", width: 12
                 , fields: [
+                    // {
+                    //     type: 'lookup-relation',
+                    //     parent: 'projectId',
+                    //     field: 'towerId',
+                    //     // exclusionCondition:{
+                    //     //     field: 'type',
+                    //     //     value: 'Inside'
+                    //     // },
+                    //     text: 'Tower',
+                    //     width: 3,
+                    //     schema: {
+                    //         module: 'plan',
+                    //         relationKey: "projectId",
+                    //         path: 'towers'
+                    //     },
+                    // },
                     {
-                        type: 'lookup-relation',
-                        parent: 'projectId',
-                        field: 'towerId',
-                        // exclusionCondition:{
-                        //     field: 'type',
-                        //     value: 'Inside'
-                        // },
-                        text: 'Tower',
-                        width: 3,
-                        schema: {
-                            module: 'plan',
-                            relationKey: "projectId",
-                            path: 'towers'
-                        },
+                        text: 'Tower', field: 'towerId', type: 'lookup-filter', required: false, width: 3,
+                        schema: { module: 'plan', filter: 'type', value: 'tower' }
                     },
                     {
                         type: 'lookup-relation',
@@ -284,6 +316,10 @@ export const AddWorkflow = () => {
                         //     value: 'Inside'
                         // },
                         text: 'Flat',
+                        enableIf: {
+                            field: 'type',
+                            value: 'Inside'
+                        },
                         width: 3,
                         schema: {
                             module: 'plan',
@@ -292,36 +328,36 @@ export const AddWorkflow = () => {
                         },
                     },
                     {
-                        type: 'lookup-relation-rooms',
+                        type: 'lookup-relation',
                         parent: 'flatId',
                         field: 'roomId',
-                        // exclusionCondition:{
-                        //     field: 'type',
-                        //     value: 'Inside'
-                        // },
+                        enableIf: {
+                            field: 'type',
+                            value: 'Inside'
+                        },
                         text: 'Room',
                         width: 3,
                         schema: {
-                            module: 'plan',
-                            parentModule: 'flatTemplateDetails',
-                            childModule: 'room',
-                            field: 'flatTemplateId',
-                            parentFilterFields: [
-                                {
-                                    name: "projectId", // search key in parentData
-                                    key: "projectId" // key used in query for filtering
-                                },
-                                {
-                                    name: "floorId",
-                                    key: "parentId"
-                                },
-                                {
-                                    name: "type",
-                                    key: "type",
-                                    value: "flat"
-                                }
-                            ]
-                        }
+                            module: 'roomDetails',
+                            relationKey: "planId",
+                            path: 'roommappings'
+                        },
+                    },
+                    {
+                        type: 'lookup-relation',
+                        parent: 'towerId',
+                        field: 'outSideEntityId',
+                        enableIf: {
+                            field: 'type',
+                            value: 'Outside'
+                        },
+                        text: 'Outside Entity',
+                        width: 3,
+                        schema: {
+                            module: 'outSideEntity',
+                            relationKey: "towerId",
+                            path: 'outside-entities'
+                        },
                     }
                 ]
             },

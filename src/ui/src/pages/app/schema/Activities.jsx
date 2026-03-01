@@ -1,6 +1,6 @@
-import IUIListFilter from "../../common/IUIListFilter.jsx";
+import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage";
-import IUIActivityCreate from "../../common/shared/IUIActivityCreate.jsx";
+import IUIActivityCreate from "../work-plan/IUIActivityCreate.jsx";
 
 export const ListActivity = () => {
 
@@ -30,7 +30,7 @@ export const ListActivity = () => {
         ]
     }
 
-    return (<IUIListFilter schema={schema} filter='Main Task' />)
+    return (<IUIList schema={schema} />)
 }
 
 export const ViewActivity = () => {
@@ -73,10 +73,6 @@ export const ViewActivity = () => {
                         text: 'Project', field: 'projectId', width: 4, type: 'lookup-link',
                         schema: { module: 'project', path: 'projects' }
                     },
-                    {
-                        text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup-link',
-                        schema: { module: 'activity', path: 'activities' }
-                    },
                     { text: 'Start Date', field: 'startDate', width: 4, type: 'label-date' },
                     { text: 'End Date', field: 'endDate', width: 4, type: 'label-date', },
                     { text: 'Actual Start Date', field: 'actualStartDate', width: 4, type: 'label-date', },
@@ -96,7 +92,7 @@ export const ViewActivity = () => {
                     //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-link',
                     //     schema: { module: 'priorityStatusType' }
                     // },
-                    { text: 'Duration', field: 'Duration', width: 4, type: 'label' },
+                    { text: 'Duration', field: 'duration', width: 4, type: 'label' },
                     { text: 'Progress(%)', field: 'progressPercentage', width: 4, type: 'label' },
                     // {
                     //     text: 'Approval Status', field: 'approvalStatus', width: 4, type: 'lookup',
@@ -148,31 +144,31 @@ export const ViewActivity = () => {
                     },
                 ]
             },
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        type: 'module-relation',
-                        schema: {
-                            module: 'activity',
-                            relationKey: "parentId",
-                            title: 'Related Work',
-                            path: 'works',
-                            paging: true,
-                            searching: true,
-                            editing: false,
-                            adding: false,
-                            delete: true,
-                            enableCheckBoxRow: true,
-                            isActivityHold: true,
-                            fields: [
-                                { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true, },
-                                { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
-                            ]
-                        },
-                    }
-                ]
-            }
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         {
+            //             type: 'module-relation',
+            //             schema: {
+            //                 module: 'activity',
+            //                 relationKey: "parentId",
+            //                 title: 'Related Work',
+            //                 path: 'works',
+            //                 paging: true,
+            //                 searching: true,
+            //                 editing: false,
+            //                 adding: false,
+            //                 delete: true,
+            //                 enableCheckBoxRow: true,
+            //                 isActivityHold: true,
+            //                 fields: [
+            //                     { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true, },
+            //                     { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
+            //                 ]
+            //             },
+            //         }
+            //     ]
+            // }
         ]
     }
 
@@ -209,10 +205,6 @@ export const EditActivity = () => {
                         schema: { module: 'workflow' }
                     },
                     {
-                        text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false,
-                        schema: { module: 'activity' }
-                    },
-                    {
                         text: 'Tower', field: 'towerId', type: 'lookup-filter', required: false, width: 4, readonly: true,
                         schema: { module: 'plan', filter: 'type', value: 'tower' }
                     },
@@ -224,6 +216,10 @@ export const EditActivity = () => {
                         text: 'Flat', field: 'flatId', type: 'lookup-filter', required: false, width: 4, readonly: true,
                         schema: { module: 'plan', filter: 'type', value: 'flat' }
                     },
+                    {
+                        text: 'Room', field: 'roomId', width: 4, type: 'lookup', required: true, readonly: true,
+                        schema: { module: 'roomDetails' }
+                    },
                     { text: 'Expected Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
                     {
                         text: 'Expected Duration (Days)',
@@ -231,9 +227,13 @@ export const EditActivity = () => {
                         placeholder: 'Duration here...',
                         width: 4,
                         type: 'number',
+                        hasDefaultValue: true,
+                        defaultType: 'indirect',
                         dependsOnModule: 'dependency',
                         dependsOnField: 'expectedDuration',
-                        required: true
+                        ownSearchField: 'dependencyId',
+                        otherModuleSearchField: 'id',
+                        required: false
                     },
                     {
                         text: 'Expected End Date',
@@ -243,22 +243,24 @@ export const EditActivity = () => {
                         placeholder: 'End Date here...',
                         inputType: 'date',
                         dependsOn: ['startDate', 'duration'],
-                        required: true,
+                        required: false,
                         compute: ({ startDate, duration }) => {
                             if (!startDate || !duration) return '';
 
 
                             const start = new Date(startDate);
-                            // Ensure duration is a number
                             const days = Number(duration);
+
                             if (isNaN(days) || days <= 0) return '';
+
                             const end = new Date(start);
                             end.setDate(start.getDate() + days);
 
-
-                            return end;
+                            // ✅ Convert to YYYY-MM-DD
+                            return end.toISOString().split('T')[0];
                         }
-                    },
+
+                    }
                     // {
                     //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-enum', required: false,
                     //     schema: { module: 'priorityStatusType' }
@@ -391,35 +393,27 @@ export const EditActivity = () => {
 export const AddActivity = () => {
     const setupSchema = {
         module: 'activity',
-        title: 'Work',
+        title: 'Work Planning',
         path: 'works',
-        back: true,
+        back: false,
         fields: [
             {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 12,
                         schema: { module: 'project' }
                     },
                     {
-                        type: 'lookup-relation',
-                        parent: 'projectId',
-                        field: 'towerId',
-                        text: 'Tower',
-                        width: 3,
-                        schema: {
-                            module: 'plan',
-                            relationKey: "projectId",
-                            path: 'towers'
-                        },
+                        text: 'Tower', field: 'towerId', parent: 'projectId', type: 'lookup-filter', required: false, width: 12,
+                        schema: { module: 'plan', filter: 'type', value: 'tower' }
                     },
                     {
                         type: 'lookup-relation',
                         parent: 'towerId',
                         field: 'floorId',
                         text: 'Floor',
-                        width: 3,
+                        width: 12,
                         schema: {
                             module: 'plan',
                             relationKey: "parentId",
@@ -431,11 +425,23 @@ export const AddActivity = () => {
                         parent: 'floorId',
                         field: 'flatId',
                         text: 'Flat',
-                        width: 3,
+                        width: 12,
                         schema: {
                             module: 'plan',
                             relationKey: "parentId",
                             path: 'flats'
+                        },
+                    },
+                    {
+                        type: 'lookup-relation',
+                        parent: 'flatId',
+                        field: 'roomId',
+                        text: 'Room',
+                        width: 12,
+                        schema: {
+                            module: 'roomDetails',
+                            relationKey: "planId",
+                            path: 'roomMappings'
                         },
                     }
                 ]
@@ -443,7 +449,7 @@ export const AddActivity = () => {
         ]
     }
 
-    const creationSchema = {
+    const insideCreationSchema = {
         module: 'activity',
         title: 'Work',
         path: 'works',
@@ -471,8 +477,16 @@ export const AddActivity = () => {
                 type: "lookup"
             },
             {
+                field: "roomId",
+                type: "lookup"
+            },
+            {
                 field: "dependencyId",
                 type: "lookup"
+            },
+            {
+                field: "type",
+                type: "text"
             },
             {
                 field: "photoUrl",
@@ -489,8 +503,8 @@ export const AddActivity = () => {
                         text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
                         schema: {
                             items: [ // or use items for fixed value
-                                { name: 'Main Task' },
-                                { name: 'Sub Task' }
+                                { name: 'Inside' },
+                                { name: 'Outside' }
                             ]
                         }
                     },
@@ -511,7 +525,7 @@ export const AddActivity = () => {
                         schema: { module: 'dependency' }
                     },
                     {
-                        text: 'Tower', field: 'towerId', type: 'lookup-filter', required: true, width: 4,
+                        text: 'Tower', field: 'towerId', type: 'lookup-filter', required: true, width: 4, readonly: true,
                         schema: { module: 'plan', filter: 'type', value: 'tower' }
                     },
                     // {
@@ -526,6 +540,7 @@ export const AddActivity = () => {
                         type: 'lookup-relation',
                         parent: 'towerId',
                         field: 'floorId',
+                        readonly: true,
                         text: 'Floor',
                         width: 4,
                         required: false,
@@ -539,6 +554,7 @@ export const AddActivity = () => {
                         type: 'lookup-relation',
                         parent: 'floorId',
                         field: 'flatId',
+                        readonly: true,
                         text: 'Flat',
                         width: 4,
                         required: false,
@@ -546,6 +562,20 @@ export const AddActivity = () => {
                             module: 'plan',
                             relationKey: "parentId",
                             path: 'flats'
+                        },
+                    },
+                    {
+                        type: 'lookup-relation',
+                        parent: 'flatId',
+                        field: 'roomId',
+                        readonly: true,
+                        text: 'Room',
+                        width: 4,
+                        required: false,
+                        schema: {
+                            module: 'roomDetails',
+                            relationKey: "planId",
+                            path: 'roommappings'
                         },
                     },
                     { text: 'Expected Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
@@ -741,7 +771,270 @@ export const AddActivity = () => {
             //     ]
             // }
         ]
-    }
+    };
 
-    return (<IUIActivityCreate setupSchema={setupSchema} creationSchema={creationSchema} />)
+    const outsideCreationSchema = {
+        module: 'activity',
+        title: 'Work',
+        path: 'works',
+        adding: true,
+        back: true,
+        defaultFields: [
+            {
+                field: "projectId",
+                type: "lookup"
+            },
+            {
+                field: "workflowId",
+                type: "lookup"
+            },
+            {
+                field: "towerId",
+                type: "lookup"
+            },
+            {
+                field: "outSideEntityId",
+                type: "lookup"
+            },
+            {
+                field: "dependencyId",
+                type: "lookup"
+            },
+            {
+                field: "type",
+                type: "text"
+            },
+            {
+                field: "priorityStatus",
+                type: "number"
+            },
+            {
+                field: "photoUrl",
+                type: "photo"
+            }
+        ],
+        fields: [
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', width: 4, type: 'text', required: true },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: true },
+                    {
+                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'Inside' },
+                                { name: 'Outside' }
+                            ]
+                        }
+                    },
+                    {
+                        text: 'Project', field: 'projectId', width: 4, type: 'lookup', required: true,
+                        schema: { module: 'project' }
+                    },
+                    {
+                        text: 'Dependency', field: 'workflowId', width: 4, type: 'lookup', required: true,
+                        schema: { module: 'workflow' }
+                    },
+                    // {
+                    //     text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup', required: false,
+                    //     schema: { module: 'activity' }
+                    // },
+                    {
+                        text: 'Activity', field: 'dependencyId', width: 4, type: 'lookup', required: false,
+                        schema: { module: 'dependency' }
+                    },
+                    {
+                        text: 'Tower', field: 'towerId', type: 'lookup-filter', required: true, width: 4, readonly: true,
+                        schema: { module: 'plan', filter: 'type', value: 'tower' }
+                    },
+                    // {
+                    //     text: 'Floor', field: 'floorId', type: 'lookup-filter', required: false, width: 4,
+                    //     schema: { module: 'plan', filter: 'type', value: 'floor' }
+                    // },
+                    // {
+                    //     text: 'Flat', field: 'flatId', type: 'lookup-filter', required: false, width: 4,
+                    //     schema: { module: 'plan', filter: 'type', value: 'flat' }
+                    // },
+                    {
+                        type: 'lookup-relation',
+                        parent: 'towerId',
+                        field: 'floorId',
+                        readonly: true,
+                        text: 'Floor',
+                        width: 4,
+                        required: false,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "parentId",
+                            path: 'floors'
+                        },
+                    },
+                    {
+                        text: 'Outside Entity', field: 'outSideEntityId', width: 4, type: 'lookup', required: false, readonly: true,
+                        schema: { module: 'outSideEntity' }
+                    },
+                    { text: 'Expected Start Date', field: 'startDate', placeholder: 'Start Date here...', width: 4, type: 'date', required: true },
+                    {
+                        text: 'Expected Duration (Days)',
+                        field: 'duration',
+                        placeholder: 'Duration here...',
+                        width: 4,
+                        type: 'number',
+                        hasDefaultValue: true,
+                        defaultType: 'indirect',
+                        dependsOnModule: 'dependency',
+                        dependsOnField: 'expectedDuration',
+                        ownSearchField: 'dependencyId',
+                        otherModuleSearchField: 'id',
+                        required: false
+                    },
+                    {
+                        text: 'Expected End Date',
+                        field: 'endDate',
+                        width: 4,
+                        type: 'compute-number',
+                        placeholder: 'End Date here...',
+                        inputType: 'date',
+                        dependsOn: ['startDate', 'duration'],
+                        required: false,
+                        compute: ({ startDate, duration }) => {
+                            if (!startDate || !duration) return '';
+
+                            const start = new Date(startDate);
+                            const days = Number(duration);
+
+                            if (isNaN(days) || days <= 0) return '';
+
+                            const end = new Date(start);
+                            end.setDate(start.getDate() + days);
+
+                            // ✅ Convert to YYYY-MM-DD
+                            return end.toISOString().split('T')[0];
+                        }
+
+                    }
+
+                    // {
+                    //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-enum', required: false,
+                    //     schema: { module: 'priorityStatusType' }
+                    // },
+                    // { text: 'Duration', field: 'Duration', placeholder: 'Duration here...', width: 4, type: 'number', required: false },
+                    // { text: 'Progress(%)', field: 'progressPercentage', placeholder: 'Progress(%) here...', width: 4, type: 'number', required: false },
+                    // {
+                    //     text: 'Approval Status', field: 'approvalStatus', width: 4, type: 'lookup-enum', required: false,
+                    //     schema: { module: 'approvalStatusType' }
+                    // },
+                    // { text: 'Document Links', field: 'documentLinks', placeholder: 'Document Links here...', width: 4, type: 'text', required: false },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Estimate Cost', field: 'costEstimate', placeholder: 'Estimate Cost here...', width: 4, type: 'number', required: false },
+                    {
+                        text: 'Status', field: 'workflowState', width: 4, type: 'lookup', required: false,
+                        // schema: { module: 'stateType' }
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'New' },
+                                { name: 'In Progress' },
+                                { name: 'Completed' }
+                            ]
+                        }
+                    },
+                    {
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: false,
+                        hasDefaultValue: true,
+                        defaultType: 'direct',
+                        defaultValue: 0,
+                        schema: { module: 'priorityStatusType' }
+                    }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    // {
+                    //     text: 'Contractor Name', field: 'contractorId', nameField: 'contractorName', type: 'lookup', required: true, width: 4,
+                    //     schema: { module: 'contractor' }
+                    // },
+                    {
+                        text: 'Labour Provided By', field: 'labourProvidedBy', type: 'lookup-multi-column', required: true, width: 4,
+                        schema: {
+                            nameField: "name",
+                            module: "contractor",
+                            selectLabel: "Contractor",
+                            columns: [
+                                {
+                                    name: "name",
+                                    width: "50%"
+                                },
+                                {
+                                    name: "type",
+                                    width: "50%"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        text: 'Material Provided By', field: 'materialProvidedBy', type: 'lookup-multi-column', required: true, width: 4,
+                        schema: {
+                            nameField: "name",
+                            module: "contractor",
+                            selectLabel: "Contractor",
+                            columns: [
+                                {
+                                    name: "name",
+                                    width: "50%"
+                                },
+                                {
+                                    name: "type",
+                                    width: "50%"
+                                }
+                            ]
+                        }
+                    },
+                    { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
+                        hasDefaultValue: true,
+                        defaultType: 'indirect',
+                        dependsOnModule: 'dependency',
+                        dependsOnField: 'items',
+                        ownSearchField: 'dependencyId',
+                        otherModuleSearchField: 'id',
+                        schema: {
+                            title: 'Item',
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            delete: true,
+                            assign: true, // for assign accordion
+                            fields: [
+                                {
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
+                            ]
+                        }
+                    },
+                ]
+            }
+        ]
+    };
+
+    return (<IUIActivityCreate setupSchema={setupSchema} insideCreationSchema={insideCreationSchema} outsideCreationSchema={outsideCreationSchema} />)
 }

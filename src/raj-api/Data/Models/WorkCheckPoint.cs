@@ -2,7 +2,7 @@
 
 namespace RajApi.Data.Models;
 
-public class WorkCheckpoints : LabModel, IGlobal
+public class WorkCheckPoint : LabModel, IGlobal
 {
     public string? Description { get; set; }
     public string? Type { get; set; }

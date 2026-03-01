@@ -37,6 +37,13 @@
                 "icon": "sitemap",
                 "path": "/projects",
                 "access": "project"
+            },
+            {
+                "name": "financialYear",
+                "text": "Financial Year",
+                "icon": "cubes-stacked",
+                "path": "/financialyears",
+                "access": "financialYear"
             }
         ],
         "transaction": [
@@ -103,6 +110,13 @@
                 "access": "flatTemplate"
             },
             {
+                "name": "outsideEntityTypeManagement",
+                "text": "Outside Entity Type",
+                "icon": "vector-square",
+                "path": "/outside-entity-types",
+                "access": "outSideEntityType"
+            },
+            {
                 "name": "towerManagement",
                 "text": "Tower",
                 "icon": "industry",
@@ -127,8 +141,8 @@
                 "name": "roomManagement",
                 "text": "Room Type",
                 "icon": "cubes",
-                "path": "/rooms",
-                "access": "plan"
+                "path": "/roomtypes",
+                "access": "roomType"
             },
             {
                 "name": "activityCreation",
@@ -146,10 +160,24 @@
             },
             {
                 "name": "parkingType",
-                "text": "Parking",
+                "text": "Parking Type",
                 "icon": "cubes-stacked",
                 "path": "/parking-types",
                 "access": "parkingType"
+            },
+            {
+                "name": "parking",
+                "text": "Tower Parking",
+                "icon": "cubes-stacked",
+                "path": "/parkings",
+                "access": "parking"
+            },
+            {
+                "name": "outsideEntity",
+                "text": "Outside Entity",
+                "icon": "vector-square",
+                "path": "/outside-entities",
+                "access": "outSideEntity"
             },
             {
                 "name": "workCheckpoints",
@@ -169,9 +197,16 @@
         "transaction": [
             {
                 "name": "work",
-                "text": "Work",
+                "text": "Work Planning",
                 "icon": "vector-square",
                 "path": "/works",
+                "access": "activity"
+            },
+            {
+                "name": "workStatus",
+                "text": "Work Status Check",
+                "icon": "vector-square",
+                "path": "/workstatus",
                 "access": "activity"
             },
             {

@@ -156,12 +156,12 @@ public class BulkDataUploadController : ControllerBase
                     long planId = await dataService.SaveDataAsync("Plan", data, token);
                     if (planId > 0 && dataModel.ToUpper().Equals("FLATDETAILS"))
                     {
-                        (data, response) = CreateResourceDataModel(dataRow, planId, member, key, response);
+                        (data, response) = CreateRoomDetailsDataModel(dataRow, planId, member, key, response);
                         if (data != null)
                         {
-                            foreach (Resource item in data)
+                            foreach (RoomDetails item in data)
                             {
-                                await dataService.SaveDataAsync("Resource", item, token);
+                                await dataService.SaveDataAsync("RoomDetails", item, token);
                             }
                         }
                     }
@@ -176,58 +176,66 @@ public class BulkDataUploadController : ControllerBase
         return response;
     }
 
-    private (dynamic data, BulkResponse response) CreateResourceDataModel(DataRow dataRow, long planId, string member, string key, BulkResponse response)
+    private (dynamic data, BulkResponse response) CreateRoomDetailsDataModel(DataRow dataRow, long planId, string member, string key, BulkResponse response)
     {
-        List<Resource> listResources = [];
+        List<RoomDetails> listResources = [];
         if (dataRow.Table.Columns.Count > 4)
         {
             for (int i = 4; i < dataRow.Table.Columns.Count; i++)
             {
-                string rommName = dataRow.Table.Columns[i].ToString();
+                string roomName = dataRow.Table.Columns[i].ToString();
+
                 try
                 {
                     if (string.IsNullOrEmpty(dataRow[i].ToString()))
                     {
-                        response.FailureData.Add(rommName + ": value is blank!");
-                    }                    
+                        response.FailureData.Add(roomName + ": value is blank!");
+                    }
                     else if (dataRow[i] != null && Convert.ToInt32(dataRow[i]) > 0)
                     {
-                        //Get Room details
-                        var room = GetModuleDetails("Room", "Name", rommName, null, 0);
-                        if (room != null)
+                        //Get RoomType details
+                        var roomType = GetModuleDetails("RoomType", "Name", roomName, null, 0);
+                        if (roomType != null)
                         {
-                            //Duplicate checking
-                            var resource = GetModuleDetails("Resource", "RoomId", room.Id.ToString(), "room", planId);
-                            if (resource == null)
+                            int quatity = Convert.ToInt32(dataRow[i]);
+                            for (int j = 1; j <= quatity; j++)
                             {
-                                response.SuccessData.Add(rommName + ", quantity:" + dataRow[i] + " resource added!");
-                                Resource rec = new()
+                                //Duplicate checking
+                                var roomDetails = GetModuleDetails("RoomDetails", "RoomId", roomType.Id.ToString(), "RoomType", planId);
+                                if (roomDetails == null)
                                 {
-                                    Date = DateTime.Now,
-                                    Member = member,
-                                    Key = key,
-                                    Type = "room",
-                                    RoomId = room.Id,
-                                    Quantity = Convert.ToInt32(dataRow[i]),
-                                    PlanId = planId
-                                };
-                                listResources.Add(rec);
+                                    var roomId = roomName + "-" + j;
+                                    response.SuccessData.Add(roomName + "/" + j + " RoomDetails added!");
+                                    RoomDetails rec = new()
+                                    {
+                                        RoomId = roomId,
+                                        Name = roomType + "-" + j,
+                                        Date = DateTime.Now,
+                                        Member = member,
+                                        Key = key,
+                                        RoomTypeId = roomType.Id,
+                                        PlanId = planId
+                                    };
+                                    listResources.Add(rec);
+                                    roomId = "";
+                                }
+                                else
+                                {
+                                    response.FailureData.Add(roomType.Name + ": RoomDetails already exist!");
+                                }
                             }
-                            else
-                            {
-                                response.FailureData.Add(room.Name + ": Resource already exist!");
-                            }
+
                         }
                         else
                         {
-                            response.FailureData.Add(rommName + ": Room name not exist!");
+                            response.FailureData.Add(roomName + ": Room name not exist!");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     logger.LogError("Error to save room data:" + ex.Message);
-                    response.FailureData?.Add(rommName + ":" + ex.Message);
+                    response.FailureData?.Add(roomName + ":" + ex.Message);
                 }
             }
             return (listResources, response);
@@ -381,7 +389,7 @@ public class BulkDataUploadController : ControllerBase
             {
                 var newcon = new Condition()
                 {
-                    Name = type == "room" ? "PlanId" : "ParentId",
+                    Name = type == "RoomType" ? "PlanId" : "ParentId",
                     Value = id,
                 };
                 typecon.And = newcon;
