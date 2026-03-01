@@ -39,7 +39,7 @@ public class OutSideEntity : LabModel, IGlobal
     public virtual OutSideEntityType? OutSideEntityType { get; set; }
 
     [NotMapped]
-    public virtual EntitiesList? EntitiesList { get; set; }
+    public string? EntitiesList { get; set; }
 }
 
 public class EntitiesList
