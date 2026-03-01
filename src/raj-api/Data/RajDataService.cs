@@ -248,14 +248,11 @@ namespace ILab.Data
                         break;
 
                     case "PLAN":
-                    case "OUTSIDEENTITY":
-                        var jsonString = data.ToString();
-                        var jsonData = JsonConvert.DeserializeObject(jsonString, type);
+                        var jsonData = JsonConvert.DeserializeObject(data.ToString(), type);
 
                         if (jsonData != null)
                         {
-                            var projectTask = Get("Project", jsonData?.ProjectId);
-                            var project = await projectTask; // Assuming Get returns Task or Task<T> and Result is awaited here properly
+                            var project = await Get("Project", jsonData?.ProjectId);
 
                             if (string.Equals(jsonData?.Type?.tostring(), "TOWER", StringComparison.OrdinalIgnoreCase))
                             {
@@ -265,6 +262,20 @@ namespace ILab.Data
                             if (string.Equals(model, "OUTSIDEENTITY", StringComparison.OrdinalIgnoreCase))
                             {
                                 await SaveOutSideEntitiesData(jsonData, project.Name, token);
+                            }
+                        }
+                        break;
+                    case "OUTSIDEENTITY":
+
+                        var jsonData1 = JsonConvert.DeserializeObject(data.ToString(), type);
+
+                        if (jsonData1 != null)
+                        {
+                            var project = await Get("Project", jsonData1?.ProjectId);
+
+                            if (string.Equals(model, "OUTSIDEENTITY", StringComparison.OrdinalIgnoreCase))
+                            {
+                                await SaveOutSideEntitiesData(jsonData1, project.Name, token);
                             }
                         }
                         break;
