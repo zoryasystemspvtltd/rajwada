@@ -3393,7 +3393,14 @@
 "type": "string",
 "nullable": true
 },
-"Plan": {
+"Tower": {
+"type": "string",
+},
+"FloorId": {
+"type": "string",
+"nullable": true
+},
+"Floor": {
 "type": "string",
 },
 "OutSideEntityTypeId": {
@@ -3401,6 +3408,9 @@
 "nullable": true
 },
 "OutSideEntityType": {
+"type": "string",
+},
+"EntitiesList": {
 "type": "string",
 },
 "Id": {
@@ -4718,6 +4728,13 @@
 "nullable": true
 },
 "RoomDetails": {
+"type": "string",
+},
+"OutSideEntityId": {
+"type": "string",
+"nullable": true
+},
+"OutSideEntities": {
 "type": "string",
 },
 "Activity": {
