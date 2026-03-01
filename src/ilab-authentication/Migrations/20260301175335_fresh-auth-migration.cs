@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace IlabAuthentication.Migrations
 {
     /// <inheritdoc />
-    public partial class Initials : Migration
+    public partial class freshauthmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -42,6 +42,7 @@ namespace IlabAuthentication.Migrations
                     PhotoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Department = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Theme = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -99,6 +100,7 @@ namespace IlabAuthentication.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Module = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     RoleId = table.Column<long>(type: "bigint", nullable: true),
                     Member = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Key = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -211,8 +213,8 @@ namespace IlabAuthentication.Migrations
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "Address", "ConcurrencyStamp", "Department", "Disable", "Email", "EmailConfirmed", "FirstName", "Key", "LastName", "LockoutEnabled", "LockoutEnd", "Member", "NormalizedEmail", "NormalizedUserName", "ParentId", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PhotoUrl", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { 1L, 0, null, "a7e26408-644a-48ca-a0a7-7cb94e41315d", null, false, "root", true, "Root", "1536B022-C5C9-4358-BB6A-466F2075B7D4", "", false, null, "root", "ROOT", "ROOT", null, "AQAAAAIAAYagAAAAEIUXHqy53Dre8nfwKZJ/mfDjLdtvMcpPO0pC7M4VwCb+K+eta6c8nxYOp21EfUbGzg==", "0000", false, null, "R7JOVNY6TU5ACLDKWMJCCXJZIHNATIIJ", false, "root" });
+                columns: new[] { "Id", "AccessFailedCount", "Address", "ConcurrencyStamp", "Department", "Disable", "Email", "EmailConfirmed", "FirstName", "Key", "LastName", "LockoutEnabled", "LockoutEnd", "Member", "NormalizedEmail", "NormalizedUserName", "ParentId", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PhotoUrl", "SecurityStamp", "Theme", "TwoFactorEnabled", "UserName" },
+                values: new object[] { 1L, 0, null, "a7e26408-644a-48ca-a0a7-7cb94e41315d", null, false, "root", true, "Root", "1536B022-C5C9-4358-BB6A-466F2075B7D4", "", false, null, "root", "ROOT", "ROOT", null, "AQAAAAIAAYagAAAAEIUXHqy53Dre8nfwKZJ/mfDjLdtvMcpPO0pC7M4VwCb+K+eta6c8nxYOp21EfUbGzg==", "0000", false, null, "R7JOVNY6TU5ACLDKWMJCCXJZIHNATIIJ", null, false, "root" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
@@ -221,45 +223,45 @@ namespace IlabAuthentication.Migrations
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "Address", "ConcurrencyStamp", "Department", "Disable", "Email", "EmailConfirmed", "FirstName", "Key", "LastName", "LockoutEnabled", "LockoutEnd", "Member", "NormalizedEmail", "NormalizedUserName", "ParentId", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PhotoUrl", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { 2L, 0, null, "e6ac56cd-cb41-4059-b979-a0d7a7ac5fe0", null, false, "super@rajwada.com", true, "Super", "1536B022-C5C9-4358-BB6A-466F2075B7D4", "Admin", false, null, "root", "SUPER@RAJWADA.COM", "SUPER", 1L, "AQAAAAIAAYagAAAAEAvvhBeNuMBXOP4HueTG/lZiPS1ieIlXzH5CWQCcpPu1ouRK53hHwO7cuWDJg8oBzw==", "0000", false, null, "P2GVVVE7O7TUFSSULMZN4QT4MPTC6YHT", false, "super@rajwada.com" });
+                columns: new[] { "Id", "AccessFailedCount", "Address", "ConcurrencyStamp", "Department", "Disable", "Email", "EmailConfirmed", "FirstName", "Key", "LastName", "LockoutEnabled", "LockoutEnd", "Member", "NormalizedEmail", "NormalizedUserName", "ParentId", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PhotoUrl", "SecurityStamp", "Theme", "TwoFactorEnabled", "UserName" },
+                values: new object[] { 2L, 0, null, "e6ac56cd-cb41-4059-b979-a0d7a7ac5fe0", null, false, "super@rajwada.com", true, "Super", "1536B022-C5C9-4358-BB6A-466F2075B7D4", "Admin", false, null, "root", "SUPER@RAJWADA.COM", "SUPER", 1L, "AQAAAAIAAYagAAAAEAvvhBeNuMBXOP4HueTG/lZiPS1ieIlXzH5CWQCcpPu1ouRK53hHwO7cuWDJg8oBzw==", "0000", false, null, "P2GVVVE7O7TUFSSULMZN4QT4MPTC6YHT", null, false, "super@rajwada.com" });
 
             migrationBuilder.InsertData(
                 table: "Privileges",
-                columns: new[] { "Id", "Key", "Member", "Module", "Name", "RoleId" },
+                columns: new[] { "Id", "Key", "Member", "Module", "Name", "RoleId", "Type" },
                 values: new object[,]
                 {
-                    { 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "add", 1L },
-                    { 2L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "edit", 1L },
-                    { 3L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "delete", 1L },
-                    { 4L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "view", 1L },
-                    { 5L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "list", 1L },
-                    { 6L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "add", 1L },
-                    { 7L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "edit", 1L },
-                    { 8L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "delete", 1L },
-                    { 9L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "view", 1L },
-                    { 10L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "list", 1L },
-                    { 11L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "add", 2L },
-                    { 12L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "edit", 2L },
-                    { 13L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "delete", 2L },
-                    { 14L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "view", 2L },
-                    { 15L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "list", 2L },
-                    { 16L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "add", 2L },
-                    { 17L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "edit", 2L },
-                    { 18L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "delete", 2L },
-                    { 19L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "view", 2L },
-                    { 20L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "list", 2L },
-                    { 21L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "company", "add", 2L },
-                    { 22L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "company", "edit", 2L },
-                    { 23L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "company", "delete", 2L },
-                    { 24L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "company", "view", 2L },
-                    { 25L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "company", "list", 2L },
-                    { 26L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "project", "add", 2L },
-                    { 27L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "project", "edit", 2L },
-                    { 28L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "project", "delete", 2L },
-                    { 29L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "project", "view", 2L },
-                    { 30L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "project", "list", 2L },
-                    { 31L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "department", "list", 2L }
+                    { 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "add", 1L, null },
+                    { 2L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "edit", 1L, null },
+                    { 3L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "delete", 1L, null },
+                    { 4L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "view", 1L, null },
+                    { 5L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "list", 1L, null },
+                    { 6L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "add", 1L, null },
+                    { 7L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "edit", 1L, null },
+                    { 8L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "delete", 1L, null },
+                    { 9L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "view", 1L, null },
+                    { 10L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "list", 1L, null },
+                    { 11L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "add", 2L, null },
+                    { 12L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "edit", 2L, null },
+                    { 13L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "delete", 2L, null },
+                    { 14L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "view", 2L, null },
+                    { 15L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "user", "list", 2L, null },
+                    { 16L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "add", 2L, null },
+                    { 17L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "edit", 2L, null },
+                    { 18L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "delete", 2L, null },
+                    { 19L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "view", 2L, null },
+                    { 20L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "role", "list", 2L, null },
+                    { 21L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "company", "add", 2L, null },
+                    { 22L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "company", "edit", 2L, null },
+                    { 23L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "company", "delete", 2L, null },
+                    { 24L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "company", "view", 2L, null },
+                    { 25L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "company", "list", 2L, null },
+                    { 26L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "project", "add", 2L, null },
+                    { 27L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "project", "edit", 2L, null },
+                    { 28L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "project", "delete", 2L, null },
+                    { 29L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "project", "view", 2L, null },
+                    { 30L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "project", "list", 2L, null },
+                    { 31L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "root", "department", "list", 2L, null }
                 });
 
             migrationBuilder.InsertData(

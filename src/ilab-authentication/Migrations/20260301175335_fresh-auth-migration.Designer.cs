@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IlabAuthentication.Migrations
 {
     [DbContext(typeof(AuthenticationDbContext))]
-    [Migration("20250117155303_privilege_type")]
-    partial class privilege_type
+    [Migration("20260301175335_fresh-auth-migration")]
+    partial class freshauthmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -172,6 +172,9 @@ namespace IlabAuthentication.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Theme")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
