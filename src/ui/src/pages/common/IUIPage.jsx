@@ -630,6 +630,7 @@ const IUIPage = (props) => {
                 try {
                     if (Object.keys(error).length === 0) {
 
+
                         const addPromises = multiCopiedData?.map(data => addIndividualForMultiCopy(data));
                         await Promise.all(addPromises);
 

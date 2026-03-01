@@ -247,6 +247,7 @@ export const EditActivity = () => {
                         compute: ({ startDate, duration }) => {
                             if (!startDate || !duration) return '';
 
+
                             const start = new Date(startDate);
                             const days = Number(duration);
 
