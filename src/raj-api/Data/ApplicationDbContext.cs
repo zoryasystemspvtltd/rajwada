@@ -161,7 +161,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Comment> Comments { get; set; }
     public virtual DbSet<Attachment> Attachments { get; set; }
     public virtual DbSet<Parking> Parkings { get; set; }
-    public virtual DbSet<OutSideEntity> OutSideEntity { get; set; }
+    public virtual DbSet<OutSideEntity> OutSideEntities { get; set; }
     public virtual DbSet<FlatTemplateDetails> FlatTemplateDetails { get; set; }
     #endregion
 

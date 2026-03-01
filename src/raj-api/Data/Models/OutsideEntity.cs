@@ -17,10 +17,18 @@ public class OutSideEntity : LabModel, IGlobal
     /// <summary>
     /// TowerId belongs to Plan
     /// </summary>
-    [ForeignKey("Plan")]
+    [ForeignKey("Tower")]
     public virtual long? TowerId { get; set; }
     [JsonIgnore]
-    public virtual Plan? Plan { get; set; }
+    public virtual Plan? Tower { get; set; }
+
+    /// <summary>
+    /// TowerId belongs to Plan
+    /// </summary>
+    [ForeignKey("Floor")]
+    public virtual long? FloorId { get; set; }
+    [JsonIgnore]
+    public virtual Plan? Floor { get; set; }
 
     /// <summary>
     /// OutSideEntityTypeId belongs to OutSideEntityType
@@ -29,4 +37,13 @@ public class OutSideEntity : LabModel, IGlobal
     public virtual long? OutSideEntityTypeId { get; set; }
     [JsonIgnore]
     public virtual OutSideEntityType? OutSideEntityType { get; set; }
+
+    [NotMapped]
+    public virtual EntitiesList? EntityList { get; set; }
+}
+
+public class EntitiesList
+{
+    public long OutSideEntityTypeId { get; set; }
+    public virtual int NoOfEntity { get; set; }
 }
