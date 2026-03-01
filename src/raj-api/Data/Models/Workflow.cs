@@ -44,6 +44,11 @@ namespace RajApi.Data.Models
         [JsonIgnore]
         public virtual RoomDetails? RoomDetails { get; set; }
 
+        [ForeignKey("OutSideEntities")]
+        public virtual long? OutSideEntityId { get; set; }
+        [JsonIgnore]
+        public virtual OutSideEntity? OutSideEntities { get; set; }
+
         [JsonIgnore]
         public virtual ICollection<Activity>? Activity { get; set; }
     }

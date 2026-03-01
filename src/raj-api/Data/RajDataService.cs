@@ -257,12 +257,12 @@ namespace ILab.Data
                             var projectTask = Get("Project", jsonData?.ProjectId);
                             var project = await projectTask; // Assuming Get returns Task or Task<T> and Result is awaited here properly
 
-                            if (string.Equals(jsonData?.Type?.ToString(), "tower", StringComparison.OrdinalIgnoreCase))
+                            if (string.Equals(jsonData?.Type?.tostring(), "TOWER", StringComparison.OrdinalIgnoreCase))
                             {
                                 await SaveFloorData(jsonData, Id, project.Name, project.Code, token);
                                 await SaveParkingData(jsonData, Id, project.Name, token);
                             }
-                            if (string.Equals(model.ToUpper(), "OUTSIDEENTITY", StringComparison.OrdinalIgnoreCase))
+                            if (string.Equals(model, "OUTSIDEENTITY", StringComparison.OrdinalIgnoreCase))
                             {
                                 await SaveOutSideEntitiesData(jsonData, project.Name, token);
                             }
@@ -1088,66 +1088,25 @@ namespace ILab.Data
                 //Work Id formate
                 //<Project_Alias>/<Tower_Alias>/<Floor_Number>/<OutSidet-Entity TypeId>-<OutSideEntity-Count-Index>/<Activity_Type_Alias>/<Document_Number>/<Year>
                 var dependency = await Get("Dependency", dependencyId);
-                var project = await Get("Project", projectId);
+                var outSideEntity = await Get("OutSideEntity", (long)outSideEntityId);
                 var docno = GetDocumentNo(projectId);
                 string year = GetFinancialYear();
 
                 StringBuilder workId = new();
-                if (project != null)
-                {
-                    workId.Append(project?.Result.Code); //<Project_Alias>
-                    workId.Append("/");
-                }
-                if (dependency != null)
-                {
-                    workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
-                    workId.Append("/");
-                }
-                if (towerId != null)
-                {
-                    var tower = await Get("Plan", (long)towerId);
-
-                    if (tower != null)
-                    {
-                        workId.Append(tower?.Result.Code);//<Tower_Alias>
-                        workId.Append("/");
-                    }
-                }
-                if (floorId != null)
-                {
-                    var floor = await Get("Plan", (long)floorId);
-                    if (floor != null)
-                    {
-                        workId.Append(floor?.Result.Code);//<Floor_Number>
-                        workId.Append("/");
-                    }
-                }
-                if (outSideEntityId != null)
-                {
-                    var outSideEntity = await Get("OutSideEntity", (long)outSideEntityId);
-                    if (outSideEntity != null)
-                    {
-                        var outSideEntityType = await Get("OutSideEntityType", (long)outSideEntity?.Result.OutSideEntityTypeId);
-                        if (outSideEntityType != null)
-                        {
-                            workId.Append(outSideEntityType?.Result.Code);//<OutSidet-Entity Type>
-                            workId.Append("/");
-                        }
-                    }
-                }
-
-                if (docno != null)
+                if (dependency != null && outSideEntity != null && docno != null && year != null)
                 {
                     int newNo = docno?.LastDocumentNo + 1;
                     UpdateProjcetDocNoTracing(docno, newNo, token);
-
                     string nextDocNo = newNo.ToString("D3");
+
+                    workId.Append(outSideEntity?.Result.Name); //<Project_Alias>/<Tower_Alias>/<Floor_Number>/<Out Side Entity-Type-Alias>-<outSideEntity-Index>                   
+                    workId.Append("/");
+                    workId.Append(dependency?.Result.Code); //<Activity_Type_Alias>
+                    workId.Append("/");
                     workId.Append(nextDocNo); //<Document_Number>
                     workId.Append("/");
-                }
-                if (year != null)
-                {
                     workId.Append(year); //<Year>
+                    return workId.ToString();
                 }
                 return workId.ToString();
             }
