@@ -1345,9 +1345,9 @@ namespace RajApi.Migrations
                 columns: new[] { "Id", "ActivityType", "ContentHistory", "Date", "EntityId", "Key", "Member", "Name", "Status" },
                 values: new object[,]
                 {
-                    { 1L, 0, null, new DateTime(2026, 3, 1, 17, 49, 12, 358, DateTimeKind.Utc).AddTicks(2275), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Company", 0 },
-                    { 2L, 0, null, new DateTime(2026, 3, 1, 17, 49, 12, 358, DateTimeKind.Utc).AddTicks(2278), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 },
-                    { 3L, 0, null, new DateTime(2026, 3, 1, 17, 49, 12, 358, DateTimeKind.Utc).AddTicks(2280), 2L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 }
+                    { 1L, 0, null, new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5024), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Company", 0 },
+                    { 2L, 0, null, new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5028), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 },
+                    { 3L, 0, null, new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5031), 2L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 }
                 });
 
             migrationBuilder.InsertData(
@@ -1355,23 +1355,23 @@ namespace RajApi.Migrations
                 columns: new[] { "Id", "Code", "Date", "Key", "Member", "Name", "Status" },
                 values: new object[,]
                 {
-                    { 1L, "FA", new DateTime(2026, 3, 1, 17, 49, 12, 358, DateTimeKind.Utc).AddTicks(2309), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Fixed Asset", 0 },
-                    { 2L, "CB", new DateTime(2026, 3, 1, 17, 49, 12, 358, DateTimeKind.Utc).AddTicks(2340), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Consumption Base", 0 },
-                    { 3L, "SA", new DateTime(2026, 3, 1, 17, 49, 12, 358, DateTimeKind.Utc).AddTicks(2342), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Service Assets", 0 }
+                    { 1L, "FA", new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5084), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Fixed Asset", 0 },
+                    { 2L, "CB", new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5086), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Consumption Base", 0 },
+                    { 3L, "SA", new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5088), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Service Assets", 0 }
                 });
 
             migrationBuilder.InsertData(
                 table: "Companys",
                 columns: new[] { "Id", "Address1", "Address2", "Address3", "BelongTo", "City", "Code", "ContactName", "Country", "Currency", "Date", "Email", "GSTNo", "Key", "Latitude", "Logo", "Longitude", "Member", "Name", "PanNo", "ParentId", "PhoneNumber", "PinCode", "QrCode", "State", "Status", "TinNo", "Type", "Website", "Zone" },
-                values: new object[] { 1L, null, null, null, null, null, "RE", null, null, null, new DateTime(2026, 3, 1, 17, 49, 12, 358, DateTimeKind.Utc).AddTicks(2104), null, null, "1536B022-C5C9-4358-BB6A-466F2075B7D4", null, null, null, "super@rajwada.com", "Rajwara", null, null, null, null, null, null, 0, null, "Enterprise", null, null });
+                values: new object[] { 1L, null, null, null, null, null, "RE", null, null, null, new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(4530), null, null, "1536B022-C5C9-4358-BB6A-466F2075B7D4", null, null, null, "super@rajwada.com", "Rajwara", null, null, null, null, null, null, 0, null, "Enterprise", null, null });
 
             migrationBuilder.InsertData(
                 table: "Departments",
                 columns: new[] { "Id", "Code", "Date", "Key", "Member", "Name", "Status" },
                 values: new object[,]
                 {
-                    { 1L, "CI", new DateTime(2026, 3, 1, 17, 49, 12, 358, DateTimeKind.Utc).AddTicks(2226), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Civil", 0 },
-                    { 2L, "LE", new DateTime(2026, 3, 1, 17, 49, 12, 358, DateTimeKind.Utc).AddTicks(2228), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Legal", 0 }
+                    { 1L, "CI", new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(4980), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Civil", 0 },
+                    { 2L, "LE", new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(4984), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Legal", 0 }
                 });
 
             migrationBuilder.CreateIndex(
