@@ -21,6 +21,11 @@ namespace RajApi.Data.Models
         public virtual long? ActivityId { get; set; }
         [JsonIgnore]
         public virtual Activity? Activity { get; set; }
+
+        [ForeignKey("OutSideEntities")]
+        public virtual long? OutSideEntityId { get; set; }
+        [JsonIgnore]
+        public virtual OutSideEntity? OutSideEntities { get; set; }
         #endregion
     }
 
