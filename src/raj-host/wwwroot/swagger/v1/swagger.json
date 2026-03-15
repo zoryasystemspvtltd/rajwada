@@ -1594,6 +1594,13 @@
 "Remarks": {
 "type": "string",
 },
+"OutSideEntityId": {
+"type": "string",
+"nullable": true
+},
+"OutSideEntities": {
+"type": "string",
+},
 "AssignedList": {
 "type": "string",
 },
@@ -1669,6 +1676,13 @@
 "nullable": true
 },
 "Uoms": {
+"type": "string",
+},
+"OutSideEntityId": {
+"type": "string",
+"nullable": true
+},
+"OutSideEntities": {
 "type": "string",
 },
 "Id": {
@@ -1754,6 +1768,13 @@
 "nullable": true
 },
 "Activity": {
+"type": "string",
+},
+"OutSideEntityId": {
+"type": "string",
+"nullable": true
+},
+"OutSideEntities": {
 "type": "string",
 },
 "Id": {
