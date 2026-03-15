@@ -32,7 +32,8 @@ const Login = () => {
         }
 
         document.head.appendChild(link); // Append the light theme
-
+        sessionStorage.clear();
+        localStorage.clear();
         return () => {
             // Clean up theme on component unmount (when navigating away from login)
             const existingLink = document.getElementById('theme-link');
