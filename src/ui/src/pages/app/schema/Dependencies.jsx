@@ -47,7 +47,7 @@ export const ViewWorkItem = () => {
                     { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'label', required: true, width: 6 },
                     { text: 'Code', field: 'code', type: 'label', required: true, width: 6 },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'label', required: true, width: 6 },
-                    { text: 'Expected Duration', field: 'expectedDuration', type: 'label', required: true, width: 6 },
+                    { text: 'Expected Duration (Days)', field: 'expectedDuration', type: 'label', required: true, width: 6 },
                     {
                         text: 'Parent', field: 'parentId', width: 6, type: 'lookup-link',
                         schema: { module: 'dependency', path: 'activities' }
@@ -123,7 +123,7 @@ export const EditWorkItem = () => {
                             excludeSelf: true
                         }
                     },
-                    { text: 'Expected Duration', field: 'expectedDuration', type: 'number', required: true, width: 6 },
+                    { text: 'Expected Duration (Days)', field: 'expectedDuration', type: 'number', required: true, width: 6 },
                     {
                         text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
                         schema: {
@@ -177,7 +177,7 @@ export const AddWorkItem = () => {
                         text: 'Belongs To', field: 'belongsTo', type: 'lookup-filter', required: false, width: 6,
                         schema: { module: 'dependency', filter: 'parent', value: null }
                     },
-                    { text: 'Expected Duration', field: 'expectedDuration', type: 'number', required: true, width: 6 },
+                    { text: 'Expected Duration (Days)', field: 'expectedDuration', type: 'number', required: true, width: 6 },
                     {
                         text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
                         schema: {
