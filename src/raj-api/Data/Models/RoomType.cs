@@ -1,0 +1,14 @@
+﻿using ILab.Extensionss.Data.Models;
+using Newtonsoft.Json;
+
+namespace RajApi.Data.Models;
+
+public class RoomType : LabModel, IGlobal
+{
+    public string? Code { get; set; }
+    public string? Description { get; set; }
+    [JsonIgnore]
+    public virtual ICollection<FlatTemplateDetails>? FlatTemplates { get; set; }
+    [JsonIgnore]
+    public virtual ICollection<Workflow>? Workflows { get; set; }
+}

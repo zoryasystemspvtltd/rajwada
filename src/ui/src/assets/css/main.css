@@ -1336,8 +1336,8 @@ legend {font-size:.88rem; font-weight:700 }
 /*------------- App Logo -------------------------*/
 .app-logo img { width:30%; }
 .app-logo-inverse { height:23px; width:97px; background:url(../images/logo.png); }
-.app-login-box {padding: 30px; max-width: 500px; z-index: 100;  margin: auto; /* height: 440px; */  height: 520px; position: absolute;  top: 0;  right: 0; bottom: 0;  left: 0;  /* padding: 20px 20px 0 20px; */ border-radius: 20px; -webkit-box-shadow: 0px 0px 23px 5px rgba(0, 0, 0, 0.21);  -moz-box-shadow: 0px 0px 23px 5px rgba(0, 0, 0, 0.21);  box-shadow: 0px 0px 23px 5px rgba(0, 0, 0, 0.21);}
-.app-login-box .app-logo { margin-bottom:1.5rem ; text-align: center;}
+.app-login-box {padding: 30px; max-width: 500px; z-index: 100;  margin: auto; /* height: 440px; */  height: 550px; position: absolute;  top: 0;  right: 0; bottom: 0;  left: 0;  /* padding: 20px 20px 0 20px; */ border-radius: 20px; -webkit-box-shadow: 0px 0px 23px 5px rgba(0, 0, 0, 0.21);  -moz-box-shadow: 0px 0px 23px 5px rgba(0, 0, 0, 0.21);  box-shadow: 0px 0px 23px 5px rgba(0, 0, 0, 0.21);}
+.app-login-box .app-logo { margin-bottom:1.2rem ; text-align: center;}
 /* .app-login-box h4 { margin-bottom:1.5rem; font-weight:400 }
 .app-login-box h4 div { opacity:.6 } */
 .app-login-box h4 span { font-size:1.1rem }

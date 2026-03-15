@@ -79,11 +79,13 @@ var connectionString = $"Server={databaseSettings.Server};" +
     $"Database={databaseSettings.Database};" +
     $"User Id={databaseSettings.Username};" +
     $"Password={databaseSettings.Password};" +
-    $"Trusted_Connection=SSPI;Encrypt=false;TrustServerCertificate=true";
-    //$"Integrated security=False;TrustServerCertificate=true";
+    $"Trusted_Connection=SSPI;Encrypt=false;TrustServerCertificate=true;" + 
+    $"Integrated security=False;TrustServerCertificate=true;";
     
 builder.Services.AddDbContext<AuthenticationDbContext>(options => options.UseSqlServer(connectionString));
-builder.Services.AddDbContext<DbContext, ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<DbContext, ApplicationDbContext>(options => options.UseSqlServer(
+        connectionString,
+        sql => sql.CommandTimeout(databaseSettings.CommandTimeout)));
 
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>().AddEntityFrameworkStores<AuthenticationDbContext>();
 builder.Services.AddAuthorization();
@@ -93,6 +95,7 @@ builder.Services.AddScoped<RajDataService>();
 builder.Services.AddTransient<PrivilegeMiddleware>();
 
 builder.Services.AddTransient<ModuleIdentityMiddleware>();
+builder.Services.Configure<FileUploadSettings>(builder.Configuration.GetSection("FileUploadSettings"));
 
 var smtpSettings = configuration.GetSection("SmtpSettings").Get<SmtpSettings>();
 var emailSettings = configuration.GetSection("EmailSettings").Get<EmailSettings>();
@@ -154,6 +157,8 @@ app.UseCors(builder => builder
     .AllowAnyOrigin()
     .AllowAnyMethod()
     .AllowAnyHeader());
+
+app.UseCors("AllowFrontend");
 
 //Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())

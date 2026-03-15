@@ -10,6 +10,10 @@ public class Plan : LabModel, IAssignable
     public string? Description { get; set; }
     public string? Blueprint { get; set; }
     public string? MarkerJson { get; set; }
+    /// <summary>
+    /// Priority Status 
+    /// </summary>
+    public virtual PriorityStatusType? PriorityStatus { get; set; }
 
     #region Workflow
     /// <summary>
@@ -126,9 +130,23 @@ public class Plan : LabModel, IAssignable
         private set { /* needed for EF */ }
     }
 
+    [ForeignKey("FlatTemplate")]
+    public virtual long? FlatTemplateId { get; set; }
+    [JsonIgnore]
+    public virtual FlatTemplate? FlatTemplate { get; set; }
+
     [JsonIgnore]
     public virtual ICollection<Plan>? Plans { get; set; }
 
+    [NotMapped]
+    public string? Parkings { get; set; }
+
+    [NotMapped]
+    public long? NoOfFloors { get; set; }
+
+    [NotMapped]
+    public string? FlatTemplates { get; set; }
+    public virtual long? FlatTemplateDetailsId { get; set; }
     #endregion
 }
 

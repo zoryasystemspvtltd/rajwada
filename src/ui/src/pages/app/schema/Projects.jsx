@@ -68,7 +68,7 @@ export const ViewProject = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect' },
+                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', module: 'project' },
                 ]
             },
         ]
@@ -114,7 +114,7 @@ export const EditProject = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', required: true, module: 'project' },
                 ]
             }
         ]
@@ -140,7 +140,7 @@ export const AddProject = () => {
                     { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'date', required: false },
                     { text: 'Completion Certificate Date', field: 'completionCertificateDate', width: 4, type: 'date', required: false },
                     {
-                        text: 'Belongs To', field: 'companyId', nameField: 'companyName', width: 4, type: 'lookup', required: false,
+                        text: 'Belongs To', field: 'companyId', nameField: 'companyName', width: 4, type: 'lookup', required: true,
                         schema: { module: 'company' }
                     },
                     { text: 'Zone', field: 'zone', placeholder: 'Zone here...', width: 4, type: 'text', required: false },
@@ -160,7 +160,7 @@ export const AddProject = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', required: true },
+                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', required: true, module: 'project' },
                 ]
             }
         ]

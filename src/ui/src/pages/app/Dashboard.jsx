@@ -8,6 +8,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { notify } from "../../store/notification";
+import FlatStatusWidget from "../common/PriorityDashboard";
 
 // Register Chart.js components and the datalabels plugin
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, ChartDataLabels);
@@ -140,7 +141,8 @@ const Dashboard = () => {
                     },
                 }));
             } catch (error) {
-                notify("error", 'Error fetching data');
+                notify("error", 'Data not available');
+                // notify("error", 'Error fetching data');
             }
         }
 
@@ -294,6 +296,18 @@ const Dashboard = () => {
                                                 </Accordion.Item>
                                             ))}
                                         </Accordion>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                        )
+                    }
+                    {
+                        (loggedInUser?.roles?.some(r => r.includes("Head")) && privileges?.some(p => (p.module === 'plan'))) && (
+                            <div className="mt-2">
+                                <Card>
+                                    <Card.Body>
+                                        <Card.Title>Flat Priority Status</Card.Title>
+                                        <FlatStatusWidget />
                                     </Card.Body>
                                 </Card>
                             </div>

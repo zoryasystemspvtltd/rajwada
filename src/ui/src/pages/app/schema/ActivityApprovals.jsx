@@ -147,7 +147,9 @@ export const ViewActivityApproval = () => {
                             module: 'activity',
                             paging: true,
                             searching: true,
-                            editing: true,
+                            editing: false,
+                            adding: false,
+                            delete: false,
                             collate: true,
                             collateSchema: {
                                 module: 'activitytracking',
@@ -155,7 +157,6 @@ export const ViewActivityApproval = () => {
                                 parentValue: id,
                                 searchKey: 'item'
                             },
-                            adding: true,
                             fields: [
                                 {
                                     text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,

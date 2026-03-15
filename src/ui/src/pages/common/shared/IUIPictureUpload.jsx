@@ -7,6 +7,7 @@ import IUIPdfView from '../../pdf-helper/IUIPdfView';
 const IUIPictureUpload = (props) => {
     const schema = props?.schema;
     const shape = props?.shape;
+    const module = props?.module;
     const [file, setFile] = useState([]);
     const [fileType, setFileType] = useState(null);
     const [baseFilter, setBaseFilter] = useState({});
@@ -22,6 +23,11 @@ const IUIPictureUpload = (props) => {
         overflow: 'hidden',
         position: 'relative'
     };
+
+    const fetchBase64 = async (fileName, fileModule) => {
+        const response = await api.getBase64({ module: fileModule, file: fileName });
+        return response?.data;
+    }
 
     useEffect(() => {
         async function fetchData() {
@@ -60,11 +66,17 @@ const IUIPictureUpload = (props) => {
                 const parent = parentData?.find(data => data?.id === parseInt(props?.parentId));
 
                 if (parent) {
-                    setFile(parent[schema?.relationKey]);
+                    const fileName = parent[schema?.relationKey];
+                    const fileType = parent[schema?.relationKey]?.split(".")[1];
+
+                    const base64Output = await fetchBase64(fileName, schema?.module);
+                    const rawData = (fileType === "pdf") ? `data:application/pdf;base64,${base64Output?.base64}` : `data:image/${fileType};base64,${base64Output?.base64}`;
+
+                    setFile(rawData);
                     props.onChange({
                         target: {
                             id: props?.id,
-                            value: parent[schema?.relationKey],
+                            value: rawData,
                         },
                         preventDefault: () => { },
                     });
@@ -77,17 +89,36 @@ const IUIPictureUpload = (props) => {
         if (schema && props?.parentId) {
             fetchPictureData();
         }
-    }, [props?.parentId]);
+    }, [props?.parentId, schema]);
 
     useEffect(() => {
-        if (props?.value) {
-            if (props?.value?.length > 0) {
-                let type = props?.value?.split(';')[0];
-                (type === "data:application/pdf") ? setFileType("pdf") : setFileType("image");
+        const setValue = async (val) => {
+            if (val && val?.length > 0) {
+                if (!val?.includes("base64")) {
+                    
+                    let type = val?.split('.')[1];
+                    (type === "pdf") ? setFileType("pdf") : setFileType("image");
+
+                    const base64Output = await fetchBase64(val, module);
+                    const rawData = (type === "pdf") ? `data:application/pdf;base64,${base64Output?.base64}` : `data:image/${type};base64,${base64Output?.base64}`;
+
+                    setFile(rawData);
+                }
+                else {
+                    
+                    let type = val?.split(';')[0];
+                    (type === "data:application/pdf") ? setFileType("pdf") : setFileType("image");
+
+
+                    setFile(val);
+                }
             }
-            setFile(props?.value);
         }
-    }, [props?.value]);
+
+        if (!props?.value) return;
+
+        setValue(props?.value);
+    }, [props?.value, module]);
 
     const handleChange = async (e) => {
         e.preventDefault();

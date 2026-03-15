@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from './shared/IUILookUp';
 import { formatStringDate } from '../../store/datetime-formatter';
+import IUILookUpCount from './shared/IUILookUpCount';
 
 const IUIListMapping = (props) => {
     const schema = props.schema;
@@ -199,9 +200,8 @@ const IUIListMapping = (props) => {
                                         </thead>
                                         {
                                             <tbody>
-
                                                 {
-                                                    dataSet?.items?.map((item, i) => (
+                                                    (schema?.duplicateKey ? removeDuplicatesByKey(dataSet?.items, schema?.duplicateKey) : dataSet?.items)?.map((item, i) => (
                                                         <tr key={i} >
                                                             {schema?.editing &&
                                                                 <>
@@ -223,6 +223,13 @@ const IUIListMapping = (props) => {
                                                                         <IUILookUp
                                                                             value={item[fld.field]}
                                                                             schema={fld.schema}
+                                                                            readonly={true}
+                                                                            textonly={true}
+                                                                        />
+                                                                    }
+                                                                    {(fld.type === 'lookup-count') &&
+                                                                        <IUILookUpCount
+                                                                            schema={{ ...fld.schema, filter: { ...fld.schema.filter, [fld.schema.keyField]: item[fld.schema.keyField] } }}
                                                                             readonly={true}
                                                                             textonly={true}
                                                                         />
@@ -264,6 +271,18 @@ const IUIListMapping = (props) => {
             </div>
         </>
     )
+}
+
+const removeDuplicatesByKey = (arr, key) => {
+    const seen = new Set();
+    return arr?.filter(item => {
+        const val = item[key];
+        if (seen.has(val)) {
+            return false;
+        }
+        seen.add(val);
+        return true;
+    });
 }
 
 export default IUIListMapping;

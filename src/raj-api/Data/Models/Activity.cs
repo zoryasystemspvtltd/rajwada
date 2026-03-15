@@ -8,13 +8,7 @@ namespace RajApi.Data.Models
     {
         public virtual string? Description { get; set; }
         public required string Type { get; set; }
-        public virtual bool? IsSubSubType { get; set; }
         public virtual string? PhotoUrl { get; set; }
-        public virtual string? DocumentLinks { get; set; }
-        public virtual string? Notes { get; set; }
-        public virtual long? UserId { get; set; }
-        public virtual DateTime? CuringDate { get; set; }
-        public virtual bool? IsCuringDone { get; set; }
         public virtual bool? IsCancelled { get; set; }
         /// <summary>
         /// Is used for QC
@@ -61,23 +55,18 @@ namespace RajApi.Data.Models
         #endregion
                 
         public string? ActualItems { get; set; }
-
-        #region Workflow
+        public string? WorkId { get; set; }
+       
         /// <summary>
-        /// Activity Status 
+        /// Priority Status 
         /// </summary>
         public virtual PriorityStatusType? PriorityStatus { get; set; }
-
-        /// <summary>
-        /// Workflow State 
-        /// </summary>
-        public virtual string? WorkflowState { get; set; }
 
         /// <summary>
         /// Approval Status
         /// </summary>
         public virtual ApprovalStatusType? ApprovalStatus { get; set; }
-        #endregion
+       
 
         #region Cost and Assessment
         /// <summary>
@@ -147,19 +136,24 @@ namespace RajApi.Data.Models
             }
             private set { /* needed for EF */ }
         }
-        public virtual long? DependencyId { get; set; }
+        
+        [ForeignKey("Workflow")]
+        public virtual long? WorkflowId { get; set; }
 
         [JsonIgnore]
-        public virtual Workflow? Dependency { get; set; }
+        public virtual Workflow? Workflow { get; set; }
+
+        [ForeignKey("Tower")]
         public virtual long? TowerId { get; set; }
 
         [JsonIgnore]
         public virtual Plan? Tower { get; set; }
+
         [ForeignKey("Floor")]
         public virtual long? FloorId { get; set; }
-
         [JsonIgnore]
         public virtual Plan? Floor { get; set; }
+
         [ForeignKey("Flat")]
         public virtual long? FlatId { get; set; }
 
@@ -171,7 +165,49 @@ namespace RajApi.Data.Models
 
         [JsonIgnore]
         public virtual Contractor? Contractor { get; set; }
+
+        [ForeignKey("LabourProvided")]
+        public virtual long? LabourProvidedBy { get; set; }
+
+        [JsonIgnore]
+        public virtual Contractor? LabourProvided { get; set; }
+
+        [ForeignKey("MaterialProvided")]
+        public virtual long? MaterialProvidedBy { get; set; }
+
+        [JsonIgnore]
+        public virtual Contractor? MaterialProvided { get; set; }
+
+        [ForeignKey("Dependency")]
+        public virtual long? DependencyId { get; set; }
+
+        [JsonIgnore]
+        public virtual Dependency? Dependency { get; set; }        
+               
+        [ForeignKey("Amendments")]
+        public virtual long? AmendmentId { get; set; }
+        [JsonIgnore]
+        public virtual ActivityAmendment? Amendments { get; set; }
+
+        [ForeignKey("RoomDetails")]
+        public virtual long? RoomId { get; set; }
+        [JsonIgnore]
+        public virtual RoomDetails? RoomDetails { get; set; }
+
+
+        [ForeignKey("OutSideEntity")]
+        public virtual long? OutSideEntityId { get; set; }
+        [JsonIgnore]
+        public virtual OutSideEntity? OutSideEntity { get; set; }
+
+        [ForeignKey("Parkings")]
+        public virtual long? ParkingId { get; set; }
+        [JsonIgnore]
+        public virtual Parking? Parkings { get; set; }
         #endregion
+
+        [NotMapped]
+        public string? ModifiedBy { get; set; }
     }
 
     public class WorkerReportRequestPayload
@@ -182,6 +218,16 @@ namespace RajApi.Data.Models
         public long FlatId { get; set; }
        // public bool IsDownload { get; set; }
     }
+
+    public class AssigneUserRequestPayload
+    {
+        public string Member { get; set; }
+        public long ProjectId { get; set; }
+        public long? TowerId { get; set; }
+        public long? FloorId { get; set; }
+        public long? FlatId { get; set; }
+    }
+
     public class WorkerStatusReport
     {
         public long? Id { get; set; }

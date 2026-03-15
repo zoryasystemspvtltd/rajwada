@@ -33,7 +33,7 @@ const IUILookUpEnum = (props) => {
     }, [dataSet, value]);
 
     useEffect(() => {
-        if (props?.value) {
+        if (props?.value >= 0) {
             setValue(props?.value);
         }
     }, [props?.value]);
@@ -78,7 +78,7 @@ const IUILookUpEnum = (props) => {
                     onChange={(e) => handleChange(e)}>
                     <option>--Select--</option>
                     {dataSet?.map((item, i) => (
-                        <option key={i} value={item.value || item.name}>{item.name}</option>
+                        <option key={i} value={item.value}>{item.name}</option>
                     ))}
 
                 </select>

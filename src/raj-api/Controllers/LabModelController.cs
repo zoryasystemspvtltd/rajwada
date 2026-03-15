@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ILab.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RajApi.Helpers;
-using ILab.Data;
-using RajApi.Data;
-using RajApi.Data.Models;
 using Newtonsoft.Json;
+using RajApi.Data;
+using RajApi.Helpers;
 
 namespace RajApi.Controllers;
 
@@ -54,16 +53,34 @@ public class LabModelController : ControllerBase
     [HttpPost("{module}")]
     public async Task<long> PostAsync(string module, dynamic data, CancellationToken token)
     {
-        var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-        var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-        dataService.Identity = new ModuleIdentity(member, key);
-        var activityId = await dataService.AddAsync(module, data, token);
-        if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
+        try
         {
-            await SaveSubTaskAsync(module, activityId, token);
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            dataService.Identity = new ModuleIdentity(member, key);
+            long Id = 0;
+
+            var updatedata = await dataService.ConvertBase64toFile(module, data);
+            if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
+            {
+                updatedata = await dataService.GenerateWorkId(module, data, token);
+            }
+            if (module.ToUpper() != "OUTSIDEENTITY")
+            {
+                Id = await dataService.AddAsync(module, updatedata, token);
+            }
+           
+            await dataService.ProcessAddDataAsync(module, updatedata, Id, token);
+            return Id;
+
         }
-        return activityId;
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in SaveData method and details: '{ex.Message}'");
+            throw;
+        }
     }
+
 
     [HasPrivileges("edit")]
     [HttpPut("{module}/{id}")]
@@ -74,13 +91,15 @@ public class LabModelController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
+
             if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
             {
                 data = UpdateAcutualDate(module, data);
             }
-            var activityId = await dataService.EditAsync(module, id, data, token);
-
-            return activityId;
+            var updatedata = await dataService.ConvertBase64toFile(module, data);
+            await dataService.EditAsync(module, id, updatedata, token);
+            await dataService.ProcessEditDataAsync(module, updatedata, id, token);
+            return id;
         }
         catch (Exception ex)
         {
@@ -125,43 +144,11 @@ public class LabModelController : ControllerBase
             throw;
         }
     }
-    private async Task SaveSubTaskAsync(string model, long activityId, CancellationToken token)
-    {
-        try
-        {
-            var subact = await Get(model, activityId);
-            if (subact != null)
-            {
-                if (subact.FlatId != null)
-                {
-                    var flats = GetResourceDetails("Resource", subact.FlatId, token);
-                    await SavaDataIntoDataBase(flats, model, subact, token);
-                }
-                else if (subact.FloorId != null)
-                {
-                    var floors = GetResourceDetails("Resource", subact.FloorId, token);
-                    await SavaDataIntoDataBase(floors, model, subact, token);
-                }
-                else if (subact.TowerId != null)
-                {
-                    var towers = GetResourceDetails("Resource", subact.TowerId, token);
-                    await SavaDataIntoDataBase(towers, model, subact, token);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in SaveSubTaskAsync method, message:'{ex.Message}'");
-            throw;
-        }
-    }
+
     private dynamic UpdateAcutualDate(string model, dynamic data)
     {
         Type type = dataService.GetType(model);
-        if (type == null)
-        {
-            return -1L;
-        }
+        if (type == null) { return -1L; }
 
         dynamic jsonString = data.ToString();
         var jsonData = JsonConvert.DeserializeObject(jsonString, type);
@@ -174,76 +161,7 @@ public class LabModelController : ControllerBase
             jsonData.ActualEndDate = DateTime.Now;
         }
 
-        return JsonConvert.SerializeObject(jsonData); ;
-    }
-    private async Task SavaDataIntoDataBase(dynamic lists, string model, Activity main, CancellationToken token)
-    {
-        try
-        {
-            if (lists != null)
-            {
-                foreach (var item in lists)
-                {
-                    int quantity = (int)item.Quantity;
-                    for (int i = 0; i < quantity; i++)
-                    {
-                        var desc = string.Concat(item.Name, "-", i + 1);
-                        Activity activity = new()
-                        {
-                            Type = "Sub Task",
-                            ParentId = main.Id,
-                            ProjectId = main.ProjectId,
-                            DependencyId = main.DependencyId,
-                            UserId = main.UserId,
-                            Name = string.Concat(main.Name, "-", desc),
-                            Description = string.Concat(main.Description, "-", desc),
-                            StartDate = main.StartDate,
-                            EndDate = main.EndDate,
-                            Items = main.Items,
-                            ContractorId = main.ContractorId,
-                            PhotoUrl = main.PhotoUrl,
-                        };
-                        if (main.FlatId != null)
-                        {
-                            activity.TowerId = main.TowerId;
-                            activity.FloorId = main.FloorId;
-                            activity.FlatId = main.FlatId;
-                        }
-                        else if (main.FloorId != null)
-                        {
-                            activity.TowerId = main.TowerId;
-                            activity.FloorId = main.FloorId;
-                        }
-                        else if (main.TowerId != null)
-                        {
-                            activity.TowerId = main.TowerId;
-                        }
-
-                        await dataService.SaveDataAsync(model, activity, token);
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            throw;
-        }
-    }
-
-    private dynamic GetResourceDetails(string model, long id, CancellationToken token)
-    {
-        var data = dataService.GetDetails(id, token);
-
-        if (data != null)
-        {
-            return data;
-        }
-        else
-        {
-            logger.LogError("No data retrive from backend for " + model + "  name:" + id);
-            return null;
-        }
+        return JsonConvert.SerializeObject(jsonData);
     }
 }
 

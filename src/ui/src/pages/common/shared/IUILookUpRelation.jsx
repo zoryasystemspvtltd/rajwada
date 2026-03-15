@@ -88,7 +88,7 @@ const IUILookUpRelation = (props) => {
                         onChange={(e) => handleChange(e)}>
                         <option>--Select--</option>
                         {
-                            (schema?.relationKey === "parentId")
+                            (["parentId", "planId", "towerId"].includes(schema?.relationKey))
                                 ?
                                 dataSet?.items?.map((item, i) => (
                                     <option key={i} value={item.id || item.name}>{item.name}</option>

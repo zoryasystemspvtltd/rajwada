@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
-import logo from '../assets/images/logo.png';
+import logo from '../assets/images/civilier_new_logo.jpeg';
 import { useAuth } from "../provider/authProvider";
 import { loginUser } from "../store/api-db";
+import ICarousel from "./common/ICarousel";
 
 const Login = () => {
     const module = 'user';
@@ -92,17 +93,19 @@ const Login = () => {
 
 
     return (
-        <div className="app-login app-container app-theme-login-bg">
+        <div className="app-login app-container">
+            <div className="carousel-background">
+                <ICarousel />
+            </div>
             <div className="app-container">
-
                 <div className="mx-auto app-login-box">
                     <div className="app-logo">
                         <img src={logo} alt='logo' />
                     </div>
 
-                    <h2 className="mb-0 text-center">
+                    <h3 className="mb-0 text-center">
                         <span className="d-block">User Login</span>
-                    </h2>
+                    </h3>
                     <Form onSubmit={(e) => loginWithUsernameAndPassword(e)}>
                         <Row>
                             <Col md={12} className="mt-2">
@@ -140,7 +143,7 @@ const Login = () => {
                                     {notice}
                                 </Alert>
                             }
-                            <Col md={12} className="mt-4">
+                            <Col md={12} className="mt-2">
                                 <Button
                                     variant="contained"
                                     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-lg w-100"

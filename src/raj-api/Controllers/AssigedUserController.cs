@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RajApi.Data;
+using RajApi.Data.Models;
 
 namespace RajApi.Controllers;
 
@@ -37,6 +38,23 @@ public class AssignedUserController : ControllerBase
         catch (Exception ex)
         {
             logger.LogError(ex, $"Exception in Get module: '{module}' id: '{id}' message:'{ex.Message}'");
+            throw;
+        }
+    }
+
+
+    [AllowAnonymous]
+    [HttpPost]
+    public dynamic Post(AssigneUserRequestPayload request, CancellationToken token)
+    {
+        try
+        {
+            var users = dataService.GetActivtyDetailsForUser(request);
+            return users;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in Get activity details for: '{request.Member}' projectId: '{request.ProjectId}' message:'{ex.Message}'");
             throw;
         }
     }

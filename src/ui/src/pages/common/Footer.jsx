@@ -4,7 +4,7 @@ const Footer = () => {
             <div className="app-footer">
                 <div className="app-footer__inner">
                     <div className="app-footer-left">
-                        <span>Copyright © <span id="printYear"> 2024 </span> Rajwada Group. All rights reserved.</span>
+                        <span>Copyright © <span id="printYear"> 2026 </span> Rajwada Group. All rights reserved.</span>
                     </div>
                     <div className="app-footer-right">
                         <span>Developed by <a href="https://www.zorya.co.in/" target="_blank" rel="noopener noreferrer"> Zorya.</a></span>

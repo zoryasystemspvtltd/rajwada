@@ -1,34 +1,25 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using ILab.Extensionss.Common;
+﻿using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Mysqlx.Crud;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Pkcs;
+using Newtonsoft.Json.Linq;
 using RajApi.Data.Models;
-using Serilog;
+using RajApi.Helpers;
 using System.Data;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
-
-
 
 namespace RajApi.Data;
 
 public class RajDataHandler : LabDataHandler
 {
-
     public readonly LabDataHandler handler;
-    public RajDataHandler(DbContext dbContext,
-    ILogger<RajDataHandler> logger)
-        : base(dbContext, logger)
+    public RajDataHandler(DbContext dbContext, ILogger<RajDataHandler> logger) : base(dbContext, logger)
     {
-
     }
 
     public ModuleIdentity Identity { get; set; }
-
 
     public override IQueryable<T> FilterIdentity<T>(DbSet<T> dbSet)
     {
@@ -41,13 +32,13 @@ public class RajDataHandler : LabDataHandler
             .Select(act => new
             {
                 data = act,
-                Log = dbContext.Set<MemberOwner>()
+                Log = dbContext.Set<ApplicationLog>()
                     .Where(apl => apl.EntityId == act.Id && apl.Member.Equals(Identity.Member) && apl.Name.Equals(name))
                     .OrderByDescending(apl => apl.Date)
-                    .Select(apl => new { apl.Member, apl.Date })
+                    .Select(apl => new { apl.ActivityType, apl.Member, apl.Date })
                     .FirstOrDefault()
             })
-            .Where(x => x.Log != null && x.data.Status != StatusType.Deleted)
+            .Where(x => x.Log != null && x.Log.ActivityType != StatusType.UnAssigned && x.data.Status != StatusType.Deleted)
             .Select(x => x.data)
             .AsQueryable();
 
@@ -136,7 +127,30 @@ public class RajDataHandler : LabDataHandler
 
         return final;
     }
+    public dynamic GetResourceDetails(long flatId)
+    {
+        ListOptions option = new();
 
+        option.SearchCondition = new Condition()
+        {
+            Name = "PlanId",
+            Value = flatId
+        };
+        var resouces = Load<RoomDetails>(option).Items.ToList();
+        return resouces;
+    }
+    public dynamic GetFlatTemplateDetails(long templateId)
+    {
+        ListOptions option = new();
+
+        option.SearchCondition = new Condition()
+        {
+            Name = "FlatTemplateId",
+            Value = templateId
+        };
+        var resouces = Load<FlatTemplateDetails>(option).Items.ToList();
+        return resouces;
+    }
     public dynamic GetTaskItemDetails(long id)
     {
         try
@@ -273,8 +287,7 @@ public class RajDataHandler : LabDataHandler
         {
             var activities = dbContext.Set<Activity>()
                      .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
-                     && l.TowerId == towerId && l.FloorId == floorId
-                     && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
+                     && l.TowerId == towerId && l.FloorId == floorId).ToList();
             if (flatId > 0)
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
@@ -296,8 +309,7 @@ public class RajDataHandler : LabDataHandler
         {
             var activities = dbContext.Set<Activity>()
                      .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
-                     && l.TowerId == towerId && l.FloorId == floorId
-                     && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
+                     && l.TowerId == towerId && l.FloorId == floorId).ToList();
             if (flatId > 0)
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
@@ -323,7 +335,7 @@ public class RajDataHandler : LabDataHandler
 
         var statuslist = CalculateWorkStatus(activities);
 
-        DataTable table = new();       
+        DataTable table = new();
         table.Columns.Add("Project Name");
         table.Columns.Add("Tower Name");
         table.Columns.Add("Floor Name");
@@ -334,7 +346,7 @@ public class RajDataHandler : LabDataHandler
         table.Columns.Add("ProgressPercentage");
         table.Columns.Add("Duration");
         table.Columns.Add("StartDate");
-        table.Columns.Add("EndDate");        
+        table.Columns.Add("EndDate");
         table.Columns.Add("ActualStartDate");
         table.Columns.Add("ActualEndDate");
         if (flag)
@@ -343,43 +355,43 @@ public class RajDataHandler : LabDataHandler
             table.Columns.Add("CommentDate");
 
         }
-        var resources = dbContext.Set<Resource>().Where(a => a.PlanId == item.FlatId).ToList();
+        var roomDetails = dbContext.Set<RoomDetails>().Where(a => a.PlanId == item.FlatId).ToList();
 
-        foreach (var rec in resources)
+        foreach (var rec in roomDetails)
         {
-            var room = dbContext.Set<Room>().Where(a => a.Id == rec.RoomId).FirstOrDefault(); // Ex- Bedroom
-            for (int index = 1; index <= rec.Quantity; index++)
-            {                
-                var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
-                var filteredActivities = statuslist?.Where(a => a.ActivityName.Contains(roomName)).ToList();
-                foreach (var fact in filteredActivities)
+            //var room = dbContext.Set<RoomType>().Where(a => a.Id == rec.RoomTypeId).FirstOrDefault(); // Ex- Bedroom
+            //for (int index = 1; index <= rec.Quantity; index++)
+            //{
+            var roomName = rec?.Name; //+ "-" + index.ToString(); // Ex: Bedroom-1
+            var filteredActivities = statuslist?.Where(a => a.ActivityName.Contains(roomName)).ToList();
+            foreach (var fact in filteredActivities)
+            {
+                var activity = activities?.Where(a => a.Id == fact.Id).FirstOrDefault();
+                DataRow row = table.NewRow();
+                row["Project Name"] = project?.Name;
+                row["Tower Name"] = tower?.Name;
+                row["Floor Name"] = floor?.Name;
+                row["Flat Name"] = flat?.Name;
+                row["Room Name"] = roomName;
+                row["Activity Name"] = fact?.ActivityName;
+                row["Activity Status"] = fact?.ActivityStatus;
+                row["ProgressPercentage"] = fact?.ProgressPercentage;
+                row["Duration"] = fact?.Duration;
+                row["StartDate"] = activity?.StartDate;
+                row["EndDate"] = activity?.EndDate;
+                row["ActualStartDate"] = activity?.ActualStartDate;
+                row["ActualEndDate"] = activity?.ActualEndDate;
+                if (flag)
                 {
-                    var activity = activities?.Where(a => a.Id == fact.Id).FirstOrDefault();
-                    DataRow row = table.NewRow();
-                    row["Project Name"] = project?.Name;
-                    row["Tower Name"] = tower?.Name;
-                    row["Floor Name"] = floor?.Name;
-                    row["Flat Name"] = flat?.Name;
-                    row["Room Name"] = roomName;
-                    row["Activity Name"] = fact?.ActivityName;
-                    row["Activity Status"] = fact?.ActivityStatus;
-                    row["ProgressPercentage"] = fact?.ProgressPercentage;
-                    row["Duration"] = fact?.Duration;
-                    row["StartDate"] = activity?.StartDate;
-                    row["EndDate"] = activity?.EndDate;
-                    row["ActualStartDate"] = activity?.ActualStartDate;
-                    row["ActualEndDate"] = activity?.ActualEndDate;
-                    if (flag)
-                    {
-                        var comments = dbContext.Set<Comment>().Where(a => a.Id == fact.Id).FirstOrDefault();
+                    var comments = dbContext.Set<Comment>().Where(a => a.Id == fact.Id).FirstOrDefault();
 
-                        row["Comment"] = comments?.Remarks;
-                        row["CommentDate"] = comments?.Date;
-                    }
-                    table.Rows.Add(row);
+                    row["Comment"] = comments?.Remarks;
+                    row["CommentDate"] = comments?.Date;
                 }
-               
+                table.Rows.Add(row);
             }
+
+            //}
         }
 
         return table;
@@ -422,27 +434,33 @@ public class RajDataHandler : LabDataHandler
     public dynamic GetWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
     {
         try
-        {            
+        {
             var activities = dbContext.Set<Activity>()
                      .Where(l => l.Type == "Sub Task" && l.ProjectId == projectId
-                     && l.TowerId == towerId && l.FloorId == floorId
-                     && (l.IsSubSubType == null || l.IsSubSubType == false)).ToList();
+                     && l.TowerId == towerId && l.FloorId == floorId).ToList();
             if (flatId > 0)
             {
                 activities = activities.Where(l => l.FlatId == flatId).ToList();
             }
 
-            var finallist = CalculateWorkStatus(activities);
+            if (activities.Count > 0)
+            {
+                var finallist = CalculateWorkStatus(activities);
 
-            List<string> dpendencies = GetDependency(activities[0].DependencyId);
+                List<string> dpendencies = GetDependency(activities[0].WorkflowId);
 
-            var table = ConvertDependencytoTable(dpendencies);
+                var table = ConvertDependencytoTable(dpendencies);
 
-            var finaltable = GetRoomNames(flatId, table, finallist);
+                var finaltable = GetRoomNames(flatId, table, finallist);
 
-            var tableJson = DataTableToJSON(finaltable);
+                var tableJson = DataTableToJSON(finaltable);
 
-            return tableJson;
+                return tableJson;
+            }
+            else
+            {
+                return null;
+            }
         }
         catch (Exception ex)
         {
@@ -550,27 +568,27 @@ public class RajDataHandler : LabDataHandler
     }
     private DataTable GetRoomNames(long flatId, DataTable table, List<WorkerStatusReport> activities)
     {
-        var resources = dbContext.Set<Resource>().Where(a => a.PlanId == flatId).ToList();
+        var roomDetails = dbContext.Set<RoomDetails>().Where(a => a.PlanId == flatId).ToList();
 
-        foreach (var item in resources)
+        foreach (var item in roomDetails)
         {
-            var room = dbContext.Set<Room>().Where(a => a.Id == item.RoomId).FirstOrDefault(); // Ex- Bedroom
-            for (int index = 1; index <= item.Quantity; index++)
+            //var room = dbContext.Set<RoomType>().Where(a => a.Id == item.RoomTypeId).FirstOrDefault(); // Ex- Bedroom
+            //for (int index = 1; index <= item.Quantity; index++)
+            //{
+            DataRow row = table.NewRow();
+            var roomName = item?.Name; //+ "-" + index.ToString(); // Ex: Bedroom-1
+            row["RoomName"] = roomName;
+
+            for (int j = 1; j < table.Columns.Count; j += 3)
             {
-                DataRow row = table.NewRow();
-                var roomName = room?.Name + "-" + index.ToString(); // Ex: Bedroom-1
-                row["RoomName"] = roomName;
-
-                for (int j = 1; j < table.Columns.Count; j += 3)
-                {
-                    var filteredActivities = activities.Where(a => a.ActivityName.Contains(roomName) && a.ActivityName.Contains(table.Columns[j].ColumnName)).FirstOrDefault();
-                    row[table.Columns[j].ColumnName] = filteredActivities?.ActivityStatus;
-                    row[table.Columns[j + 1].ColumnName] = filteredActivities?.ProgressPercentage;
-                    row[table.Columns[j + 2].ColumnName] = filteredActivities?.Duration;
-                }
-
-                table.Rows.Add(row);
+                var filteredActivities = activities.Where(a => a.ActivityName.Contains(roomName) && a.ActivityName.Contains(table.Columns[j].ColumnName)).FirstOrDefault();
+                row[table.Columns[j].ColumnName] = filteredActivities?.ActivityStatus;
+                row[table.Columns[j + 1].ColumnName] = filteredActivities?.ProgressPercentage;
+                row[table.Columns[j + 2].ColumnName] = filteredActivities?.Duration;
             }
+
+            table.Rows.Add(row);
+            //}
         }
 
         return table;
@@ -621,39 +639,53 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public dynamic GetResourceDetails(long planId)
-    {
-        var rooms = dbContext.Set<Room>()
-                 .ToList();
-        var res = dbContext.Set<Resource>()
-            .Where(l => l.PlanId == planId)
-            .ToList();
-
-        var final = res.Join(rooms,
-                r => r.RoomId,
-                rm => rm.Id,
-                (r, rm) => new
-                {
-                    r.Quantity,
-                    rm.Name
-                });
-
-        return final;
-    }
-
     public dynamic GetAllAssignedUsers(string module, long id)
     {
-        var result = dbContext.Set<MemberOwner>()
-            .Where(p => p.EntityId == id && p.Name.Equals(module))
-            .Select(a => new { a.EntityId, a.Member });
+        var result = dbContext.Set<ApplicationLog>()
+                    .Select(p => new
+                    {
+                        p.Member,
+                        p.EntityId,
+                        data = dbContext.Set<ApplicationLog>()
+                            .Where(apl => apl.EntityId == id && apl.Name.Equals(module) &&
+                            apl.EntityId == p.EntityId && apl.Name == p.Name && apl.Member == p.Member)
+                            .OrderByDescending(apl => apl.Date)
+                            .Select(apl => new { apl.ActivityType, apl.Member, apl.Date })
+                            .FirstOrDefault()
+                    })
+                    .Where(x => x.data != null && x.data.ActivityType != StatusType.UnAssigned)
+                    .Select(a => new { a.EntityId, a.Member })
+                    .Distinct();
 
         return result;
     }
+
+    public dynamic GetAllAssignedModules(string module, string member)
+    {
+        var result = dbContext.Set<ApplicationLog>()
+                    .Where(x => x.Member.Equals(member) && x.Name.Equals(module))
+                    .Select(a => new { a.EntityId })
+                    .Distinct();
+
+        return result;
+    }
+
+    public dynamic GetAllNotification(string member)
+    {
+        DateTime currentDateTime = DateTime.Now;
+        DateOnly dateOnly = DateOnly.FromDateTime(currentDateTime);
+        var result = dbContext.Set<ActivityResource>()
+                    .Where(x => x.Member.Equals(member) && x.NotificationStartDate <= dateOnly)
+                    .Distinct();
+
+        return result;
+    }
+
     private List<long> GetAllAssignedActivities(string member)
     {
-        var query = "select distinct act.Id from [Activities] act" + 
+        var query = "select distinct act.Id from [Activities] act" +
              " cross apply(" +
-                 " select top 1 ActivityType,Member,Date from[dbo].[MemberOwner] apl" +
+                 " select top 1 ActivityType,Member,Date from[dbo].[ApplicationLogs] apl" +
                  " where apl.EntityId = act.id and Name='Activity' and apl.Member = '" + member + "' order by Date desc" +
             ") x" +
             " WHERE x.ActivityType != -3 ";
@@ -680,10 +712,10 @@ public class RajDataHandler : LabDataHandler
     }
 
     public List<IdNamePair> GetAllAssignedProjects(string member)
-    { 
+    {
         var query = "select distinct pr.Id,pr.Name from Plans as p inner join dbo.Projects pr on pr.Id = p.ProjectId" +
             " cross apply(" +
-                " select top 1 ActivityType,Member,Date from[dbo].[MemberOwner] apl" +
+                " select top 1 ActivityType,Member,Date from[dbo].[ApplicationLogs] apl" +
                 " where apl.EntityId = p.id and apl.Member = '" + member + "' order by Date desc" +
             ") x" +
            " WHERE x.ActivityType != -3 ";
@@ -708,14 +740,14 @@ public class RajDataHandler : LabDataHandler
             }
         }
     }
+
     public override async Task<long> AddAsync<T>(T item, CancellationToken cancellationToken)
     {
         item.Status = StatusType.Draft;
         item.Date = DateTime.UtcNow;
         item.Member = Identity.Member;
         item.Key = Identity.Key;
-        var module = typeof(T);
-        
+
         if (typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
         {
             var assignableItem = (IAssignable)item;
@@ -727,9 +759,24 @@ public class RajDataHandler : LabDataHandler
         try
         {
             var id = await base.AddAsync(item, cancellationToken);
-            await AssignUnassignOwner(item, module.Name, cancellationToken);
             await LogLabModelLog(item, StatusType.Draft, cancellationToken);
+            await SaveAuditLogs(item, StatusType.Draft, null, null, cancellationToken);
+            return id;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in AddAsync method and details: '{ex.Message}'");
+            throw;
+        }
+    }
 
+    public override async Task<long> BulkAddAsync<T>(IEnumerable<T> items, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var id = await base.BulkAddAsync(items, cancellationToken);
+            await LogBulkLabModelLog(items, StatusType.Draft, cancellationToken);
+            await SaveBulkAuditLogs(items, StatusType.Draft, null, null, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -760,7 +807,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.Modified, cancellationToken);
-
+            await SaveAuditLogs(item, StatusType.Modified, null, null, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -814,7 +861,7 @@ public class RajDataHandler : LabDataHandler
             var id = await base.EditAsync(item, cancellationToken);
 
             await LogLabModelLog(item, StatusType.ModuleDeleted, cancellationToken);
-
+            await SaveAuditLogs(item, (StatusType)item.Status, null, null, cancellationToken);
             return id;
         }
         catch (Exception ex)
@@ -824,20 +871,26 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    public async Task<long> EditPartialAsync<T>(T item, string module, CancellationToken cancellationToken)
+    public async Task<long> EditPartialAsync<T>(T item, string module, string? remarks, string? modifiedBy, CancellationToken cancellationToken)
         where T : LabModel
     {
         item.Member = item.Member != null ? item.Member : Identity.Member; // Allowing Member to be updated
         item.Date = DateTime.UtcNow;
         //item.Key = Identity.Key; Not changing key anymore
-
         try
         {
             await LogLabModelLog(item, (StatusType)item.Status, cancellationToken);
+            await SaveAuditLogs(item, (StatusType)item.Status, remarks, modifiedBy, cancellationToken);
 
+            if (item.Status.Equals(StatusType.UnAssigned))
+            {
+                var data = dbContext.Set<ApplicationLog>().Where(l => l.EntityId == item.Id && l.Name.Equals(module)
+                && l.ActivityType.Equals(StatusType.Draft)).FirstOrDefault();
+
+                item.Status = StatusType.Draft;
+                item.Member = data?.Member;
+            }
             var id = await base.EditAsync(item, cancellationToken);
-
-            await AssignUnassignOwner(item, module, cancellationToken);
 
             return id;
         }
@@ -848,39 +901,10 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    private async Task AssignUnassignOwner<T>(T item, string module,  CancellationToken cancellationToken) where T : LabModel
-    {
-        var existingOwner = await dbContext.Set<MemberOwner>()
-                                .FirstOrDefaultAsync(p => p.EntityId == item.Id && p.Name == module && p.Member == item.Member);
-
-        if (existingOwner == null)
-        {
-            var sharedMember = new MemberOwner()
-            {
-                EntityId = item.Id,
-                Name = module,
-                Member = item.Member,
-                Date = DateTime.UtcNow,
-                Key = item.Key
-            };
-
-            dbContext.Set<MemberOwner>().Add(sharedMember);
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-
-        if((StatusType)item.Status == StatusType.UnAssigned && existingOwner != null)
-        {
-            dbContext.Set<MemberOwner>().Remove(existingOwner);
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-    }
-
-    private async Task<long> LogLabModelLog<T>(T item, StatusType activityType, CancellationToken cancellationToken)
+    public async Task<long> LogLabModelLog<T>(T item, StatusType activityType, CancellationToken cancellationToken)
     where T : LabModel
     {
         var module = typeof(T);
-
-
 
         var jitem = JsonConvert.SerializeObject(item,
         Newtonsoft.Json.Formatting.None,
@@ -897,9 +921,8 @@ public class RajDataHandler : LabDataHandler
             ActivityType = activityType,
             Member = item.Member,
             Key = item.Key,
-            ContentHistory = jitem
+            //ContentHistory = jitem
         };
-
         try
         {
             dbContext.Set<ApplicationLog>().Add(log);
@@ -910,6 +933,446 @@ public class RajDataHandler : LabDataHandler
             logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
             throw;
         }
+    }
+
+    private async Task LogBulkLabModelLog<T>(IEnumerable<T> items, StatusType activityType, CancellationToken cancellationToken)
+    where T : LabModel
+    {
+        try
+        {
+            var module = typeof(T);
+            List<ApplicationLog> listlog = new();
+            foreach (var item in items)
+            {
+                var jitem = JsonConvert.SerializeObject(item, Formatting.None,
+            new JsonSerializerSettings()
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+
+                var log = new ApplicationLog()
+                {
+                    Date = DateTime.UtcNow,
+                    EntityId = item.Id,
+                    Name = module.Name,
+                    ActivityType = activityType,
+                    Member = item.Member,
+                    Key = item.Key,
+                    //ContentHistory = jitem
+                };
+                listlog.Add(log);
+            }
+
+            await base.BulkAddAsync(listlog, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in DeleteAsync method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    private async Task<long> SaveAuditLogs<T>(T item, StatusType activityType, string? remarks, string? modifiedBy, CancellationToken cancellationToken)
+    where T : LabModel
+    {
+        try
+        {
+            var moduleName = typeof(T).Name;
+            if (item.OldValues != null)
+            {
+                item.OldValues = JsonNodeRemover.RemoveNode(item.OldValues, "blueprint");
+            }
+
+            var jsonNew = JObject.FromObject(item, new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            var jsonNewValues = jsonNew.ToString(Formatting.None);
+            jsonNewValues = JsonNodeRemover.RemoveNode(jsonNewValues, "blueprint");
+            jsonNewValues = JsonNodeRemover.RemoveNode(jsonNewValues, "OldValues");
+            var now = DateTime.UtcNow;
+
+            var log = new AuditLog
+            {
+                Date = now,
+                EntityId = item.Id,
+                Name = moduleName,
+                Member = item.Member,
+                Key = item.Key,
+                Remarks = remarks,
+                NewValues = jsonNewValues,
+                ModifiedDate = now,
+                ModifiedBy = modifiedBy
+            };
+
+            // Set ActionType and OldValues based on activityType
+            switch (activityType)
+            {
+                case StatusType.Draft:
+                    log.ActionType = "Insert";
+                    log.OldValues = null;
+                    break;
+                case StatusType.Modified:
+                case StatusType.QCAssigned:
+                case StatusType.Assigned:
+                case StatusType.Approved:
+                case StatusType.Hold:
+                case StatusType.Rejected:
+                case StatusType.HODAssigned:
+                    log.ActionType = activityType.ToString();
+                    log.OldValues = item.OldValues;
+                    break;
+                default:
+                    log.ActionType = activityType.ToString();
+                    log.OldValues = item.OldValues;
+                    break;
+            }
+
+
+            dbContext.Set<AuditLog>().Add(log);
+            return await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to log audit trail for {EntityId}: {Message}", item.Id, ex.Message);
+            throw;
+        }
+    }
+
+    private async Task SaveBulkAuditLogs<T>(IEnumerable<T> items, StatusType activityType, string? remarks, string? modifiedBy, CancellationToken cancellationToken)
+    where T : LabModel
+    {
+        try
+        {
+            var moduleName = typeof(T).Name;
+            var now = DateTime.UtcNow;
+            List<AuditLog> listLog = new();
+            foreach (var item in items)
+            {
+                if (item.OldValues != null)
+                {
+                    item.OldValues = JsonNodeRemover.RemoveNode(item.OldValues, "blueprint");
+                }
+
+                var jsonNew = JObject.FromObject(item, new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                var jsonNewValues = jsonNew.ToString(Formatting.None);
+                jsonNewValues = JsonNodeRemover.RemoveNode(jsonNewValues, "blueprint");
+                jsonNewValues = JsonNodeRemover.RemoveNode(jsonNewValues, "OldValues");
+
+                var log = new AuditLog
+                {
+                    Date = now,
+                    EntityId = item.Id,
+                    Name = moduleName,
+                    Member = item.Member,
+                    Key = item.Key,
+                    Remarks = remarks,
+                    NewValues = jsonNewValues,
+                    ModifiedDate = now,
+                    ModifiedBy = modifiedBy
+                };
+
+                // Set ActionType and OldValues based on activityType
+                switch (activityType)
+                {
+                    case StatusType.Draft:
+                        log.ActionType = "Insert";
+                        log.OldValues = null;
+                        break;
+                    case StatusType.Modified:
+                    case StatusType.QCAssigned:
+                    case StatusType.Assigned:
+                    case StatusType.Approved:
+                    case StatusType.Hold:
+                    case StatusType.Rejected:
+                    case StatusType.HODAssigned:
+                        log.ActionType = activityType.ToString();
+                        log.OldValues = item.OldValues;
+                        break;
+                    default:
+                        log.ActionType = activityType.ToString();
+                        log.OldValues = item.OldValues;
+                        break;
+                }
+                listLog.Add(log);
+            }
+
+            await base.BulkAddAsync(listLog, cancellationToken);
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to log audit trail for {Message}", ex.Message);
+            throw;
+        }
+    }
+
+
+    public string? GetFinancialYear(object code)
+    {
+        DateTime filterDate = DateTime.Now;
+        var data = dbContext.Set<FinancialYear>().Where(e => filterDate >= e.StartDate && filterDate <= e.EndDate).FirstOrDefault();
+        return data?.FinYear;
+    }
+
+    public dynamic? GetDocumentNo(long projectId)
+    {
+        var data = dbContext.Set<ProjectDocNoTracking>().Where(e => e.ProjectId == projectId).FirstOrDefault();
+        return data;
+    }
+
+    public dynamic GetCopyData(long id, string type)
+    {
+        dynamic entities;
+        if (type.Equals("tower", StringComparison.CurrentCultureIgnoreCase))
+        {
+            entities = GetTowerData(id);
+        }
+        else
+        {
+            entities = GetFlatData(id);
+        }
+        return entities;
+    }
+    internal dynamic GetTowerData(long id)
+    {
+        var query = "SELECT p.Id,p.Name,p.Description,p.Blueprint,p.ProjectId,ISNULL(pl.FlCount, 0) AS FloorCount," +
+                       " pc.ParkingTypeId,ISNULL(pc.PKCount, 0) AS ParkingCount " +
+                       "FROM Plans p " +
+                       "LEFT JOIN(SELECT TowerId, ParkingTypeId, COUNT(ParkingTypeId) AS PKCount " +
+                           "FROM Parkings WHERE TowerId = " + id + " GROUP BY TowerId, ParkingTypeId " +
+                       " ) pc ON p.Id = pc.TowerId " +
+                       "LEFT JOIN(SELECT ParentId, count(ParentId) as FlCount " +
+                         "FROM Plans where ParentId = " + id + " and Type = 'floor' group by ParentId " +
+                       ") pl ON p.Id = pl.ParentId " +
+                       "WHERE p.Type = 'tower' AND p.Id = " + id;
+
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var entities = new Plan();
+                var parkingList = new List<ParkingRawData>();
+                while (result.Read())
+                {
+                    parkingList.Add(new ParkingRawData()
+                    {
+                        parkingTypeId = result.GetInt64("ParkingTypeId"),
+                        noOfParking = result.GetInt32("ParkingCount")
+                    });
+
+                    entities.Id = result.GetInt64("Id");
+                    entities.Name = result.GetString("Name");
+                    entities.Description = result.GetString("Description");
+                    entities.Blueprint = result.GetString("Blueprint");
+                    entities.ProjectId = result.GetInt64("ProjectId");
+                    entities.NoOfFloors = result.GetInt32("FloorCount");
+                    entities.Type = "tower";
+                }
+                entities.Parkings = JsonConvert.SerializeObject(parkingList);
+                return entities;
+            }
+        }
+    }
+    internal dynamic GetFlatData(long id)
+    {
+        var query = "SELECT pl.FlatTemplateId,ISNULL(pl.TCount, 0) AS FlatCount " +
+                    "  FROM[Plans] p " +
+                     " LEFT JOIN( SELECT FlatTemplateId, ParentId, COUNT(FlatTemplateId) as TCount " +
+                     " FROM[Plans] where ParentId = " + id + " and Type = 'flat'  group by FlatTemplateId, ParentId " +
+                   " ) pl ON  p.Id = pl.ParentId " +
+                   " where p.TYPE = 'floor' and p.id =" + id;
+
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var list = new List<FlatTemplateRawData>();
+                while (result.Read())
+                {
+                    list.Add(new FlatTemplateRawData()
+                    {
+                        flatTemplateId = result.GetInt64("FlatTemplateId"),
+                        noOfFlats = result.GetInt32("FlatCount")
+                    });
+
+                }
+                // Wrap in FlatData
+                FlatData flatData = new()
+                {
+                    flatTemplates = list
+                };
+                return JsonConvert.SerializeObject(flatData);
+            }
+        }
+    }
+
+    public dynamic GetNullData(string model)
+    {
+        if (model != null && model == "activityAmendment")
+        {
+            var data = dbContext.Set<ActivityAmendment>().Where(e => e.ParentId == null).ToList();
+            return data;
+        }
+        else if (model != null && model == "activity")
+        {
+            var data = dbContext.Set<Activity>().Where(e => e.ActualStartDate == null).ToList();
+            return data;
+        }
+        else
+            return 0;
+    }
+    public dynamic GetGetHierarchyTree(long id)
+    {
+        try
+        {
+            var tree = new HierarchyTree();
+
+            // Load the company in a single query
+            var company = dbContext.Set<Company>().Where(e => e.Id == id)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Name
+                }).FirstOrDefault();
+
+            if (company == null)
+                return tree;
+
+            tree.CompanyName = company.Name;
+            tree.CompanyId = company.Id;
+
+            // Load all projects of the company
+            var projects = dbContext.Set<Project>().Where(p => p.CompanyId == company.Id)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name
+                }).ToList();
+
+            // Load all plans of these projects in one go
+            var projectIds = projects.Select(p => p.Id).ToList();
+            var planQuery = dbContext.Set<Plan>()
+                            .Select(plan => new
+                            {
+                                plan.Id,
+                                plan.Name,
+                                plan.Type,
+                                plan.ProjectId,
+                                plan.ParentId
+                            });
+
+            var allPlans = planQuery
+                .AsEnumerable() // switch to LINQ-to-Objects
+                .Where(plan => projectIds.Contains((long)plan.ProjectId))
+                .ToList();
+
+
+            var projectHier = new List<ProjectHierarchy>();
+            foreach (var project in projects)
+            {
+                // Towers for this project
+                var towers = allPlans
+                    .Where(p => p.ProjectId == project.Id && p.Type == "tower")
+                    .ToList();
+
+                var towerHier = new List<TowerHierarchy>();
+                foreach (var tower in towers)
+                {
+                    // Floors under this tower
+                    var floors = allPlans
+                        .Where(p => p.ProjectId == project.Id && p.Type == "floor" && p.ParentId == tower.Id)
+                        .ToList();
+
+                    var floorHier = new List<FloorHierarchy>();
+                    foreach (var floor in floors)
+                    {
+                        // Flats under this floor
+                        var flats = allPlans
+                            .Where(p => p.ProjectId == project.Id && p.Type == "flat" && p.ParentId == floor.Id)
+                            .ToList();
+
+                        var flatHier = flats
+                            .Select(flat => new FlatHierarchy
+                            {
+                                FlatId = flat.Id,
+                                FlatName = flat.Name
+                            })
+                            .ToList();
+
+                        var fodata = new FloorHierarchy
+                        {
+                            FloorId = floor.Id,
+                            FloorName = floor.Name,
+                            Flats = flatHier
+                        };
+                        floorHier.Add(fodata);
+                    }
+
+                    var tdata = new TowerHierarchy
+                    {
+                        TowerId = tower.Id,
+                        TowerName = tower.Name,
+                        Floors = floorHier
+                    };
+                    towerHier.Add(tdata);
+                }
+
+                var pdata = new ProjectHierarchy
+                {
+                    ProjectId = project.Id,
+                    ProjectName = project.Name,
+                    Towers = towerHier
+                };
+                projectHier.Add(pdata);
+            }
+
+            tree.Projects = projectHier;
+            return tree;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetGetHierarchyTree method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    public dynamic GetActivtyDetailsForUser(string member, long projectId, long? towerId, long? floorId, long? flatId)
+    {
+        var logs = dbContext.Set<ApplicationLog>()
+                    .Where(l => l.Member == member && l.Name == "Activity").Select(a=>a.EntityId).Distinct();
+
+        var activityQuery = dbContext.Set<Activity>()
+                            .Where(a => a.ProjectId == projectId);
+
+        if (towerId != null)
+        {
+            activityQuery = activityQuery.Where(a => a.TowerId == towerId);
+        }
+        if (floorId != null)
+        {
+            activityQuery = activityQuery.Where(a => a.FloorId == floorId);
+        }
+        if (flatId != null)
+        {
+            activityQuery = activityQuery.Where(a => a.FlatId == flatId);
+        }
+
+        var query =
+            from a in activityQuery
+            join l in logs on a.Id equals l
+            select a;
+
+        var result = query.ToList();
+        return result;
     }
 }
 

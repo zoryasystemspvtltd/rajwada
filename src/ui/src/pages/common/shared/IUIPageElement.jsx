@@ -21,10 +21,15 @@ import IUIDocUpload from './IUIDocUpload';
 import IUIRadio from './IUIRadio';
 import IUITableInput from './IUITableInput';
 import IUIListMapping from '../IUIListMapping';
-import { formatStringDate } from '../../../store/datetime-formatter';
+import { formatStringDate, getFormattedDateTime } from '../../../store/datetime-formatter';
 import IUIImageGallery from './IUIImageGallery';
 import { FaImage } from 'react-icons/fa';
 import IUIPdfTool from '../../pdf-helper/IUIPdfTool';
+import IUILookUpMultiColumn from './IUILookUpMultiColumn';
+import IUIJsonTable from './IUIJsonTable';
+import IUILookUpNullFilter from './IUILookUpNullFilter';
+import IUILookUpRelationRooms from './IUILookUpRelationRooms';
+import IUILookUpAsync from './IUILookUpAsync';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -62,6 +67,10 @@ const IUIPageElement = (props) => {
             return
 
         let newData = { ...data, [e.target.id]: e.target.value }
+        // Setting flat template id based on room
+        if (e?.parentValue && Object.keys(e.parentValue).includes("flatTemplateId")) {
+            newData = { ...newData, flatTemplateId: e.parentValue.flatTemplateId }
+        }
         if (e.target?.dataset?.name) {
             newData = { ...newData, [e.target?.dataset?.name]: e.target[e.target.selectedIndex].text };
         }
@@ -83,7 +92,7 @@ const IUIPageElement = (props) => {
             }
             newData = { ...newData, privileges: newPrivileges }
         }
-        else if (e.target.id === 'disable') {
+        else if ((e.target.id === 'disable') || (e.target.id?.startsWith('is'))) {
             newData = { ...data, [e.target.id]: e.target.checked }
         }
         setData(newData);
@@ -92,6 +101,7 @@ const IUIPageElement = (props) => {
             props.onChange(event);
         }
     };
+
 
     const handleImageGalleryOpen = () => {
         setShowImageGalleryModal(true);
@@ -173,11 +183,27 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                     </>
                                 }
+                                {fld.type === 'label-check' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
+                                            <span id={fld.field}> {(data[fld.field] === true) ? "Yes" : "No"} </span>
+                                        </Form.Group>
+                                    </>
+                                }
                                 {fld.type === 'label-date' &&
                                     <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
                                             <span id={fld.field}> {data[fld.field] ? formatStringDate(data[fld.field]) : ""} </span>
+                                        </Form.Group>
+                                    </>
+                                }
+                                {fld.type === 'label-date-time' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
+                                            <span id={fld.field}> {data[fld.field] ? getFormattedDateTime(data[fld.field]) : ""} </span>
                                         </Form.Group>
                                     </>
                                 }
@@ -214,6 +240,27 @@ const IUIPageElement = (props) => {
                                         </Form.Group>
                                     </>
                                 }
+                                {(fld.type?.startsWith('compute')) && (
+                                    <Form.Group className="position-relative form-group">
+                                        <Form.Label htmlFor={fld.field}>
+                                            {fld.text}
+                                            {fld.required && <span className="text-danger">*</span>}
+                                        </Form.Label>
+
+                                        <Form.Control
+                                            type={fld.inputType}
+                                            name={fld.field}
+                                            id={fld.field}
+                                            value={data[fld.field] || ''}
+                                            readOnly
+                                            disabled={props.readonly || fld.readonly}
+                                            className="bg-light"
+                                        />
+
+                                        <p className="text-danger">{errors[fld.field]}</p>
+                                    </Form.Group>
+                                )}
+
                                 {(fld.type === 'textarea') &&
                                     <>
                                         <Form.Group className="position-relative form-group">
@@ -331,7 +378,7 @@ const IUIPageElement = (props) => {
                                                 }
                                             </Form.Label>
                                             <InputGroup>
-                                                <Form.Check className='text-capitalize'
+                                                <Form.Check className='text-capitalize ml-2'
                                                     type="switch"
                                                     style={{ transform: 'scale(1.2)' }}
                                                     id={fld.field}
@@ -442,6 +489,78 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'lookup-filter' &&
                                     <>
+                                        {
+                                            (fld?.parent) ? (
+                                                (data[fld.parent]) ? (<>
+                                                    <Form.Group className="position-relative form-group">
+                                                        <Form.Label htmlFor={fld.field} >{fld.text}
+                                                            {fld.required &&
+                                                                <span className="text-danger">*</span>
+                                                            }
+                                                        </Form.Label>
+
+                                                        <IUILookUpFilter
+                                                            filter={fld.filter}
+                                                            value={data[fld.field]}
+                                                            className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                            id={fld.field}
+                                                            schema={fld.schema}
+                                                            onChange={handleChange}
+                                                            readonly={props.readonly || fld.readonly || false}
+                                                        />
+
+                                                    </Form.Group>
+                                                    <p className="text-danger">{errors[fld.field]}</p>
+                                                </>) : <></>
+                                            ) : <>
+                                                <Form.Group className="position-relative form-group">
+                                                    <Form.Label htmlFor={fld.field} >{fld.text}
+                                                        {fld.required &&
+                                                            <span className="text-danger">*</span>
+                                                        }
+                                                    </Form.Label>
+
+                                                    <IUILookUpFilter
+                                                        filter={fld.filter}
+                                                        value={data[fld.field]}
+                                                        className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                        id={fld.field}
+                                                        schema={fld.schema}
+                                                        onChange={handleChange}
+                                                        readonly={props.readonly || fld.readonly || false}
+                                                    />
+
+                                                </Form.Group>
+                                                <p className="text-danger">{errors[fld.field]}</p>
+                                            </>
+                                        }
+                                    </>
+                                }
+                                {fld.type === 'lookup-multi-column' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+                                            <IUILookUpMultiColumn
+                                                value={fld?.defaultValue || data[fld.field]}
+                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                id={fld.field}
+                                                clearFields={fld?.reset || false}
+                                                nameField={fld.nameField}
+                                                schema={fld.schema}
+                                                onChange={handleChange}
+                                                readonly={props.readonly || fld.readonly || defaultFields?.includes(fld.field) || false}
+                                            />
+
+                                        </Form.Group>
+                                        <p className="text-danger">{errors[fld.field]}</p>
+                                    </>
+                                }
+                                {fld.type === 'lookup-filter-null' &&
+                                    <>
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field} >{fld.text}
                                                 {fld.required &&
@@ -449,7 +568,7 @@ const IUIPageElement = (props) => {
                                                 }
                                             </Form.Label>
 
-                                            <IUILookUpFilter
+                                            <IUILookUpNullFilter
                                                 filter={fld.filter}
                                                 value={data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
@@ -498,6 +617,7 @@ const IUIPageElement = (props) => {
                                                 onChange={handleChange}
                                                 readonly={props.readonly || fld.readonly || false}
                                                 shape={fld.shape || "circle"}
+                                                module={fld.module}
                                             />
                                         </Form.Group>
                                         <br />
@@ -505,7 +625,12 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'module-relation' &&
                                     <>
-                                        <Form.Group className="position-relative mt-2">
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.schema.title} >{fld.schema.title} :
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
                                             <IUIListRelation schema={fld.schema} parentId={data.id} />
                                         </Form.Group>
                                         <br />
@@ -515,6 +640,16 @@ const IUIPageElement = (props) => {
                                     <>
                                         <Form.Group className="position-relative mt-2">
                                             <IUIListMapping schema={fld.schema} parentId={data.id} />
+                                        </Form.Group>
+                                        <br />
+                                    </>
+                                }
+                                {fld.type === 'key-val-table' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
+
+                                            <IUIJsonTable schema={fld.schema} value={data[fld.field]} />
                                         </Form.Group>
                                         <br />
                                     </>
@@ -558,18 +693,39 @@ const IUIPageElement = (props) => {
                                         <br />
                                     </>
                                 }
+                                {fld.type === 'lookup-async' &&
+                                    <>
+                                        <>
+                                            <Form.Group className="position-relative form-group">
+                                                <Form.Label htmlFor={fld.field} >{fld.text}
+                                                    {fld.required &&
+                                                        <span className="text-danger">*</span>
+                                                    }
+                                                </Form.Label>
+
+                                                <IUILookUpAsync value={data[fld.field] || []}
+                                                    id={fld.field}
+                                                    text={fld.text}
+                                                    onChange={handleChange}
+                                                    readonly={props.readonly || fld.readonly || false}
+                                                />
+                                            </Form.Group>
+                                            <p className="text-danger">{errors[fld.field]}</p>
+                                        </>
+                                    </>
+                                }
                                 {fld.type === 'lookup-relation' &&
                                     <>
                                         {
-                                            (data[fld.parent]) ? (
+                                            data[fld.parent] &&
+                                            (
+                                                !fld?.enableIf ||
+                                                data[fld.enableIf.field] === fld.enableIf.value
+                                            ) && (
                                                 <Form.Group className="position-relative form-group">
-                                                    <Form.Label htmlFor={fld.field} >{fld.text}
-                                                        {fld.required &&
-                                                            <span className="text-danger">*</span>
-                                                        }
-                                                        {(fld?.exclusionCondition && data[fld?.exclusionCondition?.field] === fld?.exclusionCondition?.value) &&
-                                                            <span className="text-danger">*</span>
-                                                        }
+                                                    <Form.Label htmlFor={fld.field}>
+                                                        {fld.text}
+                                                        {fld.required && <span className="text-danger">*</span>}
                                                     </Form.Label>
 
                                                     <IUILookUpRelation
@@ -578,6 +734,35 @@ const IUIPageElement = (props) => {
                                                         value={data[fld.field]}
                                                         className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                         parentId={parseInt(data[fld.parent])}
+                                                        onChange={handleChange}
+                                                        readonly={props.readonly || fld.readonly || false}
+                                                    />
+                                                </Form.Group>
+                                            )
+                                        }
+                                        <br />
+                                    </>
+                                }
+                                {fld.type === 'lookup-relation-rooms' &&
+                                    <>
+                                        {
+                                            (data[fld.parent]) ? (
+                                                <Form.Group className="position-relative form-group">
+                                                    <Form.Label htmlFor={fld.field} >{fld.text}
+                                                        {fld.required &&
+                                                            <span className="text-danger">*</span>
+                                                        }
+                                                        {/* {(fld?.exclusionCondition && data[fld?.exclusionCondition?.field] === fld?.exclusionCondition?.value) &&
+                                                            <span className="text-danger">*</span>
+                                                        } */}
+                                                    </Form.Label>
+
+                                                    <IUILookUpRelationRooms
+                                                        schema={fld.schema}
+                                                        id={fld.field}
+                                                        value={data[fld.field]}
+                                                        className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                        parentData={data}
                                                         onChange={handleChange}
                                                         readonly={props.readonly || fld.readonly || false}
                                                     />
@@ -607,8 +792,9 @@ const IUIPageElement = (props) => {
                                         </Form.Label>
 
                                         {
-                                            (data[fld.field]?.split(';')[0] !== "data:application/pdf") ?
+                                            (data[fld.field]?.split('.')[1] !== "pdf") ?
                                                 <ILab.MarkerCanvas
+                                                    imageModule={fld.imageModule}
                                                     id={fld.field}
                                                     value={data[fld.field] || []}
                                                     className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}

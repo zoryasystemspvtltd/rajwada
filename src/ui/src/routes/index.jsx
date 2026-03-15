@@ -14,7 +14,6 @@ import { AddItemGroup, EditItemGroup, ListItemGroup, ViewItemGroup } from "../pa
 import { AddItemMaster, EditItemMaster, ListItemMaster, ViewItemMaster } from "../pages/app/schema/ItemMasters";
 import { AddProject, EditProject, ListProject, ViewProject } from "../pages/app/schema/Projects";
 import { AddRole, EditRole, ListRole, ViewRole } from "../pages/app/schema/Roles";
-import { AddRoom, EditRoom, ListRoom, ViewRoom } from "../pages/app/schema/Rooms";
 import { AddTower, EditTower, ListTower, ViewTower } from "../pages/app/schema/Towers";
 import { AddUser, EditUser, ListUser, ResetPasswordUser, ViewUser } from "../pages/app/schema/Users";
 
@@ -33,16 +32,33 @@ import { AddWorkflow, EditWorkflow, ListWorkflow, ViewWorkflow } from "../pages/
 import { useAuth } from "../provider/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 
+import { ListAuditLog, ViewAuditLog } from "../pages/app/reports/AuditLog";
 import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
+import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
+import { AddFinancialYear, EditFinancialYear, ListFinancialYear, ViewFinancialYear } from "../pages/app/schema/FinancialYears";
+import { EditFlatTemplateMapping } from "../pages/app/schema/FlatTemplateMappings";
+import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate } from "../pages/app/schema/FlatTemplates";
 import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
 import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/Mouzas";
 import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from "../pages/app/schema/NameMasters";
+import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } from "../pages/app/schema/ParkingTypes";
+import { AddPostWorkPeriodicCheck, EditPostWorkPeriodicCheck, ListPostWorkPeriodicCheck, ViewPostWorkPeriodicCheck } from "../pages/app/schema/PostWorkPeriodicCheck";
 import { AddRoomMapping, EditRoomMapping } from "../pages/app/schema/RoomMappings";
+import { AddRoomType, EditRoomType, ListRoomType, ViewRoomType } from "../pages/app/schema/RoomTypes";
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
 import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
+import { AddTowerParking, EditTowerParking, ListTowerParking, ViewTowerParking } from "../pages/app/schema/TowerParkings";
+import { AddWorkCheckpoint, EditWorkCheckpoint, ListWorkCheckpoint, ViewWorkCheckpoint } from "../pages/app/schema/WorkCheckpoints";
+import ActivityListByStatus from "../pages/app/status-check/ActivityStatusList";
+import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from "../pages/common/ItemAvailabilityTrack";
+import WorkTransfer from "../pages/common/WorkTransfer";
+import ViewActivityStatus from "../pages/app/status-check/IndividualActivityStatus";
+import ReportDetailsPage from "../pages/app/status-check/ReportDetailsPage";
+import { AddOutsideEntityType, EditOutsideEntityType, ListOutsideEntityType, ViewOutsideEntityType } from "../pages/app/schema/OutsideEntityTypes";
+import { AddOutsideEntityMappings, EditOutsideEntityMappings, ListOutsideEntityMappings, ViewOutsideEntityMappings } from "../pages/app/schema/OutsideEntityMappings";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -222,6 +238,22 @@ const Routes = () => {
                     element: <AddProject />
                 },
                 {
+                    path: "/financialyears",
+                    element: <ListFinancialYear />
+                },
+                {
+                    path: "/financialyears/:id",
+                    element: <ViewFinancialYear />
+                },
+                {
+                    path: "/financialyears/:id/edit",
+                    element: <EditFinancialYear />
+                },
+                {
+                    path: "/financialyears/add",
+                    element: <AddFinancialYear />
+                },
+                {
                     path: "/towers",
                     element: <ListTower />
                 },
@@ -329,6 +361,22 @@ const Routes = () => {
                     path: "/approvals/:id",
                     element: <ViewActivityApproval />
                 },
+                {
+                    path: "/amendments",
+                    element: <ListAmendment />
+                },
+                {
+                    path: "/amendments/:id",
+                    element: <ViewAmendment />
+                },
+                {
+                    path: "/amendments/:id/edit",
+                    element: <EditAmendment />
+                },
+                {
+                    path: "/approvals/:id",
+                    element: <ViewActivityApproval />
+                },
                 // {
                 //     path: "/reporting/:id",
                 //     element: <ViewReport />
@@ -418,20 +466,20 @@ const Routes = () => {
                     element: <AddNameMaster />
                 },
                 {
-                    path: "/rooms",
-                    element: <ListRoom />
+                    path: "/roomtypes",
+                    element: <ListRoomType />
                 },
                 {
-                    path: "/rooms/:id",
-                    element: <ViewRoom />
+                    path: "/roomtypes/:id",
+                    element: <ViewRoomType />
                 },
                 {
-                    path: "/rooms/:id/edit",
-                    element: <EditRoom />
+                    path: "/roomtypes/:id/edit",
+                    element: <EditRoomType />
                 },
                 {
-                    path: "/rooms/add",
-                    element: <AddRoom />
+                    path: "/roomtypes/add",
+                    element: <AddRoomType />
                 },
                 {
                     path: "/contractors",
@@ -496,6 +544,154 @@ const Routes = () => {
                 {
                     path: "/flats/:flatId/roommappings/add",
                     element: <AddRoomMapping />
+                },
+                {
+                    path: "/parking-types",
+                    element: <ListParkingType />
+                },
+                {
+                    path: "/parking-types/:id",
+                    element: <ViewParkingType />
+                },
+                {
+                    path: "/parking-types/:id/edit",
+                    element: <EditParkingType />
+                },
+                {
+                    path: "/parking-types/add",
+                    element: <AddParkingType />
+                },
+                {
+                    path: "/flat-templates",
+                    element: <ListFlatTemplate />
+                },
+                {
+                    path: "/flat-templates/:id",
+                    element: <ViewFlatTemplate />
+                },
+                {
+                    path: "/flat-templates/:id/edit",
+                    element: <EditFlatTemplate />
+                },
+                {
+                    path: "/flat-templates/add",
+                    element: <AddFlatTemplate />
+                },
+                {
+                    path: "/flat-templates/:templateId/flat-template-mappings/:id/edit",
+                    element: <EditFlatTemplateMapping />
+                },
+                {
+                    path: "/audit-logs",
+                    element: <ListAuditLog id={null} childModule={null} />
+                },
+                {
+                    path: "/audit-logs/:id",
+                    element: <ViewAuditLog />
+                },
+                {
+                    path: "/work-checkpoints",
+                    element: <ListWorkCheckpoint />
+                },
+                {
+                    path: "/work-checkpoints/:id",
+                    element: <ViewWorkCheckpoint />
+                },
+                {
+                    path: "/work-checkpoints/:id/edit",
+                    element: <EditWorkCheckpoint />
+                },
+                {
+                    path: "/work-checkpoints/add",
+                    element: <AddWorkCheckpoint />
+                },
+                {
+                    path: "/post-work-periodic-checks",
+                    element: <ListPostWorkPeriodicCheck />
+                },
+                {
+                    path: "/post-work-periodic-checks/:id",
+                    element: <ViewPostWorkPeriodicCheck />
+                },
+                {
+                    path: "/post-work-periodic-checks/:id/edit",
+                    element: <EditPostWorkPeriodicCheck />
+                },
+                {
+                    path: "/post-work-periodic-checks/add",
+                    element: <AddPostWorkPeriodicCheck />
+                },
+                {
+                    path: "/worktransfers",
+                    element: <WorkTransfer />
+                },
+                {
+                    path: "/work-item-availabilities",
+                    element: <ListActivityForItemAvailability />
+                },
+                {
+                    path: "/work-item-availabilities/:id",
+                    element: <ViewActivityForItemAvailability />
+                },
+                {
+                    path: "/parkings",
+                    element: <ListTowerParking />
+                },
+                {
+                    path: "/parkings/:id",
+                    element: <ViewTowerParking />
+                },
+                {
+                    path: "/parkings/:id/edit",
+                    element: <EditTowerParking />
+                },
+                {
+                    path: "/parkings/add",
+                    element: <AddTowerParking />
+                },
+                {
+                    path: "/workstatus",
+                    element: <ActivityListByStatus />
+                },
+                {
+                    path: "/workstatus/:id",
+                    element: <ViewActivityStatus />
+                },
+                {
+                    path: "/reports/:date",
+                    element: <ReportDetailsPage />
+                },
+                {
+                    path: "/outside-entity-types",
+                    element: <ListOutsideEntityType />
+                },
+                {
+                    path: "/outside-entity-types/:id",
+                    element: <ViewOutsideEntityType />
+                },
+                {
+                    path: "/outside-entity-types/:id/edit",
+                    element: <EditOutsideEntityType />
+                },
+                {
+                    path: "/outside-entity-types/add",
+                    element: <AddOutsideEntityType />
+                },
+                {
+                    path: "/outside-entities",
+                    element: <ListOutsideEntityMappings />
+                },
+                {
+                    path: "/outside-entities/:id",
+                    element: <ViewOutsideEntityMappings />
+                },
+                {
+                    path: "/outside-entities/:id/edit",
+                    element: <EditOutsideEntityMappings />
+                },
+                {
+                    path: "/outside-entities/add",
+                    element: <AddOutsideEntityMappings />
                 }
             ],
         },

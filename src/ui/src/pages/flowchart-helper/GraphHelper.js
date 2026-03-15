@@ -39,3 +39,11 @@ exports.bfsTraversal = (nodes, edges, startNodeId) => {
 
     return bfsSequence;
 }
+
+exports.findSourceNodes = ({ nodes, edges }) => {
+    const targetNodeIds = new Set(edges.map(edge => edge.target));
+
+    const sourceNodes = nodes.filter(node => !targetNodeIds.has(node.id));
+
+    return sourceNodes; // returns an array of node objects with no incoming edges
+}

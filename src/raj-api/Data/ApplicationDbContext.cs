@@ -24,7 +24,18 @@ public class ApplicationDbContext : DbContext
           .Property(p => p.BudgetAllocationAmount).HasDefaultValue(0.0);
         builder.Entity<Plan>()
            .Property(p => p.TotalCost).HasDefaultValue(0.0);
+
+        builder.Entity<Contractor>()
+       .Property(e => e.Type).HasDefaultValue("Contractor");
+
+        builder.Entity<ActivityAmendment>()
+       .Property(e => e.RejectedByQC).HasDefaultValue(0);
+
+        builder.Entity<ActivityAmendment>()
+       .Property(e => e.AmendmentStatus).HasDefaultValue(0);
+
         SeedData(builder);
+
     }
     private void SeedData(ModelBuilder builder)
     {
@@ -97,37 +108,6 @@ public class ApplicationDbContext : DbContext
                 ActivityType = StatusType.Draft,
                 EntityId = 2,
             });
-        builder.Entity<MemberOwner>().HasData(
-           new MemberOwner()
-           {
-               Id = 1,
-               Key = rootKey,
-               Name = "Company",
-               Date = DateTime.UtcNow,
-               Status = StatusType.Draft,
-               Member = "super@rajwada.com",
-               EntityId = 1,
-           },
-           new MemberOwner()
-           {
-               Id = 2,
-               Key = rootKey,
-               Name = "Department",
-               Date = DateTime.UtcNow,
-               Status = StatusType.Draft,
-               Member = "super@rajwada.com",
-               EntityId = 1,
-           },
-           new MemberOwner()
-           {
-               Id = 3,
-               Key = rootKey,
-               Name = "Department",
-               Date = DateTime.UtcNow,
-               Status = StatusType.Draft,
-               Member = "super@rajwada.com",
-               EntityId = 2,
-           });
         builder.Entity<AssetType>().HasData(
             new AssetType()
             {
@@ -161,21 +141,29 @@ public class ApplicationDbContext : DbContext
     }
 
     public virtual DbSet<ApplicationLog> ApplicationLogs { get; set; }
+    public virtual DbSet<AuditLog> AuditLogs { get; set; }
 
-    public virtual DbSet<MemberOwner> MemberOwner { get; set; }
-
+    #region Transactions
     public virtual DbSet<Company> Companys { get; set; }
     public virtual DbSet<Project> Projects { get; set; }
     public virtual DbSet<Plan> Plans { get; set; }
     public virtual DbSet<Activity> Activities { get; set; }
     public virtual DbSet<ActivityTracking> ActivityTrackings { get; set; }
+    public virtual DbSet<ActivityCheckPoint> ActivityCheckPoints { get; set; }
     public virtual DbSet<ActivityResource> ActivityResources { get; set; }
+    public virtual DbSet<ActivityResourceReport> ActivityResourceReports { get; set; }
+    public virtual DbSet<DependencyResource> DependencyResources { get; set; }
     public virtual DbSet<AssetGroup> AssetGroups { get; set; }
     public virtual DbSet<Asset> Assets { get; set; }
     public virtual DbSet<AssetType> AssetTypes { get; set; }
-    public virtual DbSet<Resource> Resources { get; set; }
+    public virtual DbSet<RoomDetails> RoomDetails { get; set; }
+    public virtual DbSet<LevelSetupDetails> LevelSetupDetails { get; set; }
     public virtual DbSet<Comment> Comments { get; set; }
     public virtual DbSet<Attachment> Attachments { get; set; }
+    public virtual DbSet<Parking> Parkings { get; set; }
+    public virtual DbSet<OutSideEntity> OutSideEntities { get; set; }
+    public virtual DbSet<FlatTemplateDetails> FlatTemplateDetails { get; set; }
+    #endregion
 
     #region Masters
     public virtual DbSet<Department> Departments { get; set; }
@@ -185,13 +173,18 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Mouza> Mouzas { get; set; }
     public virtual DbSet<RsDaag> RsDaags { get; set; }
     public virtual DbSet<NameMaster> NameMasters { get; set; }
-    public virtual DbSet<Room> Rooms { get; set; }
+    public virtual DbSet<RoomType> RoomTypes { get; set; }
     public virtual DbSet<Contractor> Contractors { get; set; }
     public virtual DbSet<Supplier> Suppliers { get; set; }
     public virtual DbSet<LevelSetup> LevelSetup { get; set; }
-    public virtual DbSet<LevelSetupDetails> LevelSetupDetails { get; set; }
     public virtual DbSet<UnitOfWork> UnitOfWorks { get; set; }
-
+    public virtual DbSet<FlatTemplate> FlatTemplates { get; set; }
+    public virtual DbSet<ParkingType> ParkingTypes { get; set; }
+    public virtual DbSet<OutSideEntityType> OutSideEntityTypes { get; set; }
+    public virtual DbSet<ProjectDocNoTracking> ProjectDocNoTrackings { get; set; }
+    public virtual DbSet<FinancialYear> FinancialYears { get; set; }
+    public virtual DbSet<WorkCheckPoint> WorkCheckpoints { get; set; }
+    public virtual DbSet<PostWorkPeriodicChecking> PostWorkPeriodicCheckings { get; set; }
     #endregion
 
 }

@@ -33,5 +33,10 @@
         long? ParentId { get; set; }
         Activity? Parent { get; set; }
     }
-
+    public interface IActivityAmendment
+    {
+        long? ActivityId { get; set; }
+        long? ParentId { get; set; }
+        ActivityAmendment? Parent { get; set; }
+    }
 }

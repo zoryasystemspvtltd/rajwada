@@ -1,5 +1,4 @@
 ﻿using ILab.Extensionss.Data.Models;
-using Microsoft.Extensions.Hosting;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -126,6 +125,12 @@ namespace RajApi.Data.Models
 
         [JsonIgnore]
         public virtual ICollection<Plan>? Plans { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<OutSideEntity>? OutSideEntity { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<ProjectDocNoTracking>? ProjectDocNoTrackings { get; set; }
         #endregion
     }
 }

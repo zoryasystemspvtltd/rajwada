@@ -1,7 +1,6 @@
 ﻿using ILab.Extensionss.Data.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 
 namespace RajApi.Data.Models
 {
@@ -49,5 +48,35 @@ namespace RajApi.Data.Models
 
         [JsonIgnore]
         public virtual ICollection<Project>? Projects { get; set; }
+    }
+
+    public class HierarchyTree
+    {
+        public long CompanyId { get; set; }
+        public string? CompanyName { get; set; }
+        public List<ProjectHierarchy>? Projects { get; set; }
+    }
+    public class ProjectHierarchy
+    {
+        public long ProjectId { get; set; }
+        public string? ProjectName { get; set; }
+        public List<TowerHierarchy>? Towers { get; set; }
+    }
+    public class TowerHierarchy
+    {
+        public long TowerId { get; set; }
+        public string? TowerName { get; set; }
+        public List<FloorHierarchy>? Floors { get; set; }
+    }
+    public class FloorHierarchy
+    {
+        public long FloorId { get; set; }
+        public string? FloorName { get; set; }
+        public List<FlatHierarchy>? Flats { get; set; }
+    }
+    public class FlatHierarchy
+    {
+        public long FlatId { get; set; }
+        public string? FlatName { get; set; }
     }
 }

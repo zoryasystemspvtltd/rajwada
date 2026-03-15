@@ -1,3 +1,4 @@
+import { useParams } from "react-router-dom";
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage";
 
@@ -15,7 +16,14 @@ export const ListWorkItem = () => {
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Code', field: 'code', type: 'text', sorting: false, searching: false },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
-            { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false }
+            {
+                text: 'Parent', field: 'parentId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'dependency' }
+            },
+            {
+                text: 'Belongs To', field: 'belongsTo', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'dependency' }
+            }
         ]
     }
     return (<IUIList schema={schema} />)
@@ -36,10 +44,42 @@ export const ViewWorkItem = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
-                    { text: 'Code', field: 'code', type: 'text', required: true, width: 6 },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'text', required: true, width: 6 },
-                    { text: 'Type', field: 'type', placeholder: 'Type here...', type: 'text', required: true, width: 6 }
+                    { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'label', required: true, width: 6 },
+                    { text: 'Code', field: 'code', type: 'label', required: true, width: 6 },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'label', required: true, width: 6 },
+                    { text: 'Expected Duration', field: 'expectedDuration', type: 'label', required: true, width: 6 },
+                    {
+                        text: 'Parent', field: 'parentId', width: 6, type: 'lookup-link',
+                        schema: { module: 'dependency', path: 'activities' }
+                    },
+                    {
+                        text: 'Belongs To', field: 'belongsTo', width: 6, type: 'lookup-link',
+                        schema: { module: 'dependency', path: 'activities' }
+                    },
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: false,
+                        schema: {
+                            title: 'Item',
+                            module: 'dependency',
+                            paging: true,
+                            searching: true,
+                            editing: false,
+                            adding: false,
+                            delete: false,
+                            assign: false, // for assign accordion
+                            fields: [
+                                {
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
+                            ]
+                        }
+                    }
                 ]
             },
         ]
@@ -47,7 +87,10 @@ export const ViewWorkItem = () => {
     return (<IUIPage schema={schema} />)
 }
 
+
 export const EditWorkItem = () => {
+    const { id } = useParams();
+
     const schema = {
         module: 'dependency',
         title: 'Activity',
@@ -61,14 +104,50 @@ export const EditWorkItem = () => {
                     { text: 'Code', field: 'code', placeholder: 'Code here...', type: 'text', required: true, width: 6 },
                     { text: 'Description', field: 'description', type: 'text', required: true, width: 6 },
                     {
-                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 6,
+                        text: 'Parent', field: 'parentId', type: 'lookup-filter-null', required: false, width: 6,
                         schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'Inside' },
-                                { name: 'Outside' }
+                            module: 'dependency',
+                            selfId: id,
+                            fieldsToFilter: [],
+                            matchAll: false,
+                            excludeSelf: true
+                        }
+                    },
+                    {
+                        text: 'Belongs To', field: 'belongsTo', type: 'lookup-filter-null', required: false, width: 6,
+                        schema: {
+                            module: 'dependency',
+                            selfId: id,
+                            fieldsToFilter: ["parentId", "belongsTo"],
+                            matchAll: true,
+                            excludeSelf: true
+                        }
+                    },
+                    { text: 'Expected Duration', field: 'expectedDuration', type: 'number', required: true, width: 6 },
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
+                        schema: {
+                            title: 'Item',
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            delete: true,
+                            assign: true, // for assign accordion
+                            fields: [
+                                {
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
                             ]
                         }
-                    }
+                    },
                 ]
             },
         ]
@@ -91,11 +170,35 @@ export const AddWorkItem = () => {
                     { text: 'Code', field: 'code', placeholder: 'Code here...', type: 'text', required: true, width: 6 },
                     { text: 'Description', field: 'description', type: 'text', required: true, width: 6 },
                     {
-                        text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 6,
+                        text: 'Parent', field: 'parentId', type: 'lookup', required: false, width: 6,
+                        schema: { module: 'dependency' }
+                    },
+                    {
+                        text: 'Belongs To', field: 'belongsTo', type: 'lookup-filter', required: false, width: 6,
+                        schema: { module: 'dependency', filter: 'parent', value: null }
+                    },
+                    { text: 'Expected Duration', field: 'expectedDuration', type: 'number', required: true, width: 6 },
+                    {
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
                         schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'Inside' },
-                                { name: 'Outside' }
+                            title: 'Item',
+                            module: 'dependency',
+                            paging: true,
+                            searching: true,
+                           editing: true,
+                            adding: true,
+                            delete: true,
+                            assign: true, // for assign accordion
+                            fields: [
+                                {
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'asset' }
+                                },
+                                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                                {
+                                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                                    schema: { module: 'uom' }
+                                },
                             ]
                         }
                     }

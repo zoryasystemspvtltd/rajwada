@@ -8,6 +8,7 @@ import IUILookUpLink from './IUILookUpLink';
 // import ILab from './IUICanvas';
 
 import IUIRadio from './IUIRadio';
+import IUILookUpIntersection from './IUILookUpIntersection';
 
 const IUITableInputElement = (props) => {
     // Properties
@@ -39,9 +40,14 @@ const IUITableInputElement = (props) => {
     }, [props?.dirty]);
 
     useEffect(() => {
+        if (props?.errors) {
+            const isSame =
+                JSON.stringify(errors) === JSON.stringify(props.errors);
 
-        if (props?.errors)
-            setErrors(props?.errors);
+            if (!isSame) {
+                setErrors(props.errors);
+            }
+        }
     }, [props?.errors]);
 
     useEffect(() => {
@@ -359,6 +365,30 @@ const IUITableInputElement = (props) => {
                                             </Form.Label>
 
                                             <IUILookUp
+                                                value={fld?.defaultValue || data[fld.field]}
+                                                className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                id={fld.field}
+                                                nameField={fld.nameField}
+                                                schema={fld.schema}
+                                                onChange={handleChange}
+                                                readonly={props.readonly || fld.readonly || defaultFields?.includes(fld.field) || false}
+                                                clearFields={props?.clearFields}
+                                            />
+
+                                        </Form.Group>
+                                        <p className="text-danger">{errors[fld.field]}</p>
+                                    </>
+                                }
+                                {fld.type === 'lookup-intersection' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} >{fld.text}
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
+
+                                            <IUILookUpIntersection
                                                 value={fld?.defaultValue || data[fld.field]}
                                                 className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                 id={fld.field}

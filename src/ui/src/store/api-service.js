@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const apiBaseUrl = process.env.REACT_APP_API_URL || "https://localhost:7018/api";
+// const apiBaseUrl = "https://civiliererp.live/api";
+// const apiBaseUrl = "https://zoryademo-001-site1.ktempurl.com/backend/api";
 console.log(`Server is running on port ${apiBaseUrl}.`)
 const api = axios.create({ baseURL: apiBaseUrl });
 
@@ -39,7 +41,7 @@ api.interceptors.response.use(
                 const newToken = response.data;
                 sessionStorage.setItem("token", JSON.stringify(newToken));
                 // For Default Menu Role
-                sessionStorage.setItem("menuRole", "admin");
+                // sessionStorage.setItem("menuRole", "admin");
 
                 // Retry the original request with the new token
                 originalRequest.headers.Authorization = `Bearer ${newToken.accessToken}`;
@@ -162,7 +164,7 @@ api.downloadAggregatedReport = async (action) => {
 
 api.workerReport = async (action) => {
     const url = `/report`;
-    const response =  await api.post(url, action.data);
+    const response = await api.post(url, action.data);
     return response;
 }
 api.assignedUsers = async (action) => {
@@ -182,6 +184,26 @@ api.getMyProject = async (action) => {
 }
 api.mobileReport = async (action) => {
     const url = `/report/${action.startDate}/${action.endDate}`;
+    const response = await api.get(url);
+    return response;
+}
+api.getDataCopy = async (action) => {
+    //api.defaults.headers.common["Authorization"] = "Bearer " + loggedInUser?.accessToken;
+    const url = `/datacopy/${action.id}/${action.type}`;
+    return await api.get(url);
+}
+api.getAmendmentsByNullValue = async (action) => {
+    const url = `/nullvalue/${action.model}`;
+    const response = await api.get(url);
+    return response;
+}
+api.getAssignedItemsByUserAndModule = async (action) => {
+    const url = `/module/${action.module}/${action.member}`;
+    const response = await api.get(url);
+    return response;
+}
+api.getBase64 = async (action) => {
+    const url = `/file/${action.module}/${action.file}`;
     const response = await api.get(url);
     return response;
 }
