@@ -202,6 +202,11 @@ api.getAssignedItemsByUserAndModule = async (action) => {
     const response = await api.get(url);
     return response;
 }
+api.getActivitiesByMember = async (action) => {
+    const url = `/assigneduser`;
+    const response = await api.post(url, action.data);
+    return response;
+}
 api.getBase64 = async (action) => {
     const url = `/file/${action.module}/${action.file}`;
     const response = await api.get(url);

@@ -1,14 +1,39 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from '../../../store/api-service';
-import { Card, Spinner, Alert } from "react-bootstrap";
+import { Card, Spinner, Alert, Form } from "react-bootstrap";
 import dayjs from "./dayjsConfig";
+import IUITableInput from "../../common/shared/IUITableInput";
 
 const ReportDetailsPage = () => {
     const { date } = useParams();
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+
+    const itemListSchema = {
+        text: 'Item List', field: 'item', width: 12, type: 'table-input', required: false, readonly: true,
+        schema: {
+            title: 'Item',
+            module: 'activitytracking',
+            readonly: true,
+            paging: true,
+            searching: true,
+            editing: true,
+            adding: true,
+            fields: [
+                {
+                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                    schema: { module: 'asset' }
+                },
+                { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
+                {
+                    text: 'UOM', field: 'uomId', type: 'lookup', required: true, width: 4,
+                    schema: { module: 'uom' }
+                },
+            ]
+        }
+    };
 
     useEffect(() => {
         const load = async () => {
@@ -71,6 +96,24 @@ const ReportDetailsPage = () => {
                         <p><strong>Man Power:</strong> {report.manPower}</p>
                         <p><strong>Status:</strong> {"In Progress"}</p>
                         <p><strong>Progress:</strong> {"5"}%</p>
+
+                        <div className="row my-2">
+                            <div className="col-sm-12">
+                                <Form.Label htmlFor={itemListSchema.field} className='fw-bold'>{itemListSchema.text}
+                                    {itemListSchema.required &&
+                                        <span className="text-danger">*</span>
+                                    }
+                                </Form.Label>
+
+                                <IUITableInput
+                                    id={itemListSchema.field}
+                                    value={report.item}
+                                    schema={itemListSchema.schema}
+                                    onChange={() => { }}
+                                    readonly={true}
+                                />
+                            </div>
+                        </div>
                     </Card>
                 ))}
             </Card>

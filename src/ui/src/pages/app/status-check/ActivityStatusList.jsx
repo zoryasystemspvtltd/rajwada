@@ -28,13 +28,14 @@ const ActivityListByStatus = () => {
                         schema: { module: 'project' }
                     },
                     {
-                        text: 'Tower', field: 'towerId', parent: 'projectId', type: 'lookup-filter', required: false, width: 3,
+                        text: 'Tower', field: 'towerId', parent: 'projectId', type: 'lookup-filter', required: true, width: 3,
                         schema: { module: 'plan', filter: 'type', value: 'tower' }
                     },
                     {
                         type: 'lookup-relation',
                         parent: 'towerId',
                         field: 'floorId',
+                        required: true,
                         text: 'Floor',
                         width: 3,
                         schema: {
@@ -47,6 +48,7 @@ const ActivityListByStatus = () => {
                         type: 'lookup-relation',
                         parent: 'floorId',
                         field: 'flatId',
+                        required: true,
                         text: 'Flat',
                         width: 3,
                         schema: {
@@ -54,7 +56,11 @@ const ActivityListByStatus = () => {
                             relationKey: "parentId",
                             path: 'flats'
                         },
-                    }
+                    },
+                    {
+                        text: 'Engineer', field: 'userId', type: 'lookup', required: false, width: 3,
+                        schema: { module: 'user' }
+                    },
                 ]
             },
         ]
@@ -85,7 +91,7 @@ const ActivityListByStatus = () => {
     }
 
     const module = "activity";
-    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, roomId: null };
+    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, roomId: null, userId: null };
 
     // Global State
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
@@ -169,7 +175,7 @@ const ActivityListByStatus = () => {
         }
     };
 
-    const fetchStatusCountByFilter = async (baseFilter, status) => {
+    const fetchStatusCountByFilter = async (baseFilter, status, selectedMemberActivityIds = null) => {
         try {
             if (Object.keys(status.query).includes("nullValue")) {
                 const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
@@ -183,7 +189,11 @@ const ActivityListByStatus = () => {
                 const response = await api.getData({ module: 'activity', options: pageOptions });
                 const allActivites = response?.data?.items;
 
-                return allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id))?.length;
+                let count = (selectedMemberActivityIds) ?
+                    filterActivitiesBasedOnUser(selectedMemberActivityIds, allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id)))?.length :
+                    allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id))?.length;
+
+                return count;
             }
             else if (Object.keys(status.query).includes("module")) {
                 const pageOptions = {
@@ -192,7 +202,10 @@ const ActivityListByStatus = () => {
                 }
 
                 const response = await api.getData({ module: status.query.module, options: pageOptions });
-                return response?.data?.items?.length;
+
+                let count = (selectedMemberActivityIds) ? filterActivitiesBasedOnUser(selectedMemberActivityIds, response?.data?.items)?.length : response?.data?.items?.length;
+
+                return count;
             }
             else {
                 const pageOptions = {
@@ -204,7 +217,10 @@ const ActivityListByStatus = () => {
                 }
 
                 const response = await api.getData({ module: 'activity', options: pageOptions });
-                return response?.data?.items?.length;
+
+                let count = (selectedMemberActivityIds) ? filterActivitiesBasedOnUser(selectedMemberActivityIds, response?.data?.items)?.length : response?.data?.items?.length;
+
+                return count;
             }
         } catch (error) {
             console.error(`Error fetching ${status.key} count`, error);
@@ -257,77 +273,154 @@ const ActivityListByStatus = () => {
         window.location.reload();
     }
 
-    const prepareActivityCreation = async () => {
+    const filterActivitiesBasedOnUser = (userActivityIds, originalActivityList) => {
+        return originalActivityList?.filter(activity => userActivityIds?.includes(activity?.id));
+    }
 
+    const prepareActivityCreation = async () => {
         if (!selectedStatus) {
             notify("info", "Please select an activity status!");
             return;
         }
-
+        
         try {
-            const baseSelectQuery = {
-                name: "projectId",
-                value: parseInt(dependencySelectParams.projectId),
-                and: {
-                    name: "towerId",
-                    value: parseInt(dependencySelectParams.towerId),
+            if (dependencySelectParams.userId && !dependencySelectParams.userId?.includes("Select")) {
+                const user = await api.getSingleData({ module: 'user', id: parseInt(dependencySelectParams.userId) });
+                const member = user.data?.email;
+
+                const userActivities = await api.getActivitiesByMember({
+                    data: {
+                        member: member,
+                        projectId: parseInt(dependencySelectParams.projectId),
+                        towerId: parseInt(dependencySelectParams.towerId),
+                        floorId: parseInt(dependencySelectParams.floorId),
+                        flatId: parseInt(dependencySelectParams.flatId)
+                    }
+                });
+
+                let selectedMemberActivityIds = userActivities?.data?.map(activity => activity?.id);
+
+                const baseSelectQuery = {
+                    name: "projectId",
+                    value: parseInt(dependencySelectParams.projectId),
                     and: {
-                        name: "floorId",
-                        value: parseInt(dependencySelectParams.floorId),
+                        name: "towerId",
+                        value: parseInt(dependencySelectParams.towerId),
                         and: {
-                            name: "flatId",
-                            value: parseInt(dependencySelectParams.flatId)
+                            name: "floorId",
+                            value: parseInt(dependencySelectParams.floorId),
+                            and: {
+                                name: "flatId",
+                                value: parseInt(dependencySelectParams.flatId)
+                            }
                         }
                     }
+                };
+
+                // const pageOptions = {
+                //     recordPerPage: 0,
+                //     searchCondition: baseSelectQuery
+                // }
+
+                // const response = await api.getData({ module: 'activity', options: pageOptions });
+                // setActivities(response?.data?.items);
+
+                const selectedStatusObj = statusList.find(status => status.key === selectedStatus);
+
+                if (!Object.keys(selectedStatusObj.query).includes("nullValue")) {
+                    const pageOptions = {
+                        recordPerPage: 0,
+                        searchCondition: { ...selectedStatusObj.query, and: baseSelectQuery }
+                    }
+
+                    const response = await api.getData({ module: 'activity', options: pageOptions });
+                    setActivities(filterActivitiesBasedOnUser(selectedMemberActivityIds, response?.data?.items));
                 }
-            };
+                else {
+                    const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
+                    const nullValueActivityIds = activitiesByNullValue?.data?.map(activity => activity.id);
 
-            // const pageOptions = {
-            //     recordPerPage: 0,
-            //     searchCondition: baseSelectQuery
-            // }
+                    const pageOptions = {
+                        recordPerPage: 0,
+                        searchCondition: baseSelectQuery
+                    }
 
-            // const response = await api.getData({ module: 'activity', options: pageOptions });
-            // setActivities(response?.data?.items);
+                    const response = await api.getData({ module: 'activity', options: pageOptions });
+                    const allActivites = response?.data?.items;
 
-            const selectedStatusObj = statusList.find(status => status.key === selectedStatus);
-
-            if (!Object.keys(selectedStatusObj.query).includes("nullValue")) {
-                const pageOptions = {
-                    recordPerPage: 0,
-                    searchCondition: { ...selectedStatusObj.query, and: baseSelectQuery }
+                    setActivities(filterActivitiesBasedOnUser(selectedMemberActivityIds, allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id))));
                 }
 
-                const response = await api.getData({ module: 'activity', options: pageOptions });
-                setActivities(response?.data?.items);
+                const promises = statusList.map(status =>
+                    fetchStatusCountByFilter(baseSelectQuery, status, selectedMemberActivityIds)
+                );
+
+                const results = await Promise.all(promises);
+
+                const countsObject = statusList.reduce((acc, status, index) => {
+                    acc[status.key] = results[index];
+                    return acc;
+                }, {});
+
+                setCountsByFilter(countsObject);
             }
             else {
-                const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
-                const nullValueActivityIds = activitiesByNullValue?.data?.map(activity => activity.id);
+                const baseSelectQuery = {
+                    name: "projectId",
+                    value: parseInt(dependencySelectParams.projectId),
+                    and: {
+                        name: "towerId",
+                        value: parseInt(dependencySelectParams.towerId),
+                        and: {
+                            name: "floorId",
+                            value: parseInt(dependencySelectParams.floorId),
+                            and: {
+                                name: "flatId",
+                                value: parseInt(dependencySelectParams.flatId)
+                            }
+                        }
+                    }
+                };
 
-                const pageOptions = {
-                    recordPerPage: 0,
-                    searchCondition: baseSelectQuery
+                const selectedStatusObj = statusList.find(status => status.key === selectedStatus);
+
+                if (!Object.keys(selectedStatusObj.query).includes("nullValue")) {
+                    const pageOptions = {
+                        recordPerPage: 0,
+                        searchCondition: { ...selectedStatusObj.query, and: baseSelectQuery }
+                    }
+
+                    const response = await api.getData({ module: 'activity', options: pageOptions });
+                    setActivities(response?.data?.items);
+                }
+                else {
+                    const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
+                    const nullValueActivityIds = activitiesByNullValue?.data?.map(activity => activity.id);
+
+                    const pageOptions = {
+                        recordPerPage: 0,
+                        searchCondition: baseSelectQuery
+                    }
+
+                    const response = await api.getData({ module: 'activity', options: pageOptions });
+                    const allActivites = response?.data?.items;
+
+                    setActivities(allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id)));
                 }
 
-                const response = await api.getData({ module: 'activity', options: pageOptions });
-                const allActivites = response?.data?.items;
+                const promises = statusList.map(status =>
+                    fetchStatusCountByFilter(baseSelectQuery, status)
+                );
 
-                setActivities(allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id)));
+                const results = await Promise.all(promises);
+
+                const countsObject = statusList.reduce((acc, status, index) => {
+                    acc[status.key] = results[index];
+                    return acc;
+                }, {});
+
+                setCountsByFilter(countsObject);
             }
-
-            const promises = statusList.map(status =>
-                fetchStatusCountByFilter(baseSelectQuery, status)
-            );
-
-            const results = await Promise.all(promises);
-
-            const countsObject = statusList.reduce((acc, status, index) => {
-                acc[status.key] = results[index];
-                return acc;
-            }, {});
-
-            setCountsByFilter(countsObject);
         }
         catch (e) {
             console.error(e);
