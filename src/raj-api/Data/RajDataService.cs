@@ -337,7 +337,7 @@ namespace ILab.Data
                     while (generated < totalFlats)
                     {
                         var suffix = GenerateFlatSuffix(generated); // Reusable generator
-                        var flatName = $"{floorName}-{suffix}";
+                        var flatName = $"{floorName}-{flatTypeName}-{suffix}";
                         var description = $"{descriptionPrefix}_{flatTypeName}{suffix}";
 
                         var plan = new Plan
