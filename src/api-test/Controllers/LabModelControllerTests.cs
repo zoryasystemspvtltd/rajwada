@@ -1,6 +1,7 @@
 ﻿using ILab.Data;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,7 @@ namespace api_test.Controllers
         private readonly LabModelController controller;
         private readonly ILogger<RajDataService> logger;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
         public LabModelControllerTests()
         {
             logger = Substitute.For<ILogger<RajDataService>>();
@@ -24,11 +26,12 @@ namespace api_test.Controllers
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
             optionsBuilder.UseInMemoryDatabase(databaseName: "test");
             var dbContext = new ApplicationDbContext(optionsBuilder.Options);
-            var identity = new ModuleIdentity("DUMMY","DUMMY");
+            var identity = new ModuleIdentity("DUMMY", "DUMMY");
             var dataLogger = Substitute.For<ILogger<RajDataHandler>>();
             var labDataHandler = new RajDataHandler(dbContext, dataLogger);
+
             labDataHandler.Identity = identity;
-            var subDynamicDataHandler = new RajDataService(labDataHandler, _configuration,logger);
+            var subDynamicDataHandler = new RajDataService(labDataHandler, _configuration, _environment, logger);
 
             this.controller = new LabModelController(
                 controllerLogger,
