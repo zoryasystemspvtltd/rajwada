@@ -13,6 +13,8 @@ namespace RajApi.Data.Models
         public virtual decimal? Cost { get; set; }
         public virtual string? Item { get; set; }
         public virtual string? ActivityTrackStatus { get; set; }
+        public virtual int? ProgressPercentage { get; set; }
+
         #region Relations
         /// <summary>
         /// Activity is also a collection of other Activity tracking
