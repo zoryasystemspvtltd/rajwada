@@ -87,7 +87,7 @@ export const ViewWorkflow = () => {
                     },
                     {
                         text: 'Room', field: 'roomId', type: 'lookup-link', width: 3,
-                        schema: { module: 'roomType', path: 'rooms' }
+                        schema: { module: 'roomDetails', path: 'rooms' }
                     },
                     { field: 'data', type: 'ilab-flowchart', width: 12 }
                 ]

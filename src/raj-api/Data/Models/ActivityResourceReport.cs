@@ -15,5 +15,10 @@ namespace RajApi.Data.Models
         public virtual long? UOMId { get; set; }
         [JsonIgnore]
         public virtual Uom? Uoms { get; set; }
+
+        [ForeignKey("OutSideEntities")]
+        public virtual long? OutSideEntityId { get; set; }
+        [JsonIgnore]
+        public virtual OutSideEntity? OutSideEntities { get; set; }
     }
 }

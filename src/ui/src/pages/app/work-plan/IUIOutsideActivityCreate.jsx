@@ -135,7 +135,8 @@ const IUIOutsideActivityCreate = (props) => {
         const dependencyGraph = JSON.parse(selectedDependency?.data);
         const sourceNodes = findSourceNodes(dependencyGraph);
         const result = bfsTraversal(dependencyGraph?.nodes, dependencyGraph?.edges, sourceNodes[0]?.id);
-        const item = (selectedDependency?.outSideEntityId !== null) ? await api.getSingleData({ module: 'outSideEntity', id: selectedDependency?.outSideEntityId }) : await api.getSingleData({ module: 'project', id: selectedDependency?.projectId });
+        // Here trying to fit the tower blueprint as the default blueprint for the outside entity activity
+        const item = (selectedDependency?.towerId !== null) ? await api.getSingleData({ module: 'plan', id: selectedDependency?.towerId }) : await api.getSingleData({ module: 'project', id: selectedDependency?.projectId });
         setDependencySelectParams({
             ...dependencySelectParams,
             towerId: selectedDependency?.towerId,

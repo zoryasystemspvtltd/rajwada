@@ -717,7 +717,7 @@ const IUIPage = (props) => {
                             {
                                 module: module,
                                 data: (module === 'workflow') ? { ...transformedData, data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } :
-                                    (module === 'activity') ? { ...transformedData, items: prepareItemsForActivity(transformedData), type: "Main Task" } : transformedData
+                                    (module === 'activity') ? { ...transformedData, items: prepareItemsForActivity(transformedData) } : transformedData
                             }
                         );
                         // console.log(response)

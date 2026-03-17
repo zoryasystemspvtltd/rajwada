@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RajApi.Migrations
 {
     /// <inheritdoc />
-    public partial class freshmigration : Migration
+    public partial class fresh : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -657,33 +657,6 @@ namespace RajApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ActivityResourceReports",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ResourceType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    UOMId = table.Column<long>(type: "bigint", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(511)", maxLength: 511, nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: true),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Member = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Key = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ActivityResourceReports", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ActivityResourceReports_Uoms_UOMId",
-                        column: x => x.UOMId,
-                        principalTable: "Uoms",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Assets",
                 columns: table => new
                 {
@@ -973,6 +946,58 @@ namespace RajApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Comments",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ActivityId = table.Column<long>(type: "bigint", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(511)", maxLength: 511, nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Member = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Key = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Comments_Activities_ActivityId",
+                        column: x => x.ActivityId,
+                        principalTable: "Activities",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ActivityResourceReports",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ResourceType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    UOMId = table.Column<long>(type: "bigint", nullable: true),
+                    OutSideEntityId = table.Column<long>(type: "bigint", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(511)", maxLength: 511, nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Member = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Key = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ActivityResourceReports", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ActivityResourceReports_Uoms_UOMId",
+                        column: x => x.UOMId,
+                        principalTable: "Uoms",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ActivityResources",
                 columns: table => new
                 {
@@ -990,6 +1015,7 @@ namespace RajApi.Migrations
                     AssignedUser = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     DepartmentId = table.Column<long>(type: "bigint", nullable: true),
                     Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OutSideEntityId = table.Column<long>(type: "bigint", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(511)", maxLength: 511, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -1034,7 +1060,9 @@ namespace RajApi.Migrations
                     Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     Item = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ActivityTrackStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProgressPercentage = table.Column<int>(type: "int", nullable: true),
                     ActivityId = table.Column<long>(type: "bigint", nullable: true),
+                    OutSideEntityId = table.Column<long>(type: "bigint", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(511)", maxLength: 511, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -1046,30 +1074,6 @@ namespace RajApi.Migrations
                     table.PrimaryKey("PK_ActivityTrackings", x => x.Id);
                     table.ForeignKey(
                         name: "FK_ActivityTrackings_Activities_ActivityId",
-                        column: x => x.ActivityId,
-                        principalTable: "Activities",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Comments",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ActivityId = table.Column<long>(type: "bigint", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(511)", maxLength: 511, nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: true),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Member = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Key = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Comments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Comments_Activities_ActivityId",
                         column: x => x.ActivityId,
                         principalTable: "Activities",
                         principalColumn: "Id");
@@ -1345,9 +1349,9 @@ namespace RajApi.Migrations
                 columns: new[] { "Id", "ActivityType", "ContentHistory", "Date", "EntityId", "Key", "Member", "Name", "Status" },
                 values: new object[,]
                 {
-                    { 1L, 0, null, new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5024), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Company", 0 },
-                    { 2L, 0, null, new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5028), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 },
-                    { 3L, 0, null, new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5031), 2L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 }
+                    { 1L, 0, null, new DateTime(2026, 3, 16, 11, 26, 10, 606, DateTimeKind.Utc).AddTicks(435), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Company", 0 },
+                    { 2L, 0, null, new DateTime(2026, 3, 16, 11, 26, 10, 606, DateTimeKind.Utc).AddTicks(439), 1L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 },
+                    { 3L, 0, null, new DateTime(2026, 3, 16, 11, 26, 10, 606, DateTimeKind.Utc).AddTicks(441), 2L, "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Department", 0 }
                 });
 
             migrationBuilder.InsertData(
@@ -1355,23 +1359,23 @@ namespace RajApi.Migrations
                 columns: new[] { "Id", "Code", "Date", "Key", "Member", "Name", "Status" },
                 values: new object[,]
                 {
-                    { 1L, "FA", new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5084), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Fixed Asset", 0 },
-                    { 2L, "CB", new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5086), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Consumption Base", 0 },
-                    { 3L, "SA", new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(5088), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Service Assets", 0 }
+                    { 1L, "FA", new DateTime(2026, 3, 16, 11, 26, 10, 606, DateTimeKind.Utc).AddTicks(501), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Fixed Asset", 0 },
+                    { 2L, "CB", new DateTime(2026, 3, 16, 11, 26, 10, 606, DateTimeKind.Utc).AddTicks(503), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Consumption Base", 0 },
+                    { 3L, "SA", new DateTime(2026, 3, 16, 11, 26, 10, 606, DateTimeKind.Utc).AddTicks(506), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Service Assets", 0 }
                 });
 
             migrationBuilder.InsertData(
                 table: "Companys",
                 columns: new[] { "Id", "Address1", "Address2", "Address3", "BelongTo", "City", "Code", "ContactName", "Country", "Currency", "Date", "Email", "GSTNo", "Key", "Latitude", "Logo", "Longitude", "Member", "Name", "PanNo", "ParentId", "PhoneNumber", "PinCode", "QrCode", "State", "Status", "TinNo", "Type", "Website", "Zone" },
-                values: new object[] { 1L, null, null, null, null, null, "RE", null, null, null, new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(4530), null, null, "1536B022-C5C9-4358-BB6A-466F2075B7D4", null, null, null, "super@rajwada.com", "Rajwara", null, null, null, null, null, null, 0, null, "Enterprise", null, null });
+                values: new object[] { 1L, null, null, null, null, null, "RE", null, null, null, new DateTime(2026, 3, 16, 11, 26, 10, 606, DateTimeKind.Utc).AddTicks(177), null, null, "1536B022-C5C9-4358-BB6A-466F2075B7D4", null, null, null, "super@rajwada.com", "Rajwara", null, null, null, null, null, null, 0, null, "Enterprise", null, null });
 
             migrationBuilder.InsertData(
                 table: "Departments",
                 columns: new[] { "Id", "Code", "Date", "Key", "Member", "Name", "Status" },
                 values: new object[,]
                 {
-                    { 1L, "CI", new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(4980), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Civil", 0 },
-                    { 2L, "LE", new DateTime(2026, 3, 2, 1, 51, 48, 831, DateTimeKind.Utc).AddTicks(4984), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Legal", 0 }
+                    { 1L, "CI", new DateTime(2026, 3, 16, 11, 26, 10, 606, DateTimeKind.Utc).AddTicks(391), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Civil", 0 },
+                    { 2L, "LE", new DateTime(2026, 3, 16, 11, 26, 10, 606, DateTimeKind.Utc).AddTicks(395), "1536B022-C5C9-4358-BB6A-466F2075B7D4", "super@rajwada.com", "Legal", 0 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -1460,6 +1464,11 @@ namespace RajApi.Migrations
                 column: "WorkCheckPointId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ActivityResourceReports_OutSideEntityId",
+                table: "ActivityResourceReports",
+                column: "OutSideEntityId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ActivityResourceReports_UOMId",
                 table: "ActivityResourceReports",
                 column: "UOMId");
@@ -1480,6 +1489,11 @@ namespace RajApi.Migrations
                 column: "DepartmentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ActivityResources_OutSideEntityId",
+                table: "ActivityResources",
+                column: "OutSideEntityId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ActivityResources_UOMId",
                 table: "ActivityResources",
                 column: "UOMId");
@@ -1488,6 +1502,11 @@ namespace RajApi.Migrations
                 name: "IX_ActivityTrackings_ActivityId",
                 table: "ActivityTrackings",
                 column: "ActivityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActivityTrackings_OutSideEntityId",
+                table: "ActivityTrackings",
+                column: "OutSideEntityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Assets_GroupId",
@@ -1766,6 +1785,27 @@ namespace RajApi.Migrations
                 table: "Activities",
                 column: "WorkflowId",
                 principalTable: "Workflows",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_ActivityResourceReports_OutSideEntities_OutSideEntityId",
+                table: "ActivityResourceReports",
+                column: "OutSideEntityId",
+                principalTable: "OutSideEntities",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_ActivityResources_OutSideEntities_OutSideEntityId",
+                table: "ActivityResources",
+                column: "OutSideEntityId",
+                principalTable: "OutSideEntities",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_ActivityTrackings_OutSideEntities_OutSideEntityId",
+                table: "ActivityTrackings",
+                column: "OutSideEntityId",
+                principalTable: "OutSideEntities",
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(

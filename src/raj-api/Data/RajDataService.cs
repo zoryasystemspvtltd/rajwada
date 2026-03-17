@@ -14,11 +14,13 @@ namespace ILab.Data
     {
         public readonly RajDataHandler dataHandler;
         private readonly IConfiguration _configuration;
-        public RajDataService(RajDataHandler handler, IConfiguration configuration
+        private readonly IWebHostEnvironment _environment;
+        public RajDataService(RajDataHandler handler, IConfiguration configuration, IWebHostEnvironment environment
             , ILogger<RajDataService> logger)
             : base(handler, logger)
         {
             _configuration = configuration;
+            _environment = environment;
             dataHandler = handler;
         }
 
@@ -337,7 +339,7 @@ namespace ILab.Data
                     while (generated < totalFlats)
                     {
                         var suffix = GenerateFlatSuffix(generated); // Reusable generator
-                        var flatName = $"{floorName}-{suffix}";
+                        var flatName = $"{floorName}-{flatTypeName}-{suffix}";
                         var description = $"{descriptionPrefix}_{flatTypeName}{suffix}";
 
                         var plan = new Plan
@@ -1011,7 +1013,8 @@ namespace ILab.Data
         {
             try
             {
-                var folderPath = _configuration["FileUploadSettings:UploadFolderPath"] + "/" + module;
+                string wwwRootPath = _environment.WebRootPath;
+                var folderPath = wwwRootPath + _configuration["FileUploadSettings:UploadFolderPath"] + "/" + module;
                 var fullPath = Path.Combine(folderPath, fileName);
                 if (!File.Exists(fullPath))
                     return "File not found.";
@@ -1030,7 +1033,8 @@ namespace ILab.Data
         {
             try
             {
-                var folderPath = _configuration["FileUploadSettings:UploadFolderPath"] + "/" + module;
+                string wwwRootPath = _environment.WebRootPath;
+                var folderPath = wwwRootPath + _configuration["FileUploadSettings:UploadFolderPath"] + "/" + module;
                 var type = GetType(module);
                 dynamic jsonString = data.ToString();
                 var jsonData = JsonConvert.DeserializeObject(jsonString, type);

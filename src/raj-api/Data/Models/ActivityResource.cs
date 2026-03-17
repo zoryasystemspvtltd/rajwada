@@ -34,6 +34,11 @@ namespace RajApi.Data.Models
         [JsonIgnore]
         public virtual Department? Departments { get; set; }
         public string? Remarks { get; set; }
+
+        [ForeignKey("OutSideEntities")]
+        public virtual long? OutSideEntityId { get; set; }
+        [JsonIgnore]
+        public virtual OutSideEntity? OutSideEntities { get; set; }
         [NotMapped]
         public List<Assigned>? AssignedList { get; set; }
     }

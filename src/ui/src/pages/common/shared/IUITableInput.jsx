@@ -131,10 +131,20 @@ const IUITableInput = (props) => {
         }
     }, [dataArray]);
 
-    const handleChange = (e) => {
+    const handleChange = async (e) => {
+        // Logic update for setting uom automatically based on asset
         e.preventDefault();
-        const newData = { ...data, ...e.target.value };
-        setData(newData);
+        let newData = {};
+        if (Object.keys(e.target.value).includes("assetId")) {
+            const item = await api.getSingleData({ module: "asset", id: parseInt(e.target.value.assetId) });
+            const updatePayload = { ...e.target.value, "uomId": item.data.uomId };
+            newData = { ...data, ...updatePayload };
+            setData(newData);
+        }
+        else {
+            newData = { ...data, ...e.target.value };
+            setData(newData);
+        }
         setErrors(validate(newData, schema?.fields));
         setIsNewAdd(false);
     };
