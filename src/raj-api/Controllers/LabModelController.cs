@@ -69,7 +69,7 @@ public class LabModelController : ControllerBase
             {
                 Id = await dataService.AddAsync(module, updatedata, token);
             }
-           
+
             await dataService.ProcessAddDataAsync(module, updatedata, Id, token);
             return Id;
 
@@ -136,6 +136,8 @@ public class LabModelController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
+
+            await dataService.DeleteChildData(module, id, token);
             return await dataService.DeleteAsync(module, id, token);
         }
         catch (Exception ex)
