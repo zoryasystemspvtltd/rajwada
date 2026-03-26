@@ -1763,6 +1763,10 @@
 "ActivityTrackStatus": {
 "type": "string",
 },
+"ProgressPercentage": {
+"type": "string",
+"nullable": true
+},
 "ActivityId": {
 "type": "string",
 "nullable": true
