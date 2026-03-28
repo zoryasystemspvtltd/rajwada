@@ -41,7 +41,7 @@ export const ViewActivity = () => {
         showBreadcrumbs: true,
         editing: true,
         adding: false,
-        deleting: false,
+        deleting: true,
         assign: true,
         assignType: 'multiple',
         assignChild: true,

@@ -16,6 +16,7 @@ import IUICopy from './shared/IUICopy';
 import IUIMultiCopyFilter from './shared/IUIMultiCopyFilter';
 import { preprocess } from '../../store/preprocesser';
 import deleteDependency from '../../store/delete-dependencies';
+import IUIDeleteModal from './IUIDeleteModal';
 
 const IUIPage = (props) => {
     // Properties
@@ -495,15 +496,16 @@ const IUIPage = (props) => {
         setShowDeleteModal(true);
     };
 
-    const deletePageValue = async (e) => {
+    const deletePageValue = async (e, itemId) => {
         try {
             e.preventDefault();
             setIsInProgress(true);
 
-            const isAllowed = await isDeleteAllowed(module, id);
+            // const isAllowed = await isDeleteAllowed(module, id);
+            const isAllowed = true;
 
             if (isAllowed) {
-                api.deleteData({ module: module, id: id });
+                api.deleteData({ module: module, id: parseInt(itemId) });
                 dispatch(setSave({ module: module }))
 
                 const timeId = setTimeout(() => {
@@ -1061,14 +1063,14 @@ const IUIPage = (props) => {
                                 </Modal.Footer>
                             </Modal>
                         }
-                        {/* {showDeleteModal && (
+                        {showDeleteModal && (
                             <IUIDeleteModal
                                 item={selectedItem}
-                                dependencies={dependencies}
                                 onConfirm={deletePageValue}
                                 onCancel={() => setShowDeleteModal(false)}
                             />
-                        )} */}
+                        )}
+
                     </div>
                 </div>
             </div>

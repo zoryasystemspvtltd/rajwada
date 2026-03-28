@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { Button, Col, Row, Card, Modal, Spinner, ListGroup, Alert } from "react-bootstrap";
+import api from '../../store/api-service';
+import deleteDependency from '../../store/delete-dependencies';
 
-export default function IUIDeleteModal({ item, dependencies, onConfirm, onCancel }) {
-
+export default function IUIDeleteModal({ item, onConfirm, onCancel }) {
+    const [itemData, setItemData] = useState({});
     const [loading, setLoading] = useState(true);
     const [dependencyData, setDependencyData] = useState([]);
 
@@ -12,21 +15,40 @@ export default function IUIDeleteModal({ item, dependencies, onConfirm, onCancel
     const fetchDependencies = async () => {
 
         try {
+            const parentModule = item.module;
+            const id = item.id;
+
+            const parentItem = await api.getSingleData({ module: parentModule, id: id });
+            const parentData = parentItem.data;
+            setItemData(parentData);
+
+            let dependencies = [];
+
+            if (parentModule === "plan") {
+                let itemType = `${parentData?.type}`.toLowerCase();
+                dependencies = deleteDependency[parentModule][itemType]?.dependent || [];
+            }
+            else {
+                dependencies = deleteDependency[parentModule]?.dependent || [];
+            }
 
             const results = await Promise.all(
                 dependencies.map(async (dep) => {
 
-                    const response = await fetch(
-                        `/api/${dep.module}?${dep.field}=${item.id}`
-                    );
+                    const pageOptions = {
+                        recordPerPage: 0,
+                        searchCondition: {
+                            name: dep.field,
+                            value: parseInt(id)
+                        }
+                    }
 
-                    const data = await response.json();
+                    const response = await api.getData({ module: dep.module, options: pageOptions });
 
                     return {
                         module: dep.module,
-                        data: data
+                        data: response?.data?.items || []
                     };
-
                 })
             );
 
@@ -40,126 +62,100 @@ export default function IUIDeleteModal({ item, dependencies, onConfirm, onCancel
     };
 
     return (
+        <Modal
+            show={true}
+            onHide={onCancel}
+            size="lg"
+            centered
+            scrollable
+        >
+            {/* Header */}
+            <Modal.Header closeButton>
+                <Modal.Title>
+                    Delete Item: {itemData?.name}
+                </Modal.Title>
+            </Modal.Header>
 
-        <div className="modal fade show d-block" tabIndex="-1">
+            {/* Body */}
+            <Modal.Body>
+                {loading ? (
 
-            <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-
-                <div className="modal-content">
-
-                    {/* Header */}
-                    <div className="modal-header">
-
-                        <h5 className="modal-title">
-                            Delete Item: {item?.name}
-                        </h5>
-
-                        <button
-                            className="btn-close"
-                            onClick={onCancel}
-                        ></button>
-
+                    <div className="text-center py-4">
+                        <Spinner animation="border" variant="primary" />
+                        <div className="mt-2">Loading dependencies...</div>
                     </div>
 
-                    {/* Body */}
-                    <div className="modal-body">
+                ) : (
+                    <>
+                        <h6 className="mb-3 fw-semibold">
+                            Related Records
+                        </h6>
 
-                        {loading ? (
-                            <div className="text-center p-4">
+                        <Row className="g-3">
+                            {(dependencyData.length === 0) && (
+                                <div className="text-muted p-3">
+                                    No dependencies
+                                </div>
+                            )}
+                            {dependencyData.map((dep, index) => (
+                                <Col xs={12} md={6} key={index}>
+                                    <Card className="h-100 shadow-sm">
+                                        <Card.Header className="fw-bold bg-light">
+                                            {dep.module}
+                                        </Card.Header>
 
-                                <div className="spinner-border text-primary"></div>
+                                        <Card.Body className="p-0">
 
-                                <p className="mt-2">Loading dependencies...</p>
+                                            {dep.data.length === 0 ? (
 
-                            </div>
-                        ) : (
-
-                            <>
-                                <h6 className="mb-3">Related Records</h6>
-
-                                <div className="row">
-
-                                    {dependencyData.map((dep, index) => (
-
-                                        <div className="col-12 col-md-6 mb-3" key={index}>
-
-                                            <div className="card h-100">
-
-                                                <div className="card-header fw-bold">
-                                                    {dep.module}
+                                                <div className="text-muted p-3">
+                                                    No dependencies
                                                 </div>
 
-                                                <div className="card-body">
+                                            ) : (
 
-                                                    {dep.data.length === 0 ? (
-                                                        <p className="text-muted mb-0">
-                                                            No dependencies
-                                                        </p>
-                                                    ) : (
+                                                <ListGroup variant="flush">
 
-                                                        <ul className="list-group list-group-flush">
+                                                    {dep.data.map((d) => (
 
-                                                            {dep.data.map(d => (
+                                                        <ListGroup.Item key={d.id}>
+                                                            {d.name || d.id}
+                                                        </ListGroup.Item>
 
-                                                                <li
-                                                                    key={d.id}
-                                                                    className="list-group-item"
-                                                                >
-                                                                    {d.name || d.id}
-                                                                </li>
+                                                    ))}
 
-                                                            ))}
+                                                </ListGroup>
+                                            )}
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
 
-                                                        </ul>
+                        <Alert variant="warning" className="mt-4 mb-0">
+                            Are you sure you want to delete this item?
+                        </Alert>
+                    </>
+                )}
+            </Modal.Body>
 
-                                                    )}
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                    ))}
-
-                                </div>
-
-                                <div className="alert alert-warning mt-3">
-                                    Are you sure you want to delete this item?
-                                </div>
-
-                            </>
-                        )}
-
-                    </div>
-
-                    {/* Footer */}
-                    <div className="modal-footer">
-
-                        <button
-                            className="btn btn-secondary"
-                            onClick={onCancel}
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            className="btn btn-danger"
-                            onClick={() => onConfirm(item.id)}
-                        >
-                            Yes Delete
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            {/* Background Overlay */}
-            <div className="modal-backdrop fade show"></div>
-
-        </div>
-
+            {/* Footer */}
+            <Modal.Footer>
+                <Button
+                    variant="secondary"
+                    onClick={onCancel}
+                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md"
+                >
+                    Cancel
+                </Button>
+                <Button
+                    variant="danger"
+                    onClick={(e) => onConfirm(e, itemData.id)}
+                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-danger btn-md"
+                >
+                    Yes Delete
+                </Button>
+            </Modal.Footer>
+        </Modal>
     );
 }

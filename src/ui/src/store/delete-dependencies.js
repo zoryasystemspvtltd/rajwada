@@ -16,6 +16,18 @@ const deleteDependency = {
                 }
             ]
         }
+    },
+    "activity": {
+        "dependent": [
+            {
+                "module": "activityResources",
+                "field": "activityId"
+            },
+            {
+                "module": "activityTracking",
+                "field": "activityId"
+            }
+        ]
     }
 };
 
