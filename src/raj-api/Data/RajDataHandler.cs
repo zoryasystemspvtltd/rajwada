@@ -1,9 +1,11 @@
-﻿using ILab.Extensionss.Common;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using RajApi.Controllers;
 using RajApi.Data.Models;
 using RajApi.Helpers;
 using System.Data;
@@ -670,6 +672,67 @@ public class RajDataHandler : LabDataHandler
         return result;
     }
 
+    public async Task DeleteAllChildData(string module, long id)
+    {
+        try
+        {
+            switch (module.ToUpper())
+            {
+                case "ACTIVITY":
+                    //Delete All Activity Tracking related to Activity
+                    var activityTracking = dbContext.Set<ActivityTracking>().Where(x => x.ActivityId == id);
+                    if (activityTracking != null)
+                    {
+                        await BulkDeleteAsync(activityTracking, CancellationToken.None);
+                    }
+
+                    //Delete All Activity Resource related to Activity
+                    var activityResource = dbContext.Set<ActivityResource>().Where(x => x.ActivityId == id);
+                    if (activityResource != null)
+                    {
+                        await BulkDeleteAsync(activityResource, CancellationToken.None);
+                    }
+
+                    //Delete All Activity Amendment related to Activity
+                    var activityAmendment = dbContext.Set<ActivityAmendment>().Where(x => x.ActivityId == id);
+                    if (activityAmendment != null)
+                    {
+                        await BulkDeleteAsync(activityAmendment, CancellationToken.None);
+                    }
+
+                    break;
+                case "PLAN":
+
+                    //Delete All Flat,Tower,Floor related to Plan
+                    var plans = dbContext.Set<Plan>().Where(x => x.ParentId == id);
+                    if (plans != null)
+                    {
+                        await BulkDeleteAsync(plans, CancellationToken.None);
+                    }
+
+                    //Delete All Rooms related to Plan
+                    var rooms = dbContext.Set<RoomDetails>().Where(x => x.PlanId == id);
+                    if (rooms != null)
+                    {
+                        await BulkDeleteAsync(rooms, CancellationToken.None);
+                    }
+                    //Delete All WorkFlow related to Plan inside Activity
+                    var workflows = dbContext.Set<Workflow>().Where(x => x.FlatId == id);
+                    if (workflows != null)
+                    {
+                        await BulkDeleteAsync(workflows, CancellationToken.None);
+                    }
+                    break;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in DeleteAllChildData method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
     public dynamic GetAllNotification(string member)
     {
         DateTime currentDateTime = DateTime.Now;
@@ -816,7 +879,7 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
-
+   
     private long? getProjectId<T>(T item)
         where T : LabModel
     {
@@ -900,7 +963,26 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
+    public virtual async Task<long> BulkDeleteAsync<T>(IEnumerable<T> items, CancellationToken cancellationToken) where T : LabModel
+    {
+        try
+        {
+            foreach (T item in items)
+            {
+                dbContext.Entry(item).State = EntityState.Modified;
+                dbContext.Entry(item).Property("Status").CurrentValue = StatusType.Deleted;
+            }
 
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return items.LongCount();
+        }
+        catch (Exception ex)
+        {
+            Exception ex2 = ex;
+            logger.LogError(ex2, ex2.StackTrace);
+            throw;
+        }
+    }
     public async Task<long> LogLabModelLog<T>(T item, StatusType activityType, CancellationToken cancellationToken)
     where T : LabModel
     {
@@ -1348,7 +1430,7 @@ public class RajDataHandler : LabDataHandler
     public dynamic GetActivtyDetailsForUser(string member, long projectId, long? towerId, long? floorId, long? flatId)
     {
         var logs = dbContext.Set<ApplicationLog>()
-                    .Where(l => l.Member == member && l.Name == "Activity").Select(a=>a.EntityId).Distinct();
+                    .Where(l => l.Member == member && l.Name == "Activity").Select(a => a.EntityId).Distinct();
 
         var activityQuery = dbContext.Set<Activity>()
                             .Where(a => a.ProjectId == projectId);

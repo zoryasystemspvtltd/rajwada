@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Col, Row, Form } from "react-bootstrap";
 import Table from 'react-bootstrap/Table';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
+import statusList from '../../../store/activity-status-check';
 import api from '../../../store/api-service';
 import { formatStringDate } from '../../../store/datetime-formatter';
+import { notify } from '../../../store/notification';
 import IUILookUp from '../../common/shared/IUILookUp';
-import IUIResetPasswordElement from '../../ResetUserPassword';
 import IUIPageElement from '../../common/shared/IUIPageElement';
 import ActivityStatusDashboard from './ActivityDashboard';
-import statusList from '../../../store/activity-status-check';
-import { notify } from '../../../store/notification';
 
 const ActivityListByStatus = () => {
     // Properties
@@ -57,10 +56,6 @@ const ActivityListByStatus = () => {
                             path: 'flats'
                         },
                     },
-                    {
-                        text: 'Engineer', field: 'userId', type: 'lookup', required: false, width: 3,
-                        schema: { module: 'user' }
-                    },
                 ]
             },
         ]
@@ -91,10 +86,10 @@ const ActivityListByStatus = () => {
     }
 
     const module = "activity";
-    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, roomId: null, userId: null };
 
     // Global State
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
+    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, roomId: null, userId: loggedInUser?.id };
 
     // Local State
     const [dirty, setDirty] = useState(false);
@@ -104,7 +99,9 @@ const ActivityListByStatus = () => {
     const [errors, setErrors] = useState({});
     const [privileges, setPrivileges] = useState({});
     const [dependencySelectParams, setDependencySelectParams] = useState(initialParams);
+    const [userList, setUserList] = useState([]);
     const [activities, setActivities] = useState([]);
+    const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false);
 
     // 🔥 NEW STATE
     const [counts, setCounts] = useState({
@@ -127,6 +124,78 @@ const ActivityListByStatus = () => {
     const [selectedStatus, setSelectedStatus] = useState(null);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        let isMounted = true;
+
+        const updateCurrentUserStatus = async () => {
+            let isAdmin = false;
+            loggedInUser?.roles?.forEach((role) => {
+                if (role?.includes("Head") || role?.includes("Admin")) {
+                    isAdmin = true;
+                }
+            });
+            setIsCurrentUserAdmin(isAdmin);
+
+            const baseFilter = {
+                name: 'email',
+                value: loggedInUser?.email
+            }
+
+            const pageOptions = {
+                recordPerPage: 0,
+                searchCondition: baseFilter
+            };
+
+            const response = await api.getData({
+                module: "user",
+                options: pageOptions
+            });
+            const userId = response?.data?.items[0]?.id;
+            setDependencySelectParams({ ...initialParams, userId: userId });
+        }
+
+        updateCurrentUserStatus();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [loggedInUser]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const fetchUserList = async () => {
+            try {
+                const pageOptions = {
+                    recordPerPage: 0,
+                };
+
+                const response = await api.getData({
+                    module: "user",
+                    options: pageOptions
+                });
+
+
+                if (isMounted) {
+                    setUserList(response?.data?.items);
+                }
+            } catch (error) {
+                console.error("Error fetching user list:", error);
+            }
+        };
+
+        if (
+            loggedInUser?.roles?.some(role => role?.includes("Head")) ||
+            loggedInUser?.roles?.some(role => role?.includes("Admin"))
+        ) {
+            fetchUserList();
+        }
+
+        return () => {
+            isMounted = false;
+        };
+    }, [loggedInUser, api]);
+
     // Privileges
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges
@@ -145,6 +214,7 @@ const ActivityListByStatus = () => {
             localStorage.removeItem("dependency-flow");
         }
     }, [loggedInUser, module]);
+
 
     const fetchStatusCount = async (status) => {
         try {
@@ -258,6 +328,11 @@ const ActivityListByStatus = () => {
         setDependencySelectParams({ ...dependencySelectParams, ...e.target.value });
     };
 
+    const handleUserSelection = (e) => {
+        e.preventDefault();
+        setDependencySelectParams({ ...dependencySelectParams, userId: e.target.value });
+    }
+
     useEffect(() => {
         if (
             dependencySelectParams.projectId !== null &&
@@ -282,7 +357,7 @@ const ActivityListByStatus = () => {
             notify("info", "Please select an activity status!");
             return;
         }
-        
+
         try {
             if (dependencySelectParams.userId && !dependencySelectParams.userId?.includes("Select")) {
                 const user = await api.getSingleData({ module: 'user', id: parseInt(dependencySelectParams.userId) });
@@ -477,7 +552,35 @@ const ActivityListByStatus = () => {
                                                     </Col>
                                                 </Row>
                                             ))}
-
+                                            {
+                                                (isCurrentUserAdmin) && (
+                                                    <div className="row">
+                                                        <div className="col-md-3">
+                                                            <Form.Group className="position-relative form-group">
+                                                                <Form.Label className='mb-2'>
+                                                                    Engineer
+                                                                </Form.Label>
+                                                                <div>
+                                                                    < select
+                                                                        aria-label={`select-dependency-for-user`}
+                                                                        id={`select-dependency-for-user`}
+                                                                        value={dependencySelectParams.userId}
+                                                                        data-name={"userId"}
+                                                                        name='select'
+                                                                        className={`form-control`}
+                                                                        disabled={false}
+                                                                        onChange={handleUserSelection}>
+                                                                        <option>--Select--</option>
+                                                                        {userList?.map((item, i) => (
+                                                                            <option key={i} value={item.id}>{item.name}</option>
+                                                                        ))}
+                                                                    </select>
+                                                                </div>
+                                                            </Form.Group>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            }
                                             <Row>
                                                 <Col>
                                                     <Button
@@ -488,6 +591,7 @@ const ActivityListByStatus = () => {
                                                     >
                                                         Search
                                                     </Button>
+
 
                                                     <Button
                                                         variant="contained"
@@ -575,12 +679,12 @@ const ActivityListByStatus = () => {
                                 </div>
                             )}
                         </div>
-
                     </div>
                 </div>
             </div>
         </>
     );
 };
+
 
 export default ActivityListByStatus;

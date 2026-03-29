@@ -15,6 +15,8 @@ import IUIMultiAssign from './shared/IUIMultiAssign';
 import IUICopy from './shared/IUICopy';
 import IUIMultiCopyFilter from './shared/IUIMultiCopyFilter';
 import { preprocess } from '../../store/preprocesser';
+import deleteDependency from '../../store/delete-dependencies';
+import IUIDeleteModal from './IUIDeleteModal';
 
 const IUIPage = (props) => {
     // Properties
@@ -58,6 +60,9 @@ const IUIPage = (props) => {
             ?.map(f => f?.ownSearchField)
             ?.filter(Boolean) || [];
     }, [schema]);
+    // For Delete
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
 
     useEffect(() => {
         async function fetchData() {
@@ -485,15 +490,22 @@ const IUIPage = (props) => {
         setRemarks('');
     }
 
-    const deletePageValue = async (e) => {
+    const handleDeleteClick = (e) => {
+        e.preventDefault();
+        setSelectedItem({ module: module, id: id });
+        setShowDeleteModal(true);
+    };
+
+    const deletePageValue = async (e, itemId) => {
         try {
             e.preventDefault();
             setIsInProgress(true);
 
-            const isAllowed = await isDeleteAllowed(module, id);
+            // const isAllowed = await isDeleteAllowed(module, id);
+            const isAllowed = true;
 
             if (isAllowed) {
-                api.deleteData({ module: module, id: id });
+                api.deleteData({ module: module, id: parseInt(itemId) });
                 dispatch(setSave({ module: module }))
 
                 const timeId = setTimeout(() => {
@@ -852,7 +864,7 @@ const IUIPage = (props) => {
                                                                         <Button
                                                                             variant="contained"
                                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                            onClick={deletePageValue}
+                                                                            onClick={handleDeleteClick}
                                                                         >
                                                                             Delete
                                                                         </Button>
@@ -1051,6 +1063,14 @@ const IUIPage = (props) => {
                                 </Modal.Footer>
                             </Modal>
                         }
+                        {showDeleteModal && (
+                            <IUIDeleteModal
+                                item={selectedItem}
+                                onConfirm={deletePageValue}
+                                onCancel={() => setShowDeleteModal(false)}
+                            />
+                        )}
+
                     </div>
                 </div>
             </div>

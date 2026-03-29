@@ -36,38 +36,21 @@ const Dashboard = () => {
             try {
                 const userPageOptions = { recordPerPage: 0 };
                 const pageOptionsPortfolio = { recordPerPage: 0 };
-                const activityPageOptions = { recordPerPage: 0, searchCondition: { name: 'type', value: 'Sub Task' } };
-                const mainActivityPageOptions = { recordPerPage: 0, searchCondition: { name: 'type', value: 'Main Task' } };
+                const activityPageOptions = { recordPerPage: 0 };
 
-                const [userData, projectData, departmentData, activityData, mainActivityData] = await Promise.all([
+                const [userData, projectData, departmentData, activityData] = await Promise.all([
                     api.getData({ module: 'user', options: userPageOptions }),
                     api.getMyProject(),
                     api.getData({ module: 'department', options: pageOptionsPortfolio }),
-                    api.getData({ module: 'activity', options: activityPageOptions }),
-                    api.getData({ module: 'activity', options: mainActivityPageOptions }),
+                    api.getData({ module: 'activity', options: activityPageOptions })
                 ]);
                 // console.log(projectData);
                 setProjects(projectData?.data);
 
                 const updatedActivities = await Promise.all(
-                    mainActivityData?.data?.items?.map(async (activity, index) => {
-                        const baseFilter = {
-                            name: 'parentId',
-                            value: parseInt(activity.id)
-                        };
-                        const pageOptions = {
-                            recordPerPage: 0,
-                            searchCondition: baseFilter
-                        };
-
-                        let childActivities = [];
-                        try {
-                            const childActivitiesResponse = await api.getData({ module: 'activity', options: pageOptions });
-                            childActivities = childActivitiesResponse.data.items || [];
-                        } catch (error) {
-                            notify("error", 'Error fetching child activities');
-                        }
-
+                    activityData?.data?.items?.map(async (activity, index) => {
+                        const childActivities = [activity];
+                        
                         const data = {
                             labels: childActivities.map(sub => sub.name),
                             datasets: [

@@ -2,7 +2,9 @@
 using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
+using MySqlX.XDevAPI.Common;
 using Newtonsoft.Json;
+using RajApi.Controllers;
 using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
@@ -918,6 +920,24 @@ namespace ILab.Data
             {
                 logger.LogError("Exception in GetAllAssignedModules method and details: " + ex.Message);
                 return 0;
+            }
+        }
+        internal async Task DeleteChildData(string module, long id, CancellationToken token)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.DeleteAllChildData));
+                object[] parameters = [module, id];
+                var result = method?.Invoke(handler, parameters);
+                if (result is System.Threading.Tasks.Task task)
+                {
+                    // Complete the operation before continuing to avoid concurrent DbContext use
+                    task.GetAwaiter().GetResult();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in DeleteChildData method and details: " + ex.Message);
             }
         }
 
