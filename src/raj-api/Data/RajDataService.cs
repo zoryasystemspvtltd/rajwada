@@ -927,7 +927,7 @@ namespace ILab.Data
             try
             {
                 var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.DeleteAllChildData));
-                object[] parameters = [module, id];
+                object[] parameters = [module, id, token];
                 var result = method?.Invoke(handler, parameters);
                 if (result is System.Threading.Tasks.Task task)
                 {
