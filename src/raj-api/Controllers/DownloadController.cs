@@ -3,6 +3,7 @@ using ILab.Data;
 using ILab.Extensionss.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Mysqlx.Notice;
 using RajApi.Data;
 using RajApi.Data.Models;
 using System.Data;
@@ -185,10 +186,10 @@ public class DownloadController : ControllerBase
             return BadRequest(new { message = "An error occurred while generating the template.", error = ex.Message });
         }
     }
-    private dynamic? GetModuleDetails()
+    private dynamic? GetModuleDetails(string module)
     {
         ListOptions option = new();
-        var data = dataService.Get("room", option);
+        var data = dataService.Get(module, option);
 
         if (data != null)
         {
@@ -196,28 +197,163 @@ public class DownloadController : ControllerBase
         }
         else
         {
-            logger.LogError("No data retrive from backend for room");
+            logger.LogError("No data retrive from backend for " + module);
             return null;
         }
     }
-
     private DataTable GetTemplate(string module)
     {
         DataTable dt = new();
         switch (module.ToUpper())
         {
             case "FLAT":
-                var room = GetModuleDetails();
-                dt = CreateFlatTemplate(room);
+                dt = CreateFlatTemplate();
                 break;
             case "TOWER":
-                dt = CreateTowerTemplate();
+                var parking = GetModuleDetails("ParkingType");
+                dt = CreateTowerTemplate(parking);
                 break;
             case "FLOOR":
                 dt = CreateFloorTemplate();
                 break;
-
+            case "PROJECT":
+                dt = CreateProjectTemplate();
+                break;
+            case "ROOMTYPE":
+                dt = CreateRoomTypeTemplate();
+                break;
+            case "UOM":
+            case "ITEMTYPE":
+            case "ITEMGROUP":
+            case "OUTSIDEENTITYTYPE":
+            case "PARKINGTYPE":
+                dt = CreateUOMTemplate();
+                break;
+            case "CONTRACTOR":
+                dt = CreateContractorTemplate();
+                break;
+            case "SUPPLIER":
+                dt = CreateSupplierTemplate();
+                break;
+            case "ITEM":
+                dt = CreateItemTemplate();
+                break;
+            case "FLATTEMPLATE":
+                var roomtype = GetModuleDetails("RoomType");
+                dt = CreateFlattempTemplate(roomtype);
+                break;
+            case "PARKING":
+                dt = CreateParkingTemplate();
+                break;
+            case "OUTSIDEENTITY":
+                var outSideEntityType = GetModuleDetails("OutSideEntityType");
+                dt = CreateOutSideEntityTemplate(outSideEntityType);
+                break;
         }
+        return dt;
+    }
+
+    private DataTable CreateOutSideEntityTemplate(dynamic? outSideEntityType)
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Project");
+        dt.Columns.Add("Tower");
+        dt.Columns.Add("Floor");
+        if (outSideEntityType != null)
+        {
+            foreach (var item in outSideEntityType)
+            {
+                var name = item.Name;
+                dt.Columns.Add(name);
+            }
+        }
+        return dt;
+    }
+
+    private DataTable CreateParkingTemplate()
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Project");
+        dt.Columns.Add("Tower");
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Parking Type");
+        return dt;
+    }
+
+    private DataTable CreateFlattempTemplate(dynamic? roomtype)
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Description");
+        if (roomtype != null)
+        {
+            foreach (var item in roomtype)
+            {
+                var name = item.Name;
+                dt.Columns.Add(name);
+            }
+        }
+        return dt;
+    }
+   
+    private DataTable CreateItemTemplate()
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Group");
+        dt.Columns.Add("Type");
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Alias");
+        dt.Columns.Add("UOM");
+        return dt;
+    }
+
+    private DataTable CreateSupplierTemplate()
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Alias");
+        dt.Columns.Add("Address 1");
+        dt.Columns.Add("Phone");
+        dt.Columns.Add("PAN");
+        dt.Columns.Add("GST");
+        dt.Columns.Add("Licence No");
+        dt.Columns.Add("SPOC");
+        dt.Columns.Add("Effective Start Date");
+        dt.Columns.Add("Effective End Date");
+        return dt;
+    }
+
+    private DataTable CreateContractorTemplate()
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Alias");
+        dt.Columns.Add("Type");
+        dt.Columns.Add("Address 1");
+        dt.Columns.Add("Phone");
+        dt.Columns.Add("PAN");
+        dt.Columns.Add("GST");
+        dt.Columns.Add("Licence No");
+        dt.Columns.Add("SPOC");
+        dt.Columns.Add("Effective Start Date");
+        dt.Columns.Add("Effective End Date");
+        return dt;
+    }
+
+    private DataTable CreateUOMTemplate()
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Alias");
+        return dt;
+    }
+
+    private DataTable CreateRoomTypeTemplate()
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Alias");
+        dt.Columns.Add("Description");
         return dt;
     }
 
@@ -230,25 +366,16 @@ public class DownloadController : ControllerBase
         return dt;
     }
 
-    private static DataTable CreateTowerTemplate()
+    private static DataTable CreateTowerTemplate(dynamic? parking)
     {
         DataTable dt = new();
         dt.Columns.Add("Name");
         dt.Columns.Add("Description");
         dt.Columns.Add("Project");
-        return dt;
-    }
-
-    private static DataTable CreateFlatTemplate(dynamic room)
-    {
-        DataTable dt = new();
-        dt.Columns.Add("Name");
-        dt.Columns.Add("Description");
-        dt.Columns.Add("Floor");
-        dt.Columns.Add("Tower");
-        if (room != null)
+        dt.Columns.Add("Floor Count");
+        if (parking != null)
         {
-            foreach (var item in room)
+            foreach (var item in parking)
             {
                 var name = item.Name;
                 dt.Columns.Add(name);
@@ -256,7 +383,47 @@ public class DownloadController : ControllerBase
         }
         return dt;
     }
-
+    private static DataTable CreateFlatTemplate()
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Description");
+        dt.Columns.Add("Floor");
+        dt.Columns.Add("Priority");
+        //if (room != null)
+        //{
+        //    foreach (var item in room)
+        //    {
+        //        var name = item.Name;
+        //        dt.Columns.Add(name);
+        //    }
+        //}
+        return dt;
+    }
+    private static DataTable CreateProjectTemplate()
+    {
+        DataTable dt = new();
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Alias");
+        dt.Columns.Add("Start Fin Year");
+        dt.Columns.Add("Planned Start Date");
+        dt.Columns.Add("Planned End Date");
+        dt.Columns.Add("Completion Certificate Date");
+        dt.Columns.Add("Belongs To");
+        dt.Columns.Add("Zone");
+        dt.Columns.Add("Address 1");
+        dt.Columns.Add("Address 2");
+        dt.Columns.Add("Address 3");
+        dt.Columns.Add("Country");
+        dt.Columns.Add("State");
+        dt.Columns.Add("City");
+        dt.Columns.Add("PIN");
+        dt.Columns.Add("Latitude");
+        dt.Columns.Add("Longitude");
+        dt.Columns.Add("Phone");
+        dt.Columns.Add("Contact Name");
+        return dt;
+    }
     private async Task<dynamic> GetFile(string module, long id, string columnName)
     {
         var data = await dataService.GetUploadedfile(module, id);
