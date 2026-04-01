@@ -3,6 +3,7 @@ using ILab.Data;
 using ILab.Extensionss.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Mysqlx.Notice;
 using RajApi.Data;
 using RajApi.Data.Models;
 using System.Data;
@@ -66,7 +67,7 @@ public class DownloadController : ControllerBase
         }
     }
 
-    private DateTime GetDateTime(string startDate)
+    private static DateTime GetDateTime(string startDate)
     {
         var newtime = new TimeSpan(00, 00, 0); //12:00 AM
         var updated = Convert.ToDateTime(startDate).Date + newtime;
@@ -185,10 +186,45 @@ public class DownloadController : ControllerBase
             return BadRequest(new { message = "An error occurred while generating the template.", error = ex.Message });
         }
     }
-    private dynamic? GetModuleDetails()
+    private DataTable GetTemplate(string module)
+    {
+        if (string.IsNullOrWhiteSpace(module))
+            return new DataTable();
+
+        module = module.ToUpperInvariant();
+
+        var map = new Dictionary<string, Func<DataTable>>
+                {
+                    ["FLAT"] = CreateFlatTemplate,
+                    ["TOWER"] = () => CreateTowerTemplate(GetModuleDetails("ParkingType")),
+                    ["FLOOR"] = CreateFloorTemplate,
+                    ["PROJECT"] = CreateProjectTemplate,
+                    ["ROOMTYPE"] = CreateRoomTypeTemplate,
+
+                    ["UOM"] = CreateUOMTemplate,
+                    ["ASSETTYPE"] = CreateUOMTemplate,
+                    ["ASSETGROUP"] = CreateUOMTemplate,
+                    ["OUTSIDEENTITYTYPE"] = CreateUOMTemplate,
+                    ["PARKINGTYPE"] = CreateUOMTemplate,
+
+                    ["CONTRACTOR"] = CreateContractorTemplate,
+                    ["SUPPLIER"] = CreateSupplierTemplate,
+                    ["ITEM"] = CreateItemTemplate,
+
+                    ["FLATTEMPLATE"] = () => CreateFlattempTemplate(GetModuleDetails("RoomType")),
+                    ["PARKING"] = CreateParkingTemplate,
+                    ["OUTSIDEENTITY"] = () => CreateOutSideEntityTemplate(GetModuleDetails("OutSideEntityType"))
+                };
+
+        return map.TryGetValue(module, out var func)
+            ? func()
+            : new DataTable();
+    }
+
+    private dynamic? GetModuleDetails(string module)
     {
         ListOptions option = new();
-        var data = dataService.Get("room", option);
+        var data = dataService.Get(module, option);
 
         if (data != null)
         {
@@ -196,67 +232,101 @@ public class DownloadController : ControllerBase
         }
         else
         {
-            logger.LogError("No data retrive from backend for room");
+            logger.LogError("No data retrive from backend for " + module);
             return null;
         }
     }
-
-    private DataTable GetTemplate(string module)
+    private static DataTable CreateTable(params string[] columns)
     {
-        DataTable dt = new();
-        switch (module.ToUpper())
-        {
-            case "FLAT":
-                var room = GetModuleDetails();
-                dt = CreateFlatTemplate(room);
-                break;
-            case "TOWER":
-                dt = CreateTowerTemplate();
-                break;
-            case "FLOOR":
-                dt = CreateFloorTemplate();
-                break;
-
-        }
+        var dt = new DataTable();
+        foreach (var col in columns)
+            dt.Columns.Add(col);
         return dt;
+    }
+
+    private static void AddDynamicColumns(DataTable dt, dynamic? data)
+    {
+        if (data == null) return;
+
+        foreach (var item in data)
+            dt.Columns.Add(item.Name);
+    }
+
+
+    private static DataTable CreateOutSideEntityTemplate(dynamic? outSideEntityType)
+    {
+        var dt = CreateTable("Project", "Tower", "Floor");
+        AddDynamicColumns(dt, outSideEntityType);
+        return dt;
+    }
+
+    private static DataTable CreateParkingTemplate()
+    {
+        return CreateTable("Project", "Tower", "Name", "Parking Type");
+    }
+
+    private static DataTable CreateFlattempTemplate(dynamic? roomtype)
+    {
+        var dt = CreateTable("Name", "Description");
+        AddDynamicColumns(dt, roomtype);
+        return dt;
+    }
+
+    private static DataTable CreateItemTemplate()
+    {
+        return CreateTable("Group", "Type", "Name", "Alias", "UOM");
+    }
+
+    private static DataTable CreateSupplierTemplate()
+    {
+        return CreateTable("Name", "Alias", "Address 1", "Phone", "PAN", "GST", "Licence No", "SPOC", "Effective Start Date", "Effective End Date");
+    }
+
+    private static DataTable CreateContractorTemplate()
+    {
+        return CreateTable(
+            "Name", "Alias", "Type", "Address 1", "Phone",
+            "PAN", "GST", "Licence No", "SPOC",
+            "Effective Start Date", "Effective End Date"
+        );
+    }
+
+    private static DataTable CreateUOMTemplate()
+    {
+        return CreateTable("Name", "Alias");
+    }
+
+    private static DataTable CreateRoomTypeTemplate()
+    {
+        return CreateTable("Name", "Alias", "Description");
     }
 
     private static DataTable CreateFloorTemplate()
     {
-        DataTable dt = new();
-        dt.Columns.Add("Name");
-        dt.Columns.Add("Description");
-        dt.Columns.Add("Tower");
-        return dt;
+        return CreateTable("Name", "Description", "Tower");
     }
 
-    private static DataTable CreateTowerTemplate()
+    private static DataTable CreateTowerTemplate(dynamic? parking)
     {
-        DataTable dt = new();
-        dt.Columns.Add("Name");
-        dt.Columns.Add("Description");
-        dt.Columns.Add("Project");
+        var dt = CreateTable("Name", "Description", "Project", "Floor Count");
+        AddDynamicColumns(dt, parking);
         return dt;
     }
-
-    private static DataTable CreateFlatTemplate(dynamic room)
+    private static DataTable CreateFlatTemplate()
     {
-        DataTable dt = new();
-        dt.Columns.Add("Name");
-        dt.Columns.Add("Description");
-        dt.Columns.Add("Floor");
-        dt.Columns.Add("Tower");
-        if (room != null)
-        {
-            foreach (var item in room)
-            {
-                var name = item.Name;
-                dt.Columns.Add(name);
-            }
-        }
-        return dt;
+        return CreateTable("Name", "Description", "Floor", "Priority");
     }
-
+    private static DataTable CreateProjectTemplate()
+    {
+        return CreateTable(
+            "Name", "Alias", "Start Fin Year",
+            "Planned Start Date", "Planned End Date",
+            "Completion Certificate Date", "Belongs To", "Zone",
+            "Address 1", "Address 2", "Address 3",
+            "Country", "State", "City", "PIN",
+            "Latitude", "Longitude", "Phone", "Contact Name"
+        );
+    }
     private async Task<dynamic> GetFile(string module, long id, string columnName)
     {
         var data = await dataService.GetUploadedfile(module, id);
