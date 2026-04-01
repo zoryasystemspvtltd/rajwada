@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from 'react-redux';
 import IUIMenuItem from "./shared/IUIMenuItem";
-import softwareLogo from "../../assets/images/civilier_new_logo.jpeg";
+import softwareLogo from "../../assets/images/civilier_new_logo.png";
 import schema from "../../store/menu-schema.json";
 
 const LeftMenu = (props) => {
