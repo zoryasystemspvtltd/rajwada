@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
-import logo from '../assets/images/civilier_new_logo.jpeg';
+import logo from '../assets/images/civilier_new_logo.png';
 import { useAuth } from "../provider/authProvider";
 import { loginUser } from "../store/api-db";
 import ICarousel from "./common/ICarousel";

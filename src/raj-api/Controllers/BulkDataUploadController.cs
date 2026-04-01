@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using RajApi.Data;
 using RajApi.Data.Models;
 using System.Data;
+using System.Timers;
 
 namespace RajApi.Controllers;
 
@@ -126,248 +127,332 @@ public class BulkDataUploadController : ControllerBase
 
     }
 
-    private async Task<BulkResponse> SaveToDatabase(string dataModel, DataTable dataTable, BulkResponse response, CancellationToken token)
+    private async Task<BulkResponse> SaveToDatabase(
+    string dataModel, DataTable dataTable, BulkResponse response, CancellationToken token)
     {
         try
         {
-            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
-            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
+            var member = User.Claims.First(x => x.Type == "activity-member").Value;
+            var key = User.Claims.First(x => x.Type == "activity-key").Value;
+
             dataService.Identity = new ModuleIdentity(member, key);
 
-            for (int i = 0; i < dataTable.Rows.Count; i++)
-            {
-                var dataRow = dataTable.Rows[i];
-                dynamic? data = null;
-                switch (dataModel.ToUpper())
-                {
-                    case "TOWERDETAILS":
-                        (data, response) = CreateTowerDataModel(dataRow, member, key, response);
-                        break;
-                    case "FLATDETAILS":
-                        (data, response) = CreateFlatDataModel(dataRow, member, key, response);
-                        break;
-                    case "FLOORDETAILS":
-                        (data, response) = CreateFloorDataModel(dataRow, member, key, response);
-                        break;
-                }
+            dataModel = dataModel?.ToUpperInvariant();
 
-                if (data != null)
+            var creators = new Dictionary<string, Func<DataRow, (dynamic?, BulkResponse)>>
+            {
+                ["TOWERDETAILS"] = row => CreateTowerDataModel(row, member, key, response),
+                ["FLATDETAILS"] = row => CreateFlatDataModel(row, member, key, response),
+                ["FLOORDETAILS"] = row => CreateFloorDataModel(row, member, key, response),
+                ["UOMDETAILS"] = row => CreateUOMDataModel(row, member, key, response),
+                ["ASSETTYPE"] = row => CreateAssetTypeDataModel(row, member, key, response),
+                ["ASSETGROUP"] = row => CreateAssetGroupDataModel(row, member, key, response),
+                ["OUTSIDEENTITYTYPE"] = row => CreateOutSideEntityTypeDataModel(row, member, key, response),
+                ["PARKINGTYPE"] = row => CreateParkingTypeDataModel(row, member, key, response)
+            };
+
+            if (!creators.TryGetValue(dataModel, out var createFunc))
+                return response;
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                var (data, updatedResponse) = createFunc(row);
+                response = updatedResponse;
+
+                if (data == null) continue;
+
+                long planId = await dataService.SaveDataAsync("Plan", data, token);
+
+                if (planId > 0 && dataModel == "FLATDETAILS")
                 {
-                    long planId = await dataService.SaveDataAsync("Plan", data, token);
-                    if (planId > 0 && dataModel.ToUpper().Equals("FLATDETAILS"))
+                    var (rooms, res) = CreateRoomDetailsDataModel(row, planId, member, key, response);
+                    response = res;
+
+                    if (rooms is List<RoomDetails> roomList && roomList.Count > 0)
                     {
-                        (data, response) = CreateRoomDetailsDataModel(dataRow, planId, member, key, response);
-                        if (data != null)
-                        {
-                            foreach (RoomDetails item in data)
-                            {
-                                await dataService.SaveDataAsync("RoomDetails", item, token);
-                            }
-                        }
+                        foreach (var item in roomList)
+                            await dataService.SaveDataAsync("RoomDetails", item, token);
                     }
                 }
             }
         }
         catch (Exception ex)
         {
-            logger.LogError("Error to save data:" + ex.Message);
+            logger.LogError(ex, "Error saving data");
             response.FailureData?.Add(ex.Message);
         }
+
         return response;
     }
 
-    private (dynamic data, BulkResponse response) CreateRoomDetailsDataModel(DataRow dataRow, long planId, string member, string key, BulkResponse response)
+    private (dynamic?, BulkResponse) CreateParkingTypeDataModel(DataRow row, string member, string key, BulkResponse response)
     {
-        List<RoomDetails> listResources = [];
-        if (dataRow.Table.Columns.Count > 4)
-        {
-            for (int i = 4; i < dataRow.Table.Columns.Count; i++)
+        return CreateSimpleDataModel(row, member, response, "ParkingType",
+            (name, alias, m) => new ParkingType
             {
-                string roomName = dataRow.Table.Columns[i].ToString();
+                Date = DateTime.Now,
+                Member = m,
+                Key = key,
+                Name = name,
+                Code = alias
+            });
+    }
 
-                try
-                {
-                    if (string.IsNullOrEmpty(dataRow[i].ToString()))
-                    {
-                        response.FailureData.Add(roomName + ": value is blank!");
-                    }
-                    else if (dataRow[i] != null && Convert.ToInt32(dataRow[i]) > 0)
-                    {
-                        //Get RoomType details
-                        var roomType = GetModuleDetails("RoomType", "Name", roomName, null, 0);
-                        if (roomType != null)
-                        {
-                            int quatity = Convert.ToInt32(dataRow[i]);
-                            for (int j = 1; j <= quatity; j++)
-                            {
-                                //Duplicate checking
-                                var roomDetails = GetModuleDetails("RoomDetails", "RoomId", roomType.Id.ToString(), "RoomType", planId);
-                                if (roomDetails == null)
-                                {
-                                    var roomId = roomName + "-" + j;
-                                    response.SuccessData.Add(roomName + "/" + j + " RoomDetails added!");
-                                    RoomDetails rec = new()
-                                    {
-                                        RoomId = roomId,
-                                        Name = roomType + "-" + j,
-                                        Date = DateTime.Now,
-                                        Member = member,
-                                        Key = key,
-                                        RoomTypeId = roomType.Id,
-                                        PlanId = planId
-                                    };
-                                    listResources.Add(rec);
-                                    roomId = "";
-                                }
-                                else
-                                {
-                                    response.FailureData.Add(roomType.Name + ": RoomDetails already exist!");
-                                }
-                            }
+    private (dynamic?, BulkResponse) CreateOutSideEntityTypeDataModel(DataRow row, string member, string key, BulkResponse response)
+    {
+        return CreateSimpleDataModel(row, member, response, "OutSideEntityType",
+            (name, alias, m) => new OutSideEntityType
+            {
+                Date = DateTime.Now,
+                Member = m,
+                Key = key,
+                Name = name,
+                Code = alias
+            });
+    }
 
-                        }
-                        else
-                        {
-                            response.FailureData.Add(roomName + ": Room name not exist!");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError("Error to save room data:" + ex.Message);
-                    response.FailureData?.Add(roomName + ":" + ex.Message);
-                }
-            }
-            return (listResources, response);
+    private (dynamic?, BulkResponse) CreateAssetGroupDataModel(DataRow row, string member, string key, BulkResponse response)
+    {
+        return CreateSimpleDataModel(row, member, response, "AssetGroup",
+            (name, alias, m) => new AssetGroup
+            {
+                Date = DateTime.Now,
+                Member = m,
+                Key = key,
+                Name = name,
+                Code = alias
+            });
+    }
+
+    private (dynamic?, BulkResponse) CreateAssetTypeDataModel(DataRow row, string member, string key, BulkResponse response)
+    {
+        return CreateSimpleDataModel(row, member, response, "AssetType",
+            (name, alias, m) => new AssetType
+            {
+                Date = DateTime.Now,
+                Member = m,
+                Key = key,
+                Name = name,
+                Code = alias
+            });
+    }
+    private (dynamic?, BulkResponse) CreateUOMDataModel(DataRow row, string member, string key, BulkResponse response)
+    {
+        return CreateSimpleDataModel(row, member, response, "UOM",
+            (name, alias, m) => new Uom
+            {
+                Date = DateTime.Now,
+                Member = m,
+                Key = key,
+                Name = name,
+                Code = alias
+            });
+    }
+
+    private (TEntity?, BulkResponse) CreateSimpleDataModel<TEntity>(
+    DataRow row, string member, BulkResponse response, string moduleName,
+    Func<string, string, string, TEntity> factory)
+    where TEntity : class
+    {
+        var name = row[0]?.ToString();
+        var alias = row[1]?.ToString();
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            response.FailureData.Add("Name is required!");
+            return (null, response);
         }
-        else
+
+        // Duplicate Check
+        if (GetModuleDetails(moduleName, "Name", name, null, 0) != null)
+        {
+            response.FailureData.Add($"{name}: Already exists!");
+            return (null, response);
+        }
+
+        response.SuccessData.Add($"{name} added!");
+
+        return (factory(name, alias, member), response);
+    }
+    private (dynamic data, BulkResponse response) CreateRoomDetailsDataModel(
+     DataRow row, long planId, string member, string key, BulkResponse response)
+    {
+        var result = new List<RoomDetails>();
+
+        if (row.Table.Columns.Count <= 4)
         {
             response.FailureData.Add("No Rooms exist in the excelsheet!");
             return (null, response);
         }
-    }
 
-    private (dynamic?, BulkResponse) CreateFloorDataModel(DataRow dataRow, string member, string key, BulkResponse response)
-    {
-        //Get Tower details
-        var tower = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "tower", 0);
-        if (tower != null)
+        for (int i = 4; i < row.Table.Columns.Count; i++)
         {
-            //Duplicate checking
-            var floor = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "floor", 0);
-            if (floor == null)
-            {
-                response.SuccessData.Add(dataRow[0].ToString() + " added!");
-                Plan obj = new()
-                {
-                    Date = DateTime.Now,
-                    Member = member,
-                    Key = key,
-                    Type = "floor",
-                    Name = dataRow[0].ToString(),
-                    Description = dataRow[1].ToString(),
-                    ProjectId = tower.ProjectId,
-                    ParentId = tower.Id
-                };
-                return (obj, response);
-            }
-            else
-            {
-                response.FailureData.Add(dataRow[0].ToString() + ": Already exist!");
-                return (null, response);
-            }
-        }
-        else
-        {
-            response.FailureData.Add(dataRow[0].ToString() + ": Tower name not exist!");
-            return (null, response);
-        }
+            var roomName = row.Table.Columns[i].ToString();
+            var value = row[i]?.ToString();
 
-    }
-    private (dynamic?, BulkResponse) CreateFlatDataModel(DataRow dataRow, string member, string key, BulkResponse response)
-    {
-        //Get Tower details
-        var tower = GetModuleDetails("Plan", "Name", dataRow[3].ToString(), "tower", 0);
-        if (tower != null)
-        {
-            //Get Floor details
-            var floor = GetModuleDetails("Plan", "Name", dataRow[2].ToString(), "floor", (long)tower.Id);
-            if (floor != null)
+            try
             {
-                //Duplicate checking
-                var flat = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "flat", 0);
-                if (flat == null)
+                if (string.IsNullOrWhiteSpace(value))
                 {
-                    response.SuccessData.Add(dataRow[0].ToString() + " added!");
-                    Plan obj = new()
+                    response.FailureData.Add($"{roomName}: value is blank!");
+                    continue;
+                }
+
+                if (!int.TryParse(value, out int quantity) || quantity <= 0)
+                    continue;
+
+                var roomType = GetModuleDetails("RoomType", "Name", roomName, null, 0);
+                if (roomType == null)
+                {
+                    response.FailureData.Add($"{roomName}: Room name not exist!");
+                    continue;
+                }
+
+                for (int j = 1; j <= quantity; j++)
+                {
+                    var exists = GetModuleDetails("RoomDetails", "RoomId",
+                        roomType.Id.ToString(), "RoomType", planId);
+
+                    if (exists != null)
                     {
+                        response.FailureData.Add($"{roomType.Name}: already exists!");
+                        continue;
+                    }
+
+                    result.Add(new RoomDetails
+                    {
+                        RoomId = $"{roomName}-{j}",
+                        Name = $"{roomType}-{j}",
                         Date = DateTime.Now,
                         Member = member,
                         Key = key,
-                        Type = "flat",
-                        Name = dataRow[0].ToString(),
-                        Description = dataRow[1].ToString(),
-                        ProjectId = floor.ProjectId,
-                        ParentId = floor.Id
-                    };
+                        RoomTypeId = roomType.Id,
+                        PlanId = planId
+                    });
 
-                    return (obj, response);
-                }
-                else
-                {
-                    response.FailureData.Add(dataRow[0].ToString() + ": Already exist!");
-                    return (null, response);
+                    response.SuccessData.Add($"{roomName}/{j} added!");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                response.FailureData.Add(dataRow[0].ToString() + ": Floor name not exist!");
-                return (null, response);
+                logger.LogError(ex, "Error saving room data");
+                response.FailureData.Add($"{roomName}: {ex.Message}");
             }
         }
-        else
-        {
-            response.FailureData.Add(dataRow[0].ToString() + ": Tower name not exist!");
-            return (null, response);
-        }
-    }
 
-    private (dynamic?, BulkResponse) CreateTowerDataModel(DataRow dataRow, string member, string key, BulkResponse response)
+        return (result, response);
+    }
+    private (dynamic?, BulkResponse) CreateFloorDataModel(DataRow row, string member, string key, BulkResponse response)
     {
-        //Get Project details
-        var project = GetModuleDetails("Project", "Name", dataRow[2].ToString(), null, 0);
-        if (project != null)
+        var name = row[0]?.ToString();
+        var desc = row[1]?.ToString();
+        var towerName = row[2]?.ToString();
+
+        // Get Tower
+        var tower = GetModuleDetails("Plan", "Name", towerName, "tower", 0);
+        if (tower == null)
         {
-            //Duplicate checking
-            var tower = GetModuleDetails("Plan", "Name", dataRow[0].ToString(), "tower", 0);
-            if (tower == null)
-            {
-                response.SuccessData.Add(dataRow[0].ToString() + " added!");
-                Plan obj = new()
-                {
-                    Date = DateTime.Now,
-                    Member = member,
-                    Key = key,
-                    Type = "tower",
-                    Name = dataRow[0].ToString(),
-                    Description = dataRow[1].ToString(),
-                    ProjectId = project.Id,
-                };
-                return (obj, response);
-            }
-            else
-            {
-                response.FailureData.Add(dataRow[0].ToString() + ": Already exist!");
-                return (null, response);
-            }
-        }
-        else
-        {
-            response.FailureData.Add(dataRow[0].ToString() + ": Project name not exist!");
+            response.FailureData.Add($"{name}: Tower not found!");
             return (null, response);
         }
-    }
 
+        // Duplicate Check
+        if (GetModuleDetails("Plan", "Name", name, "floor", 0) != null)
+        {
+            response.FailureData.Add($"{name}: Already exists!");
+            return (null, response);
+        }
+
+        response.SuccessData.Add($"{name} added!");
+
+        return (new Plan
+        {
+            Date = DateTime.Now,
+            Member = member,
+            Key = key,
+            Type = "floor",
+            Name = name,
+            Description = desc,
+            ProjectId = tower.ProjectId,
+            ParentId = tower.Id
+        }, response);
+    }
+    private (dynamic?, BulkResponse) CreateFlatDataModel(DataRow row, string member, string key, BulkResponse response)
+    {
+        var name = row[0]?.ToString();
+        var desc = row[1]?.ToString();
+        var floorName = row[2]?.ToString();
+        var towerName = row[3]?.ToString();
+
+        // Get Tower
+        var tower = GetModuleDetails("Plan", "Name", towerName, "tower", 0);
+        if (tower == null)
+        {
+            response.FailureData.Add($"{name}: Tower not found!");
+            return (null, response);
+        }
+
+        // Get Floor
+        var floor = GetModuleDetails("Plan", "Name", floorName, "floor", (long)tower.Id);
+        if (floor == null)
+        {
+            response.FailureData.Add($"{name}: Floor not found!");
+            return (null, response);
+        }
+
+        // Duplicate Check
+        if (GetModuleDetails("Plan", "Name", name, "flat", 0) != null)
+        {
+            response.FailureData.Add($"{name}: Already exists!");
+            return (null, response);
+        }
+
+        response.SuccessData.Add($"{name} added!");
+
+        return (new Plan
+        {
+            Date = DateTime.Now,
+            Member = member,
+            Key = key,
+            Type = "flat",
+            Name = name,
+            Description = desc,
+            ProjectId = floor.ProjectId,
+            ParentId = floor.Id
+        }, response);
+    }
+    private (dynamic?, BulkResponse) CreateTowerDataModel(DataRow row, string member, string key, BulkResponse response)
+    {
+        var name = row[0]?.ToString();
+        var desc = row[1]?.ToString();
+        var projectName = row[2]?.ToString();
+
+        var project = GetModuleDetails("Project", "Name", projectName, null, 0);
+        if (project == null)
+        {
+            response.FailureData.Add($"{name}: Project not found!");
+            return (null, response);
+        }
+
+        if (GetModuleDetails("Plan", "Name", name, "tower", 0) != null)
+        {
+            response.FailureData.Add($"{name}: Already exists!");
+            return (null, response);
+        }
+
+        response.SuccessData.Add($"{name} added!");
+
+        return (new Plan
+        {
+            Date = DateTime.Now,
+            Member = member,
+            Key = key,
+            Type = "tower",
+            Name = name,
+            Description = desc,
+            ProjectId = project.Id
+        }, response);
+    }
     private dynamic? GetModuleDetails(string model, string name, string? value, string? type, long id)
     {
         ListOptions option = new();
@@ -428,22 +513,30 @@ public class BulkDataUploadController : ControllerBase
 
     private static bool CheckedTemplateAccordingtoModule(string fileName, string module)
     {
-        bool flag = false;
-        if (fileName.Equals("TOWERDETAILS", StringComparison.CurrentCultureIgnoreCase) && module.Equals("TOWER", StringComparison.CurrentCultureIgnoreCase))
-        {
-            flag = true;
-        }
-        else if (fileName.Equals("FLOORDETAILS", StringComparison.CurrentCultureIgnoreCase) && module.Equals("FLOOR", StringComparison.CurrentCultureIgnoreCase))
-        {
-            flag = true;
-        }
-        else if (fileName.Equals("FLATDETAILS", StringComparison.CurrentCultureIgnoreCase) && module.Equals("FLAT", StringComparison.CurrentCultureIgnoreCase))
-        {
-            flag = true;
-        }
-        else
-            flag = false;
+        if (string.IsNullOrWhiteSpace(fileName) || string.IsNullOrWhiteSpace(module))
+            return false;
 
-        return flag;
+        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "TOWERDETAILS", "TOWER" },
+                        { "FLOORDETAILS", "FLOOR" },
+                        { "FLATDETAILS", "FLAT" },
+                        { "PROJECTDETAILS", "PROJECT" },
+                        { "ROOMTYPEDETAILS", "ROOMTYPE" },
+                        { "UOMDETAILS", "UOM" },
+                        { "ITEMTYPEDETAILS", "ITEMTYPE" },
+                        { "ITEMGROUPDETAILS", "ITEMGROUP" },
+                        { "OUTSIDEENTITYTYPEDETAILS", "OUTSIDEENTITYTYPE" },
+                        { "PARKINGTYPEDETAILS", "PARKINGTYPE" },
+                        { "CONTRACTORDETAILS", "CONTRACTOR" },
+                        { "SUPPLIERDETAILS", "SUPPLIER" },
+                        { "ITEMDETAILS", "ITEM" },
+                        { "FLATTEMPLATEDETAILS", "FLATTEMPLATE" },
+                        { "PARKINGDETAILS", "PARKING" },
+                        { "OUTSIDEENTITYDETAILS", "OUTSIDEENTITY" }
+                    };
+
+        return map.TryGetValue(fileName, out var expectedModule) &&
+               expectedModule.Equals(module, StringComparison.OrdinalIgnoreCase);
     }
 }

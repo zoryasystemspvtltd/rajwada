@@ -1,11 +1,9 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using ILab.Extensionss.Common;
+﻿using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using RajApi.Controllers;
 using RajApi.Data.Models;
 using RajApi.Helpers;
 using System.Data;
@@ -672,55 +670,192 @@ public class RajDataHandler : LabDataHandler
         return result;
     }
 
-    public async Task DeleteAllChildData(string module, long id)
+    public async Task DeleteAllChildData(string module, long id, CancellationToken token)
     {
         try
         {
             switch (module.ToUpper())
             {
+                case "PROJECT":
+                    //Get All Flat from Palns using Project id
+                    var flats = dbContext.Set<Plan>().Where(x => x.ProjectId == id && x.Type == "flat");
+                    if (flats != null && flats.Any())
+                    {
+                        //Delete All Rooms related to Plan
+                        var rooms = await flats
+                                     .Join(dbContext.Set<RoomDetails>(),
+                                         fl => fl.Id,
+                                         rm => rm.PlanId,
+                                         (fl, rm) => rm)
+                                     .ToListAsync(token);
+
+                        if (rooms.Count != 0)
+                        {
+                            await BulkDeleteAsync(rooms, token);
+                        }
+
+                    }
+
+                    //Delete All Flat,Tower,Floor related to Project
+                    var plans = dbContext.Set<Plan>().Where(x => x.ProjectId == id);
+                    if (plans != null && plans.Any())
+                    {
+                        await BulkDeleteAsync(plans, token);
+                    }
+
+                    //Delete All Parking related to Project
+                    var parking = dbContext.Set<Parking>().Where(x => x.ProjectId == id);
+                    if (parking != null && parking.Any())
+                    {
+                        await BulkDeleteAsync(parking, token);
+                    }
+
+                    //Delete All WorkFlow related to Project
+                    var workflows = dbContext.Set<Workflow>().Where(x => x.ProjectId == id);
+                    if (workflows != null && workflows.Any())
+                    {
+                        await BulkDeleteAsync(workflows, token);
+                    }
+
+                    //Get All Activity from Activity using Project id
+                    var activities = dbContext.Set<Activity>().Where(x => x.ProjectId == id);
+                    if (activities != null && activities.Any())
+                    {
+                        //Delete All Activity from Activity using Project id
+                        await DeleteSubActivity(activities, token);
+                    }
+                    //Delete All Project DocNo Tracking related to project
+                    var projectDocNoTrackings = dbContext.Set<ProjectDocNoTracking>().Where(x => x.ProjectId == id);
+                    if (projectDocNoTrackings != null && projectDocNoTrackings.Any())
+                    {
+                        await BulkDeleteAsync(projectDocNoTrackings, token);
+                    }
+
+                    //Delete All OutSide Entity related to project
+                    var outSideEntity = dbContext.Set<OutSideEntity>().Where(x => x.ProjectId == id);
+                    if (outSideEntity != null && outSideEntity.Any())
+                    {
+                        await BulkDeleteAsync(outSideEntity, token);
+                    }
+                    break;
+                case "WORKFLOW":
+                    var activitywork = dbContext.Set<Activity>().Where(x => x.WorkflowId == id);
+                    if (activitywork != null && activitywork.Any())
+                    {
+                        await DeleteSubActivity(activitywork, token);
+                    }
+                    break;
                 case "ACTIVITY":
                     //Delete All Activity Tracking related to Activity
                     var activityTracking = dbContext.Set<ActivityTracking>().Where(x => x.ActivityId == id);
-                    if (activityTracking != null)
+                    if (activityTracking != null && activityTracking.Any())
                     {
-                        await BulkDeleteAsync(activityTracking, CancellationToken.None);
+                        await BulkDeleteAsync(activityTracking, token);
                     }
 
                     //Delete All Activity Resource related to Activity
                     var activityResource = dbContext.Set<ActivityResource>().Where(x => x.ActivityId == id);
-                    if (activityResource != null)
+                    if (activityResource != null && activityResource.Any())
                     {
-                        await BulkDeleteAsync(activityResource, CancellationToken.None);
+                        await BulkDeleteAsync(activityResource, token);
                     }
 
                     //Delete All Activity Amendment related to Activity
                     var activityAmendment = dbContext.Set<ActivityAmendment>().Where(x => x.ActivityId == id);
-                    if (activityAmendment != null)
+                    if (activityAmendment != null && activityAmendment.Any())
                     {
-                        await BulkDeleteAsync(activityAmendment, CancellationToken.None);
+                        await BulkDeleteAsync(activityAmendment, token);
                     }
 
                     break;
-                case "PLAN":
+                case "PLAN"://When Tower,Floor and Flat are deleted from Plan module
+                    //Get All Flat,Tower,Floor related to Plan
+                    var plans1 = dbContext.Set<Plan>().Where(x => x.Id == id).FirstOrDefault();
 
-                    //Delete All Flat,Tower,Floor related to Plan
-                    var plans = dbContext.Set<Plan>().Where(x => x.ParentId == id);
-                    if (plans != null)
+                    if (plans1 != null && plans1.Type == "tower")
                     {
-                        await BulkDeleteAsync(plans, CancellationToken.None);
+                        var activity = dbContext.Set<Activity>().Where(x => x.TowerId == id);
+                        if (activity != null && activity.Any())
+                        {
+                            await DeleteSubActivity(activity, token);
+                        }
+                        //Delete All OutSide Entity related to Tower and Floor
+                        var outSideEntityPlan = dbContext.Set<OutSideEntity>().Where(x => x.TowerId == id);
+                        if (outSideEntityPlan != null && outSideEntityPlan.Any())
+                        {
+                            await BulkDeleteAsync(outSideEntityPlan, token);
+                        }
+
+                        //Delete All WorkFlow related to Plan inside workflow
+                        var workflowsPlan = dbContext.Set<Workflow>().Where(x => x.TowerId == id);
+                        if (workflowsPlan != null && workflowsPlan.Any())
+                        {
+                            await BulkDeleteAsync(workflowsPlan, token);
+                        }
+
+                        //Delete All Floor and flat related to Tower
+                        var planChild = dbContext.Set<Plan>().Where(x => x.ParentId == id);
+                        if (planChild != null && planChild.Any())
+                        {
+                            await BulkDeleteAsync(planChild, token);
+                        }
                     }
 
+                    else if (plans1 != null && plans1.Type == "floor")
+                    {
+                        var activity = dbContext.Set<Activity>().Where(x => x.FloorId == id);
+                        if (activity != null && activity.Any())
+                        {
+                            await DeleteSubActivity(activity, token);
+                        }
+                        //Delete All OutSide Entity related to Tower and Floor
+                        var outSideEntityPlan = dbContext.Set<OutSideEntity>().Where(x => x.FloorId == id);
+                        if (outSideEntityPlan != null && outSideEntityPlan.Any())
+                        {
+                            await BulkDeleteAsync(outSideEntityPlan, token);
+                        }
+
+                        //Delete All WorkFlow related to Plan inside workflow
+                        var workflowsPlan = dbContext.Set<Workflow>().Where(x => x.FloorId == id);
+                        if (workflowsPlan != null && workflowsPlan.Any())
+                        {
+                            await BulkDeleteAsync(workflowsPlan, token);
+                        }
+
+                        //Delete All Flat related to Floor
+                        var planChild = dbContext.Set<Plan>().Where(x => x.ParentId == id);
+                        if (planChild != null && planChild.Any())
+                        {
+                            await BulkDeleteAsync(planChild, token);
+                        }
+                    }
+                    else if (plans1 != null && plans1.Type == "flat")
+                    {
+                        var activity = dbContext.Set<Activity>().Where(x => x.FlatId == id);
+                        if (activity != null && activity.Any())
+                        {
+                            await DeleteSubActivity(activity, token);
+                        }
+
+                        //Delete All WorkFlow related to Plan inside workflow
+                        var workflowsPlan = dbContext.Set<Workflow>().Where(x => x.FlatId == id);
+                        if (workflowsPlan != null && workflowsPlan.Any())
+                        {
+                            await BulkDeleteAsync(workflowsPlan, token);
+                        }
+                    }
                     //Delete All Rooms related to Plan
-                    var rooms = dbContext.Set<RoomDetails>().Where(x => x.PlanId == id);
-                    if (rooms != null)
+                    var roomsPlan = dbContext.Set<RoomDetails>().Where(x => x.PlanId == id);
+                    if (roomsPlan != null && roomsPlan.Any())
                     {
-                        await BulkDeleteAsync(rooms, CancellationToken.None);
+                        await BulkDeleteAsync(roomsPlan, token);
                     }
-                    //Delete All WorkFlow related to Plan inside Activity
-                    var workflows = dbContext.Set<Workflow>().Where(x => x.FlatId == id);
-                    if (workflows != null)
+
+                    //Delete All Parking related to Project
+                    var parkingPlan = dbContext.Set<Parking>().Where(x => x.TowerId == id);
+                    if (parkingPlan != null && parkingPlan.Any())
                     {
-                        await BulkDeleteAsync(workflows, CancellationToken.None);
+                        await BulkDeleteAsync(parkingPlan, token);
                     }
                     break;
             }
@@ -729,6 +864,64 @@ public class RajDataHandler : LabDataHandler
         catch (Exception ex)
         {
             logger.LogError(ex, $"Exception in DeleteAllChildData method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    private async Task DeleteSubActivity(IQueryable<Activity> activity, CancellationToken token)
+    {
+        try
+        {
+            // materialize activity ids first (server side)
+            var activityIds = await activity.Select(a => a.Id).ToListAsync(token);
+            if (activityIds == null || activityIds.Count == 0)
+            {
+                return;
+            }
+
+            // ActivityTracking related to Activity
+            var activityTrackflat = await activity
+                     .Join(dbContext.Set<ActivityTracking>(),
+                         act => act.Id,
+                         tr => tr.ActivityId,
+                         (act, tr) => tr)
+                     .ToListAsync(token);
+
+            if (activityTrackflat.Count != 0)
+            {
+                await BulkDeleteAsync(activityTrackflat, token);
+            }
+
+            // ActivityResource related to Activity
+            var activityResourceflat = await activity
+                    .Join(dbContext.Set<ActivityResource>(),
+                        act => act.Id,
+                        tr => tr.ActivityId,
+                        (act, tr) => tr)
+                    .ToListAsync(token);
+            if (activityResourceflat.Count != 0)
+            {
+                await BulkDeleteAsync(activityResourceflat, token);
+            }
+
+            // ActivityAmendment related to Activity
+            var activityAmenflat = await activity
+                   .Join(dbContext.Set<ActivityAmendment>(),
+                       act => act.Id,
+                       tr => tr.ActivityId,
+                       (act, tr) => tr)
+                   .ToListAsync(token);
+            if (activityAmenflat.Count != 0)
+            {
+                await BulkDeleteAsync(activityAmenflat, token);
+            }
+
+            // Delete all Activity entities themselves
+            await BulkDeleteAsync(activity, token);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in DeleteSubActivity method and details: '{ex.Message}'");
             throw;
         }
     }
@@ -879,7 +1072,7 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
-   
+
     private long? getProjectId<T>(T item)
         where T : LabModel
     {

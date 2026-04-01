@@ -51,7 +51,7 @@ export const ViewWorkflow = () => {
         showBreadcrumbs: true,
         editing: true,
         adding: false,
-        deleting: false,
+        deleting: true,
         back: true,
         readonly: true,
         fields: [
