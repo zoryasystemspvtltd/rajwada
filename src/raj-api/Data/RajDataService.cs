@@ -646,7 +646,7 @@ namespace ILab.Data
             }
 
         }
-        private int GetMaxCount(string model, string? name, string? value)
+        public int GetMaxCount(string model, string? name, string? value)
         {
             try
             {

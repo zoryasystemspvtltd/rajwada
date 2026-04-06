@@ -155,6 +155,14 @@ public class DownloadController : ControllerBase
             dataService.Identity = new ModuleIdentity(member, key);
 
             var data = GetTemplate(module);
+            if (data == null)
+            {
+                return BadRequest(new
+                {
+                    error = "InvalidModule",
+                    message = $"Module '{module}' is not found."
+                });
+            }
             string base64String;
             using (var wb = new XLWorkbook())
             {
@@ -194,27 +202,27 @@ public class DownloadController : ControllerBase
         module = module.ToUpperInvariant();
 
         var map = new Dictionary<string, Func<DataTable>>
-                {
-                    ["FLAT"] = CreateFlatTemplate,
-                    ["TOWER"] = () => CreateTowerTemplate(GetModuleDetails("ParkingType")),
-                    ["FLOOR"] = () => CreateFloorTemplate(GetModuleDetails("FlatTemplate")),
-                    ["PROJECT"] = CreateProjectTemplate,
-                    ["ROOMTYPE"] = CreateRoomTypeTemplate,
+        {
+            ["FLAT"] = CreateFlatTemplate,
+            ["TOWER"] = () => CreateTowerTemplate(GetModuleDetails("ParkingType")),
+            ["FLOOR"] = CreateFloorTemplate,
+            ["PROJECT"] = CreateProjectTemplate,
+            ["ROOMTYPE"] = CreateRoomTypeTemplate,
 
-                    ["UOM"] = CreateUOMTemplate,
-                    ["ASSETTYPE"] = CreateUOMTemplate,
-                    ["ASSETGROUP"] = CreateUOMTemplate,
-                    ["OUTSIDEENTITYTYPE"] = CreateUOMTemplate,
-                    ["PARKINGTYPE"] = CreateUOMTemplate,
+            ["UOM"] = CreateUOMTemplate,
+            ["ASSETTYPE"] = CreateUOMTemplate,
+            ["ASSETGROUP"] = CreateUOMTemplate,
+            ["OUTSIDEENTITYTYPE"] = CreateUOMTemplate,
+            ["PARKINGTYPE"] = CreateUOMTemplate,
 
-                    ["CONTRACTOR"] = CreateContractorTemplate,
-                    ["SUPPLIER"] = CreateSupplierTemplate,
-                    ["ITEM"] = CreateItemTemplate,
+            ["CONTRACTOR"] = CreateContractorTemplate,
+            ["SUPPLIER"] = CreateSupplierTemplate,
+            ["ASSET"] = CreateAssetTemplate,
 
-                    ["FLATTEMPLATE"] = () => CreateFlattempTemplate(GetModuleDetails("RoomType")),
-                    ["PARKING"] = CreateParkingTemplate,
-                    ["OUTSIDEENTITY"] = () => CreateOutSideEntityTemplate(GetModuleDetails("OutSideEntityType"))
-                };
+            ["FLATTEMPLATE"] = () => CreateFlatTempTemplate(GetModuleDetails("RoomType")),
+            ["PARKING"] = CreateParkingTemplate,
+            ["OUTSIDEENTITY"] = () => CreateOutSideEntityTemplate(GetModuleDetails("OutSideEntityType"))
+        };
 
         return map.TryGetValue(module, out var func)
             ? func()
@@ -265,14 +273,14 @@ public class DownloadController : ControllerBase
         return CreateTable("Project", "Tower", "Name", "Parking Type");
     }
 
-    private static DataTable CreateFlattempTemplate(dynamic? roomtype)
+    private static DataTable CreateFlatTempTemplate(dynamic? roomtype)
     {
         var dt = CreateTable("Name", "Description");
         AddDynamicColumns(dt, roomtype);
         return dt;
     }
 
-    private static DataTable CreateItemTemplate()
+    private static DataTable CreateAssetTemplate()
     {
         return CreateTable("Group", "Type", "Name", "Alias", "UOM");
     }
@@ -301,10 +309,9 @@ public class DownloadController : ControllerBase
         return CreateTable("Name", "Alias", "Description");
     }
 
-    private static DataTable CreateFloorTemplate(dynamic flatTemplate)
+    private static DataTable CreateFloorTemplate()
     {
-        var dt= CreateTable("Name", "Description", "Tower");
-        AddDynamicColumns(dt, flatTemplate);
+        var dt = CreateTable("Name", "Description", "Tower");
         return dt;
     }
 
