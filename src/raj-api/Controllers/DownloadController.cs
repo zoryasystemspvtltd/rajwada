@@ -194,12 +194,37 @@ public class DownloadController : ControllerBase
             return BadRequest(new { message = "An error occurred while generating the template.", error = ex.Message });
         }
     }
-    private DataTable GetTemplate(string module)
+    private DataTable? GetTemplate(string module)
     {
         if (string.IsNullOrWhiteSpace(module))
-            return new DataTable();
+            return null;
 
-        module = module.ToUpperInvariant();
+        var preMapping = new Dictionary<string, string>
+        {
+            ["Flat"] = "FLAT",
+            ["Tower"] = "TOWER",
+            ["Floor"] = "FLOOR",
+            ["Project"] = "PROJECT",
+            ["Room Type"] = "ROOMTYPE",
+
+            ["UOM"] = "UOM",
+            ["Item Type"] = "ASSETTYPE",
+            ["Item Group"] = "ASSETGROUP",
+            ["Outside Entity Type"] = "OUTSIDEENTITYTYPE",
+            ["Parking Type"] = "PARKINGTYPE",
+
+            ["Contractor Master"] = "CONTRACTOR",
+            ["Supplier Master"] = "SUPPLIER",
+            ["Item Master"] = "ASSET",
+
+            ["Flat Template"] = "FLATTEMPLATE",
+            ["Tower Parking"] = "PARKING",
+            ["Outside Entity Mapping"] = "OUTSIDEENTITY"
+        };
+
+        string actModule = preMapping.ContainsKey(module) ? preMapping[module] : null;
+        if (actModule == null)
+            return null;
 
         var map = new Dictionary<string, Func<DataTable>>
         {
@@ -224,7 +249,7 @@ public class DownloadController : ControllerBase
             ["OUTSIDEENTITY"] = () => CreateOutSideEntityTemplate(GetModuleDetails("OutSideEntityType"))
         };
 
-        return map.TryGetValue(module, out var func)
+        return map.TryGetValue(actModule, out var func)
             ? func()
             : new DataTable();
     }

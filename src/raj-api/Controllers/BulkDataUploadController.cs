@@ -113,11 +113,16 @@ public class BulkDataUploadController : ControllerBase
                         }
                     }
                 }
-
-
+                string? model = GetModelName(dataModel);
+                if (model == null)
+                {
+                    logger.LogError("File Name :" + dataModel+ " is not found");
+                    response.FailureData?.Add("File Name :" + dataModel + " is not found");
+                    return response;
+                }
                 // Save DataTable to database
                 if (dt.Rows.Count > 0)
-                    response = await SaveToDatabase(dataModel, dt, response, token);
+                    response = await SaveToDatabase(model, dt, response, token);
                 else
                     response.FailureData?.Add("No data in excelsheet");
             }
@@ -131,6 +136,31 @@ public class BulkDataUploadController : ControllerBase
 
     }
 
+    private string? GetModelName(string module)
+    {
+        var preMapping = new Dictionary<string, string>
+        {
+            ["FlatDetails"] = "FLAT",
+            ["TowerDetails"] = "TOWER",
+            ["FloorDetails"] = "FLOOR",
+            ["ProjectDetails"] = "PROJECT",
+            ["Room TypeDetails"] = "ROOMTYPE",
+            ["UOMDetails"] = "UOM",
+            ["Item TypeDetails"] = "ASSETTYPE",
+            ["Item GroupDetails"] = "ASSETGROUP",
+            ["Outside Entity TypeDetails"] = "OUTSIDEENTITYTYPE",
+            ["Parking TypeDetails"] = "PARKINGTYPE",
+            ["Contractor MasterDetails"] = "CONTRACTOR",
+            ["Supplier MasterDetails"] = "SUPPLIER",
+            ["Item MasterDetails"] = "ASSET",
+            ["Flat TemplateDetails"] = "FLATTEMPLATE",
+            ["Tower ParkingDetails"] = "PARKING",
+            ["Outside Entity MappingDetails"] = "OUTSIDEENTITY"
+        };
+
+        return preMapping.TryGetValue(module, out string? value) ? value : null;
+    }
+
     private async Task<BulkResponse> SaveToDatabase(string dataModel, DataTable dataTable, BulkResponse response, CancellationToken token)
     {
         try
@@ -138,38 +168,38 @@ public class BulkDataUploadController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
 
-            switch (dataModel.ToUpper())
+            switch (dataModel)
             {
-                case "TOWERDETAILS":
+                case "TOWER":
                     response = await SaveTowerData(dataTable, member, key, response, token);
                     break;
-                case "FLOORDETAILS":
+                case "FLOOR":
                     response = await SaveFloorData(dataTable, member, key, response, token);
                     break;
-                case "FLATDETAILS":
+                case "FLAT":
                     response = await SaveFlatData(dataTable, member, key, response, token);
                     break;
-                case "FLATTEMPLATEDETAILS":
+                case "FLATTEMPLATE":
                     response = await SaveFlatTemplateData(dataTable, member, key, response, token);
                     break;
-                case "ASSETDETAILS":
+                case "ASSET":
                     response = await SaveAssetData(dataTable, member, key, response, token);
                     break;
-                case "PROJECTDETAILS":
+                case "PROJECT":
                     response = await SaveProjectData(dataTable, member, key, response, token);
                     break;
-                case "OUTSIDEENTITYDETAILS":
+                case "OUTSIDEENTITY":
                     response = await SaveOutSideEntityData(dataTable, member, key, response, token);
                     break;
-                case "PARKINGDETAILS":
+                case "PARKING":
                     response = await SaveParkingData(dataTable, member, key, response, token);
                     break;
-                case "CONTRACTORDETAILS":
-                case "SUPPLIERDETAILS":
-                case "UOMDETAILS":
-                case "ASSETTYPEDETAILS":
-                case "ASSETGROUPDETAILS":
-                case "ROOMTYPEDETAILS":
+                case "CONTRACTOR":
+                case "SUPPLIER":
+                case "UOM":
+                case "ASSETTYPE":
+                case "ASSETGROUP":
+                case "ROOMTYPE":
                     response = await SaveBulkData(dataModel, dataTable, member, key, response, token);
                     break;
             }
@@ -183,9 +213,6 @@ public class BulkDataUploadController : ControllerBase
         return response;
     }
 
-   
-
-
     #region "Bulk Data Save Methods"
     private async Task<BulkResponse> SaveBulkData(string dataModel, DataTable dataTable, string member, string key, BulkResponse response, CancellationToken token)
     {
@@ -195,14 +222,14 @@ public class BulkDataUploadController : ControllerBase
 
             var handlers = new Dictionary<string, Func<Task<BulkResponse>>>(StringComparer.OrdinalIgnoreCase)
             {
-                ["UOMDETAILS"] = () => SaveBulkDataGeneric<Uom>(dataTable, member, key, response, "Uom", token),
-                ["ASSETTYPEDETAILS"] = () => SaveBulkDataGeneric<AssetType>(dataTable, member, key, response, "AssetType", token),
-                ["ASSETGROUPDETAILS"] = () => SaveBulkDataGeneric<AssetGroup>(dataTable, member, key, response, "AssetGroup", token),
-                ["OUTSIDEENTITYTYPEDETAILS"] = () => SaveBulkDataGeneric<AssetType>(dataTable, member, key, response, "OutSideEntityType", token),
-                ["PARKINGTYPEDETAILS"] = () => SaveBulkDataGeneric<AssetGroup>(dataTable, member, key, response, "ParkingType", token),
-                ["ROOMTYPEDETAILS"] = () => SaveBulkDataGeneric<AssetGroup>(dataTable, member, key, response, "RoomType", token),
-                ["CONTRACTORDETAILS"] = () => SaveBulkDataGeneric<Contractor>(dataTable, member, key, response, "Contractor", token),
-                ["SUPPLIERDETAILS"] = () => SaveBulkDataGeneric<Contractor>(dataTable, member, key, response, "Supplier", token)
+                ["UOM"] = () => SaveBulkDataGeneric<Uom>(dataTable, member, key, response, "Uom", token),
+                ["ASSETTYPE"] = () => SaveBulkDataGeneric<AssetType>(dataTable, member, key, response, "AssetType", token),
+                ["ASSETGROUP"] = () => SaveBulkDataGeneric<AssetGroup>(dataTable, member, key, response, "AssetGroup", token),
+                ["OUTSIDEENTITYTYPE"] = () => SaveBulkDataGeneric<AssetType>(dataTable, member, key, response, "OutSideEntityType", token),
+                ["PARKINGTYPE"] = () => SaveBulkDataGeneric<AssetGroup>(dataTable, member, key, response, "ParkingType", token),
+                ["ROOMTYPE"] = () => SaveBulkDataGeneric<AssetGroup>(dataTable, member, key, response, "RoomType", token),
+                ["CONTRACTOR"] = () => SaveBulkDataGeneric<Contractor>(dataTable, member, key, response, "Contractor", token),
+                ["SUPPLIER"] = () => SaveBulkDataGeneric<Contractor>(dataTable, member, key, response, "Supplier", token)
             };
 
             if (handlers.TryGetValue(dataModel, out var handler))
@@ -468,7 +495,7 @@ public class BulkDataUploadController : ControllerBase
                     Member = member,
                     Key = key,
                     Name = name,
-                    Description=desc,
+                    Description = desc,
                     Type = "floor",
                     ProjectId = tower.ProjectId,
                     ParentId = tower.Id
@@ -861,7 +888,7 @@ public class BulkDataUploadController : ControllerBase
     {
         try
         {
-           
+
             foreach (DataRow row in dt.Rows)
             {
                 var projectName = row["Project"].ToString();
@@ -951,7 +978,7 @@ public class BulkDataUploadController : ControllerBase
                 if (list.Any())
                     await dataService.SaveBulkkDataAsync("OutSideEntity", list, token);
             }
-           
+
 
             return response;
         }
@@ -1114,18 +1141,18 @@ public class BulkDataUploadController : ControllerBase
                         { "FLOORDETAILS", "FLOOR" },
                         { "FLATDETAILS", "FLAT" },
                         { "PROJECTDETAILS", "PROJECT" },
-                        { "ROOMTYPEDETAILS", "ROOMTYPE" },
+                        { "Room TypeDetails", "Room Type" },
                         { "UOMDETAILS", "UOM" },
-                        { "ITEMTYPEDETAILS", "ITEMTYPE" },
-                        { "ITEMGROUPDETAILS", "ITEMGROUP" },
-                        { "OUTSIDEENTITYTYPEDETAILS", "OUTSIDEENTITYTYPE" },
-                        { "PARKINGTYPEDETAILS", "PARKINGTYPE" },
-                        { "CONTRACTORDETAILS", "CONTRACTOR" },
-                        { "SUPPLIERDETAILS", "SUPPLIER" },
-                        { "ITEMDETAILS", "ITEM" },
-                        { "FLATTEMPLATEDETAILS", "FLATTEMPLATE" },
-                        { "PARKINGDETAILS", "PARKING" },
-                        { "OUTSIDEENTITYDETAILS", "OUTSIDEENTITY" }
+                        { "Item TypeDetails", "Item Type" },
+                        { "Item GroupDetails", "Item Group" },
+                        { "Outside Entity TypeDetails", "Outside Entity Type" },
+                        { "Parking TypeDetails", "Parking Type" },
+                        { "Contractor MasterDetails", "Contractor Master" },
+                        { "Supplier MasterDetails", "Supplier Master" },
+                        { "Item MasterDetails", "Item Master" },
+                        { "Flat TemplateDetails", "Flat Template" },
+                        { "Tower ParkingDetails", "Tower Parking" },
+                        { "Outside Entity MappingDetails", "Outside Entity Mapping" }
                     };
 
         return map.TryGetValue(fileName, out var expectedModule) &&
