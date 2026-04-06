@@ -11,13 +11,15 @@ export const ListRoomType = () => {
         searching: true,
         editing: true,
         adding: true,
+        uploading: true,
+        downloading: true,
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Alias', field: 'code', type: 'text', sorting: true, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
         ]
     }
-    
+
     return (<IUIList schema={schema} />)
 }
 
@@ -59,7 +61,7 @@ export const EditRoomType = () => {
                 , fields: [
                     { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Alias', field: 'code', placeholder: 'Code here...', type: 'text', required: true, width: 6 },
-                    { text: 'Description', field: 'description',placeholder: 'Description here...',  type: 'text', required: true, width: 6 },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'text', required: true, width: 6 },
                 ]
             }
         ]
@@ -78,9 +80,9 @@ export const AddRoomType = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name',placeholder: 'Name here...', type: 'text', required: true, width: 6 },
+                    { text: 'Name', field: 'name', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
                     { text: 'Alias', field: 'code', type: 'text', required: true, width: 6 },
-                    { text: 'Description', field: 'description',placeholder: 'Description here...', type: 'text', required: true, width: 6 },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'text', required: true, width: 6 },
                 ]
             }
         ]

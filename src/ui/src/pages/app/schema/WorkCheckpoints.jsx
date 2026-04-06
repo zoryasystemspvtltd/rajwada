@@ -10,6 +10,8 @@ export const ListWorkCheckpoint = () => {
         searching: true,
         editing: true,
         adding: true,
+        uploading: true,
+        downloading: true,
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: false, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: true },

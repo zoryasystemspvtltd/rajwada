@@ -1,10 +1,7 @@
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage"
 
-
 export const ListContractor = () => {
-
-
     const schema = {
         module: 'contractor',
         title: 'Contractor Master',
@@ -13,6 +10,8 @@ export const ListContractor = () => {
         searching: true,
         editing: true,
         adding: true,
+        uploading: true,
+        downloading: true,
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Alias', field: 'code', type: 'text', sorting: true, searching: true },
@@ -22,10 +21,8 @@ export const ListContractor = () => {
         ]
     }
 
-
     return (<IUIList schema={schema} />)
 }
-
 
 export const ViewContractor = () => {
     const schema = {
@@ -60,10 +57,8 @@ export const ViewContractor = () => {
         ]
     }
 
-
     return (<IUIPage schema={schema} />)
 }
-
 
 export const EditContractor = () => {
     const schema = {
@@ -94,17 +89,13 @@ export const EditContractor = () => {
                     { text: 'SPOC', field: 'spoc', placeholder: 'SPOC here...', width: 4, type: 'text', required: false },
                     { text: 'Effective Start Date', field: 'effectiveStartDate', placeholder: 'Effective Start Date here...', width: 4, type: 'date', required: false },
                     { text: 'Effective End Date', field: 'effectiveEndDate', placeholder: 'Effective End Date here...', width: 4, type: 'date', required: false },
-
-
                 ]
             }
         ]
     }
 
-
     return (<IUIPage schema={schema} />)
 }
-
 
 export const AddContractor = () => {
     const schema = {
@@ -139,7 +130,6 @@ export const AddContractor = () => {
             }
         ]
     }
-
 
     return (<IUIPage schema={schema} />)
 }
