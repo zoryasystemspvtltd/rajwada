@@ -996,6 +996,28 @@ public class RajDataHandler : LabDataHandler
             }
         }
     }
+    public dynamic GetDynamicData(string query)
+    {
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
+
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                var entities = new List<IdNamePair>();
+
+                while (result.Read())
+                {
+                    entities.Add(new IdNamePair() { Id = result.GetInt64("Id"), Name = result.GetString("Name") });
+                }
+
+                return entities;
+            }
+        }
+    }
 
     public override async Task<long> AddAsync<T>(T item, CancellationToken cancellationToken)
     {

@@ -348,7 +348,7 @@ public class DownloadController : ControllerBase
     }
     private static DataTable CreateFlatTemplate()
     {
-        return CreateTable("Name", "Description", "Floor", "Priority");
+        return CreateTable("Name", "Description", "Floor"); //, "Priority"
     }
     private static DataTable CreateProjectTemplate()
     {

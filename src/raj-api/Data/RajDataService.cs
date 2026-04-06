@@ -966,7 +966,20 @@ namespace ILab.Data
                 return 0;
             }
         }
-
+        internal dynamic GetDynamicData(string query)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetDynamicData));
+                object[] parameters = [query];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetAllAssignedProjects method and details: " + ex.Message);
+                return 0;
+            }
+        }
         internal dynamic GetFinancialYear()
         {
             try

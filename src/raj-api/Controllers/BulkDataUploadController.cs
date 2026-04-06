@@ -10,6 +10,7 @@ using ILab.Extensionss.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.X509;
 using RajApi.Data;
 using RajApi.Data.Models;
 using System.Data;
@@ -236,7 +237,7 @@ public class BulkDataUploadController : ControllerBase
                 var code = row["Alias"]?.ToString();
 
                 // Duplicate Check
-                if (await GetModuleDetails("RoomType", "Name", name, null, 0) != null)
+                if (await GetDynamicDetails("RoomType", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     return response;
@@ -278,7 +279,7 @@ public class BulkDataUploadController : ControllerBase
                 var code = row["Alias"]?.ToString();
 
                 // Duplicate Check
-                if (await GetModuleDetails("AssetGroup", "Name", name, null, 0) != null)
+                if (await GetDynamicDetails("AssetGroup", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     return response;
@@ -319,7 +320,7 @@ public class BulkDataUploadController : ControllerBase
                 var code = row["Alias"]?.ToString();
 
                 // Duplicate Check
-                if (await GetModuleDetails("AssetType", "Name", name, null, 0) != null)
+                if (await GetDynamicDetails("AssetType", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     return response;
@@ -360,7 +361,7 @@ public class BulkDataUploadController : ControllerBase
                 var code = row["Alias"]?.ToString();
 
                 // Duplicate Check
-                if (await GetModuleDetails("Uom", "Name", name, null, 0) != null)
+                if (await GetDynamicDetails("Uom", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     return response;
@@ -411,7 +412,7 @@ public class BulkDataUploadController : ControllerBase
                 DateTime? effectiveEndDate = DateTime.TryParse(row["Effective End Date"]?.ToString(), out var end)
                     ? end : null;
                 // Duplicate Check
-                if (await GetModuleDetails("Supplier", "Name", name, null, 0) != null)
+                if (await GetDynamicDetails("Supplier", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     return response;
@@ -469,8 +470,9 @@ public class BulkDataUploadController : ControllerBase
 
                 DateTime? effectiveEndDate = DateTime.TryParse(row["Effective End Date"]?.ToString(), out var end)
                     ? end : null;
+
                 // Duplicate Check
-                if (await GetModuleDetails("Supplier", "Name", name, null, 0) != null)
+                if (await GetDynamicDetails("Contractor", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     return response;
@@ -509,7 +511,6 @@ public class BulkDataUploadController : ControllerBase
         }
     }
 
-
     private async Task<BulkResponse> SaveFlatData(DataTable dt, string member, string key, BulkResponse response, CancellationToken token)
     {
         try
@@ -520,9 +521,9 @@ public class BulkDataUploadController : ControllerBase
                 var name = row["Name"]?.ToString();
                 var desc = row["Description"]?.ToString();
                 var floorName = row["Floor"]?.ToString();
-                var PriorityName = row["Priority"]?.ToString();
+                //var PriorityName = row["Priority"]?.ToString();
                 // Get Floor
-                var floor = await GetModuleDetails("Plan", "Name", floorName, "floor", 0);
+                var floor = await GetDynamicDetails("Plan", floorName, "floor");
                 if (floor == null)
                 {
                     response.FailureData.Add($"{name}: Floor is not found!");
@@ -530,7 +531,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Duplicate Check
-                if (await GetModuleDetails("Plan", "Name", name, "flat", 0) != null)
+                if (await GetDynamicDetails("Plan", name, "flat") != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     return response;
@@ -548,7 +549,7 @@ public class BulkDataUploadController : ControllerBase
                     Type = "flat",
                     ProjectId = floor.ProjectId,
                     ParentId = floor.Id,
-                    //PriorityStatus=
+                    PriorityStatus = PriorityStatusType.Normal
                 });
             }
             if (list.Any())
@@ -576,7 +577,7 @@ public class BulkDataUploadController : ControllerBase
                 var towerName = row["Tower"]?.ToString();
 
                 // Get Tower
-                var tower = await GetModuleDetails("Plan", "Name", towerName, "tower", 0);
+                var tower = await GetDynamicDetails("Plan", towerName, "tower");
                 if (tower == null)
                 {
                     response.FailureData.Add($"{name}: Tower is not found!");
@@ -584,7 +585,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Duplicate Check
-                if (await GetModuleDetails("Plan", "Name", name, "floor", 0) != null)
+                if (await GetDynamicDetails("Plan", name, "floor") != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     return response;
@@ -627,8 +628,9 @@ public class BulkDataUploadController : ControllerBase
                 var projectName = row["Project"].ToString();
                 var desc = row["Description"]?.ToString();
                 var floorCount = row["Floor Count"]?.ToString();
+
                 // Get Project
-                var project = await GetModuleDetails("Project", "Name", projectName, null, 0);
+                var project = await GetDynamicDetails("Project", projectName, null);
                 if (project == null)
                 {
                     response.FailureData.Add($"{projectName}: Project is not found!");
@@ -636,7 +638,8 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Duplicate Check
-                if (await GetModuleDetails("Plan", "Name", name, "tower", 0) != null)
+                var plans = await GetDynamicDetails("Plan", name, "tower");
+                if (plans != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     continue;
@@ -681,7 +684,7 @@ public class BulkDataUploadController : ControllerBase
                         continue;
 
                     // Get Parking Type
-                    var parkingType = await GetModuleDetails("ParkingType", "Name", parkingTypeName, null, 0);
+                    var parkingType = await GetDynamicDetails("ParkingType", parkingTypeName, null);
                     if (parkingType == null)
                     {
                         response.FailureData.Add($"{parkingTypeName}: Parking Type is not found!");
@@ -792,7 +795,7 @@ public class BulkDataUploadController : ControllerBase
                 var contactName = row["Contact Name"]?.ToString();
 
                 // Get Company
-                var company = await GetModuleDetails("Company", "Name", belongsTo, null, 0);
+                var company = await GetDynamicDetails("Company", belongsTo, null);
                 if (company == null)
                 {
                     response.FailureData.Add($"{name}: Company is not found!");
@@ -800,7 +803,8 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Duplicate Check
-                if (await GetModuleDetails("Project", "Name", name, null, 0) != null)
+                var projects = await GetDynamicDetails("Project", name, null);
+                if (projects != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     return response;
@@ -862,7 +866,7 @@ public class BulkDataUploadController : ControllerBase
                 var uomName = row["UOM"]?.ToString();
 
                 // Get Asset Group
-                var assetGroup = await GetModuleDetails("AssetGroup", "Name", groupName, null, 0);
+                var assetGroup = await GetDynamicDetails("AssetGroup", groupName, null);
                 if (assetGroup == null)
                 {
                     response.FailureData.Add($"{groupName}: Item Group is not found!");
@@ -870,7 +874,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Get Asset Type
-                var assetType = await GetModuleDetails("AssetType", "Name", typeName, null, 0);
+                var assetType = await GetDynamicDetails("AssetType", typeName, null);
                 if (assetType == null)
                 {
                     response.FailureData.Add($"{typeName}: Item Type is not found!");
@@ -878,7 +882,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Get UOM
-                var uom = await GetModuleDetails("UOM", "Name", uomName, null, 0);
+                var uom = await GetDynamicDetails("Uom", uomName, null);
                 if (uom == null)
                 {
                     response.FailureData.Add($"{uomName}: UOM is not found!");
@@ -886,7 +890,8 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Duplicate Check
-                if (await GetModuleDetails("Asset", "Name", name, null, 0) != null)
+                var Assets = await GetDynamicDetails("Asset", name, null);
+                if (Assets != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     continue;
@@ -919,6 +924,36 @@ public class BulkDataUploadController : ControllerBase
         }
     }
 
+    private async Task<dynamic> GetDynamicDetails(string model, string value, string? type)
+    {
+        var query = string.Empty;
+        switch (model)
+        {
+            case "Uom":
+            case "Project":
+            case "ParkingType":
+            case "AssetType":
+            case "Asset":
+            case "AssetGroup":
+            case "Company":
+                query = "SELECT TOP 1 Id,Name FROM " + model + "s  WHERE NAME = '" + value + "'";
+                break;
+            case "Plan":
+                query = "SELECT TOP 1 Id,Name FROM Plans  WHERE Type=" + type + " and NAME = '" + value + "'";
+                break;
+        }
+        var data = await Task.Run(() => dataService.GetDynamicData(query));
+
+        if (data != null && data?.Count > 0)
+        {
+            return data[0];
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     private async Task<BulkResponse> SaveParkingData(DataTable dt, string member, string key, BulkResponse response, CancellationToken token)
     {
         try
@@ -931,7 +966,7 @@ public class BulkDataUploadController : ControllerBase
                 var towerName = row["Tower"]?.ToString();
                 var parkingtypeName = row["Parking Type"]?.ToString();
                 // Get Project
-                var project = await GetModuleDetails("Project", "Name", projectName, null, 0);
+                var project = await GetDynamicDetails("Project", projectName, null);
                 if (project == null)
                 {
                     response.FailureData.Add($"{name}: Project is not found!");
@@ -939,7 +974,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Get Tower
-                var tower = await GetModuleDetails("Plan", "Name", towerName, "tower", 0);
+                var tower = await GetDynamicDetails("Plan", towerName, "tower");
                 if (tower == null)
                 {
                     response.FailureData.Add($"{name}: Tower is not found!");
@@ -947,7 +982,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Get Parking Type
-                var parkingType = await GetModuleDetails("ParkingType", "Name", parkingtypeName, null, 0);
+                var parkingType = await GetDynamicDetails("ParkingType", parkingtypeName, null);
                 if (parkingType == null)
                 {
                     response.FailureData.Add($"{name}: Parking Type is not found!");
@@ -955,7 +990,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Duplicate Check
-                if (await GetModuleDetails("Parking", "Name", name, null, 0) != null)
+                if (await GetDynamicDetails("Parking", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     return response;
@@ -969,7 +1004,7 @@ public class BulkDataUploadController : ControllerBase
                     Member = member,
                     Key = key,
                     Name = name,
-                    ProjectId = tower.ProjectId,
+                    ProjectId = project.Id,
                     TowerId = tower.Id,
                     ParkingTypeId = parkingType.Id
                 });
@@ -999,7 +1034,7 @@ public class BulkDataUploadController : ControllerBase
                 var floorName = row["Floor"]?.ToString();
 
                 // Get Project
-                var project = await GetModuleDetails("Project", "Name", projectName, null, 0);
+                var project = await GetDynamicDetails("Project", projectName, null);
                 if (project == null)
                 {
                     response.FailureData.Add($"{projectName}: Project is not found!");
@@ -1007,7 +1042,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Get Tower
-                var tower = await GetModuleDetails("Plan", "Name", towerName, "tower", 0);
+                var tower = await GetDynamicDetails("Plan", towerName, "tower");
                 if (tower == null)
                 {
                     response.FailureData.Add($"{towerName}: Tower is not found!");
@@ -1015,7 +1050,7 @@ public class BulkDataUploadController : ControllerBase
                 }
 
                 // Get Floor
-                var floor = await GetModuleDetails("Plan", "Name", floorName, "floor", 0);
+                var floor = await GetDynamicDetails("Plan", floorName, "floor");
                 if (floor == null)
                 {
                     response.FailureData.Add($"{floorName}: Floor is not found!");
@@ -1042,7 +1077,7 @@ public class BulkDataUploadController : ControllerBase
                         continue;
 
                     // Get OutSide Entity Type
-                    var outSideEntityType = await GetModuleDetails("OutSideEntityType", "Name", outSideEntityTypeName, null, 0);
+                    var outSideEntityType = await GetDynamicDetails("OutSideEntityType", outSideEntityTypeName, null);
                     if (outSideEntityType == null)
                     {
                         response.FailureData.Add($"{outSideEntityTypeName}: OutSide Entity Type is not found!");
@@ -1103,7 +1138,7 @@ public class BulkDataUploadController : ControllerBase
                 var desc = row["Description"]?.ToString();
 
                 // Duplicate Check
-                if (await GetModuleDetails("FlatTemplate", "Name", name, null, 0) != null)
+                if (await GetDynamicDetails("FlatTemplate", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
                     continue;
@@ -1142,7 +1177,7 @@ public class BulkDataUploadController : ControllerBase
                     if (!int.TryParse(value, out int quantity) || quantity <= 0)
                         continue;
                     // Get Room Type
-                    var RoomType = await GetModuleDetails("RoomType", "Name", roomTypeName, null, 0);
+                    var RoomType = await GetDynamicDetails("RoomType", roomTypeName, null);
                     if (RoomType == null)
                     {
                         response.FailureData.Add($"{roomTypeName}: Room Type is not found!");
@@ -1184,6 +1219,7 @@ public class BulkDataUploadController : ControllerBase
             Name = name,
             Value = value
         };
+
         if (type != null)
         {
             var typecon = new Condition()
@@ -1204,8 +1240,9 @@ public class BulkDataUploadController : ControllerBase
         }
 
 
-        option.SearchCondition = con;
-        var data = await Task.Run(() => dataService.Get(model, option));
+        //option.SearchCondition = con;
+        var query = "SELECT TOP 1 ID,NAME FROM ASSETGROUPS  WHERE NAME = '" + value + "'";
+        var data = await Task.Run(() => dataService.GetDynamicData(query));
 
         if (data != null && data?.Items.Count > 0)
         {
