@@ -197,7 +197,7 @@ public class DownloadController : ControllerBase
                 {
                     ["FLAT"] = CreateFlatTemplate,
                     ["TOWER"] = () => CreateTowerTemplate(GetModuleDetails("ParkingType")),
-                    ["FLOOR"] = CreateFloorTemplate,
+                    ["FLOOR"] = () => CreateFloorTemplate(GetModuleDetails("FlatTemplate")),
                     ["PROJECT"] = CreateProjectTemplate,
                     ["ROOMTYPE"] = CreateRoomTypeTemplate,
 
@@ -301,9 +301,11 @@ public class DownloadController : ControllerBase
         return CreateTable("Name", "Alias", "Description");
     }
 
-    private static DataTable CreateFloorTemplate()
+    private static DataTable CreateFloorTemplate(dynamic flatTemplate)
     {
-        return CreateTable("Name", "Description", "Tower");
+        var dt= CreateTable("Name", "Description", "Tower");
+        AddDynamicColumns(dt, flatTemplate);
+        return dt;
     }
 
     private static DataTable CreateTowerTemplate(dynamic? parking)

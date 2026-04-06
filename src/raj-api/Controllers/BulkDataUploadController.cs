@@ -6,11 +6,9 @@ using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using RajApi.Data;
 using RajApi.Data.Models;
 using System.Data;
-using System.Timers;
 
 namespace RajApi.Controllers;
 
@@ -127,135 +125,192 @@ public class BulkDataUploadController : ControllerBase
 
     }
 
-    private async Task<BulkResponse> SaveToDatabase(
-    string dataModel, DataTable dataTable, BulkResponse response, CancellationToken token)
+    private async Task<BulkResponse> SaveToDatabase(string dataModel, DataTable dataTable, BulkResponse response, CancellationToken token)
     {
         try
         {
-            var member = User.Claims.First(x => x.Type == "activity-member").Value;
-            var key = User.Claims.First(x => x.Type == "activity-key").Value;
+            var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
+            var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
 
-            dataService.Identity = new ModuleIdentity(member, key);
-
-            dataModel = dataModel?.ToUpperInvariant();
-
-            var creators = new Dictionary<string, Func<DataRow, (dynamic?, BulkResponse)>>
+            switch (dataModel.ToUpper())
             {
-                ["TOWERDETAILS"] = row => CreateTowerDataModel(row, member, key, response),
-                ["FLATDETAILS"] = row => CreateFlatDataModel(row, member, key, response),
-                ["FLOORDETAILS"] = row => CreateFloorDataModel(row, member, key, response),
-                ["UOMDETAILS"] = row => CreateUOMDataModel(row, member, key, response),
-                ["ASSETTYPE"] = row => CreateAssetTypeDataModel(row, member, key, response),
-                ["ASSETGROUP"] = row => CreateAssetGroupDataModel(row, member, key, response),
-                ["OUTSIDEENTITYTYPE"] = row => CreateOutSideEntityTypeDataModel(row, member, key, response),
-                ["PARKINGTYPE"] = row => CreateParkingTypeDataModel(row, member, key, response)
-            };
-
-            if (!creators.TryGetValue(dataModel, out var createFunc))
-                return response;
-
-            foreach (DataRow row in dataTable.Rows)
-            {
-                var (data, updatedResponse) = createFunc(row);
-                response = updatedResponse;
-
-                if (data == null) continue;
-
-                long planId = await dataService.SaveDataAsync("Plan", data, token);
-
-                if (planId > 0 && dataModel == "FLATDETAILS")
-                {
-                    var (rooms, res) = CreateRoomDetailsDataModel(row, planId, member, key, response);
-                    response = res;
-
-                    if (rooms is List<RoomDetails> roomList && roomList.Count > 0)
-                    {
-                        foreach (var item in roomList)
-                            await dataService.SaveDataAsync("RoomDetails", item, token);
-                    }
-                }
+                case "TOWERDETAILS":
+                case "FLOORDETAILS":
+                case "FLATTEMPLATEDETAILS":
+                case "OUTSIDEENTITYDETAILS":
+                    response = await SaveRowWiseData(dataModel, dataTable, member, key, response, token);
+                    break;
+                case "FLATDETAILS":
+                case "PROJECTDETAILS":
+                case "ROOMTYPEDETAILS":
+                case "CONTRACTORDETAILS":
+                case "SUPPLIERDETAILS":
+                case "ITEMDETAILS":
+                case "PARKINGDETAILS":
+                case "UOMDETAILS":
+                case "ASSETTYPEDETAILS":
+                case "ASSETGROUPDETAILS":
+                    response = await SaveBulkData(dataModel, dataTable, member, key, response, token);
+                    break;
             }
+
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error saving data");
+            logger.LogError("Error to save data:" + ex.Message);
             response.FailureData?.Add(ex.Message);
         }
-
         return response;
     }
 
-    private (dynamic?, BulkResponse) CreateParkingTypeDataModel(DataRow row, string member, string key, BulkResponse response)
+    private async Task<BulkResponse> SaveBulkData(string dataModel, DataTable dataTable, string member, string key, BulkResponse response, CancellationToken token)
     {
-        return CreateSimpleDataModel(row, member, response, "ParkingType",
-            (name, alias, m) => new ParkingType
+        try
+        {
+            dataService.Identity = new ModuleIdentity(member, key);
+
+            var handlers = new Dictionary<string, Func<Task<BulkResponse>>>(StringComparer.OrdinalIgnoreCase)
             {
-                Date = DateTime.Now,
-                Member = m,
-                Key = key,
-                Name = name,
-                Code = alias
-            });
+                ["UOMDETAILS"] = () => SaveBulkDataGeneric<Uom>(dataTable, member, key, response, "Uom", token),
+                ["ASSETTYPEDETAILS"] = () => SaveBulkDataGeneric<AssetType>(dataTable, member, key, response, "AssetType", token),
+                ["ASSETGROUPDETAILS"] = () => SaveBulkDataGeneric<AssetGroup>(dataTable, member, key, response, "AssetGroup", token),
+                ["OUTSIDEENTITYTYPEDETAILS"] = () => SaveBulkDataGeneric<AssetType>(dataTable, member, key, response, "OutSideEntityType", token),
+                ["PARKINGTYPEDETAILS"] = () => SaveBulkDataGeneric<AssetGroup>(dataTable, member, key, response, "ParkingType", token),
+                ["CONTRACTORDETAILS"] = () => SaveBulkDataGeneric<Contractor>(dataTable, member, key, response, "Contractor", token)
+            };
+
+            if (handlers.TryGetValue(dataModel, out var handler))
+            {
+                return await handler();
+            }
+
+            response.FailureData?.Add($"Invalid data model: {dataModel}");
+            return response;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error in SaveBulkData");
+            response.FailureData?.Add(ex.Message);
+            return response;
+        }
     }
 
-    private (dynamic?, BulkResponse) CreateOutSideEntityTypeDataModel(DataRow row, string member, string key, BulkResponse response)
+    private async Task<BulkResponse> SaveBulkDataGeneric<TEntity>(DataTable dataTable, string member, string key, BulkResponse response,
+    string moduleName, CancellationToken token) where TEntity : class
     {
-        return CreateSimpleDataModel(row, member, response, "OutSideEntityType",
-            (name, alias, m) => new OutSideEntityType
+        try
+        {
+            var list = new List<TEntity>();
+            var now = DateTime.Now;
+
+            foreach (DataRow row in dataTable.Rows)
             {
-                Date = DateTime.Now,
-                Member = m,
-                Key = key,
-                Name = name,
-                Code = alias
-            });
+                (var entity, response) = CreateSimpleDataModel(
+                    row,
+                    member,
+                    response,
+                    moduleName,
+                    (r, m) => CreateEntity<TEntity>(r, m, key, now)
+                );
+
+                if (entity != null)
+                    list.Add(entity);
+            }
+
+            if (list.Any())
+                await dataService.SaveBulkkDataAsync(moduleName, list, token);
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Error in SaveBulk{moduleName}Data");
+            response.FailureData?.Add(ex.Message);
+            return response;
+        }
     }
 
-    private (dynamic?, BulkResponse) CreateAssetGroupDataModel(DataRow row, string member, string key, BulkResponse response)
+    private TEntity CreateEntity<TEntity>(DataRow row, string member, string key, DateTime now) where TEntity : class
     {
-        return CreateSimpleDataModel(row, member, response, "AssetGroup",
-            (name, alias, m) => new AssetGroup
+        return typeof(TEntity).Name switch
+        {
+            nameof(Uom) => new Uom
             {
-                Date = DateTime.Now,
-                Member = m,
+                Name = row["Name"]?.ToString(),
+                Code = row["Code"]?.ToString(),
+                Member = member,
                 Key = key,
-                Name = name,
-                Code = alias
-            });
-    }
+                Date = now
+            } as TEntity,
 
-    private (dynamic?, BulkResponse) CreateAssetTypeDataModel(DataRow row, string member, string key, BulkResponse response)
-    {
-        return CreateSimpleDataModel(row, member, response, "AssetType",
-            (name, alias, m) => new AssetType
+            nameof(AssetType) => new AssetType
             {
-                Date = DateTime.Now,
-                Member = m,
+                Name = row["Name"]?.ToString(),
+                Code = row["Code"]?.ToString(),
+                Member = member,
                 Key = key,
-                Name = name,
-                Code = alias
-            });
-    }
-    private (dynamic?, BulkResponse) CreateUOMDataModel(DataRow row, string member, string key, BulkResponse response)
-    {
-        return CreateSimpleDataModel(row, member, response, "UOM",
-            (name, alias, m) => new Uom
-            {
-                Date = DateTime.Now,
-                Member = m,
-                Key = key,
-                Name = name,
-                Code = alias
-            });
-    }
+                Date = now
+            } as TEntity,
 
-    private (TEntity?, BulkResponse) CreateSimpleDataModel<TEntity>(
-    DataRow row, string member, BulkResponse response, string moduleName,
-    Func<string, string, string, TEntity> factory)
-    where TEntity : class
+            nameof(AssetGroup) => new AssetGroup
+            {
+                Name = row["Name"]?.ToString(),
+                Code = row["Code"]?.ToString(),
+                Member = member,
+                Key = key,
+                Date = now
+            } as TEntity,
+
+            nameof(OutSideEntityType) => new OutSideEntityType
+            {
+                Name = row["Name"]?.ToString(),
+                Code = row["Code"]?.ToString(),
+                Member = member,
+                Key = key,
+                Date = now
+            } as TEntity,
+
+            nameof(ParkingType) => new ParkingType
+            {
+                Name = row["Name"]?.ToString(),
+                Code = row["Code"]?.ToString(),
+                Member = member,
+                Key = key,
+                Date = now
+            } as TEntity,
+
+            // ✅ NEW: Contractor समर्थन
+            nameof(Contractor) => new Contractor
+            {
+                Name = row["Name"]?.ToString(),
+                Code = row["Code"]?.ToString(),
+                PhoneNumber = row["PhoneNumber"]?.ToString(),
+                Address = row["Address"]?.ToString(),
+                PanNo = row["PanNo"]?.ToString(),
+                GSTNo = row["GSTNo"]?.ToString(),
+                LicenceNo = row["LicenceNo"]?.ToString(),
+                SPOC = row["SPOC"]?.ToString(),
+                Type = row["Type"]?.ToString() ?? throw new Exception("Type is required"),
+
+                EffectiveStartDate = DateTime.TryParse(row["EffectiveStartDate"]?.ToString(), out var start)
+                    ? start : null,
+
+                EffectiveEndDate = DateTime.TryParse(row["EffectiveEndDate"]?.ToString(), out var end)
+                    ? end : null,
+
+                Member = member,
+                Key = key,
+                Date = now
+            } as TEntity,
+
+            _ => throw new NotSupportedException($"Type {typeof(TEntity).Name} not supported")
+        };
+    }
+    
+    private (TEntity?, BulkResponse) CreateSimpleDataModel<TEntity>(DataRow row, string member, BulkResponse response, string moduleName,
+    Func<DataRow, string, TEntity> factory) where TEntity : class
     {
-        var name = row[0]?.ToString();
-        var alias = row[1]?.ToString();
+        var name = row["Name"]?.ToString();
 
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -263,7 +318,6 @@ public class BulkDataUploadController : ControllerBase
             return (null, response);
         }
 
-        // Duplicate Check
         if (GetModuleDetails(moduleName, "Name", name, null, 0) != null)
         {
             response.FailureData.Add($"{name}: Already exists!");
@@ -271,9 +325,72 @@ public class BulkDataUploadController : ControllerBase
         }
 
         response.SuccessData.Add($"{name} added!");
-
-        return (factory(name, alias, member), response);
+        return (factory(row, member), response);
     }
+
+    private async Task<BulkResponse> SaveRowWiseData(string dataModel, DataTable dataTable, string member, string key, BulkResponse response, CancellationToken token)
+    {
+        try
+        {
+            dataService.Identity = new ModuleIdentity(member, key);
+            string model = dataModel.ToUpper();
+
+            for (int i = 0; i < dataTable.Rows.Count; i++)
+            {
+                var dataRow = dataTable.Rows[i];
+                dynamic? data = null;
+                switch (model)
+                {
+                    case "TOWERDETAILS":
+                        (data, response) = CreateTowerDataModel(dataRow, member, key, response);
+                        break;
+                    case "FLOORDETAILS":
+                        (data, response) = CreateFloorDataModel(dataRow, member, key, response);
+                        break;
+                    case "FLATTEMPLATEDETAILS":
+                        (data, response) = CreateFlatDataModel(dataRow, member, key, response);
+                        break;
+                    case "OUTSIDEENTITYDETAILS":
+                        (data, response) = CreateFlatDataModel(dataRow, member, key, response);
+                        break;
+                }
+
+                if (data != null)
+                {
+                    long planId = await dataService.SaveDataAsync("Plan", data, token);
+                    if (planId > 0 && model.Equals("TOWERDETAILS"))
+                    {
+                        (data, response) = CreateRoomDetailsDataModel(dataRow, planId, member, key, response);
+                        if (data != null)
+                        {
+                            foreach (RoomDetails item in data)
+                            {
+                                await dataService.SaveDataAsync("RoomDetails", item, token);
+                            }
+                        }
+                    }
+                    if (planId > 0 && model.Equals("FLOORDETAILS"))
+                    {
+                        (data, response) = CreateRoomDetailsDataModel(dataRow, planId, member, key, response);
+                        if (data != null)
+                        {
+                            foreach (RoomDetails item in data)
+                            {
+                                await dataService.SaveDataAsync("RoomDetails", item, token);
+                            }
+                        }
+                    }
+                }
+            }
+            return response;
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
     private (dynamic data, BulkResponse response) CreateRoomDetailsDataModel(
      DataRow row, long planId, string member, string key, BulkResponse response)
     {
