@@ -259,10 +259,6 @@ namespace ILab.Data
                                 await SaveFloorData(jsonData, Id, project.Name, project.Code, token);
                                 await SaveParkingData(jsonData, Id, project.Name, token);
                             }
-                            if (string.Equals(model, "OUTSIDEENTITY", StringComparison.OrdinalIgnoreCase))
-                            {
-                                await SaveOutSideEntitiesData(jsonData, project.Name, token);
-                            }
                         }
                         break;
                     case "OUTSIDEENTITY":

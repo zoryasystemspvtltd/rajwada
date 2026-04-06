@@ -861,7 +861,7 @@ public class BulkDataUploadController : ControllerBase
     {
         try
         {
-            var list = new List<OutSideEntity>();
+           
             foreach (DataRow row in dt.Rows)
             {
                 var projectName = row["Project"].ToString();
@@ -895,6 +895,8 @@ public class BulkDataUploadController : ControllerBase
                 {
                     response.FailureData.Add("No OutSide Entity Type exist in the excelsheet!");
                 }
+
+                var list = new List<OutSideEntity>();
                 for (int i = 3; i < row.Table.Columns.Count; i++)
                 {
                     var outSideEntityTypeName = row.Table.Columns[i].ToString();
@@ -946,9 +948,10 @@ public class BulkDataUploadController : ControllerBase
                         response.SuccessData.Add($"{name} added!");
                     }
                 }
+                if (list.Any())
+                    await dataService.SaveBulkkDataAsync("OutSideEntity", list, token);
             }
-            if (list.Any())
-                await dataService.SaveBulkkDataAsync("OutSideEntity", list, token);
+           
 
             return response;
         }
