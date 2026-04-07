@@ -949,7 +949,7 @@ public class BulkDataUploadController : ControllerBase
                 query = "SELECT TOP 1 Id,Name FROM " + model + "s  WHERE NAME = '" + value + "'";
                 break;
             case "Plan":
-                query = "SELECT TOP 1 Id,Name FROM Plans  WHERE Type=" + type + " and NAME = '" + value + "'";
+                query = "SELECT TOP 1 Id,Name FROM Plans  WHERE Type='" + type + "' and NAME = '" + value + "'";
                 break;
         }
         var data = await Task.Run(() => dataService.GetDynamicData(query));
