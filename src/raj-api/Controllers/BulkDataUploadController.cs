@@ -3,6 +3,7 @@ using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using ILab.Data;
 using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
@@ -168,7 +169,7 @@ public class BulkDataUploadController : ControllerBase
         {
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-
+            dataService.Identity = new ModuleIdentity(member, key);
             switch (dataModel)
             {
                 case "TOWER":
@@ -240,7 +241,7 @@ public class BulkDataUploadController : ControllerBase
                 if (await GetDynamicDetails("RoomType", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
-                    return response;
+                    continue;
                 }
 
                 response.SuccessData.Add($"{name} added!");
@@ -282,7 +283,7 @@ public class BulkDataUploadController : ControllerBase
                 if (await GetDynamicDetails("AssetGroup", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
-                    return response;
+                    continue;
                 }
 
                 response.SuccessData.Add($"{name} added!");
@@ -323,7 +324,7 @@ public class BulkDataUploadController : ControllerBase
                 if (await GetDynamicDetails("AssetType", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
-                    return response;
+                    continue;
                 }
 
                 response.SuccessData.Add($"{name} added!");
@@ -364,7 +365,7 @@ public class BulkDataUploadController : ControllerBase
                 if (await GetDynamicDetails("Uom", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
-                    return response;
+                    continue;
                 }
 
                 response.SuccessData.Add($"{name} added!");
@@ -415,7 +416,7 @@ public class BulkDataUploadController : ControllerBase
                 if (await GetDynamicDetails("Supplier", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
-                    return response;
+                    continue;
                 }
 
                 response.SuccessData.Add($"{name} added!");
@@ -475,7 +476,7 @@ public class BulkDataUploadController : ControllerBase
                 if (await GetDynamicDetails("Contractor", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
-                    return response;
+                    continue;
                 }
 
                 response.SuccessData.Add($"{name} added!");
@@ -521,7 +522,7 @@ public class BulkDataUploadController : ControllerBase
                 var name = row["Name"]?.ToString();
                 var desc = row["Description"]?.ToString();
                 var floorName = row["Floor"]?.ToString();
-                //var PriorityName = row["Priority"]?.ToString();
+
                 // Get Floor
                 var floor = await GetDynamicDetails("Plan", floorName, "floor");
                 if (floor == null)
@@ -534,9 +535,10 @@ public class BulkDataUploadController : ControllerBase
                 if (await GetDynamicDetails("Plan", name, "flat") != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
-                    return response;
+                    continue;
                 }
-
+                // Get Floor full Details
+                var floorDetails = await dataService.Get("Plan", floor.Id);
                 response.SuccessData.Add($"{name} added!");
 
                 list.Add(new Plan
@@ -547,8 +549,8 @@ public class BulkDataUploadController : ControllerBase
                     Name = name,
                     Description = desc,
                     Type = "flat",
-                    ProjectId = floor.ProjectId,
-                    ParentId = floor.Id,
+                    ProjectId = floorDetails.ProjectId,
+                    ParentId = floorDetails.Id,
                     PriorityStatus = PriorityStatusType.Normal
                 });
             }
@@ -588,9 +590,11 @@ public class BulkDataUploadController : ControllerBase
                 if (await GetDynamicDetails("Plan", name, "floor") != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
-                    return response;
+                    continue;
                 }
 
+                // Get Tower full Details
+                var towerDetails = await dataService.Get("Plan", tower.Id);
                 response.SuccessData.Add($"{name} added!");
 
                 list.Add(new Plan
@@ -601,8 +605,8 @@ public class BulkDataUploadController : ControllerBase
                     Name = name,
                     Description = desc,
                     Type = "floor",
-                    ProjectId = tower.ProjectId,
-                    ParentId = tower.Id
+                    ProjectId = towerDetails.ProjectId,
+                    ParentId = towerDetails.Id
                 });
             }
             if (list.Any())
@@ -660,8 +664,10 @@ public class BulkDataUploadController : ControllerBase
                 long planId = await dataService.SaveDataAsync("Plan", plan, token);
                 if (floorCount != null)
                 {
+                    // Get Project full Details
+                    var projectDetails = await dataService.Get("Project", project.Id);
                     int count = Convert.ToInt32(floorCount);
-                    await SaveBulkFloorData(count, planId, name, project, member, key, token);
+                    response= await SaveBulkFloorData(count, planId, name, projectDetails, member, key, response,token);
                 }
                 if (row.Table.Columns.Count <= 4)
                 {
@@ -708,7 +714,7 @@ public class BulkDataUploadController : ControllerBase
                             ProjectId = project.Id,
                             Name = parkinName,
                         });
-                        response.SuccessData.Add($"{name} added!");
+                        response.SuccessData.Add($"{parkinName} added!");
                     }
                 }
                 if (list.Any())
@@ -718,12 +724,13 @@ public class BulkDataUploadController : ControllerBase
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error saving OutSideEntity data");
-            response.FailureData.Add("Error saving OutSideEntity data");
+            logger.LogError(ex, "Error saving SaveTowerData data");
+            response.FailureData.Add("Error saving SaveTowerData data");
             return response;
         }
     }
-    private async Task SaveBulkFloorData(int floorCount, long towerId, string towerName, Project project, string member, string key, CancellationToken token)
+    private async Task<BulkResponse> SaveBulkFloorData(int floorCount, long towerId, string towerName, Project project, string member, string key, 
+        BulkResponse response, CancellationToken token)
     {
         try
         {
@@ -755,14 +762,17 @@ public class BulkDataUploadController : ControllerBase
                     Blueprint = null,
                     PriorityStatus = PriorityStatusType.Normal,
                 };
+                response.SuccessData.Add($"{floorName} added!");
                 listplan.Add(plan);
             }
             await dataService.SaveBulkkDataAsync("Plan", listplan, token);
+            return response;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Exception in SaveFloorData method and details: '{ex.Message}'");
-            throw;
+            logger.LogError(ex, $"Exception in SaveBulkFloorData method and details: '{ex.Message}'");
+            response.FailureData.Add("Error saving SaveBulkFloorData data");
+            return response;
         }
 
     }
@@ -807,7 +817,7 @@ public class BulkDataUploadController : ControllerBase
                 if (projects != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
-                    return response;
+                    continue;
                 }
 
                 response.SuccessData.Add($"{name} added!");
@@ -993,7 +1003,7 @@ public class BulkDataUploadController : ControllerBase
                 if (await GetDynamicDetails("Parking", name, null) != null)
                 {
                     response.FailureData.Add($"{name}: Already exists!");
-                    return response;
+                    continue;
                 }
 
                 response.SuccessData.Add($"{name} added!");
