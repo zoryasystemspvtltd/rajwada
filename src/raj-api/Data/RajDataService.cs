@@ -88,6 +88,7 @@ namespace ILab.Data
                     {
                         existingData.Status = jsonData?.Status;
                         modifiedBy = jsonData?.ModifiedBy;
+                        
                         //Assigned also Project,Tower,Floor,Flat,Room
                         await AssginedLinkedModule(existingData, token);
                     }
@@ -137,6 +138,7 @@ namespace ILab.Data
 
                     if (project != null)
                     {
+                        project.Member = existingData.Member;
                         await SaveApplicationLogForLinkedModule("Project", project, StatusType.Assigned, token);
                     }
                     if (existingData.TowerId != null)
@@ -145,6 +147,7 @@ namespace ILab.Data
 
                         if (tower != null)
                         {
+                            tower.Member = existingData.Member;
                             await SaveApplicationLogForLinkedModule("Plan", tower, StatusType.Assigned, token);
                         }
                     }
@@ -155,6 +158,7 @@ namespace ILab.Data
 
                         if (flat != null)
                         {
+                            flat.Member = existingData.Member;
                             await SaveApplicationLogForLinkedModule("Plan", flat, StatusType.Assigned, token);
                         }
                     }
@@ -165,6 +169,7 @@ namespace ILab.Data
 
                         if (floor != null)
                         {
+                            floor.Member = existingData.Member;
                             await SaveApplicationLogForLinkedModule("Plan", floor, StatusType.Assigned, token);
                         }
                     }
