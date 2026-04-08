@@ -9,6 +9,7 @@ using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ILab.Data
 {
@@ -306,6 +307,18 @@ namespace ILab.Data
                 throw;
             }
         }
+        public static int? GetFloorNumber(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return null;
+
+            var match = Regex.Match(input, @"\d+");
+
+            if (match.Success && int.TryParse(match.Value, out int floor))
+                return floor;
+
+            return null;
+        }
 
         /// <summary>
         /// Save Flat data
@@ -322,7 +335,13 @@ namespace ILab.Data
                 var templateList = JsonConvert.DeserializeObject<List<FlatTemplateRawData>>(data);
                 var data1 = jsonData as Plan;
                 var str = data1?.Name?.Split('/');
-                var floorName = $"{str?[0]}/{str?[1]}/{str?[2]?.Substring(5, 1)}";
+                if (str.Length < 3)
+                    return 0;
+
+                int? floorCount = GetFloorNumber(str?[2]);
+                if (floorCount == null) return 0;
+
+                var floorName = $"{str?[0]}/{str?[1]}/{floorCount}";
                 var descriptionPrefix = jsonData?.Description ?? "";
 
                 foreach (var template in templateList)
