@@ -312,17 +312,14 @@ namespace ILab.Data
                 throw;
             }
         }
-        public static int? GetFloorNumber(string input)
+        public static string GetFloorNumber(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
                 return null;
 
-            var match = Regex.Match(input, @"\d+");
+            var match = Regex.Match(input, @"(G|\d+)", RegexOptions.IgnoreCase);
 
-            if (match.Success && int.TryParse(match.Value, out int floor))
-                return floor;
-
-            return null;
+            return match.Success ? match.Value.ToUpper() : null;
         }
 
         /// <summary>
@@ -343,7 +340,7 @@ namespace ILab.Data
                 if (str.Length < 3)
                     return 0;
 
-                int? floorCount = GetFloorNumber(str?[2]);
+                string floorCount = GetFloorNumber(str?[2]);
                 if (floorCount == null) return 0;
 
                 var floorName = $"{str?[0]}/{str?[1]}/{floorCount}";
