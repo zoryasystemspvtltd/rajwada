@@ -801,7 +801,7 @@ body .dropdown-menu.dropdown-menu-inline::after {display:none}
 @media(min-width:1200px) {
 .grid-menu.grid-menu-3col [class*=col-]:nth-last-child(-n+3) {border-bottom-width:0}
 .grid-menu.grid-menu-3col [class*=col-]:nth-child(2n) {border-right-width:1px}
-.grid-menu.grid-menu-3col [class*=col-]:nth-child(3n) {border-right-width:0}
+.grid-menu.grid-menu-3col [class*=col-]:nth-child(3n) {border-right-width:1px}
 }
 .grid-menu .btn { display:block; border:0; min-width:100% }
 

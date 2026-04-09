@@ -843,7 +843,7 @@ const IUIPage = (props) => {
                                                     }
                                                     {
                                                         // Edit allowed until approvalStatus <= 3 (3 -> Assigned)
-                                                        approvalStatus <= 3 &&
+                                                        (approvalStatus <= 3 || ["user", "role"].includes(module)) &&
                                                         <>
                                                             {schema?.editing &&
                                                                 <>

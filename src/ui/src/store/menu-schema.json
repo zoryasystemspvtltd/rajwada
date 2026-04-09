@@ -103,18 +103,18 @@
                 "access": "asset"
             },
             {
-                "name": "flatTemplateManagement",
-                "text": "Flat Template",
+                "name": "activityCreation",
+                "text": "Activity",
                 "icon": "vector-square",
-                "path": "/flat-templates",
-                "access": "flatTemplate"
+                "path": "/activities",
+                "access": "dependency"
             },
             {
-                "name": "outsideEntityTypeManagement",
-                "text": "Outside Entity Type",
+                "name": "dependencyWorkflow",
+                "text": "Dependency",
                 "icon": "vector-square",
-                "path": "/outside-entity-types",
-                "access": "outSideEntityType"
+                "path": "/dependencies",
+                "access": "workflow"
             },
             {
                 "name": "towerManagement",
@@ -145,18 +145,18 @@
                 "access": "roomType"
             },
             {
-                "name": "activityCreation",
-                "text": "Activity",
+                "name": "flatTemplateManagement",
+                "text": "Flat Template",
                 "icon": "vector-square",
-                "path": "/activities",
-                "access": "dependency"
+                "path": "/flat-templates",
+                "access": "flatTemplate"
             },
             {
-                "name": "dependencyWorkflow",
-                "text": "Dependency",
+                "name": "outsideEntityTypeManagement",
+                "text": "Outside Entity Type",
                 "icon": "vector-square",
-                "path": "/dependencies",
-                "access": "workflow"
+                "path": "/outside-entity-types",
+                "access": "outSideEntityType"
             },
             {
                 "name": "parkingType",
@@ -184,7 +184,7 @@
                 "text": "Work Checkpoint",
                 "icon": "cubes-stacked",
                 "path": "/work-checkpoints",
-                "access": "workCheckpoints"
+                "access": "workCheckPoint"
             },
             {
                 "name": "postWorkPeriodicChecking",

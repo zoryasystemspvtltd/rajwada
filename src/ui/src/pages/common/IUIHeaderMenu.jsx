@@ -192,9 +192,9 @@ const IUIHeaderMenu = (props) => {
                                             {
                                                 menuSchema[menuRole]?.master?.filter(item => item?.visible)?.map((item, index) => {
                                                     return (
-                                                        <div className="col-sm-6 col-xl-4" key={`${item.name}_${index}`}>
+                                                        <div className="col-sm-6 col-xl-3" key={`${item.name}_${index}`}>
                                                             <Link to={item.path} onClick={() => setIsOpen((prev) => !prev)} className="btn-icon-vertical btn-square btn-transition btn btn-outline-link">
-                                                                <i className={`fa-solid fa-${(item.icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`} title={item.text}></i>
+                                                                <i className={`fa-solid fa-${(item.icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm`} title={item.text}></i>
                                                                 {item.text}
                                                             </Link>
                                                         </div>

@@ -92,10 +92,9 @@ const ReportDetailsPage = () => {
                 {reports.map((report) => (
                     <Card key={report._id} className="mt-3 p-3">
                         {/* <p><strong>Task:</strong> {report.taskName}</p> */}
-                        <p><strong>Cost:</strong> {report.cost}</p>
-                        <p><strong>Man Power:</strong> {report.manPower}</p>
-                        <p><strong>Status:</strong> {"In Progress"}</p>
-                        <p><strong>Progress:</strong> {"5"}%</p>
+                        <p><strong>Cost:</strong> {report?.cost}</p>
+                        <p><strong>Man Power:</strong> {report?.manPower}</p>
+                        <p><strong>Progress:</strong> {report?.progressPercentage}</p>
 
                         <div className="row my-2">
                             <div className="col-sm-12">
