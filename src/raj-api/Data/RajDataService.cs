@@ -1113,7 +1113,9 @@ namespace ILab.Data
                         modelData.GrandFatherCertificate = Utility.Base64ToFile(modelData.GrandFatherCertificate, folderPath);
                         modelData.GrandMotherCertificate = Utility.Base64ToFile(modelData.GrandMotherCertificate, folderPath);
                         break;
-
+                    case "WORKCHECKPOINTTRACKING":
+                        modelData.Photo = Utility.Base64ToFile(modelData.Photo, folderPath);
+                        break;
                 }
                 return JsonConvert.SerializeObject(modelData);
 

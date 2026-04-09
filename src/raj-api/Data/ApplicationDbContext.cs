@@ -185,6 +185,8 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<FinancialYear> FinancialYears { get; set; }
     public virtual DbSet<WorkCheckPoint> WorkCheckpoints { get; set; }
     public virtual DbSet<PostWorkPeriodicChecking> PostWorkPeriodicCheckings { get; set; }
+    public virtual DbSet<WorkCheckPointMapping> WorkCheckPointMappings { get; set; }
+    public virtual DbSet<WorkCheckPointTracking> WorkCheckPointTrackings { get; set; }
     #endregion
 
 }
