@@ -70,7 +70,7 @@ export default function IUIDeleteModal({ item, onConfirm, onCancel }) {
             {/* Header */}
             <Modal.Header closeButton>
                 <Modal.Title>
-                    Delete Item: {itemData?.name}
+                    Delete Item: {itemData?.name || item.module}
                 </Modal.Title>
             </Modal.Header>
 

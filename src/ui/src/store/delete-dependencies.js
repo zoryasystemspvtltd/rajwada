@@ -88,6 +88,9 @@ const deleteDependency = {
                 "field": "projectId"
             }
         ]
+    },
+    "activitytracking": {
+        "dependent": []
     }
 };
 

@@ -638,7 +638,12 @@ const IUIPageElement = (props) => {
                                 }
                                 {fld.type === 'module-mapping' &&
                                     <>
-                                        <Form.Group className="position-relative mt-2">
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.schema.title} >{fld.schema.title} :
+                                                {fld.required &&
+                                                    <span className="text-danger">*</span>
+                                                }
+                                            </Form.Label>
                                             <IUIListMapping schema={fld.schema} parentId={data.id} />
                                         </Form.Group>
                                         <br />

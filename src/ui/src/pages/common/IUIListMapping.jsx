@@ -117,156 +117,149 @@ const IUIListMapping = (props) => {
 
     return (
         <>
-            <div className="row">
-                <div className="col-md-12">
-                    <div className="main-card mb-3 card">
-                        <div className="card-body">
-                            <Row>
-                                <Col md={8} className='mb-3'>
-                                    <div className="app-page-title">
-                                        <div className="page-title-heading"> {schema?.title}</div>
-                                    </div>
-                                    {(schema?.adding) &&
-                                        <>
-                                            {privileges?.add &&
-                                                <Button
-                                                    variant="contained"
-                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
-                                                    onClick={() => navigate(`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/add/`)}
-                                                >
-                                                    Add New {schema?.title}
-                                                </Button>
-                                            }
-                                        </>
+            <div className="main-card card">
+                <div className="card-body">
+                    <Row>
+                        <Col md={8} className='mb-3'>
+                            {(schema?.adding) &&
+                                <>
+                                    {privileges?.add &&
+                                        <Button
+                                            variant="contained"
+                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                            onClick={() => navigate(`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/add/`)}
+                                        >
+                                            Add New {schema?.title}
+                                        </Button>
                                     }
-                                    <IUIModuleMessage schema={props.schema} />
-                                </Col>
-                                <Col md={4}>
-                                    {schema.searching &&
-                                        <div className="input-group mb-2 justify-content-end " data-mdb-input-init>
+                                </>
+                            }
+                            <IUIModuleMessage schema={props.schema} />
+                        </Col>
+                        <Col md={4}>
+                            {schema.searching &&
+                                <div className="input-group mb-2 justify-content-end " data-mdb-input-init>
 
-                                            <input className="form-control"
-                                                type="text"
-                                                placeholder="Search"
-                                                id="search"
-                                                value={search}
-                                                onChange={handleSearchChange}
-                                            />
+                                    <input className="form-control"
+                                        type="text"
+                                        placeholder="Search"
+                                        id="search"
+                                        value={search}
+                                        onChange={handleSearchChange}
+                                    />
 
-                                            <button
-                                                type="submit"
-                                                onClick={handleSearch}
-                                                className="btn btn-primary" data-mdb-ripple-init
-                                            >
-                                                Search
-                                            </button>
-                                        </div>
-                                    }
-                                </Col>
-                            </Row >
-                            <Row>
-                                <Col>
-                                    <Table responsive>
-                                        <thead>
-                                            <tr>
-                                                {schema?.editing &&
-                                                    <th>
-                                                        <button type="submit" className="btn btn-link text-white p-0">#</button>
+                                    <button
+                                        type="submit"
+                                        onClick={handleSearch}
+                                        className="btn btn-primary" data-mdb-ripple-init
+                                    >
+                                        Search
+                                    </button>
+                                </div>
+                            }
+                        </Col>
+                    </Row >
+                    <Row>
+                        <Col>
+                            <Table responsive>
+                                <thead>
+                                    <tr>
+                                        {schema?.editing &&
+                                            <th>
+                                                <button type="submit" className="btn btn-link text-white p-0">#</button>
 
-                                                    </th>
+                                            </th>
+                                        }
+                                        {schema?.fields?.map((fld, f) => (
+                                            <th key={f}>
+                                                {fld.sorting &&
+                                                    <button
+                                                        type="submit"
+                                                        className="btn btn-link text-white p-0"
+                                                        onClick={(e) => sortData(e, fld.field)}
+                                                    >
+                                                        {dataSet?.options && fld.field === dataSet?.options.sortColumnName && dataSet?.options?.sortDirection ? <Icon.SortUp /> : <Icon.SortDown />} {dataSet?.options?.sortDirection}
+                                                        {fld.text}
+                                                    </button>
                                                 }
-                                                {schema?.fields?.map((fld, f) => (
-                                                    <th key={f}>
-                                                        {fld.sorting &&
-                                                            <button
-                                                                type="submit"
-                                                                className="btn btn-link text-white p-0"
-                                                                onClick={(e) => sortData(e, fld.field)}
-                                                            >
-                                                                {dataSet?.options && fld.field === dataSet?.options.sortColumnName && dataSet?.options?.sortDirection ? <Icon.SortUp /> : <Icon.SortDown />} {dataSet?.options?.sortDirection}
-                                                                {fld.text}
-                                                            </button>
-                                                        }
-                                                        {!fld.sorting &&
-                                                            <button
-                                                                type="submit"
-                                                                className="btn btn-link text-white p-0"
-                                                            >
-                                                                {fld.text}
-                                                            </button>}
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
+                                                {!fld.sorting &&
+                                                    <button
+                                                        type="submit"
+                                                        className="btn btn-link text-white p-0"
+                                                    >
+                                                        {fld.text}
+                                                    </button>}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                {
+                                    <tbody>
                                         {
-                                            <tbody>
-                                                {
-                                                    (schema?.duplicateKey ? removeDuplicatesByKey(dataSet?.items, schema?.duplicateKey) : dataSet?.items)?.map((item, i) => (
-                                                        <tr key={i} >
-                                                            {schema?.editing &&
-                                                                <>
-                                                                    <td width={10}>
-                                                                        {privileges.edit &&
-                                                                            <Link to={`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/${item?.id}/edit`} title='Edit'><i className="fa-solid fa-pencil"></i></Link>
-                                                                        }
-                                                                    </td>
-                                                                </>
-                                                            }
-                                                            {schema?.fields?.map((fld, f) => (
-                                                                <td key={f} width={fld.width}>
-                                                                    {fld.type === 'link' &&
-                                                                        <Link to={`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/${item?.id}`}>{item[fld.field]}</Link>
-                                                                    }
-                                                                    {(!fld.type || fld.type === 'text') && item[fld.field]}
-                                                                    {fld.type === 'date' && formatStringDate(item[fld.field])}
-                                                                    {(fld.type === 'lookup') &&
-                                                                        <IUILookUp
-                                                                            value={item[fld.field]}
-                                                                            schema={fld.schema}
-                                                                            readonly={true}
-                                                                            textonly={true}
-                                                                        />
-                                                                    }
-                                                                    {(fld.type === 'lookup-count') &&
-                                                                        <IUILookUpCount
-                                                                            schema={{ ...fld.schema, filter: { ...fld.schema.filter, [fld.schema.keyField]: item[fld.schema.keyField] } }}
-                                                                            readonly={true}
-                                                                            textonly={true}
-                                                                        />
-                                                                    }
-                                                                </td>
-                                                            ))}
-                                                        </tr>
-                                                    ))
-                                                }
-                                            </tbody>
-                                        }
-                                        {schema.paging &&
-                                            <tfoot>
-                                                <tr>
-                                                    <td colSpan={schema?.fields.length}>
-                                                        <Pagination size="sm" onClick={pageChanges}>
-                                                            {[...Array(dataSet?.totalPages)].map((e, i) => {
-                                                                return <Pagination.Item key={i}
-                                                                    active={(dataSet?.options?.currentPage === i + 1)}
-                                                                >{i + 1}</Pagination.Item>
-                                                            })}
-                                                        </Pagination>
-                                                    </td>
+                                            (schema?.duplicateKey ? removeDuplicatesByKey(dataSet?.items, schema?.duplicateKey) : dataSet?.items)?.map((item, i) => (
+                                                <tr key={i} >
                                                     {schema?.editing &&
-                                                        <td>
-                                                        </td>
+                                                        <>
+                                                            <td width={10}>
+                                                                {privileges.edit &&
+                                                                    <Link to={`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/${item?.id}/edit`} title='Edit'><i className="fa-solid fa-pencil"></i></Link>
+                                                                }
+                                                            </td>
+                                                        </>
                                                     }
+                                                    {schema?.fields?.map((fld, f) => (
+                                                        <td key={f} width={fld.width}>
+                                                            {fld.type === 'link' &&
+                                                                <Link to={`/${schema?.parentPath}/${props?.parentId}/${schema?.childPath}/${item?.id}`}>{item[fld.field]}</Link>
+                                                            }
+                                                            {(!fld.type || fld.type === 'text') && item[fld.field]}
+                                                            {fld.type === 'date' && formatStringDate(item[fld.field])}
+                                                            {(fld.type === 'lookup') &&
+                                                                <IUILookUp
+                                                                    value={item[fld.field]}
+                                                                    schema={fld.schema}
+                                                                    readonly={true}
+                                                                    textonly={true}
+                                                                />
+                                                            }
+                                                            {(fld.type === 'lookup-count') &&
+                                                                <IUILookUpCount
+                                                                    schema={{ ...fld.schema, filter: { ...fld.schema.filter, [fld.schema.keyField]: item[fld.schema.keyField] } }}
+                                                                    readonly={true}
+                                                                    textonly={true}
+                                                                />
+                                                            }
+                                                        </td>
+                                                    ))}
                                                 </tr>
-                                            </tfoot>
-
+                                            ))
                                         }
+                                    </tbody>
+                                }
+                                {schema.paging &&
+                                    <tfoot>
+                                        <tr>
+                                            <td colSpan={schema?.fields.length}>
+                                                <Pagination size="sm" onClick={pageChanges}>
+                                                    {[...Array(dataSet?.totalPages)].map((e, i) => {
+                                                        return <Pagination.Item key={i}
+                                                            active={(dataSet?.options?.currentPage === i + 1)}
+                                                        >{i + 1}</Pagination.Item>
+                                                    })}
+                                                </Pagination>
+                                            </td>
+                                            {schema?.editing &&
+                                                <td>
+                                                </td>
+                                            }
+                                        </tr>
+                                    </tfoot>
 
-                                    </Table>
-                                </Col>
-                            </Row>
-                        </div>
-                    </div>
+                                }
+
+                            </Table>
+                        </Col>
+                    </Row>
                 </div>
             </div>
         </>
