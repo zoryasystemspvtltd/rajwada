@@ -124,7 +124,7 @@ const Dashboard = () => {
                     },
                 }));
             } catch (error) {
-                notify("error", 'Data not available');
+                notify("info", 'Data not available');
                 // notify("error", 'Error fetching data');
             }
         }

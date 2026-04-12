@@ -150,8 +150,9 @@ const ActivityListByStatus = () => {
                 module: "user",
                 options: pageOptions
             });
+            console.log(response)
             const userId = response?.data?.items[0]?.id;
-            setDependencySelectParams({ ...initialParams, userId: userId });
+            setDependencySelectParams({ ...initialParams, userId: parseInt(userId) });
         }
 
         updateCurrentUserStatus();
@@ -359,7 +360,7 @@ const ActivityListByStatus = () => {
         }
 
         try {
-            if (dependencySelectParams.userId && !dependencySelectParams.userId?.includes("Select")) {
+            if (dependencySelectParams.userId && dependencySelectParams?.userId !== "Select") {
                 const user = await api.getSingleData({ module: 'user', id: parseInt(dependencySelectParams.userId) });
                 const member = user.data?.email;
 

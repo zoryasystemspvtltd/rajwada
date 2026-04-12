@@ -59,6 +59,7 @@ import ViewActivityStatus from "../pages/app/status-check/IndividualActivityStat
 import ReportDetailsPage from "../pages/app/status-check/ReportDetailsPage";
 import { AddOutsideEntityType, EditOutsideEntityType, ListOutsideEntityType, ViewOutsideEntityType } from "../pages/app/schema/OutsideEntityTypes";
 import { AddOutsideEntityMappings, EditOutsideEntityMappings, ListOutsideEntityMappings, ViewOutsideEntityMappings } from "../pages/app/schema/OutsideEntityMappings";
+import { AddWorkCheckpointMapping, EditWorkCheckpointMapping } from "../pages/app/schema/WorkCheckpointMappings";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -692,7 +693,15 @@ const Routes = () => {
                 {
                     path: "/outside-entities/add",
                     element: <AddOutsideEntityMappings />
-                }
+                },
+                {
+                    path: "/works/:activityId/checkpointmappings/:id/edit",
+                    element: <EditWorkCheckpointMapping />
+                },
+                {
+                    path: "/works/:activityId/checkpointmappings/add",
+                    element: <AddWorkCheckpointMapping />
+                },
             ],
         },
     ];

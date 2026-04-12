@@ -32,7 +32,10 @@ const IUIList = (props) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const handleClose = () => setShowUploadStatus(false);
+    const handleClose = () => {
+        setShowUploadStatus(false);
+        window.location.reload();
+    }
 
     useEffect(() => {
         const pageOptions = { ...dataSet?.options, recordPerPage: pageLength }

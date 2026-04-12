@@ -132,7 +132,7 @@ const IUIHeaderMenu = (props) => {
                                     </div>
                                     <div className="grid-menu grid-menu-xl grid-menu-3col">
                                         <div className="no-gutters row">
-                                            {
+                                            {/* {
                                                 (!loggedInUser?.roles?.includes("Super Admin")) ? (
                                                     Object.keys(menuSchema).map((key, index) => {
                                                         return (
@@ -153,6 +153,18 @@ const IUIHeaderMenu = (props) => {
                                                         </Button>
                                                     </div>
                                                 )
+                                            } */}
+                                            {
+                                                Object.keys(menuSchema).map((key, index) => {
+                                                    return (
+                                                        <div className="col-sm-6 col-xl-4" key={`col_${menuSchema[key].text}_${index}`}>
+                                                            <Button className="btn-icon-vertical btn-square btn-transition btn btn-outline-link" onClick={(e) => handleMenuRoleChange(e, key)}>
+                                                                <i className={`fa-solid fa-${(menuSchema[key].icon || "asterisk")} icon-gradient bg-night-fade btn-icon-wrapper btn-icon-sm mb-3`} title={menuSchema[key].text}></i>
+                                                                {menuSchema[key].text}
+                                                            </Button>
+                                                        </div>
+                                                    )
+                                                })
                                             }
                                         </div>
                                     </div>
@@ -237,6 +249,7 @@ const IUIHeaderMenu = (props) => {
                                     <div className="grid-menu grid-menu-xl grid-menu-3col">
                                         <div className="no-gutters row">
                                             {
+                                                (!loggedInUser?.roles?.includes("User")) &&
                                                 menuSchema[menuRole]?.report?.filter(item => item?.visible)?.map((item, index) => {
                                                     return (
                                                         <div className="col-sm-6 col-xl-4" key={`${item.name}_${index}`}>

@@ -629,6 +629,28 @@ const IUIPage = (props) => {
         return JSON.stringify(output);
     }
 
+    const saveWorkCheckpoints = async (data, activityId) => {
+        const checkPointItems = JSON.parse(data?.checkpoints);
+
+        if (checkPointItems?.length > 0) {
+            const addPromises = checkPointItems.map(item => addSingleWorkCheckpoint(item?.checkpointId, activityId, data?.name));
+            await Promise.all(addPromises);
+        }
+        return;
+    }
+
+    const addSingleWorkCheckpoint = async (checkPointId, activityId, activityName) => {
+        const checkPoint = await api.getSingleData({ module: 'workCheckPoint', id: parseInt(checkPointId) });
+
+        const addPayload = {
+            name: `${activityName}_${checkPoint?.data?.name}`,
+            workCheckPointId: parseInt(checkPointId),
+            activityId: parseInt(activityId)
+        };
+
+        return await api.addData({ module: 'workCheckPointMapping', data: addPayload });
+    }
+
     const savePageValue = async (e) => {
         e.preventDefault();
 
@@ -735,6 +757,9 @@ const IUIPage = (props) => {
                         // console.log(response)
                         if (module === 'dependency') {
                             await saveDependencyResources(data, response?.data);
+                        }
+                        if (module === 'activity') {
+                            await saveWorkCheckpoints(data, response?.data);
                         }
                         dispatch(setSave({ module: module }))
                         const timeId = setTimeout(() => {
