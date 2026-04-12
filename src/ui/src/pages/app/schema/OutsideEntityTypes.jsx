@@ -10,6 +10,8 @@ export const ListOutsideEntityType = () => {
         searching: true,
         editing: true,
         adding: true,
+        uploading: true,
+        downloading: true,
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Alias', field: 'code', type: 'text', sorting: true, searching: true },

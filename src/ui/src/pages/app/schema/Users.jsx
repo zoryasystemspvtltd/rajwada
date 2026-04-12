@@ -32,6 +32,7 @@ export const ViewUser = () => {
         showBreadcrumbs: true,
         editing: true,
         adding: false,
+        deleting: true,
         back: true,
         readonly: true,
         fields: [

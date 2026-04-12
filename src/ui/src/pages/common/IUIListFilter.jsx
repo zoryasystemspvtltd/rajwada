@@ -31,7 +31,10 @@ const IUIListFilter = (props) => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const [privileges, setPrivileges] = useState({});
 
-    const handleClose = () => setShowUploadStatus(false);
+    const handleClose = () => {
+        setShowUploadStatus(false);
+        window.location.reload();
+    }
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === schema.module)?.map(p => p.name);

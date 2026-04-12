@@ -799,9 +799,10 @@ body .dropdown-menu.dropdown-menu-inline::after {display:none}
 }
 .grid-menu [class*=col-]:nth-last-child(-n+1) {border-bottom-width:0}
 @media(min-width:1200px) {
-.grid-menu.grid-menu-3col [class*=col-]:nth-last-child(-n+3) {border-bottom-width:0}
-.grid-menu.grid-menu-3col [class*=col-]:nth-child(2n) {border-right-width:1px}
-.grid-menu.grid-menu-3col [class*=col-]:nth-child(3n) {border-right-width:0}
+.grid-menu.grid-menu-3col [class*=col-]:nth-last-child(-n+3) {border-right-width:1px}
+.grid-menu.grid-menu-3col [class*=col-]:nth-child(2n) {border-width:1px}
+.grid-menu.grid-menu-3col [class*=col-]:nth-child(3n) {border-width:1px}
+.grid-menu.grid-menu-3col [class*=col-]:nth-child(4n) {border-right-width:0}
 }
 .grid-menu .btn { display:block; border:0; min-width:100% }
 

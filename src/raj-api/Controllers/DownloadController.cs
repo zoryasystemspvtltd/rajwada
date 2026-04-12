@@ -155,6 +155,14 @@ public class DownloadController : ControllerBase
             dataService.Identity = new ModuleIdentity(member, key);
 
             var data = GetTemplate(module);
+            if (data == null)
+            {
+                return BadRequest(new
+                {
+                    error = "InvalidModule",
+                    message = $"Module '{module}' is not found."
+                });
+            }
             string base64String;
             using (var wb = new XLWorkbook())
             {
@@ -186,37 +194,62 @@ public class DownloadController : ControllerBase
             return BadRequest(new { message = "An error occurred while generating the template.", error = ex.Message });
         }
     }
-    private DataTable GetTemplate(string module)
+    private DataTable? GetTemplate(string module)
     {
         if (string.IsNullOrWhiteSpace(module))
-            return new DataTable();
+            return null;
 
-        module = module.ToUpperInvariant();
+        var preMapping = new Dictionary<string, string>
+        {
+            ["Flat"] = "FLAT",
+            ["Tower"] = "TOWER",
+            ["Floor"] = "FLOOR",
+            ["Project"] = "PROJECT",
+            ["Room Type"] = "ROOMTYPE",
+
+            ["UOM"] = "UOM",
+            ["Item Type"] = "ASSETTYPE",
+            ["Item Group"] = "ASSETGROUP",
+            ["Outside Entity Type"] = "OUTSIDEENTITYTYPE",
+            ["Parking Type"] = "PARKINGTYPE",
+
+            ["Contractor Master"] = "CONTRACTOR",
+            ["Supplier Master"] = "SUPPLIER",
+            ["Item Master"] = "ASSET",
+
+            ["Flat Template"] = "FLATTEMPLATE",
+            ["Tower Parking"] = "PARKING",
+            ["Outside Entity Mapping"] = "OUTSIDEENTITY"
+        };
+
+        string actModule = preMapping.ContainsKey(module) ? preMapping[module] : null;
+        if (actModule == null)
+            return null;
 
         var map = new Dictionary<string, Func<DataTable>>
-                {
-                    ["FLAT"] = CreateFlatTemplate,
-                    ["TOWER"] = () => CreateTowerTemplate(GetModuleDetails("ParkingType")),
-                    ["FLOOR"] = CreateFloorTemplate,
-                    ["PROJECT"] = CreateProjectTemplate,
-                    ["ROOMTYPE"] = CreateRoomTypeTemplate,
+        {
+            ["FLAT"] = CreateFlatTemplate,
+            ["TOWER"] = () => CreateTowerTemplate(GetModuleDetails("ParkingType")),
+            ["FLOOR"] = CreateFloorTemplate,
+            ["PROJECT"] = CreateProjectTemplate,
+            ["ROOMTYPE"] = CreateRoomTypeTemplate,
 
-                    ["UOM"] = CreateUOMTemplate,
-                    ["ASSETTYPE"] = CreateUOMTemplate,
-                    ["ASSETGROUP"] = CreateUOMTemplate,
-                    ["OUTSIDEENTITYTYPE"] = CreateUOMTemplate,
-                    ["PARKINGTYPE"] = CreateUOMTemplate,
+            ["UOM"] = CreateUOMTemplate,
+            ["ASSETTYPE"] = CreateUOMTemplate,
+            ["ASSETGROUP"] = CreateUOMTemplate,
+            ["OUTSIDEENTITYTYPE"] = CreateUOMTemplate,
+            ["PARKINGTYPE"] = CreateUOMTemplate,
 
-                    ["CONTRACTOR"] = CreateContractorTemplate,
-                    ["SUPPLIER"] = CreateSupplierTemplate,
-                    ["ITEM"] = CreateItemTemplate,
+            ["CONTRACTOR"] = CreateContractorTemplate,
+            ["SUPPLIER"] = CreateSupplierTemplate,
+            ["ASSET"] = CreateAssetTemplate,
 
-                    ["FLATTEMPLATE"] = () => CreateFlattempTemplate(GetModuleDetails("RoomType")),
-                    ["PARKING"] = CreateParkingTemplate,
-                    ["OUTSIDEENTITY"] = () => CreateOutSideEntityTemplate(GetModuleDetails("OutSideEntityType"))
-                };
+            ["FLATTEMPLATE"] = () => CreateFlatTempTemplate(GetModuleDetails("RoomType")),
+            ["PARKING"] = CreateParkingTemplate,
+            ["OUTSIDEENTITY"] = () => CreateOutSideEntityTemplate(GetModuleDetails("OutSideEntityType"))
+        };
 
-        return map.TryGetValue(module, out var func)
+        return map.TryGetValue(actModule, out var func)
             ? func()
             : new DataTable();
     }
@@ -265,14 +298,14 @@ public class DownloadController : ControllerBase
         return CreateTable("Project", "Tower", "Name", "Parking Type");
     }
 
-    private static DataTable CreateFlattempTemplate(dynamic? roomtype)
+    private static DataTable CreateFlatTempTemplate(dynamic? roomtype)
     {
         var dt = CreateTable("Name", "Description");
         AddDynamicColumns(dt, roomtype);
         return dt;
     }
 
-    private static DataTable CreateItemTemplate()
+    private static DataTable CreateAssetTemplate()
     {
         return CreateTable("Group", "Type", "Name", "Alias", "UOM");
     }
@@ -303,7 +336,8 @@ public class DownloadController : ControllerBase
 
     private static DataTable CreateFloorTemplate()
     {
-        return CreateTable("Name", "Description", "Tower");
+        var dt = CreateTable("Name", "Description", "Tower");
+        return dt;
     }
 
     private static DataTable CreateTowerTemplate(dynamic? parking)
@@ -314,7 +348,7 @@ public class DownloadController : ControllerBase
     }
     private static DataTable CreateFlatTemplate()
     {
-        return CreateTable("Name", "Description", "Floor", "Priority");
+        return CreateTable("Name", "Description", "Floor"); //, "Priority"
     }
     private static DataTable CreateProjectTemplate()
     {

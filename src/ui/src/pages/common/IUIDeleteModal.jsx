@@ -66,8 +66,6 @@ export default function IUIDeleteModal({ item, onConfirm, onCancel }) {
             show={true}
             onHide={onCancel}
             size="lg"
-            centered
-            scrollable
         >
             {/* Header */}
             <Modal.Header closeButton>

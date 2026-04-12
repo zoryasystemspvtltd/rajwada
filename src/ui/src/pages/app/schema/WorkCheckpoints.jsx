@@ -3,13 +3,15 @@ import IUIPage from "../../common/IUIPage"
 
 export const ListWorkCheckpoint = () => {
     const schema = {
-        module: 'workCheckpoints',
+        module: 'workCheckPoint',
         title: 'Work Checkpoint',
         path: 'work-checkpoints',
         paging: true,
         searching: true,
         editing: true,
         adding: true,
+        uploading: true,
+        downloading: true,
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: false, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: true },
@@ -23,7 +25,7 @@ export const ListWorkCheckpoint = () => {
 
 export const ViewWorkCheckpoint = () => {
     const schema = {
-        module: 'workCheckpoints',
+        module: 'workCheckPoint',
         title: 'Work Checkpoint',
         path: 'work-checkpoints',
         showBreadcrumbs: false,
@@ -60,7 +62,7 @@ export const ViewWorkCheckpoint = () => {
 
 export const EditWorkCheckpoint = () => {
     const schema = {
-        module: 'workCheckpoints',
+        module: 'workCheckPoint',
         title: 'Work Checkpoint',
         path: 'work-checkpoints',
         back: false,
@@ -90,7 +92,7 @@ export const EditWorkCheckpoint = () => {
 
 export const AddWorkCheckpoint = () => {
     const schema = {
-        module: 'workCheckpoints',
+        module: 'workCheckPoint',
         title: 'Work Checkpoint',
         path: 'work-checkpoints',
         back: false,

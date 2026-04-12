@@ -5,11 +5,12 @@ import { Link } from "react-router-dom";
 import Pagination from 'react-bootstrap/Pagination';
 import * as Icon from 'react-bootstrap-icons';
 import Table from 'react-bootstrap/Table';
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Col, Row, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from '../common/shared/IUILookUp'
 import IUIBreadcrumb from './shared/IUIBreadcrumb';
+import { HiOutlineUpload } from 'react-icons/hi';
 import { RiDownload2Fill } from 'react-icons/ri';
 import { saveAs } from 'file-saver';
 import api from '../../store/api-service';
@@ -20,13 +21,21 @@ import { formatStringDate } from '../../store/datetime-formatter';
 const IUIList = (props) => {
     const schema = props?.schema;
     const module = schema?.module;
+    const [baseFilter, setBaseFilter] = useState({});
     const pageLength = schema?.paging ? 10 : 0;
     const dataSet = useSelector((state) => state.api[module])
     const [search, setSearch] = useState(useSelector((state) => state.api[module])?.options?.search);
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
     const [privileges, setPrivileges] = useState({});
+    const [showUploadStatus, setShowUploadStatus] = useState(false);
+    const [bulkUploadResponse, setBulkUploadResponse] = useState(null);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const handleClose = () => {
+        setShowUploadStatus(false);
+        window.location.reload();
+    }
 
     useEffect(() => {
         const pageOptions = { ...dataSet?.options, recordPerPage: pageLength }
@@ -45,6 +54,25 @@ const IUIList = (props) => {
             localStorage.removeItem("dependency-flow");
         }
     }, [loggedInUser, module]);
+
+    useEffect(() => {
+        if (props?.filter && showUploadStatus) {
+            const newBaseFilter = {
+                name: schema?.relationKey,
+                value: props?.filter,
+                //operator: 'likelihood' // Default value is equal
+            }
+
+            setBaseFilter(newBaseFilter)
+
+            const pageOptions = {
+                ...dataSet?.options
+                , recordPerPage: pageLength
+                , searchCondition: newBaseFilter
+            }
+            dispatch(getData({ module: module, options: pageOptions }));
+        }
+    }, [props, showUploadStatus]);
 
     const pageChanges = async (e) => {
         e.preventDefault();
@@ -97,6 +125,64 @@ const IUIList = (props) => {
             dispatch(getData({ module: module, options: searchOptions }));
         }
     };
+
+    const handleDownloadClick = async () => {
+        try {
+            const response = await api.downloadTemplate({ module: schema?.title });
+
+            if (response) {
+                // Decode the base64 string to binary data
+                const byteCharacters = atob(response.data.data); // Base64 decode
+                const byteArrays = [];
+
+                // Convert the decoded string into a byte array
+                for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                    const slice = byteCharacters.slice(offset, offset + 512);
+                    const byteNumbers = new Array(slice.length);
+                    for (let i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    byteArrays.push(new Uint8Array(byteNumbers));
+                }
+
+                // Create a Blob object from the byte arrays
+                const blob = new Blob(byteArrays, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+                // Use FileSaver to trigger the download
+                saveAs(blob, `${schema?.title}Details.xlsx`);
+            }
+        } catch (error) {
+            notify("error", `Failed to download ${schema?.title} template!`);
+        }
+    };
+
+    const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+        if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+            const formData = new FormData();
+            formData.append('file', file); // Attach the file with the key 'file'
+            formData.append('title', schema?.title);
+
+            api.uploadExcelFile({ module: schema?.module, data: formData })
+                .then((response) => {
+                    return response;
+                })
+                .then((data) => {//handle modal next.
+                    setBulkUploadResponse(data?.data);
+                    // setShowUploadStatus(true);
+                    notify("success", 'File upload successful!');
+                })
+                .then(() => {
+                    setShowUploadStatus(true);
+                })
+                .catch((error) => {
+                    notify("error", `Failed to upload file!`);
+                });
+        } else {
+            notify("error", `Invalid file type! Please upload an Excel file (.xlsx, .xls).`);
+        }
+        event.target.value = null;
+    }
 
     const handleDownloadReport = async (itemId, reportDate) => {
         try {
@@ -161,6 +247,33 @@ const IUIList = (props) => {
                                                             </Button>
                                                         }
                                                     </>
+                                                }
+                                                {schema?.downloading &&
+                                                    <Button
+                                                        variant="contained"
+                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                                        onClick={handleDownloadClick}
+                                                    >
+                                                        <RiDownload2Fill className="inline-block mr-2" />
+                                                        Download
+                                                    </Button>
+                                                }
+                                                {schema?.uploading &&
+                                                    <Button
+                                                        variant="contained"
+                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mx-2"
+                                                        onClick={() => document.getElementById('upload-btn').click()}
+                                                    >
+                                                        <HiOutlineUpload className="inline-block mr-2" />
+                                                        <input
+                                                            type='file'
+                                                            accept='.xlsx'
+                                                            id='upload-btn'
+                                                            onChange={handleFileUpload}
+                                                            style={{ display: 'none' }}
+                                                        />
+                                                        Upload
+                                                    </Button>
                                                 }
                                                 <IUIModuleMessage schema={props.schema} />
                                             </Col>
@@ -309,6 +422,65 @@ const IUIList = (props) => {
                     </div>
                 </div>
             </div >
+            <Modal show={showUploadStatus} onHide={handleClose} size='lg'>
+                <Modal.Header>
+                    <Modal.Title>{`${schema?.title} Bulk Upload Status`}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <h5>Success Status</h5>
+                    <Table striped bordered hover responsive>
+                        <thead>
+                            <tr>
+                                <th>Item ID</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                (bulkUploadResponse) && (
+                                    bulkUploadResponse?.successData?.map((data, index) => (
+                                        <tr key={`Success-${index}`}>
+                                            <td>{index}</td>
+                                            <td>{data}</td>
+                                        </tr>
+                                    ))
+                                )
+                            }
+                        </tbody>
+                    </Table>
+
+                    <h5>Failure Status</h5>
+                    <Table striped bordered hover responsive>
+                        <thead>
+                            <tr>
+                                <th>Item ID</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                (bulkUploadResponse) && (
+                                    bulkUploadResponse?.failureData?.map((data, index) => (
+                                        <tr key={`Failure-${index}`}>
+                                            <td>{index}</td>
+                                            <td>{data}</td>
+                                        </tr>
+                                    ))
+                                )
+                            }
+                        </tbody>
+                    </Table>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button
+                        variant="contained"
+                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
+                        onClick={handleClose}
+                    >
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
 
     )

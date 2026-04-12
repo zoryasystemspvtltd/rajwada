@@ -9,6 +9,7 @@ using RajApi.Data;
 using RajApi.Data.Models;
 using RajApi.Helpers;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ILab.Data
 {
@@ -87,6 +88,7 @@ namespace ILab.Data
                     {
                         existingData.Status = jsonData?.Status;
                         modifiedBy = jsonData?.ModifiedBy;
+                        
                         //Assigned also Project,Tower,Floor,Flat,Room
                         await AssginedLinkedModule(existingData, token);
                     }
@@ -136,6 +138,7 @@ namespace ILab.Data
 
                     if (project != null)
                     {
+                        project.Member = existingData.Member;
                         await SaveApplicationLogForLinkedModule("Project", project, StatusType.Assigned, token);
                     }
                     if (existingData.TowerId != null)
@@ -144,6 +147,7 @@ namespace ILab.Data
 
                         if (tower != null)
                         {
+                            tower.Member = existingData.Member;
                             await SaveApplicationLogForLinkedModule("Plan", tower, StatusType.Assigned, token);
                         }
                     }
@@ -154,6 +158,7 @@ namespace ILab.Data
 
                         if (flat != null)
                         {
+                            flat.Member = existingData.Member;
                             await SaveApplicationLogForLinkedModule("Plan", flat, StatusType.Assigned, token);
                         }
                     }
@@ -164,6 +169,7 @@ namespace ILab.Data
 
                         if (floor != null)
                         {
+                            floor.Member = existingData.Member;
                             await SaveApplicationLogForLinkedModule("Plan", floor, StatusType.Assigned, token);
                         }
                     }
@@ -259,10 +265,6 @@ namespace ILab.Data
                                 await SaveFloorData(jsonData, Id, project.Name, project.Code, token);
                                 await SaveParkingData(jsonData, Id, project.Name, token);
                             }
-                            if (string.Equals(model, "OUTSIDEENTITY", StringComparison.OrdinalIgnoreCase))
-                            {
-                                await SaveOutSideEntitiesData(jsonData, project.Name, token);
-                            }
                         }
                         break;
                     case "OUTSIDEENTITY":
@@ -310,6 +312,15 @@ namespace ILab.Data
                 throw;
             }
         }
+        public static string GetFloorNumber(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return null;
+
+            var match = Regex.Match(input, @"(G|\d+)", RegexOptions.IgnoreCase);
+
+            return match.Success ? match.Value.ToUpper() : null;
+        }
 
         /// <summary>
         /// Save Flat data
@@ -326,7 +337,13 @@ namespace ILab.Data
                 var templateList = JsonConvert.DeserializeObject<List<FlatTemplateRawData>>(data);
                 var data1 = jsonData as Plan;
                 var str = data1?.Name?.Split('/');
-                var floorName = $"{str?[0]}/{str?[1]}/{str?[2]?.Substring(5, 1)}";
+                if (str.Length < 3)
+                    return 0;
+
+                string floorCount = GetFloorNumber(str?[2]);
+                if (floorCount == null) return 0;
+
+                var floorName = $"{str?[0]}/{str?[1]}/{floorCount}";
                 var descriptionPrefix = jsonData?.Description ?? "";
 
                 foreach (var template in templateList)
@@ -646,7 +663,7 @@ namespace ILab.Data
             }
 
         }
-        private int GetMaxCount(string model, string? name, string? value)
+        public int GetMaxCount(string model, string? name, string? value)
         {
             try
             {
@@ -970,7 +987,20 @@ namespace ILab.Data
                 return 0;
             }
         }
-
+        internal dynamic GetDynamicData(string query)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetDynamicData));
+                object[] parameters = [query];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetAllAssignedProjects method and details: " + ex.Message);
+                return 0;
+            }
+        }
         internal dynamic GetFinancialYear()
         {
             try
@@ -1083,7 +1113,9 @@ namespace ILab.Data
                         modelData.GrandFatherCertificate = Utility.Base64ToFile(modelData.GrandFatherCertificate, folderPath);
                         modelData.GrandMotherCertificate = Utility.Base64ToFile(modelData.GrandMotherCertificate, folderPath);
                         break;
-
+                    case "WORKCHECKPOINTTRACKING":
+                        modelData.Photo = Utility.Base64ToFile(modelData.Photo, folderPath);
+                        break;
                 }
                 return JsonConvert.SerializeObject(modelData);
 

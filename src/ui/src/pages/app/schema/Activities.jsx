@@ -120,6 +120,29 @@ export const ViewActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     {
+                        type: 'module-relation',
+                        schema: {
+                            module: 'workCheckPointMapping',
+                            relationKey: "activityId",
+                            title: 'Checkpoints',
+                            path: 'checkpointmappings',
+                            paging: false,
+                            searching: false,
+                            editing: false,
+                            adding: false,
+                            uploading: false,
+                            downloading: false,
+                            fields: [
+                                { text: 'Name', field: 'name', type: 'text', sorting: true, searching: true, width: 100, }
+                            ]
+                        },
+                    }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
                         text: 'Item List', field: 'items', width: 12, type: 'table-input', readonly: true,
                         schema: {
                             readonly: true,
@@ -713,6 +736,30 @@ export const AddActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     {
+                        text: 'Work Checkpoint List', field: 'checkpoints', width: 12, type: 'table-input', required: true,
+                        schema: {
+                            title: 'Checkpoint',
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            delete: true,
+                            assign: true, // for assign accordion
+                            fields: [
+                                {
+                                    text: 'Checkpoint', field: 'checkpointId', type: 'lookup', required: true, width: 12,
+                                    schema: { module: 'workCheckPoint' }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
                         text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
                         hasDefaultValue: true,
                         defaultType: 'indirect',
@@ -996,6 +1043,30 @@ export const AddActivity = () => {
                         }
                     },
                     { text: 'Notes', field: 'notes', placeholder: 'Notes here...', width: 4, type: 'text', required: false },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Checkpoint List', field: 'checkpoints', width: 12, type: 'table-input', required: true,
+                        schema: {
+                            title: 'Checkpoint',
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            delete: true,
+                            assign: true, // for assign accordion
+                            fields: [
+                                {
+                                    text: 'Work Checkpoint', field: 'checkpointId', type: 'lookup', required: true, width: 12,
+                                    schema: { module: 'workCheckPoint' }
+                                }
+                            ]
+                        }
+                    }
                 ]
             },
             {
