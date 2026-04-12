@@ -38,7 +38,7 @@ const ReportDetailsPage = () => {
             adding: true,
             fields: [
                 {
-                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
                     schema: { module: 'asset' }
                 },
                 { text: 'Quantity', field: 'quantity', type: 'number', width: 4, required: true },
@@ -125,10 +125,9 @@ const ReportDetailsPage = () => {
     };
 
     // ✅ DELETE HANDLER
-    const deletePageValue = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this report?")) return;
-
+    const deletePageValue = async (e, id) => {
         try {
+            e.preventDefault();
             await api.deleteData({ module: "activitytracking", id: parseInt(id) });
 
             setReports((prev) => prev.filter((r) => r.id !== id));

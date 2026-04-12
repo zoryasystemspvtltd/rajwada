@@ -119,19 +119,20 @@ export const ViewActivity = () => {
             {
                 type: "area", width: 12
                 , fields: [
+                    
+
                     {
-                        type: 'module-relation',
+                        type: 'module-mapping',
                         schema: {
-                            module: 'workCheckPointMapping',
-                            relationKey: "activityId",
-                            title: 'Checkpoints',
-                            path: 'checkpointmappings',
+                            title: 'Checkpoints', // title of child
+                            module: 'workCheckPointMapping', // module for child
+                            relationKey: "activityId", // foreign key field in child schema
+                            parentPath: 'works', //
+                            childPath: 'checkpointmappings',
                             paging: false,
                             searching: false,
-                            editing: false,
-                            adding: false,
-                            uploading: false,
-                            downloading: false,
+                            editing: true,
+                            adding: true,
                             fields: [
                                 { text: 'Name', field: 'name', type: 'text', sorting: true, searching: true, width: 100, }
                             ]

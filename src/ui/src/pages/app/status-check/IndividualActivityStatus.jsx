@@ -9,6 +9,7 @@ import ReportsList from "./ReportsList";
 import dayjs from "./dayjsConfig";
 import { notify } from "../../../store/notification";
 import { getFormattedDateTime } from "../../../store/datetime-formatter";
+import CommentsModal from "./CommentsModal";
 
 const ViewActivityStatus = () => {
     const schema = {
@@ -126,30 +127,25 @@ const ViewActivityStatus = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
-
-    // For comments
     const [commentsModalOpen, setCommentsModalOpen] = useState(false);
-    const [comments, setComments] = useState([]);
-    const [newComment, setNewComment] = useState('');
-    const loggedInUser = useSelector((state) => state.api.loggedInUser);
-    const [privileges, setPrivileges] = useState({});
+    const [selectedActivityId, setSelectedActivityId] = useState(null);
 
-    useEffect(() => {
-        const commentPrivileges = loggedInUser?.privileges?.filter(p => p.module === "comment")?.map(p => p.name);
-        const imagePrivileges = loggedInUser?.privileges?.filter(p => p.module === "attachment")?.map(p => p.name);
-        const activityTrackingPrivileges = loggedInUser?.privileges?.filter(p => p.module === "activityTracking")?.map(p => p.name);
-        let access = {};
-        commentPrivileges.forEach(p => {
-            access["comment"] = { ...access["comment"], ...{ [p]: true } }
-        })
-        imagePrivileges.forEach(p => {
-            access["image"] = { ...access["image"], ...{ [p]: true } }
-        })
-        activityTrackingPrivileges.forEach(p => {
-            access["activitytracking"] = { ...access["activitytracking"], ...{ [p]: true } }
-        })
-        setPrivileges(access)
-    }, [loggedInUser]);
+    // useEffect(() => {
+    //     const commentPrivileges = loggedInUser?.privileges?.filter(p => p.module === "comment")?.map(p => p.name);
+    //     const imagePrivileges = loggedInUser?.privileges?.filter(p => p.module === "attachment")?.map(p => p.name);
+    //     const activityTrackingPrivileges = loggedInUser?.privileges?.filter(p => p.module === "activityTracking")?.map(p => p.name);
+    //     let access = {};
+    //     commentPrivileges.forEach(p => {
+    //         access["comment"] = { ...access["comment"], ...{ [p]: true } }
+    //     })
+    //     imagePrivileges.forEach(p => {
+    //         access["image"] = { ...access["image"], ...{ [p]: true } }
+    //     })
+    //     activityTrackingPrivileges.forEach(p => {
+    //         access["activitytracking"] = { ...access["activitytracking"], ...{ [p]: true } }
+    //     })
+    //     setPrivileges(access)
+    // }, [loggedInUser]);
 
 
     const loadReports = async () => {
@@ -205,63 +201,15 @@ const ViewActivityStatus = () => {
             }));
     }, [reports]);
 
-    async function fetchComments(selectedId) {
-        try {
-            const newBaseFilter = {
-                name: 'activityId',
-                value: parseInt(selectedId),
-            }
-
-            const pageOptions = {
-                recordPerPage: 0,
-                searchCondition: newBaseFilter
-            }
-            const response = await api.getData({ module: 'comment', options: pageOptions });
-            let tempComments = response?.data?.items;
-            const sortedComments = tempComments.sort((a, b) => new Date(a.date) - new Date(b.date));
-            setComments(sortedComments);
-        } catch (error) {
-            notify("error", "Failed to fetch comments!");
-        }
-    }
-
-    // Handle comment button click
-    const handleCommentClick = async (id) => {
-        await fetchComments(id);
-        setCommentsModalOpen(true); // Open the modal for comments
+    const handleCommentClick = (id) => {
+        setSelectedActivityId(id);
+        setCommentsModalOpen(true);
     };
 
-    // Close the comments modal
+
     const closeCommentsModal = () => {
         setCommentsModalOpen(false);
-        setNewComment('');
-        setComments([]);
-    };
-
-    const handleCommentSubmit = async () => {
-        if (newComment.trim()) {
-            if (newComment.trim()) {
-                // Save text comment
-                const commentData = {
-                    activityId: id,
-                    remarks: newComment,
-                    date: new Date(),
-                };
-
-                try {
-                    const response = await api.addData({ module: 'comment', data: commentData });
-                    if (response.status === 200) {
-                        // console.log('Comment saved successfully!');
-                        setNewComment('');
-                    }
-                } catch (error) {
-                    console.error('Error saving comment:', error);
-                }
-            }
-
-            // Fetch comments again to update the list
-            await fetchComments(id);
-        }
+        setSelectedActivityId(null);
     };
 
     return (
@@ -320,71 +268,11 @@ const ViewActivityStatus = () => {
                     </div>
                 </div>
 
-                {commentsModalOpen && id && (
-                    <Modal show={commentsModalOpen} onHide={closeCommentsModal}>
-                        <Modal.Header>
-                            <Modal.Title>Task Comments</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body style={{ color: "black", maxHeight: '60vh', overflowY: 'auto' }}>
-                            <div className="comments-section">
-                                {comments?.length > 0 ? (
-                                    comments?.map((comment, index) => (
-                                        <div
-                                            key={index}
-                                            className={`d-flex ${comment.member === loggedInUser?.email ? 'justify-content-end' : 'justify-content-start'} mb-2`}>
-                                            <div
-                                                className={`p-2 ${comment.member === loggedInUser?.email ? 'bg-light' : 'bg-secondary text-white'} rounded-4`}
-                                                style={{ maxWidth: '70%' }}>
-                                                <div className={`text-left ${comment.member === loggedInUser?.email ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
-                                                    style={{ fontWeight: 'bold', fontSize: '0.60rem' }}>
-                                                    {comment?.member}
-                                                </div>
-                                                <div className="text-break">{comment?.remarks}</div>
-                                                <div className={`text-left ${comment.member === loggedInUser?.email ? 'text-muted' : 'bg-secondary text-white'} rounded-4`}
-                                                    style={{ fontSize: '0.60rem' }}>
-                                                    {getFormattedDateTime(new Date(comment?.date))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className="">No comments yet.</p>
-                                )}
-                            </div>
-                            <div className="d-flex">
-                                <Form.Group className="position-relative form-group flex-grow-1 mr-2" style={{ flex: 6 }}>
-                                    <Form.Label>New Comment</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={newComment}
-                                        onChange={(e) => setNewComment(e.target.value)}
-                                        placeholder="Type your comment here..."
-                                    />
-                                </Form.Group>
-                            </div>
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button
-                                variant="contained"
-                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
-                                onClick={closeCommentsModal}
-                            >
-                                Close
-                            </Button>
-                            {
-                                privileges?.comment?.add && (
-                                    <Button
-                                        variant="contained"
-                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
-                                        onClick={handleCommentSubmit}
-                                    >
-                                        Post Comment
-                                    </Button>
-                                )
-                            }
-                        </Modal.Footer>
-                    </Modal>
-                )}
+                <CommentsModal
+                    show={commentsModalOpen}
+                    onClose={closeCommentsModal}
+                    activityId={selectedActivityId}
+                />
             </div>
         </>
     );

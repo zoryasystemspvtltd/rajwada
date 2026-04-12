@@ -20,11 +20,11 @@ export const EditWorkCheckpointMapping = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Checkpoint Type', field: 'workCheckPointId', type: 'lookup', required: true, width: 4,
+                        text: 'Checkpoint Type', field: 'workCheckPointId', type: 'lookup', required: true, width: 6,
                         schema: { module: 'workCheckPoint' }
                     },
                     {
-                        text: 'Activity', field: 'activityId', type: 'lookup', required: true, width: 4, readonly: true,
+                        text: 'Activity', field: 'activityId', type: 'lookup', required: true, width: 6, readonly: true,
                         schema: { module: 'activity' }
                     },
                 ]
@@ -54,11 +54,11 @@ export const AddWorkCheckpointMapping = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Checkpoint Type', field: 'workCheckPointId', type: 'lookup', required: true, width: 4,
+                        text: 'Checkpoint Type', field: 'workCheckPointId', type: 'lookup', required: true, width: 6,
                         schema: { module: 'workCheckPoint' }
                     },
                     {
-                        text: 'Activity', field: 'activityId', type: 'lookup', required: true, width: 4, readonly: true,
+                        text: 'Activity', field: 'activityId', type: 'lookup', required: true, width: 6, readonly: true,
                         schema: { module: 'activity' }
                     },
                 ]

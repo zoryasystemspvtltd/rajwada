@@ -150,7 +150,7 @@ const ActivityListByStatus = () => {
                 module: "user",
                 options: pageOptions
             });
-            console.log(response)
+            
             const userId = response?.data?.items[0]?.id;
             setDependencySelectParams({ ...initialParams, userId: parseInt(userId) });
         }
