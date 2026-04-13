@@ -1,4 +1,5 @@
-﻿using ILab.Extensionss.Common;
+﻿using DocumentFormat.OpenXml.InkML;
+using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -461,6 +462,106 @@ public class RajDataHandler : LabDataHandler
             {
                 return null;
             }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkerStatusReport method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    public async Task<WorkStatusResponse> GetWorkStatusAsync(WorkStatusRequest request)
+    {
+        try
+        {
+            var query = dbContext.Set<Activity>().AsQueryable();
+
+            // ✅ Null-safe filtering
+            if (request.ProjectId.HasValue)
+                query = query.Where(x => x.ProjectId == request.ProjectId);
+
+            if (request.TowerId.HasValue)
+                query = query.Where(x => x.TowerId == request.TowerId);
+
+            if (request.FloorId.HasValue)
+                query = query.Where(x => x.FloorId == request.FloorId);
+
+            if (request.Type == "inside")
+            {
+                if (request.FlatId.HasValue)
+                    query = query.Where(x => x.FlatId == request.FlatId);
+
+                if (request.RoomId.HasValue)
+                    query = query.Where(x => x.RoomId == request.RoomId);
+            }
+
+            if (request.Type == "outside")
+            {
+                if (request.OutsideEntityId.HasValue)
+                    query = query.Where(x => x.OutSideEntityId == request.OutsideEntityId);
+            }
+
+            if (!string.IsNullOrEmpty(request.UserId))
+            {
+                query = query.Where(x => x.Member == request.UserId); // adjust if needed
+            }
+
+            var data = await query.ToListAsync();
+
+            var now = DateTime.UtcNow;
+
+            // ✅ Initialize response
+            var response = new WorkStatusResponse();
+
+            foreach (var activity in data)
+            {
+                var dto = new ActivityDto
+                {
+                    ActivityId = activity.Id.ToString(),
+                    Name = activity.Name,
+                    ExpectedStartDate = activity.StartDate,
+                    ExpectedEndDate = activity.EndDate,
+                    Type = activity.Type
+                };
+
+                // ✅ PRIORITY LOGIC (IMPORTANT)
+                if (activity.IsCancelled == true)
+                {
+                    response.Delayed.Activities.Add(dto);
+                }
+                else if (activity.IsOnHold == true)
+                {
+                    response.Hold.Activities.Add(dto);
+                }
+                else if (activity.IsCompleted == true)
+                {
+                    response.Closed.Activities.Add(dto);
+                }
+                else if (activity.AmendmentId != null)
+                {
+                    response.Rework.Activities.Add(dto);
+                }
+                else if (activity.ActualStartDate != null &&
+                         activity.ActualStartDate < now)
+                {
+                    response.InProgress.Activities.Add(dto);
+                }
+                else
+                {
+                    response.NotStarted.Activities.Add(dto);
+                }
+            }
+
+            // ✅ Set counts
+            response.NotStarted.Count = response.NotStarted.Activities.Count;
+            response.Hold.Count = response.Hold.Activities.Count;
+            response.InProgress.Count = response.InProgress.Activities.Count;
+            response.Delayed.Count = response.Delayed.Activities.Count;
+            response.Closed.Count = response.Closed.Activities.Count;
+            response.Rework.Count = response.Rework.Activities.Count;
+
+            return response;
+
         }
         catch (Exception ex)
         {

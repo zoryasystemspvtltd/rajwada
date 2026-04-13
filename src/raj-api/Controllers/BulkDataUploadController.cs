@@ -214,6 +214,12 @@ public class BulkDataUploadController : ControllerBase
                 case "ROOMTYPE":
                     response = await SaveRoomTypeData(dataTable, member, key, response, token);
                     break;
+                case "PARKINGTYPE":
+                    response = await SaveParkingTypeData(dataTable, member, key, response, token);
+                    break;
+                case "OUTSIDEENTITYTYPE":
+                    response = await SaveOutSideEntityTypeData(dataTable, member, key, response, token);
+                    break;
             }
 
         }
@@ -226,6 +232,88 @@ public class BulkDataUploadController : ControllerBase
     }
 
     #region Save Module wise Bulk data
+    private async Task<BulkResponse> SaveOutSideEntityTypeData(DataTable dt, string member, string key, BulkResponse response, CancellationToken token)
+    {
+        try
+        {
+            var list = new List<OutSideEntityType>();
+            foreach (DataRow row in dt.Rows)
+            {
+                var name = row["Name"]?.ToString();
+                var code = row["Alias"]?.ToString();
+
+                // Duplicate Check
+                if (await GetDynamicDetails("OutSideEntityType", name, null) != null)
+                {
+                    response.FailureData.Add($"{name}: Already exists!");
+                    continue;
+                }
+
+                response.SuccessData.Add($"{name} added!");
+
+                list.Add(new OutSideEntityType
+                {
+                    Date = DateTime.Now,
+                    Member = member,
+                    Key = key,
+                    Name = name,
+                    Code = code
+                });
+            }
+            if (list.Any())
+                await dataService.SaveBulkkDataAsync("OutSideEntityType", list, token);
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error saving OutSideEntityType data");
+            response.FailureData.Add($"Error saving OutSideEntityType data");
+            return response;
+        }
+    }
+   
+    private async Task<BulkResponse> SaveParkingTypeData(DataTable dt, string member, string key, BulkResponse response, CancellationToken token)
+    {
+        try
+        {
+            var list = new List<ParkingType>();
+            foreach (DataRow row in dt.Rows)
+            {
+                var name = row["Name"]?.ToString();
+                var code = row["Alias"]?.ToString();
+
+                // Duplicate Check
+                if (await GetDynamicDetails("ParkingType", name, null) != null)
+                {
+                    response.FailureData.Add($"{name}: Already exists!");
+                    continue;
+                }
+
+                response.SuccessData.Add($"{name} added!");
+
+                list.Add(new ParkingType
+                {
+                    Date = DateTime.Now,
+                    Member = member,
+                    Key = key,
+                    Name = name,
+                    Code = code
+                });
+            }
+            if (list.Any())
+                await dataService.SaveBulkkDataAsync("ParkingType", list, token);
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error saving ParkingType data");
+            response.FailureData.Add($"Error saving ParkingType data");
+            return response;
+        }
+    }
+      
     private async Task<BulkResponse> SaveRoomTypeData(DataTable dt, string member, string key, BulkResponse response, CancellationToken token)
     {
         try
@@ -942,6 +1030,7 @@ public class BulkDataUploadController : ControllerBase
             case "Uom":
             case "Project":
             case "ParkingType":
+            case "OutSideEntityType":
             case "AssetType":
             case "Asset":
             case "AssetGroup":
