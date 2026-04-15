@@ -219,7 +219,8 @@ public class DownloadController : ControllerBase
 
             ["Flat Template"] = "FLATTEMPLATE",
             ["Tower Parking"] = "PARKING",
-            ["Outside Entity Mapping"] = "OUTSIDEENTITY"
+            ["Outside Entity Mapping"] = "OUTSIDEENTITY",
+            ["Work Checkpoint"] = "WORKCHECKPOINT"
         };
 
         string actModule = preMapping.ContainsKey(module) ? preMapping[module] : null;
@@ -246,12 +247,18 @@ public class DownloadController : ControllerBase
 
             ["FLATTEMPLATE"] = () => CreateFlatTempTemplate(GetModuleDetails("RoomType")),
             ["PARKING"] = CreateParkingTemplate,
-            ["OUTSIDEENTITY"] = () => CreateOutSideEntityTemplate(GetModuleDetails("OutSideEntityType"))
+            ["OUTSIDEENTITY"] = () => CreateOutSideEntityTemplate(GetModuleDetails("OutSideEntityType")),
+            ["WORKCHECKPOINT"] = CreateWorkCheckPointTemplate,
         };
 
         return map.TryGetValue(actModule, out var func)
             ? func()
             : new DataTable();
+    }
+
+    private DataTable CreateWorkCheckPointTemplate()
+    {
+        return CreateTable("Name", "Description", "Type", "IsPhotoRequired(Yes/No)", "IsCalendarRequired(Yes/No)");
     }
 
     private dynamic? GetModuleDetails(string module)
