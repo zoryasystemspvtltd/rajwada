@@ -13,7 +13,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
         date: today,
         cost: "",
         manPower: "",
-        progress: 0,
+        progressPercentage: 0,
         checkpoints: [],
         item: '',
         isCompleted: false
@@ -121,18 +121,12 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
 
                 const checkpointRes = await api.getData({
                     module: "workCheckPointMapping",
-                    options: {
-                        recordPerPage: 0,
-                        searchCondition: {
-                            name: "activityId",
-                            value: parseInt(activityId)
-                        }
-                    }
+                    options: pageOptions
                 });
 
                 const checkpoints = checkpointRes?.data?.items?.map(c => ({
                     ...c,
-                    isChecked: false
+                    isChecked: c?.name === "Yes" ? true : false
                 })) || [];
 
                 if (reports.length > 0) {
@@ -204,6 +198,15 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
                     data: {
                         ...activityData,
                         actualStartDate: new Date()
+                    }
+                });
+            }
+            else {
+                await api.editData({
+                    module: 'activity',
+                    data: {
+                        ...activityData,
+                        progressPercentage: formData.progressPercentage,
                     }
                 });
             }

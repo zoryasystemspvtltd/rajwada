@@ -87,23 +87,23 @@ const ActivityListByStatus = () => {
 
     const module = "activity";
 
-    // Global State
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
-    const initialParams = { projectId: null, towerId: null, floorId: null, flatId: null, roomId: null, userId: loggedInUser?.id };
 
-    // Local State
-    const [dirty, setDirty] = useState(false);
-    const [isSetupComplete, setIsSetupComplete] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const initialParams = {
+        type: "inside",
+        projectId: null,
+        towerId: null,
+        floorId: null,
+        flatId: null,
+        roomId: null,
+        userId: loggedInUser?.email
+    };
+    
     const [data, setData] = useState({});
     const [errors, setErrors] = useState({});
-    const [privileges, setPrivileges] = useState({});
-    const [dependencySelectParams, setDependencySelectParams] = useState(initialParams);
-    const [userList, setUserList] = useState([]);
     const [activities, setActivities] = useState([]);
-    const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false);
-
-    // 🔥 NEW STATE
+    const [rawResponse, setRawResponse] = useState({});
+    const [privileges, setPrivileges] = useState({});
     const [counts, setCounts] = useState({
         notStarted: 0,
         hold: 0,
@@ -112,17 +112,12 @@ const ActivityListByStatus = () => {
         closed: 0,
         rework: 0
     });
-    const [countsByFilter, setCountsByFilter] = useState({
-        notStarted: 0,
-        hold: 0,
-        inprogress: 0,
-        delayed: 0,
-        closed: 0,
-        rework: 0
-    });
 
-    const [selectedStatus, setSelectedStatus] = useState(null);
-    const navigate = useNavigate();
+    const [selectedStatus, setSelectedStatus] = useState("notStarted");
+    const [dependencySelectParams, setDependencySelectParams] = useState(initialParams);
+    const [isSetupComplete, setIsSetupComplete] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -150,9 +145,9 @@ const ActivityListByStatus = () => {
                 module: "user",
                 options: pageOptions
             });
-            
-            const userId = response?.data?.items[0]?.id;
-            setDependencySelectParams({ ...initialParams, userId: parseInt(userId) });
+
+            const userId = response?.data?.items[0]?.email;
+            setDependencySelectParams({ ...initialParams, userId: userId });
         }
 
         updateCurrentUserStatus();
@@ -162,178 +157,50 @@ const ActivityListByStatus = () => {
         };
     }, [loggedInUser]);
 
-    useEffect(() => {
-        let isMounted = true;
-
-        const fetchUserList = async () => {
-            try {
-                const pageOptions = {
-                    recordPerPage: 0,
-                };
-
-                const response = await api.getData({
-                    module: "user",
-                    options: pageOptions
-                });
-
-
-                if (isMounted) {
-                    setUserList(response?.data?.items);
-                }
-            } catch (error) {
-                console.error("Error fetching user list:", error);
-            }
-        };
-
-        if (
-            loggedInUser?.roles?.some(role => role?.includes("Head")) ||
-            loggedInUser?.roles?.some(role => role?.includes("Admin"))
-        ) {
-            fetchUserList();
-        }
-
-        return () => {
-            isMounted = false;
-        };
-    }, [loggedInUser, api]);
-
-    // Privileges
-    useEffect(() => {
-        const modulePrivileges = loggedInUser?.privileges
-            ?.filter(p => p.module === module)
-            ?.map(p => p.name);
-
-
-        let access = {};
-        modulePrivileges?.forEach(p => {
-            access = { ...access, [p]: true };
-        });
-
-        setPrivileges(access);
-
-        if (module !== 'workflow') {
-            localStorage.removeItem("dependency-flow");
-        }
-    }, [loggedInUser, module]);
-
-
-    const fetchStatusCount = async (status) => {
+    // ✅ API CALL
+    const fetchActivities = async (params) => {
         try {
-            if (Object.keys(status.query).includes("nullValue")) {
-                const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
-                return activitiesByNullValue?.data?.length;
-            }
-            else if (Object.keys(status.query).includes("module")) {
-                const pageOptions = {
-                    recordPerPage: 0,
-                }
+            setIsLoading(true);
 
-                const response = await api.getData({ module: status.query.module, options: pageOptions });
-                return response?.data?.items?.length;
-            }
-            else {
-                const pageOptions = {
-                    recordPerPage: 0,
-                    searchCondition: status.query
-                }
+            const response = await api.workStatusCheck({
+                data: params
+            });
 
-                const response = await api.getData({ module: 'activity', options: pageOptions });
-                return response?.data?.items?.length;
-            }
+            const res = response?.data || {};
+
+            setRawResponse(res);
+
+            // ✅ Extract counts
+            const newCounts = {
+                notStarted: res?.notStarted?.count || 0,
+                hold: res?.hold?.count || 0,
+                inprogress: res?.inprogress?.count || 0,
+                delayed: res?.delayed?.count || 0,
+                closed: res?.closed?.count || 0,
+                rework: res?.rework?.count || 0
+            };
+
+            setCounts(newCounts);
+
+            // ✅ Default activities (based on selected status)
+            const defaultStatus = selectedStatus || "notStarted";
+            setActivities(res?.[defaultStatus]?.activities || []);
+
         } catch (error) {
-            console.error(`Error fetching ${status.key} count`, error);
-            return 0;
+            console.error("Error fetching activities:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const fetchStatusCountByFilter = async (baseFilter, status, selectedMemberActivityIds = null) => {
-        try {
-            if (Object.keys(status.query).includes("nullValue")) {
-                const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
-                const nullValueActivityIds = activitiesByNullValue?.data?.map(activity => activity.id);
-
-                const pageOptions = {
-                    recordPerPage: 0,
-                    searchCondition: baseFilter
-                }
-
-                const response = await api.getData({ module: 'activity', options: pageOptions });
-                const allActivites = response?.data?.items;
-
-                let count = (selectedMemberActivityIds) ?
-                    filterActivitiesBasedOnUser(selectedMemberActivityIds, allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id)))?.length :
-                    allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id))?.length;
-
-                return count;
-            }
-            else if (Object.keys(status.query).includes("module")) {
-                const pageOptions = {
-                    recordPerPage: 0,
-                    searchCondition: baseFilter
-                }
-
-                const response = await api.getData({ module: status.query.module, options: pageOptions });
-
-                let count = (selectedMemberActivityIds) ? filterActivitiesBasedOnUser(selectedMemberActivityIds, response?.data?.items)?.length : response?.data?.items?.length;
-
-                return count;
-            }
-            else {
-                const pageOptions = {
-                    recordPerPage: 0,
-                    searchCondition: {
-                        ...baseFilter,
-                        and: status.query
-                    }
-                }
-
-                const response = await api.getData({ module: 'activity', options: pageOptions });
-
-                let count = (selectedMemberActivityIds) ? filterActivitiesBasedOnUser(selectedMemberActivityIds, response?.data?.items)?.length : response?.data?.items?.length;
-
-                return count;
-            }
-        } catch (error) {
-            console.error(`Error fetching ${status.key} count`, error);
-            return 0;
-        }
-    };
-
+    // ✅ Initial + Filter-based Fetch
     useEffect(() => {
-        const fetchAllCounts = async () => {
-            try {
-                const promises = statusList.map(status =>
-                    fetchStatusCount(status)
-                );
+        if (dependencySelectParams?.userId) {
+            fetchActivities(dependencySelectParams);
+        }
+    }, [dependencySelectParams]);
 
-                const results = await Promise.all(promises);
-
-                const countsObject = statusList.reduce((acc, status, index) => {
-                    acc[status.key] = results[index];
-                    return acc;
-                }, {});
-
-                setCounts(countsObject);
-            } catch (error) {
-                console.error("Error fetching counts", error);
-            }
-        };
-
-        fetchAllCounts();
-    }, []);
-
-    const handleChange = (e) => {
-        e.preventDefault();
-        const newData = { ...data, ...e.target.value };
-        setData(newData);
-        setDependencySelectParams({ ...dependencySelectParams, ...e.target.value });
-    };
-
-    const handleUserSelection = (e) => {
-        e.preventDefault();
-        setDependencySelectParams({ ...dependencySelectParams, userId: e.target.value });
-    }
-
+    // ✅ Setup completion check
     useEffect(() => {
         if (
             dependencySelectParams.projectId !== null &&
@@ -345,166 +212,29 @@ const ActivityListByStatus = () => {
         }
     }, [dependencySelectParams]);
 
+    // ✅ Handle Status Change (NO API CALL)
+    useEffect(() => {
+        if (selectedStatus && rawResponse) {
+            setActivities(rawResponse?.[selectedStatus]?.activities || []);
+        }
+    }, [selectedStatus, rawResponse]);
+
+    // ✅ Handle Filter Change
+    const handleChange = (e) => {
+        e.preventDefault();
+
+        const updatedValues = e.target.value;
+
+        setData(prev => ({ ...prev, ...updatedValues }));
+
+        setDependencySelectParams(prev => ({
+            ...prev,
+            ...updatedValues
+        }));
+    };
+
     const clearSelection = () => {
         window.location.reload();
-    }
-
-    const filterActivitiesBasedOnUser = (userActivityIds, originalActivityList) => {
-        return originalActivityList?.filter(activity => userActivityIds?.includes(activity?.id));
-    }
-
-    const prepareActivityCreation = async () => {
-        if (!selectedStatus) {
-            notify("info", "Please select an activity status!");
-            return;
-        }
-
-        try {
-            if (dependencySelectParams.userId && dependencySelectParams?.userId !== "Select") {
-                const user = await api.getSingleData({ module: 'user', id: parseInt(dependencySelectParams.userId) });
-                const member = user.data?.email;
-
-                const userActivities = await api.getActivitiesByMember({
-                    data: {
-                        member: member,
-                        projectId: parseInt(dependencySelectParams.projectId),
-                        towerId: parseInt(dependencySelectParams.towerId),
-                        floorId: parseInt(dependencySelectParams.floorId),
-                        flatId: parseInt(dependencySelectParams.flatId)
-                    }
-                });
-
-                let selectedMemberActivityIds = userActivities?.data?.map(activity => activity?.id);
-
-                const baseSelectQuery = {
-                    name: "projectId",
-                    value: parseInt(dependencySelectParams.projectId),
-                    and: {
-                        name: "towerId",
-                        value: parseInt(dependencySelectParams.towerId),
-                        and: {
-                            name: "floorId",
-                            value: parseInt(dependencySelectParams.floorId),
-                            and: {
-                                name: "flatId",
-                                value: parseInt(dependencySelectParams.flatId)
-                            }
-                        }
-                    }
-                };
-
-                // const pageOptions = {
-                //     recordPerPage: 0,
-                //     searchCondition: baseSelectQuery
-                // }
-
-                // const response = await api.getData({ module: 'activity', options: pageOptions });
-                // setActivities(response?.data?.items);
-
-                const selectedStatusObj = statusList.find(status => status.key === selectedStatus);
-
-                if (!Object.keys(selectedStatusObj.query).includes("nullValue")) {
-                    const pageOptions = {
-                        recordPerPage: 0,
-                        searchCondition: { ...selectedStatusObj.query, and: baseSelectQuery }
-                    }
-
-                    const response = await api.getData({ module: 'activity', options: pageOptions });
-                    setActivities(filterActivitiesBasedOnUser(selectedMemberActivityIds, response?.data?.items));
-                }
-                else {
-                    const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
-                    const nullValueActivityIds = activitiesByNullValue?.data?.map(activity => activity.id);
-
-                    const pageOptions = {
-                        recordPerPage: 0,
-                        searchCondition: baseSelectQuery
-                    }
-
-                    const response = await api.getData({ module: 'activity', options: pageOptions });
-                    const allActivites = response?.data?.items;
-
-                    setActivities(filterActivitiesBasedOnUser(selectedMemberActivityIds, allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id))));
-                }
-
-                const promises = statusList.map(status =>
-                    fetchStatusCountByFilter(baseSelectQuery, status, selectedMemberActivityIds)
-                );
-
-                const results = await Promise.all(promises);
-
-                const countsObject = statusList.reduce((acc, status, index) => {
-                    acc[status.key] = results[index];
-                    return acc;
-                }, {});
-
-                setCountsByFilter(countsObject);
-            }
-            else {
-                const baseSelectQuery = {
-                    name: "projectId",
-                    value: parseInt(dependencySelectParams.projectId),
-                    and: {
-                        name: "towerId",
-                        value: parseInt(dependencySelectParams.towerId),
-                        and: {
-                            name: "floorId",
-                            value: parseInt(dependencySelectParams.floorId),
-                            and: {
-                                name: "flatId",
-                                value: parseInt(dependencySelectParams.flatId)
-                            }
-                        }
-                    }
-                };
-
-                const selectedStatusObj = statusList.find(status => status.key === selectedStatus);
-
-                if (!Object.keys(selectedStatusObj.query).includes("nullValue")) {
-                    const pageOptions = {
-                        recordPerPage: 0,
-                        searchCondition: { ...selectedStatusObj.query, and: baseSelectQuery }
-                    }
-
-                    const response = await api.getData({ module: 'activity', options: pageOptions });
-                    setActivities(response?.data?.items);
-                }
-                else {
-                    const activitiesByNullValue = await api.getAmendmentsByNullValue({ model: 'activity' });
-                    const nullValueActivityIds = activitiesByNullValue?.data?.map(activity => activity.id);
-
-                    const pageOptions = {
-                        recordPerPage: 0,
-                        searchCondition: baseSelectQuery
-                    }
-
-                    const response = await api.getData({ module: 'activity', options: pageOptions });
-                    const allActivites = response?.data?.items;
-
-                    setActivities(allActivites?.filter(activity => nullValueActivityIds?.includes(activity.id)));
-                }
-
-                const promises = statusList.map(status =>
-                    fetchStatusCountByFilter(baseSelectQuery, status)
-                );
-
-                const results = await Promise.all(promises);
-
-                const countsObject = statusList.reduce((acc, status, index) => {
-                    acc[status.key] = results[index];
-                    return acc;
-                }, {});
-
-                setCountsByFilter(countsObject);
-            }
-        }
-        catch (e) {
-            console.error(e);
-            notify("error", "Error in processing the request");
-        }
-        finally {
-            setIsLoading(false);
-        }
     };
 
     return (
@@ -513,99 +243,50 @@ const ActivityListByStatus = () => {
                 <div className="tabs-animation">
                     <div className="row my-3">
 
-                        {/* 🔥 STATUS CARDS */}
+                        {/* ✅ STATUS DASHBOARD */}
                         <div className="col-md-12 mb-3">
                             <ActivityStatusDashboard
-                                counts={isSetupComplete ? countsByFilter : counts}
+                                counts={counts}
                                 selected={selectedStatus}
                                 onStatusChange={setSelectedStatus}
                             />
                         </div>
 
+                        {/* ✅ FILTER SECTION */}
                         <div className="col-md-12">
                             <div className="main-card mb-3 card">
                                 <div className="card-body">
-                                    <Row>
-                                        <Col>
-                                            {setupSchema?.fields?.map((fld, f) => (
-                                                <Row key={f}>
-                                                    <Col>
-                                                        {fld.type === 'area' ? (
-                                                            <IUIPageElement
-                                                                id={setupSchema.module}
-                                                                schema={fld.fields}
-                                                                value={data}
-                                                                errors={errors}
-                                                                readonly={setupSchema.readonly}
-                                                                onChange={handleChange}
-                                                                dirty={dirty}
-                                                            />
-                                                        ) : (
-                                                            <IUIPageElement
-                                                                id={setupSchema.module}
-                                                                schema={[fld]}
-                                                                value={data}
-                                                                errors={errors}
-                                                                onChange={handleChange}
-                                                                readonly={setupSchema.readonly}
-                                                            />
-                                                        )}
-                                                    </Col>
-                                                </Row>
-                                            ))}
-                                            {
-                                                (isCurrentUserAdmin) && (
-                                                    <div className="row">
-                                                        <div className="col-md-3">
-                                                            <Form.Group className="position-relative form-group">
-                                                                <Form.Label className='mb-2'>
-                                                                    Engineer
-                                                                </Form.Label>
-                                                                <div>
-                                                                    < select
-                                                                        aria-label={`select-dependency-for-user`}
-                                                                        id={`select-dependency-for-user`}
-                                                                        value={dependencySelectParams.userId}
-                                                                        data-name={"userId"}
-                                                                        name='select'
-                                                                        className={`form-control`}
-                                                                        disabled={false}
-                                                                        onChange={handleUserSelection}>
-                                                                        <option>--Select--</option>
-                                                                        {userList?.map((item, i) => (
-                                                                            <option key={i} value={item.id}>{item.name}</option>
-                                                                        ))}
-                                                                    </select>
-                                                                </div>
-                                                            </Form.Group>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }
-                                            <Row>
-                                                <Col>
-                                                    <Button
-                                                        variant="contained"
-                                                        disabled={!isSetupComplete}
-                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
-                                                        onClick={prepareActivityCreation}
-                                                    >
-                                                        Search
-                                                    </Button>
 
+                                    {setupSchema?.fields?.map((fld, f) => (
+                                        <Row key={f}>
+                                            <Col>
+                                                <IUIPageElement
+                                                    id={setupSchema.module}
+                                                    schema={fld.type === 'area' ? fld.fields : [fld]}
+                                                    value={data}
+                                                    errors={errors}
+                                                    onChange={handleChange}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    ))}
 
-                                                    <Button
-                                                        variant="contained"
-                                                        disabled={!isSetupComplete}
-                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                        onClick={clearSelection}
-                                                    >
-                                                        Clear
-                                                    </Button>
-                                                </Col>
-                                            </Row>
-                                        </Col>
-                                    </Row>
+                                    <Button
+                                        disabled={!isSetupComplete}
+                                        className="btn btn-primary mr-2"
+                                        onClick={() => fetchActivities(dependencySelectParams)}
+                                    >
+                                        Search
+                                    </Button>
+
+                                    <Button
+                                        disabled={!isSetupComplete}
+                                        className="btn btn-secondary"
+                                        onClick={clearSelection}
+                                    >
+                                        Clear
+                                    </Button>
+
                                 </div>
                             </div>
                         </div>
@@ -680,12 +361,12 @@ const ActivityListByStatus = () => {
                                 </div>
                             )}
                         </div>
+
                     </div>
                 </div>
             </div>
         </>
     );
 };
-
 
 export default ActivityListByStatus;

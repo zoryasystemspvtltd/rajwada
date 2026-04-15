@@ -18,11 +18,17 @@ const CommentsModal = ({ show, onClose, activityId }) => {
             ?.filter(p => p.module === "comment")
             ?.map(p => p.name);
 
+        const imagePrivileges = loggedInUser?.privileges?.filter(p => p.module === "attachment")?.map(p => p.name);
+
         let access = {};
 
         commentPrivileges?.forEach(p => {
             access["comment"] = { ...access["comment"], [p]: true }
         });
+
+        imagePrivileges.forEach(p => {
+            access["image"] = { ...access["image"], ...{ [p]: true } }
+        })
 
         setPrivileges(access);
     }, [loggedInUser]);
@@ -98,6 +104,47 @@ const CommentsModal = ({ show, onClose, activityId }) => {
         setComments([]);
         onClose();
     };
+
+    const convertImageToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+    const handleImageUpload = async (event) => {
+        event.preventDefault();
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+
+            // Convert image to Base64
+            const base64Image = await convertImageToBase64(file);
+
+            // Save photo
+            const photoData = {
+                parentId: activityId,
+                module: 'activity',
+                file: base64Image,
+            };
+
+            try {
+                const response = await api.addData({ module: 'attachment', data: photoData });
+                if (response.status === 200) {
+                    notify("success", 'Photo saved successfully!');
+                } else {
+                    notify("error", 'Failed to save photo!');
+                }
+            } catch (error) {
+                console.error('Error saving photo:', error);
+            }
+
+        } else {
+            notify("error", 'Please upload a valid image file!');
+        }
+    };
+
 
     return (
         <Modal show={show} onHide={closeModal}>
@@ -182,6 +229,24 @@ const CommentsModal = ({ show, onClose, activityId }) => {
                     </Button>
 
                 )}
+
+                {
+                    privileges?.image?.add && (
+                        <Button
+                            variant="contained"
+                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
+                            onClick={() => document.getElementById('upload-photo-btn').click()}
+                        >
+                            <input id='upload-photo-btn'
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                style={{ display: 'none' }}
+                            />
+                            Upload Photo
+                        </Button>
+                    )
+                }
             </Modal.Footer>
 
         </Modal>

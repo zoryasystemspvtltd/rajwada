@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-// const apiBaseUrl = process.env.REACT_APP_API_URL || "https://localhost:7018/api";
+const apiBaseUrl = process.env.REACT_APP_API_URL || "https://localhost:7018/api";
 // const apiBaseUrl = "https://civiliererp.live/api";
 // const apiBaseUrl = "https://zoryademo-001-site1.ktempurl.com/backend/api";
-const apiBaseUrl = "/api";
+// const apiBaseUrl = "/api";
 console.log(`Server is running on port ${apiBaseUrl}.`)
 const api = axios.create({ baseURL: apiBaseUrl });
 
@@ -211,6 +211,11 @@ api.getActivitiesByMember = async (action) => {
 api.getBase64 = async (action) => {
     const url = `/file/${action.module}/${action.file}`;
     const response = await api.get(url);
+    return response;
+}
+api.workStatusCheck = async (action) => {
+    const url = `/work/status-check`;
+    const response = await api.post(url, action.data);
     return response;
 }
 export default api;
