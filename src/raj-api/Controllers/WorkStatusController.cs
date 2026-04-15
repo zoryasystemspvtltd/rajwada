@@ -1,6 +1,5 @@
 ﻿using ILab.Data;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RajApi.Data;
 using RajApi.Data.Models;

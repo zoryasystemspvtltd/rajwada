@@ -503,7 +503,9 @@ public class RajDataHandler : LabDataHandler
 
             if (!string.IsNullOrEmpty(request.UserId))
             {
-                query = query.Where(x => x.Member == request.UserId); // adjust if needed
+                query = query.Where(a =>
+                    dbContext.Set<ApplicationLog>()
+                        .Any(log => log.EntityId == a.Id && log.Name == "Activity" && log.Member == request.UserId));
             }
 
             var data = await query.ToListAsync();
