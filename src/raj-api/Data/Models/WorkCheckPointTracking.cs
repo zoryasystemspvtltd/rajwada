@@ -17,4 +17,9 @@ public class WorkCheckPointTracking : LabModel, IGlobal
     public virtual Activity? Activity { get; set; }
 
     public virtual string? Photo { get; set; }
+
+    [ForeignKey("ActivityTracking")]
+    public virtual long? ActivityTrackingId { get; set; }
+    [JsonIgnore]
+    public virtual ActivityTracking? ActivityTracking { get; set; }
 }

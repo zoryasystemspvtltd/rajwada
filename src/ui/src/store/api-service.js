@@ -213,5 +213,10 @@ api.getBase64 = async (action) => {
     const response = await api.get(url);
     return response;
 }
+api.workStatusCheck = async (action) => {
+    const url = `/work/status-check`;
+    const response = await api.post(url, action.data);
+    return response;
+}
 export default api;
 

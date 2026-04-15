@@ -29,7 +29,7 @@ const statusList = [
         }
     },
     {
-        key: "inprogress",
+        key: "inProgress",
         label: "In Progress",
         gradient: "primary-gradient",
         icon: FaTools,

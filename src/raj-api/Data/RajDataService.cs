@@ -881,6 +881,21 @@ namespace ILab.Data
             }
         }
 
+        internal dynamic GetWorkStatusAsync(WorkStatusRequest request)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetWorkStatusAsync));
+                object[] parameters = [request];
+                return method?.Invoke(handler, parameters);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetWorkerStatusReport method and details: " + ex.Message);
+                return 0;
+            }
+        }
+
         internal dynamic DownloadWorkerStatusReport(long projectId, long towerId, long floorId, long flatId)
         {
             try

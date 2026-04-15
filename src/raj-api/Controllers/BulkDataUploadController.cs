@@ -157,7 +157,8 @@ public class BulkDataUploadController : ControllerBase
             ["Item MasterDetails"] = "ASSET",
             ["Flat TemplateDetails"] = "FLATTEMPLATE",
             ["Tower ParkingDetails"] = "PARKING",
-            ["Outside Entity MappingDetails"] = "OUTSIDEENTITY"
+            ["Outside Entity MappingDetails"] = "OUTSIDEENTITY",
+            ["Work CheckpointDetails"] = "WORKCHECKPOINT"
         };
 
         return preMapping.TryGetValue(module, out string? value) ? value : null;
@@ -214,6 +215,15 @@ public class BulkDataUploadController : ControllerBase
                 case "ROOMTYPE":
                     response = await SaveRoomTypeData(dataTable, member, key, response, token);
                     break;
+                case "PARKINGTYPE":
+                    response = await SaveParkingTypeData(dataTable, member, key, response, token);
+                    break;
+                case "OUTSIDEENTITYTYPE":
+                    response = await SaveOutSideEntityTypeData(dataTable, member, key, response, token);
+                    break;
+                case "WORKCHECKPOINT":
+                    response = await SaveWorkCheckPointData(dataTable, member, key, response, token);
+                    break;
             }
 
         }
@@ -226,6 +236,134 @@ public class BulkDataUploadController : ControllerBase
     }
 
     #region Save Module wise Bulk data
+    private async Task<BulkResponse> SaveWorkCheckPointData(DataTable dt, string member, string key, BulkResponse response, CancellationToken token)
+    {
+        try
+        {
+            var list = new List<WorkCheckPoint>();
+            foreach (DataRow row in dt.Rows)
+            {
+                var name = row["Name"]?.ToString();
+                var description = row["Description"]?.ToString();
+                var type = row["Type"]?.ToString();
+                var isPhoto = row["IsPhotoRequired(Yes/No)"]?.ToString();
+                var isCalendar = row["IsCalendarRequired(Yes/No)"]?.ToString();
+
+                // Duplicate Check
+                if (await GetDynamicDetails("WorkCheckPoint", name, null) != null)
+                {
+                    response.FailureData.Add($"{name}: Already exists!");
+                    continue;
+                }
+
+                response.SuccessData.Add($"{name} added!");
+
+                list.Add(new WorkCheckPoint
+                {
+                    Date = DateTime.Now,
+                    Member = member,
+                    Key = key,
+                    Name = name,
+                    Description = description,
+                    Type = type,
+                    IsPhoto = isPhoto != null && isPhoto.Equals("Yes", StringComparison.OrdinalIgnoreCase),
+                    IsCalendar = isCalendar != null && isCalendar.Equals("Yes", StringComparison.OrdinalIgnoreCase)
+                });
+            }
+            if (list.Any())
+                await dataService.SaveBulkkDataAsync("WorkCheckPoint", list, token);
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error saving WorkCheckPoint data");
+            response.FailureData.Add($"Error saving WorkCheckPoint data");
+            return response;
+        }
+    }
+    private async Task<BulkResponse> SaveOutSideEntityTypeData(DataTable dt, string member, string key, BulkResponse response, CancellationToken token)
+    {
+        try
+        {
+            var list = new List<OutSideEntityType>();
+            foreach (DataRow row in dt.Rows)
+            {
+                var name = row["Name"]?.ToString();
+                var code = row["Alias"]?.ToString();
+
+                // Duplicate Check
+                if (await GetDynamicDetails("OutSideEntityType", name, null) != null)
+                {
+                    response.FailureData.Add($"{name}: Already exists!");
+                    continue;
+                }
+
+                response.SuccessData.Add($"{name} added!");
+
+                list.Add(new OutSideEntityType
+                {
+                    Date = DateTime.Now,
+                    Member = member,
+                    Key = key,
+                    Name = name,
+                    Code = code
+                });
+            }
+            if (list.Any())
+                await dataService.SaveBulkkDataAsync("OutSideEntityType", list, token);
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error saving OutSideEntityType data");
+            response.FailureData.Add($"Error saving OutSideEntityType data");
+            return response;
+        }
+    }
+
+    private async Task<BulkResponse> SaveParkingTypeData(DataTable dt, string member, string key, BulkResponse response, CancellationToken token)
+    {
+        try
+        {
+            var list = new List<ParkingType>();
+            foreach (DataRow row in dt.Rows)
+            {
+                var name = row["Name"]?.ToString();
+                var code = row["Alias"]?.ToString();
+
+                // Duplicate Check
+                if (await GetDynamicDetails("ParkingType", name, null) != null)
+                {
+                    response.FailureData.Add($"{name}: Already exists!");
+                    continue;
+                }
+
+                response.SuccessData.Add($"{name} added!");
+
+                list.Add(new ParkingType
+                {
+                    Date = DateTime.Now,
+                    Member = member,
+                    Key = key,
+                    Name = name,
+                    Code = code
+                });
+            }
+            if (list.Any())
+                await dataService.SaveBulkkDataAsync("ParkingType", list, token);
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error saving ParkingType data");
+            response.FailureData.Add($"Error saving ParkingType data");
+            return response;
+        }
+    }
+
     private async Task<BulkResponse> SaveRoomTypeData(DataTable dt, string member, string key, BulkResponse response, CancellationToken token)
     {
         try
@@ -667,7 +805,7 @@ public class BulkDataUploadController : ControllerBase
                     // Get Project full Details
                     var projectDetails = await dataService.Get("Project", project.Id);
                     int count = Convert.ToInt32(floorCount);
-                    response= await SaveBulkFloorData(count, planId, name, projectDetails, member, key, response,token);
+                    response = await SaveBulkFloorData(count, planId, name, projectDetails, member, key, response, token);
                 }
                 if (row.Table.Columns.Count <= 4)
                 {
@@ -729,7 +867,7 @@ public class BulkDataUploadController : ControllerBase
             return response;
         }
     }
-    private async Task<BulkResponse> SaveBulkFloorData(int floorCount, long towerId, string towerName, Project project, string member, string key, 
+    private async Task<BulkResponse> SaveBulkFloorData(int floorCount, long towerId, string towerName, Project project, string member, string key,
         BulkResponse response, CancellationToken token)
     {
         try
@@ -931,36 +1069,6 @@ public class BulkDataUploadController : ControllerBase
             logger.LogError(ex, ex.Message);
             response.FailureData.Add("Error saving Items data");
             return response;
-        }
-    }
-
-    private async Task<dynamic> GetDynamicDetails(string model, string value, string? type)
-    {
-        var query = string.Empty;
-        switch (model)
-        {
-            case "Uom":
-            case "Project":
-            case "ParkingType":
-            case "AssetType":
-            case "Asset":
-            case "AssetGroup":
-            case "Company":
-                query = "SELECT TOP 1 Id,Name FROM " + model + "s  WHERE NAME = '" + value + "'";
-                break;
-            case "Plan":
-                query = "SELECT TOP 1 Id,Name FROM Plans  WHERE Type='" + type + "' and NAME = '" + value + "'";
-                break;
-        }
-        var data = await Task.Run(() => dataService.GetDynamicData(query));
-
-        if (data != null && data?.Count > 0)
-        {
-            return data[0];
-        }
-        else
-        {
-            return null;
         }
     }
 
@@ -1220,6 +1328,38 @@ public class BulkDataUploadController : ControllerBase
 
     #endregion
 
+    private async Task<dynamic> GetDynamicDetails(string model, string value, string? type)
+    {
+        var query = string.Empty;
+        switch (model)
+        {
+            case "Uom":
+            case "Project":
+            case "ParkingType":
+            case "OutSideEntityType":
+            case "AssetType":
+            case "Asset":
+            case "AssetGroup":
+            case "Company":
+            case "WorkCheckPoint":
+                query = "SELECT TOP 1 Id,Name FROM " + model + "s  WHERE NAME = '" + value + "'";
+                break;
+            case "Plan":
+                query = "SELECT TOP 1 Id,Name FROM Plans  WHERE Type='" + type + "' and NAME = '" + value + "'";
+                break;
+        }
+        var data = await Task.Run(() => dataService.GetDynamicData(query));
+
+        if (data != null && data?.Count > 0)
+        {
+            return data[0];
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     private async Task<dynamic?> GetModuleDetails(string model, string name, string? value, string? type, long id)
     {
         ListOptions option = new();
@@ -1302,7 +1442,8 @@ public class BulkDataUploadController : ControllerBase
                         { "Item MasterDetails", "Item Master" },
                         { "Flat TemplateDetails", "Flat Template" },
                         { "Tower ParkingDetails", "Tower Parking" },
-                        { "Outside Entity MappingDetails", "Outside Entity Mapping" }
+                        { "Outside Entity MappingDetails", "Outside Entity Mapping" },
+                        { "Work CheckpointDetails", "Work Checkpoint" }
                     };
 
         return map.TryGetValue(fileName, out var expectedModule) &&

@@ -118,7 +118,7 @@ const WorkTransfer = () => {
                 const res = await api.getAssignedItemsByUserAndModule({ module: 'activity', member: people?.find(p => p?.id === parseInt(person1Id))?.email });
                 const items = res?.data;
                 const finalActivities = await prepareActivities(items);
-                setLeftItems(finalActivities.filter(a => a.id !== undefined && a.type === 'Main Task') || []);
+                setLeftItems(finalActivities.filter(a => a.id !== undefined) || []);
                 setSelectedLeft([]);
             } catch (err) {
                 console.error("Person1 load error:", err);
@@ -141,7 +141,7 @@ const WorkTransfer = () => {
                 const res = await api.getAssignedItemsByUserAndModule({ module: 'activity', member: people?.find(p => p?.id === parseInt(person2Id))?.email });
                 const items = res?.data;
                 const finalActivities = await prepareActivities(items);
-                setRightItems(finalActivities.filter(a => a.id !== undefined && a.type === 'Main Task') || []);
+                setRightItems(finalActivities.filter(a => a.id !== undefined) || []);
                 setSelectedRight([]);
             } catch (err) {
                 console.error("Person2 load error:", err);
