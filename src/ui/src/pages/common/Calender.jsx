@@ -620,15 +620,6 @@ const Calendar = () => {
         }
     }
 
-    const convertImageToBase64 = (file) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = (error) => reject(error);
-        });
-    };
-
     const handleCommentClick = (id) => {
         setSelectedActivityId(id);
         setCommentsModalOpen(true);
@@ -758,6 +749,7 @@ const Calendar = () => {
             <ReportModal
                 activityId={selectedActivityId}
                 show={taskModalOpen}
+                reportDate={selectedDate}
                 submitDisabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
                 onClose={() => {
                     setTaskModalOpen(false);

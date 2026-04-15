@@ -2,22 +2,23 @@ import { useCallback, useEffect, useState } from "react";
 import { Button, Form, Modal, ProgressBar } from "react-bootstrap";
 import api from '../../../store/api-service';
 import IUITableInput from "../../common/shared/IUITableInput";
-import { getToday } from "./dateUtils";
+import { getToday, getFormattedDate } from "./dateUtils";
+import WorkCheckpointTrackings from "../schema/WorkCheckpointTrackings";
 
-const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
+const ReportModal = ({ activityId, show, onClose, submitDisabled = false, reportDate = null }) => {
 
-    const today = getToday();
+    const today = reportDate ? getFormattedDate(reportDate) : getToday();
 
-    const createDefaultForm = useCallback(() => ({
+    const createDefaultForm = (activity = {}) => ({
         activityId,
         date: today,
         cost: "",
         manPower: "",
-        progressPercentage: 0,
+        progressPercentage: activity?.progressPercentage ?? 0,
         checkpoints: [],
         item: '',
         isCompleted: false
-    }), [activityId, today]);
+    });
 
     const itemListSchema =
     {
@@ -46,7 +47,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
     };
 
     const [formData, setFormData] = useState(createDefaultForm());
-    const [activityData, setActivityData] = useState({});
+    const [activityData, setActivityData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [minProgressPercentage, setMinProgressPercentage] = useState(0);
@@ -58,53 +59,69 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
         }));
     };
 
-    /* ---------------- Fetch Activity ---------------- */
+    /* ---------------- LOAD ACTIVITY ON FIRST MOUNT ---------------- */
 
     useEffect(() => {
+
         async function fetchActivity() {
 
             if (!activityId) return;
 
-            const res = await api.getSingleData({
-                module: 'activity',
-                id: activityId
-            });
+            try {
+                const res = await api.getSingleData({
+                    module: "activity",
+                    id: activityId
+                });
 
-            setActivityData(res.data);
+                const activity = res.data;
+
+                setActivityData(activity);
+                setMinProgressPercentage(activity?.progressPercentage ?? 0);
+
+                setFormData(createDefaultForm(activity));
+
+            } catch (err) {
+                console.error("Failed to load activity", err);
+            }
         }
 
         fetchActivity();
+
     }, [activityId]);
 
-    /* ---------------- Load Latest Report ---------------- */
+    useEffect(() => {
+        setFormData(prev => ({
+            ...prev,
+            progressPercentage: Math.max(prev.progressPercentage, minProgressPercentage)
+        }));
+    }, [minProgressPercentage]);
+
+    /* ---------------- LOAD REPORT + CHECKPOINTS WHEN MODAL OPENS ---------------- */
 
     useEffect(() => {
 
-        if (!show) return; // prevents re-runs when modal closes
-
-        let isMounted = true;
+        if (!show || !activityId || !activityData) return;
 
         async function loadReportAndCheckpoints() {
-            if (!activityId || !show) return;
 
             try {
 
-                /* Fetch latest report today */
-                const currentDay = new Date();
+                const currentDay = reportDate ? new Date(reportDate) : new Date();
+
                 const todayStart = new Date(currentDay.setHours(0, 0, 0, 0));
                 const todayEnd = new Date(currentDay.setHours(23, 59, 59, 999));
 
                 const baseFilter = {
-                    name: 'activityId',
+                    name: "activityId",
                     value: parseInt(activityId),
                     and: {
-                        name: 'date',
+                        name: "date",
                         value: todayStart,
-                        operator: 'greaterThan',
+                        operator: "greaterThan",
                         and: {
-                            name: 'date',
+                            name: "date",
                             value: todayEnd,
-                            operator: 'lessThan'
+                            operator: "lessThan"
                         }
                     }
                 };
@@ -114,41 +131,57 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
                     searchCondition: baseFilter
                 };
 
-                const response = await api.getData({ module: 'activitytracking', options: pageOptions });
-                const reports = response?.data?.items?.sort((t1, t2) => new Date(t2.date) - new Date(t1.date)) || [];
+                /* Fetch today's reports */
 
-                /* Fetch checkpoints */
-
-                const checkpointRes = await api.getData({
-                    module: "workCheckPointMapping",
+                const response = await api.getData({
+                    module: "activitytracking",
                     options: pageOptions
                 });
 
-                const checkpoints = checkpointRes?.data?.items?.map(c => ({
+                const reports = response?.data?.items
+                    ?.sort((a, b) => new Date(b.date) - new Date(a.date)) || [];
+
+                /* Fetch checkpoints */
+
+                const checkpointResp = await api.getData({
+                    module: "workCheckPointMapping",
+                    options: {
+                        recordPerPage: 0,
+                        searchCondition: {
+                            name: "activityId",
+                            value: parseInt(activityId)
+                        }
+                    }
+                });
+
+                const checkpoints = checkpointResp?.data?.items?.map(c => ({
                     ...c,
-                    isChecked: c?.name === "Yes" ? true : false
+                    isChecked: false
                 })) || [];
 
                 if (reports.length > 0) {
+
                     const latest = reports[0];
-                    setMinProgressPercentage(latest.progressPercentage || 0);
+                    console.log(latest)
                     setFormData({
                         activityId,
                         date: today,
                         cost: latest.cost ?? "",
                         manPower: latest.manPower ?? "",
-                        progressPercentage: latest.progressPercentage ?? 0,
-                        checkpoints: checkpoints,
+                        progressPercentage: latest.progressPercentage ?? activityData.progressPercentage,
+                        checkpoints,
                         item: latest.item ?? "",
                         isCompleted: latest.isCompleted ?? false
                     });
+
                 } else {
-                    setMinProgressPercentage(0);
                     setFormData({
-                        ...createDefaultForm(),
+                        ...createDefaultForm(activityData),
                         checkpoints
                     });
+
                 }
+
             } catch (err) {
                 console.error("Error loading modal data", err);
             }
@@ -156,86 +189,103 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
 
         loadReportAndCheckpoints();
 
-        return () => {
-            isMounted = false;
-        };
+    }, [show, activityId, activityData, today]);
 
-    }, [show, activityId, today, createDefaultForm]);
+    /* ---------------- RESET FORM WHEN MODAL CLOSES ---------------- */
 
     useEffect(() => {
-        if (!show) {
-            setFormData(createDefaultForm());
-            setMinProgressPercentage(0);
-        }
-    }, [show, createDefaultForm]);
 
-    /* ---------------- Toggle checkpoint ---------------- */
+        if (!show && activityData) {
+            setFormData(createDefaultForm(activityData));
+        }
+
+    }, [show, activityData]);
+
+    /* ---------------- TOGGLE CHECKPOINT ---------------- */
 
     const toggleCheckpoint = (index) => {
+
         const updated = [...formData.checkpoints];
         updated[index].isChecked = !updated[index].isChecked;
+
         updateField("checkpoints", updated);
     };
 
-    /* ---------------- Submit ---------------- */
+    /* ---------------- SUBMIT ---------------- */
 
     const handleSubmit = async () => {
+
         try {
 
             setLoading(true);
             setError("");
 
-            await api.addData({
-                module: 'activitytracking',
+            const trackingId = await api.addData({
+                module: "activitytracking",
                 data: formData
             });
 
-            await saveWorkCheckpoints();
+            console.log(trackingId)
+
+            await saveWorkCheckpoints(trackingId.data);
 
             if (!activityData?.actualStartDate) {
+
                 await api.editData({
-                    module: 'activity',
+                    module: "activity",
                     data: {
                         ...activityData,
                         actualStartDate: new Date()
                     }
                 });
-            }
-            else {
+
+            } else {
+
                 await api.editData({
-                    module: 'activity',
+                    module: "activity",
                     data: {
                         ...activityData,
-                        progressPercentage: formData.progressPercentage,
+                        progressPercentage: formData.progressPercentage
                     }
                 });
+
             }
+
             onClose();
 
         } catch (err) {
+
             setError(err.response?.data?.message || "Submission failed");
+
         } finally {
+
             setLoading(false);
+
         }
     };
 
-    const saveWorkCheckpoints = async () => {
-        if (formData.checkpoints?.length > 0) {
-            const addPromises = formData.checkpoints.map(item => addSingleWorkCheckpoint(item));
-            await Promise.all(addPromises);
-        }
-        return;
-    }
+    const saveWorkCheckpoints = async (trackingId) => {
 
-    const addSingleWorkCheckpoint = async (checkPoint) => {
-        const addPayload = {
-            name: checkPoint?.isChecked ? "Yes" : "No",
-            workCheckPointId: parseInt(checkPoint?.workCheckPointId),
-            activityId: parseInt(activityId)
-        };
+        if (!formData.checkpoints?.length) return;
 
-        return await api.addData({ module: 'workCheckPointTracking', data: addPayload });
-    }
+        const promises = formData.checkpoints.map(cp => {
+
+            const payload = {
+                name: cp.isChecked ? "Yes" : "No",
+                workCheckPointId: parseInt(cp.workCheckPointId),
+                activityId: parseInt(activityId),
+                activityTrackingId: parseInt(trackingId)
+            };
+
+            return api.addData({
+                module: "workCheckPointTracking",
+                data: payload
+            });
+
+        });
+
+        await Promise.all(promises);
+    };
 
     return (
 
@@ -268,7 +318,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
                             <Form.Control
                                 type="number"
                                 value={formData.cost}
-                                disabled={activityData?.isCompleted}
+                                disabled={activityData?.isCompleted || submitDisabled}
                                 onChange={(e) =>
                                     updateField("cost", e.target.value)
                                 }
@@ -281,7 +331,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
                             <Form.Control
                                 type="number"
                                 value={formData.manPower}
-                                disabled={activityData?.isCompleted}
+                                disabled={activityData?.isCompleted || submitDisabled}
                                 onChange={(e) =>
                                     updateField("manPower", e.target.value)
                                 }
@@ -296,12 +346,17 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
                             <Form.Label>Progress Percentage</Form.Label>
 
                             <Form.Range
-                                min={minProgressPercentage}
                                 max={100}
+                                step={1}
                                 value={formData.progressPercentage}
-                                disabled={activityData?.isCompleted}
-                                onChange={(e) =>
-                                    updateField("progressPercentage", parseInt(e.target.value))
+                                disabled={activityData?.isCompleted || submitDisabled}
+                                onChange={(e) => {
+                                    const newValue = Number(e.target.value);
+
+                                    if (newValue >= activityData?.progressPercentage) {
+                                        updateField("progressPercentage", Number(e.target.value))
+                                    }
+                                }
                                 }
                             />
 
@@ -328,13 +383,22 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
                                     type="checkbox"
                                     label={cp.name}
                                     checked={cp.isChecked}
-                                    disabled={activityData?.isCompleted}
+                                    disabled={activityData?.isCompleted || submitDisabled}
                                     onChange={() => toggleCheckpoint(index)}
                                 />
                             ))}
                         </div>
                     </div>
 
+                    <div className="row mt-4">
+                        <div className="col-sm-12">
+                            <Form.Label className="fw-bold mb-2">
+                                Checkpoints History
+                            </Form.Label>
+
+                            <WorkCheckpointTrackings activityId={activityId} reportDate={reportDate} />
+                        </div>
+                    </div>
                     {/* Item List */}
 
                     <div className="row my-3">
@@ -377,14 +441,14 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false }) => {
 
             <Modal.Footer>
                 <Button
-                    variant="secondary"
+                    className="btn-secondary btn btn-pill"
                     onClick={onClose}
                 >
                     Close
                 </Button>
 
                 <Button
-                    className="btn-primary"
+                    className="btn-primary btn btn-pill"
                     disabled={loading || submitDisabled}
                     onClick={handleSubmit}
                 >

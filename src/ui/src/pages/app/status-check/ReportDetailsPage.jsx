@@ -222,7 +222,7 @@ const ReportDetailsPage = () => {
                                 <>
                                     <p><strong>Cost:</strong> {report?.cost}</p>
                                     <p><strong>Man Power:</strong> {report?.manPower}</p>
-                                    <p><strong>Progress:</strong> {report?.progressPercentage}</p>
+                                    <p><strong>Progress Percentage:</strong> {report?.progressPercentage}</p>
                                 </>
                             )}
 
