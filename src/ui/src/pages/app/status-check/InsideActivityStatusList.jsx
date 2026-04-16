@@ -11,7 +11,7 @@ import IUILookUp from '../../common/shared/IUILookUp';
 import IUIPageElement from '../../common/shared/IUIPageElement';
 import ActivityStatusDashboard from './ActivityDashboard';
 
-const ActivityListByStatus = () => {
+const InsideActivityListByStatus = () => {
     // Properties
     const setupSchema = {
         module: 'activity',
@@ -22,15 +22,6 @@ const ActivityListByStatus = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    {
-                        text: 'Work Type', field: 'type', type: 'lookup', required: true, width: 3,
-                        schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'inside' },
-                                { name: 'outside' }
-                            ]
-                        }
-                    },
                     {
                         text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
                         schema: { module: 'project' }
@@ -440,4 +431,4 @@ const ActivityListByStatus = () => {
     );
 };
 
-export default ActivityListByStatus;
+export default InsideActivityListByStatus;

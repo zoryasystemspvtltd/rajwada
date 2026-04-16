@@ -44,6 +44,8 @@ import { AddFlatTemplate, EditFlatTemplate, ListFlatTemplate, ViewFlatTemplate }
 import { AddLevelSetup, EditLevelSetup, ListLevelSetup, ViewLevelSetup } from "../pages/app/schema/LevelSetups";
 import { AddMouza, EditMouza, ListMouza, ViewMouza } from "../pages/app/schema/Mouzas";
 import { AddNameMaster, EditNameMaster, ListNameMaster, ViewNameMaster } from "../pages/app/schema/NameMasters";
+import { AddOutsideEntityMappings, EditOutsideEntityMappings, ListOutsideEntityMappings, ViewOutsideEntityMappings } from "../pages/app/schema/OutsideEntityMappings";
+import { AddOutsideEntityType, EditOutsideEntityType, ListOutsideEntityType, ViewOutsideEntityType } from "../pages/app/schema/OutsideEntityTypes";
 import { AddParkingType, EditParkingType, ListParkingType, ViewParkingType } from "../pages/app/schema/ParkingTypes";
 import { AddPostWorkPeriodicCheck, EditPostWorkPeriodicCheck, ListPostWorkPeriodicCheck, ViewPostWorkPeriodicCheck } from "../pages/app/schema/PostWorkPeriodicCheck";
 import { AddRoomMapping, EditRoomMapping } from "../pages/app/schema/RoomMappings";
@@ -51,15 +53,13 @@ import { AddRoomType, EditRoomType, ListRoomType, ViewRoomType } from "../pages/
 import { AddRsDaag, EditRsDaag, ListRsDaag, ViewRsDaag } from "../pages/app/schema/RsDaags";
 import { AddSupplier, EditSupplier, ListSupplier, ViewSupplier } from "../pages/app/schema/Suppliers";
 import { AddTowerParking, EditTowerParking, ListTowerParking, ViewTowerParking } from "../pages/app/schema/TowerParkings";
+import { AddWorkCheckpointMapping, EditWorkCheckpointMapping } from "../pages/app/schema/WorkCheckpointMappings";
 import { AddWorkCheckpoint, EditWorkCheckpoint, ListWorkCheckpoint, ViewWorkCheckpoint } from "../pages/app/schema/WorkCheckpoints";
-import ActivityListByStatus from "../pages/app/status-check/ActivityStatusList";
-import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from "../pages/common/ItemAvailabilityTrack";
-import WorkTransfer from "../pages/common/WorkTransfer";
+import ActivityStatusCheck from "../pages/app/status-check/ActivityStatusCheck";
 import ViewActivityStatus from "../pages/app/status-check/IndividualActivityStatus";
 import ReportDetailsPage from "../pages/app/status-check/ReportDetailsPage";
-import { AddOutsideEntityType, EditOutsideEntityType, ListOutsideEntityType, ViewOutsideEntityType } from "../pages/app/schema/OutsideEntityTypes";
-import { AddOutsideEntityMappings, EditOutsideEntityMappings, ListOutsideEntityMappings, ViewOutsideEntityMappings } from "../pages/app/schema/OutsideEntityMappings";
-import { AddWorkCheckpointMapping, EditWorkCheckpointMapping } from "../pages/app/schema/WorkCheckpointMappings";
+import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from "../pages/common/ItemAvailabilityTrack";
+import WorkTransfer from "../pages/common/WorkTransfer";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -652,7 +652,7 @@ const Routes = () => {
                 },
                 {
                     path: "/workstatus",
-                    element: <ActivityListByStatus />
+                    element: <ActivityStatusCheck />
                 },
                 {
                     path: "/workstatus/:id",

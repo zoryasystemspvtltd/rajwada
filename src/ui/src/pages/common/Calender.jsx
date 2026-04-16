@@ -17,6 +17,7 @@ import IUITableInput from './shared/IUITableInput';
 
 
 const Calendar = () => {
+    const [workType, setWorkType] = useState("Inside");
     const [selectedDate, setSelectedDate] = useState(null);
     const [tasks, setTasks] = useState([]);
     const [dailyActivityTrackingData, setDailyActivityTrackingData] = useState([]);
@@ -138,11 +139,11 @@ const Calendar = () => {
     }, [loggedInUser]);
 
     // Fetch tasks from the API
-    async function fetchData() {
+    async function fetchData(workType = "Inside") {
         try {
             const baseFilter = {
                 name: 'Type',
-                value: 'Inside'
+                value: workType
             }
             const pageOptions = {
                 recordPerPage: 0,
@@ -157,7 +158,7 @@ const Calendar = () => {
     }
 
     useEffect(() => {
-        fetchData();
+        fetchData(workType);
     }, []);
 
     function getPreviousDay(dateString) {
@@ -616,7 +617,7 @@ const Calendar = () => {
             });
             closeTaskModal();
             // closeModal();
-            await fetchData();
+            await fetchData(workType);
         }
     }
 
@@ -662,161 +663,214 @@ const Calendar = () => {
     };
 
     return (
-        <div >
-            <FullCalendar
-                plugins={[dayGridPlugin, interactionPlugin]}
-                initialView="dayGridMonth"
-                dateClick={handleDateClick}
-                dayCellContent={renderDateCell}
-            // contentHeight="80vh"
-            />
-            {mainModalOpen && (
-                <Modal show={mainModalOpen} onHide={closeMainModal} >
-                    <Modal.Header>
-                        <Modal.Title>Tasks For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body size='md' style={{ color: "black", maxHeight: '80vh', overflowY: 'auto' }}>
-                        {selectedMainTasks?.length > 0 ? (
-                            selectedMainTasks.map((task) => (
-                                <div className='d-grid gap-2 mb-2' key={`Task-${task.id}`}>
-                                    <div className="row">
-                                        <div className="col-6">
-                                            <Button
-                                                variant="contained"
-                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-md btn-primary'
-                                                onClick={() => handleTaskClick(task)}
-                                                style={{ width: '100%' }}
-                                            >
-                                                {task.name}
-                                                {task.curingStatus && <span className="badge badge-warning" >C</span>}
-                                            </Button>
-                                        </div>
-                                        <div className="col-2 d-flex align-items-center">
-                                            <Button
-                                                title='Comments'
-                                                variant="contained"
-                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary'
-                                                onClick={() => handleCommentClick(task.id)}
-                                                style={{ width: '100%' }}
-                                            >
-                                                <FaRegCommentDots size={15} />
-                                            </Button>
-                                        </div>
-                                        <div className="col-2 d-flex align-items-center">
-                                            <Button
-                                                title='Image Gallery'
-                                                variant="contained"
-                                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-info'
-                                                onClick={() => handleGalleryClick(task)}
-                                                style={{ width: '100%' }}
-                                            >
-                                                <FaImage size={14} />
-                                            </Button>
-                                        </div>
-                                        {
-                                            (privileges?.activitytracking?.delete) && (
-                                                <div className="col-2 d-flex align-items-center">
-                                                    <Button
-                                                        title='Report List'
-                                                        variant="contained"
-                                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success'
-                                                        onClick={() => handleDeleteWork(task)}
-                                                        style={{ width: '100%' }}
-                                                    >
-                                                        <FaTable size={14} className='text-center' />
-                                                    </Button>
-                                                </div>
-                                            )
-                                        }
-                                    </div>
+        <>
+            <div className='mb-2'>
+                {/* <div className="app-page-title">
+                    <div className="page-title-heading"> {props?.setupSchema?.title}</div>
+                </div> */}
+                <div>
+                    <div className="card shadow-sm p-2">
+                        <div className="d-flex flex-column flex-md-row gap-3">
+                            <strong className="mb-0">Select Type:</strong>
+                            <div className="d-flex gap-3">
+                                <div className="form-check">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="workType"
+                                        id="inside"
+                                        value="Inside"
+                                        checked={workType === "Inside"}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            setWorkType(value);
+                                            fetchData(value);
+                                        }}
+                                    />
+                                    <label className="form-check-label" htmlFor="inside">
+                                        Inside
+                                    </label>
                                 </div>
-                            ))
-                        ) : (
-                            <p>No task assigned</p>
-                        )}
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button
-                            variant="contained"
-                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
-                            onClick={closeMainModal}
-                        >
-                            Close
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-            )}
-            <ReportModal
-                activityId={selectedActivityId}
-                show={taskModalOpen}
-                reportDate={selectedDate}
-                submitDisabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
-                onClose={() => {
-                    setTaskModalOpen(false);
-                }}
-            />
-            <CommentsModal
-                show={commentsModalOpen}
-                onClose={closeCommentsModal}
-                activityId={selectedActivityId}
-            />
-            {
-                showGalleryModal && <IUIImageGallery
-                    show={showGalleryModal}
-                    searchKey="parentId"
-                    searchId={selectedTask?.id}
-                    searchModule="activity"
-                    handleClose={handleCloseGalleryModal}
-                    title={`Image Gallery: ${selectedTask?.name}`}
+
+                                <div className="form-check">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="workType"
+                                        id="outside"
+                                        value="Outside"
+                                        checked={workType === "Outside"}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            setWorkType(value);
+                                            fetchData(value);
+                                        }}
+                                    />
+                                    <label className="form-check-label" htmlFor="outside">
+                                        Outside
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div >
+                <FullCalendar
+                    plugins={[dayGridPlugin, interactionPlugin]}
+                    initialView="dayGridMonth"
+                    dateClick={handleDateClick}
+                    dayCellContent={renderDateCell}
+                // contentHeight="80vh"
                 />
-            }
-            {
-                (showDeleteModal) && (
-                    <Modal show={showDeleteModal} onHide={handleDeleteModalClose} size='lg'>
-                        <Modal.Header closeButton>
-                            <Modal.Title>Work Reports For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
+                {mainModalOpen && (
+                    <Modal show={mainModalOpen} onHide={closeMainModal} >
+                        <Modal.Header>
+                            <Modal.Title>Tasks For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
                         </Modal.Header>
-                        <Modal.Body>
-                            <p>
-                                {
-                                    (deleteWorkItems.length > 0) && (
-                                        deleteWorkItems?.map((workItem, index) => (
-
-                                            <Card key={`tracking_${index}`}>
-                                                <button onClick={(e) => onDeleteWorkItem(e, workItem)} style={deleteCardStyles.deleteButton}>
-                                                    <FaTrashCan />
-                                                </button>
-                                                <Card.Body>
-                                                    <p><strong>Cost:</strong> Rs.{workItem.cost}</p>
-                                                    <p><strong>Manpower:</strong> {workItem.manPower}</p>
-                                                    <p><strong>Progress:</strong> {workItem.progressPercentage}</p>
-                                                    <div>
-                                                        <strong>Items:</strong>
-                                                        <IUITableInput
-                                                            id={itemListSchema.field}
-                                                            value={workItem.item}
-                                                            schema={itemListSchema.schema}
-                                                            onChange={handleItemListChange}
-                                                            readonly={true}
-                                                        />
+                        <Modal.Body size='md' style={{ color: "black", maxHeight: '80vh', overflowY: 'auto' }}>
+                            {selectedMainTasks?.length > 0 ? (
+                                selectedMainTasks.map((task) => (
+                                    <div className='d-grid gap-2 mb-2' key={`Task-${task.id}`}>
+                                        <div className="row">
+                                            <div className="col-6">
+                                                <Button
+                                                    variant="contained"
+                                                    className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-md btn-primary'
+                                                    onClick={() => handleTaskClick(task)}
+                                                    style={{ width: '100%' }}
+                                                >
+                                                    {task.name}
+                                                    {task.curingStatus && <span className="badge badge-warning" >C</span>}
+                                                </Button>
+                                            </div>
+                                            <div className="col-2 d-flex align-items-center">
+                                                <Button
+                                                    title='Comments'
+                                                    variant="contained"
+                                                    className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary'
+                                                    onClick={() => handleCommentClick(task.id)}
+                                                    style={{ width: '100%' }}
+                                                >
+                                                    <FaRegCommentDots size={15} />
+                                                </Button>
+                                            </div>
+                                            <div className="col-2 d-flex align-items-center">
+                                                <Button
+                                                    title='Image Gallery'
+                                                    variant="contained"
+                                                    className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-info'
+                                                    onClick={() => handleGalleryClick(task)}
+                                                    style={{ width: '100%' }}
+                                                >
+                                                    <FaImage size={14} />
+                                                </Button>
+                                            </div>
+                                            {
+                                                (privileges?.activitytracking?.delete) && (
+                                                    <div className="col-2 d-flex align-items-center">
+                                                        <Button
+                                                            title='Report List'
+                                                            variant="contained"
+                                                            className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success'
+                                                            onClick={() => handleDeleteWork(task)}
+                                                            style={{ width: '100%' }}
+                                                        >
+                                                            <FaTable size={14} className='text-center' />
+                                                        </Button>
                                                     </div>
-                                                </Card.Body>
-                                            </Card>
-
-                                        ))
-                                    )
-                                }
-                            </p>
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No task assigned</p>
+                            )}
                         </Modal.Body>
                         <Modal.Footer>
-                            <Button variant="secondary" onClick={handleDeleteModalClose}>
-                                Cancel
+                            <Button
+                                variant="contained"
+                                className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
+                                onClick={closeMainModal}
+                            >
+                                Close
                             </Button>
                         </Modal.Footer>
                     </Modal>
-                )
-            }
-        </div>
+                )}
+                <ReportModal
+                    activityId={selectedActivityId}
+                    show={taskModalOpen}
+                    reportDate={selectedDate}
+                    submitDisabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
+                    onClose={() => {
+                        setTaskModalOpen(false);
+                    }}
+                />
+                <CommentsModal
+                    show={commentsModalOpen}
+                    onClose={closeCommentsModal}
+                    activityId={selectedActivityId}
+                />
+                {
+                    showGalleryModal && <IUIImageGallery
+                        show={showGalleryModal}
+                        searchKey="parentId"
+                        searchId={selectedTask?.id}
+                        searchModule="activity"
+                        handleClose={handleCloseGalleryModal}
+                        title={`Image Gallery: ${selectedTask?.name}`}
+                    />
+                }
+                {
+                    (showDeleteModal) && (
+                        <Modal show={showDeleteModal} onHide={handleDeleteModalClose} size='lg'>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Work Reports For Date: {format(selectedDate, 'dd-MM-yyyy')}</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <p>
+                                    {
+                                        (deleteWorkItems.length > 0) && (
+                                            deleteWorkItems?.map((workItem, index) => (
+
+                                                <Card key={`tracking_${index}`}>
+                                                    <button onClick={(e) => onDeleteWorkItem(e, workItem)} style={deleteCardStyles.deleteButton}>
+                                                        <FaTrashCan />
+                                                    </button>
+                                                    <Card.Body>
+                                                        <p><strong>Cost:</strong> Rs.{workItem.cost}</p>
+                                                        <p><strong>Manpower:</strong> {workItem.manPower}</p>
+                                                        <p><strong>Progress:</strong> {workItem.progressPercentage}</p>
+                                                        <div>
+                                                            <strong>Items:</strong>
+                                                            <IUITableInput
+                                                                id={itemListSchema.field}
+                                                                value={workItem.item}
+                                                                schema={itemListSchema.schema}
+                                                                onChange={handleItemListChange}
+                                                                readonly={true}
+                                                            />
+                                                        </div>
+                                                    </Card.Body>
+                                                </Card>
+
+                                            ))
+                                        )
+                                    }
+                                </p>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={handleDeleteModalClose}>
+                                    Cancel
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+                    )
+                }
+            </div>
+        </>
     );
 };
 

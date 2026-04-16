@@ -23,6 +23,10 @@ const deleteDependency = {
                     field: "parentId"
                 },
                 {
+                    module: 'outSideEntity',
+                    field: "floorId"
+                },
+                {
                     module: "workflow",
                     field: "floorId"
                 },
@@ -37,6 +41,10 @@ const deleteDependency = {
                 {
                     module: "plan",
                     field: "parentId"
+                },
+                {
+                    module: 'outSideEntity',
+                    field: "towerId"
                 },
                 {
                     module: "workflow",
