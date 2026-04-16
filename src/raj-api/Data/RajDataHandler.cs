@@ -476,6 +476,8 @@ public class RajDataHandler : LabDataHandler
         {
             var query = dbContext.Set<Activity>().AsQueryable();
 
+            query = query.Where(x => x.Status != StatusType.Deleted);
+
             // ✅ Null-safe filtering
             if (request.ProjectId.HasValue)
                 query = query.Where(x => x.ProjectId == request.ProjectId);
@@ -488,6 +490,7 @@ public class RajDataHandler : LabDataHandler
 
             if (request.Type == "inside")
             {
+                query = query.Where(x => x.Type == "inside");
                 if (request.FlatId.HasValue)
                     query = query.Where(x => x.FlatId == request.FlatId);
 
@@ -497,6 +500,7 @@ public class RajDataHandler : LabDataHandler
 
             if (request.Type == "outside")
             {
+                query = query.Where(x => x.Type == "outside");
                 if (request.OutsideEntityId.HasValue)
                     query = query.Where(x => x.OutSideEntityId == request.OutsideEntityId);
             }
