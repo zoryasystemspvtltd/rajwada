@@ -900,10 +900,23 @@ public class RajDataHandler : LabDataHandler
                             await BulkDeleteAsync(workflowsPlan, token);
                         }
 
-                        //Delete All Floor and flat related to Tower
+                        //Get All Floor related to Tower
                         var planChild = dbContext.Set<Plan>().Where(x => x.ParentId == id);
                         if (planChild != null && planChild.Any())
                         {
+                            //Delete All Flat related to Tower
+                            var planFlats = await planChild
+                                     .Join(dbContext.Set<Plan>(),
+                                         flr => flr.Id,
+                                         fl => fl.ParentId,
+                                         (flr, fl) => fl)
+                                     .ToListAsync(token);
+                            if (planFlats != null && planFlats.Any())
+                            {
+                                await BulkDeleteAsync(planFlats, token);
+                            }
+
+                            //Delete All Floor related to Tower
                             await BulkDeleteAsync(planChild, token);
                         }
                     }
