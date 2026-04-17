@@ -88,7 +88,7 @@ namespace ILab.Data
                     {
                         existingData.Status = jsonData?.Status;
                         modifiedBy = jsonData?.ModifiedBy;
-                        
+
                         //Assigned also Project,Tower,Floor,Flat,Room
                         await AssginedLinkedModule(existingData, token);
                     }
@@ -1248,6 +1248,15 @@ namespace ILab.Data
                 logger.LogError("Exception in GetAllAssignedUsers method and details: " + ex.Message);
                 return 0;
             }
+        }
+
+        internal async Task<dynamic> DuplicateChecking(string module, dynamic updatedata)
+        {
+            var type = GetType(module);
+            var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.DuplicateChecking));
+            object[] parameters = [module, type, updatedata];
+            return method?.Invoke(handler, parameters);
+
         }
     }
 }

@@ -60,6 +60,14 @@ public class LabModelController : ControllerBase
             dataService.Identity = new ModuleIdentity(member, key);
             long Id = 0;
 
+            //Duplicate check for Activity and Workflow module
+            bool flag = await dataService.DuplicateChecking(module, data);
+            if (flag)
+            {
+                logger.LogInformation("Duplicate data found.");
+                return 0;
+            }
+
             var updatedata = await dataService.ConvertBase64toFile(module, data);
             if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -67,6 +75,7 @@ public class LabModelController : ControllerBase
             }
             if (module.ToUpper() != "OUTSIDEENTITY")
             {
+                
                 Id = await dataService.AddAsync(module, updatedata, token);
             }
 

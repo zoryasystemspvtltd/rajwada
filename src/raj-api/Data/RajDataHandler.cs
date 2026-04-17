@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml.InkML;
+﻿
 using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
@@ -1764,32 +1764,82 @@ public class RajDataHandler : LabDataHandler
 
     public dynamic GetActivtyDetailsForUser(string member, long projectId, long? towerId, long? floorId, long? flatId)
     {
-        var logs = dbContext.Set<ApplicationLog>()
-                    .Where(l => l.Member == member && l.Name == "Activity").Select(a => a.EntityId).Distinct();
-
-        var activityQuery = dbContext.Set<Activity>()
-                            .Where(a => a.ProjectId == projectId);
-
-        if (towerId != null)
+        try
         {
-            activityQuery = activityQuery.Where(a => a.TowerId == towerId);
-        }
-        if (floorId != null)
-        {
-            activityQuery = activityQuery.Where(a => a.FloorId == floorId);
-        }
-        if (flatId != null)
-        {
-            activityQuery = activityQuery.Where(a => a.FlatId == flatId);
-        }
+            var logs = dbContext.Set<ApplicationLog>()
+                        .Where(l => l.Member == member && l.Name == "Activity").Select(a => a.EntityId).Distinct();
 
-        var query =
-            from a in activityQuery
-            join l in logs on a.Id equals l
-            select a;
+            var activityQuery = dbContext.Set<Activity>()
+                                .Where(a => a.ProjectId == projectId);
 
-        var result = query.ToList();
-        return result;
+            if (towerId != null)
+            {
+                activityQuery = activityQuery.Where(a => a.TowerId == towerId);
+            }
+            if (floorId != null)
+            {
+                activityQuery = activityQuery.Where(a => a.FloorId == floorId);
+            }
+            if (flatId != null)
+            {
+                activityQuery = activityQuery.Where(a => a.FlatId == flatId);
+            }
+
+            var query =
+                from a in activityQuery
+                join l in logs on a.Id equals l
+                select a;
+
+            var result = query.ToList();
+            return result;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetActivtyDetailsForUser method and details: '{ex.Message}'");
+            return null;
+        }
+    }
+
+    public bool DuplicateChecking(string model, Type type, dynamic updatedata)
+    {
+        try
+        {
+            if (model.ToUpperInvariant() == "WORKFLOW")
+            {
+
+                Workflow data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
+
+                var work = dbContext.Set<Workflow>()
+                     .Where(w =>
+                         w.ProjectId == data.ProjectId && data.Type == data.Type &&
+                         (data.TowerId == null || w.TowerId == data.TowerId) &&
+                         (data.FloorId == null || w.FloorId == data.FloorId) &&
+                         (data.FlatId == null || w.FlatId == data.FlatId) &&
+                         (data.RoomId == null || w.RoomId == data.RoomId) &&
+                         (data.OutSideEntityId == null || w.OutSideEntityId == data.OutSideEntityId)
+                         ).FirstOrDefault();
+                return work != null ? true : false;
+
+            }
+            else if (model.ToUpperInvariant() == "ACTIVITY")
+            {
+
+                Activity data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
+
+                var activity = dbContext.Set<Activity>()
+                         .Where(w => w.ProjectId == data.ProjectId && w.WorkflowId == data.WorkflowId).FirstOrDefault();
+                return activity != null ? true : false;
+            }
+            else
+                return false;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in DuplicateChecking method and details: '{ex.Message}'");
+            return false;
+        }
     }
 }
 
