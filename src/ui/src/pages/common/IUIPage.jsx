@@ -218,7 +218,7 @@ const IUIPage = (props) => {
 
 
     const handleAuditClick = () => {
-        navigate("/audit-logs", { state: { id: id, childModule: module, disableSelection: true } });
+        navigate(`/${module}/${id}/audit-logs`);
     };
 
     useEffect(() => {
@@ -268,11 +268,11 @@ const IUIPage = (props) => {
             if (item.required && values && !values[item?.field]) {
                 errors[item.field] = `Required field.`;
             }
-            if (item.type === 'text' && values && values[item?.field]) {
-                if (values[item?.field]?.includes("/") && !id) {
-                    errors[item.field] = 'Text cannot contain /';
-                }
-            }
+            // if (item.type === 'text' && values && values[item?.field]) {
+            //     if (values[item?.field]?.includes("/") && !id) {
+            //         errors[item.field] = 'Text cannot contain /';
+            //     }
+            // }
             if (item.type === 'email' && values && values[item?.field]) {
                 if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
                     errors[item.field] = 'Invalid email address.'
@@ -305,6 +305,22 @@ const IUIPage = (props) => {
                 }
             }
         }
+        return errors;
+    };
+
+    const validateDuplicate = (fields) => {
+        let errors = {};
+
+        for (let i = 0; i < fields?.length; i++) {
+            let item = fields[i];
+            if (item.type === 'area') {
+                errors = { ...errors, ...validateDuplicate(item.fields) }
+            }
+            if (item.duplicate) {
+                errors[item.field] = `Duplicate field.`;
+            }
+        }
+
         return errors;
     };
 
@@ -688,12 +704,12 @@ const IUIPage = (props) => {
             else if (Object.keys(error).length === 0) {
                 if (!data)
                     return
-                setDisabled(true)
+                setDisabled(true);
                 if (id != undefined)
                     // Check for Amendment Data
                     try {
                         setIsInProgress(true);
-
+                        let response;
                         if (schema?.isAmendment) {
                             // Update the data in amendment table
                             // Change planned end date in activity table
@@ -706,13 +722,21 @@ const IUIPage = (props) => {
 
                             await api.editData(amendmentAction);
 
-                            await api.editData({ module: 'activity', data: { ...data, oldValues: JSON.stringify(oldData), progressPercentage: 50 } });
+                            response = await api.editData({ module: 'activity', data: { ...data, oldValues: JSON.stringify(oldData), progressPercentage: 50 } });
                         }
                         else {
-                            await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: JSON.stringify(oldData), data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: JSON.stringify(oldData) } });
+                            response = await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: JSON.stringify(oldData), data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: JSON.stringify(oldData) } });
                             if (module === 'dependency') {
                                 await updateDependencyResources(data, id);
                             }
+                        }
+
+                        if (response?.data === -1) {
+                            notify('error', 'Duplicate entry found !');
+                            setDisabled(false);
+                            const error = validateDuplicate(schema?.fields)
+                            setErrors(error);
+                            return;
                         }
                         dispatch(setSave({ module: module }))
 
@@ -754,6 +778,14 @@ const IUIPage = (props) => {
                                     (module === 'activity') ? { ...transformedData, items: prepareItemsForActivity(transformedData) } : transformedData
                             }
                         );
+                        if (response?.data === -1) {
+                            notify('error', 'Duplicate entry found !');
+                            setDisabled(false);
+                            const error = validateDuplicate(schema?.fields)
+                            setErrors(error);
+                            return;
+                        }
+
                         // console.log(response)
                         if (module === 'dependency') {
                             await saveDependencyResources(data, response?.data);
@@ -788,6 +820,7 @@ const IUIPage = (props) => {
                         }
                     } catch (e) {
                         // TODO
+                        debugger
                         console.log(e);
                         notify('error', 'Creation failed !')
                         if (module === 'activity') {
@@ -797,6 +830,7 @@ const IUIPage = (props) => {
                     }
                     finally {
                         setIsInProgress(false);
+                        setDisabled(false);
                     }
             }
         }

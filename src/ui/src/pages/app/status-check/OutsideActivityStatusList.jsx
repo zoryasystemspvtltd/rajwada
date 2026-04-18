@@ -72,9 +72,13 @@ const OutsideActivityListByStatus = () => {
         linkField: "activityId",
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
+            { text: 'Work ID', field: 'workId', type: 'text', sorting: true, searching: true },
             { text: 'Expected Start Date', field: 'expectedStartDate', type: 'date', sorting: true, searching: true },
             { text: 'Expected End Date', field: 'expectedEndDate', type: 'date', sorting: true, searching: true },
-            { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false }
+            {
+                text: 'Outside Entity', field: 'outSideEntityId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'outSideEntity' }
+            }
         ]
     }
 

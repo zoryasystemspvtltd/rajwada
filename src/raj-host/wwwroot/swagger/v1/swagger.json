@@ -688,6 +688,8 @@
 "/api/Uom":{"get":{"tags":["Uom"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/UomItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/UomItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/UomItemList"}}}}}},"post":{"tags":["Uom"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Uom"}},"text/json":{"schema":{"$ref":"#/components/schemas/Uom"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Uom"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Uom/{id}":{"get":{"tags":["Uom"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Uom"}},"application/json":{"schema":{"$ref":"#/components/schemas/Uom"}},"text/json":{"schema":{"$ref":"#/components/schemas/Uom"}}}}}},"put":{"tags":["Uom"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Uom"}},"text/json":{"schema":{"$ref":"#/components/schemas/Uom"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Uom"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Uom"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Wonership":{"get":{"tags":["Wonership"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WonershipItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/WonershipItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/WonershipItemList"}}}}}},"post":{"tags":["Wonership"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Wonership"}},"text/json":{"schema":{"$ref":"#/components/schemas/Wonership"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Wonership"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Wonership/{id}":{"get":{"tags":["Wonership"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Wonership"}},"application/json":{"schema":{"$ref":"#/components/schemas/Wonership"}},"text/json":{"schema":{"$ref":"#/components/schemas/Wonership"}}}}}},"put":{"tags":["Wonership"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Wonership"}},"text/json":{"schema":{"$ref":"#/components/schemas/Wonership"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Wonership"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Wonership"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/WorkCheckPoint":{"get":{"tags":["WorkCheckPoint"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WorkCheckPointItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointItemList"}}}}}},"post":{"tags":["WorkCheckPoint"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPoint"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPoint"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/WorkCheckPoint"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/WorkCheckPoint/{id}":{"get":{"tags":["WorkCheckPoint"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WorkCheckPoint"}},"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPoint"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPoint"}}}}}},"put":{"tags":["WorkCheckPoint"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPoint"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPoint"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/WorkCheckPoint"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["WorkCheckPoint"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/WorkCheckPointMapping":{"get":{"tags":["WorkCheckPointMapping"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMappingItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMappingItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMappingItemList"}}}}}},"post":{"tags":["WorkCheckPointMapping"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMapping"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMapping"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMapping"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/WorkCheckPointMapping/{id}":{"get":{"tags":["WorkCheckPointMapping"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMapping"}},"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMapping"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMapping"}}}}}},"put":{"tags":["WorkCheckPointMapping"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMapping"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMapping"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointMapping"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["WorkCheckPointMapping"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
+"/api/WorkCheckPointTracking":{"get":{"tags":["WorkCheckPointTracking"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTrackingItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTrackingItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTrackingItemList"}}}}}},"post":{"tags":["WorkCheckPointTracking"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTracking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTracking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/WorkCheckPointTracking/{id}":{"get":{"tags":["WorkCheckPointTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTracking"}},"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTracking"}}}}}},"put":{"tags":["WorkCheckPointTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTracking"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTracking"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/WorkCheckPointTracking"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["WorkCheckPointTracking"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 "/api/Workflow":{"get":{"tags":["Workflow"],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/WorkflowItemList"}},"application/json":{"schema":{"$ref":"#/components/schemas/WorkflowItemList"}},"text/json":{"schema":{"$ref":"#/components/schemas/WorkflowItemList"}}}}}},"post":{"tags":["Workflow"],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Workflow"}},"text/json":{"schema":{"$ref":"#/components/schemas/Workflow"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Workflow"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},"/api/Workflow/{id}":{"get":{"tags":["Workflow"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Workflow"}},"application/json":{"schema":{"$ref":"#/components/schemas/Workflow"}},"text/json":{"schema":{"$ref":"#/components/schemas/Workflow"}}}}}},"put":{"tags":["Workflow"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Workflow"}},"text/json":{"schema":{"$ref":"#/components/schemas/Workflow"}},"application/*+json":{"schema":{"$ref":"#/components/schemas/Workflow"}}}},"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}},"delete":{"tags":["Workflow"],"parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int32"}}],"responses":{"200":{"description":"Success","content":{"text/plain":{"schema":{"type":"integer","format":"int32"}},"application/json":{"schema":{"type":"integer","format":"int32"}},"text/json":{"schema":{"type":"integer","format":"int32"}}}}}}},
 
   },
@@ -4692,6 +4694,148 @@
 "type": "array",
 "items": {
 "$ref": "#/components/schemas/WorkCheckPoint"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
+"WorkCheckPointMapping": {
+"type": "object",
+"properties": {
+"WorkCheckPointId": {
+"type": "string",
+"nullable": true
+},
+"WorkCheckPoints": {
+"type": "string",
+},
+"ActivityId": {
+"type": "string",
+"nullable": true
+},
+"Activity": {
+"type": "string",
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"OldValues": {
+"type": "string",
+},
+},
+"additionalProperties": false
+},
+"WorkCheckPointMappingItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/WorkCheckPointMapping"
+},
+"nullable": true
+}
+},
+"additionalProperties": false
+},
+"WorkCheckPointTracking": {
+"type": "object",
+"properties": {
+"WorkCheckPointId": {
+"type": "string",
+"nullable": true
+},
+"WorkCheckPoints": {
+"type": "string",
+},
+"ActivityId": {
+"type": "string",
+"nullable": true
+},
+"Activity": {
+"type": "string",
+},
+"Photo": {
+"type": "string",
+},
+"ActivityTrackingId": {
+"type": "string",
+"nullable": true
+},
+"ActivityTracking": {
+"type": "string",
+},
+"Id": {
+"type": "string",
+},
+"Name": {
+"type": "string",
+"maxLength": 511,
+"minLength": 0,
+},
+"status": {
+"$ref": "#/components/schemas/StatusType"
+},
+"Date": {
+"type": "string",
+"format": "date-time",
+"nullable": true
+},
+"Member": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"Key": {
+"type": "string",
+"maxLength": 255,
+"minLength": 0,
+},
+"OldValues": {
+"type": "string",
+},
+},
+"additionalProperties": false
+},
+"WorkCheckPointTrackingItemList": {
+"type": "object",
+"properties": {
+"totalRecord": {
+"type": "integer",
+"format": "int32"
+},
+"items": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/WorkCheckPointTracking"
 },
 "nullable": true
 }

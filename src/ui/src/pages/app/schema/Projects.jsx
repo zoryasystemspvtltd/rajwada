@@ -37,6 +37,9 @@ export const ViewProject = () => {
         deleting: true,
         back: true,
         readonly: true,
+        assign: true,
+        assignType: 'single',
+        assignChild: true,
         fields: [
             {
                 type: "area", width: 12
@@ -87,14 +90,14 @@ export const EditProject = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', placeholder: 'Name here...', width: 4, type: 'text', required: true },
+                    { text: 'Name', field: 'name', placeholder: 'Name here...', width: 4, type: 'text', required: true, duplicate: true },
                     { text: 'Alias', field: 'code', placeholder: 'Code here...', width: 4, type: 'text', required: true },
                     { text: 'Start Fin Year', field: 'startFinYear', width: 4, type: 'text', required: true },
                     { text: 'Planned Start Date', field: 'planStartDate', width: 4, type: 'date', required: true },
                     { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'date', required: false },
                     { text: 'Completion Certificate Date', field: 'completionCertificateDate', width: 4, type: 'date', required: false },
                     {
-                        text: 'Belongs To', field: 'companyId', nameField: 'companyName', width: 4, type: 'lookup', required: false,
+                        text: 'Belongs To', field: 'companyId', nameField: 'companyName', width: 4, type: 'lookup', required: false, 
                         schema: { module: 'company' }
                     },
                     { text: 'Zone', field: 'zone', placeholder: 'Zone here...', width: 4, type: 'text', required: false },
@@ -133,14 +136,14 @@ export const AddProject = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', placeholder: 'Name here...', width: 4, type: 'text', required: true },
+                    { text: 'Name', field: 'name', placeholder: 'Name here...', width: 4, type: 'text', required: true, duplicate: true },
                     { text: 'Alias', field: 'code', placeholder: 'Code here...', width: 4, type: 'text', required: true },
                     { text: 'Start Fin Year', field: 'startFinYear', width: 4, type: 'text', required: true },
                     { text: 'Planned Start Date', field: 'planStartDate', width: 4, type: 'date', required: true },
                     { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'date', required: false },
                     { text: 'Completion Certificate Date', field: 'completionCertificateDate', width: 4, type: 'date', required: false },
                     {
-                        text: 'Belongs To', field: 'companyId', nameField: 'companyName', width: 4, type: 'lookup', required: true,
+                        text: 'Belongs To', field: 'companyId', nameField: 'companyName', width: 4, type: 'lookup', required: true, 
                         schema: { module: 'company' }
                     },
                     { text: 'Zone', field: 'zone', placeholder: 'Zone here...', width: 4, type: 'text', required: false },

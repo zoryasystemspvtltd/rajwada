@@ -179,7 +179,7 @@ export const EditTower = () => {
                     },
                     // { text: 'Planned Start Date', field: 'planStartDate', width: 4, type: 'date', required: false },
                     // { text: 'Planned End Date', field: 'planEndDate', width: 4, type: 'date', required: false },
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 12 },
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 12,duplicate: true },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
             },
@@ -259,7 +259,7 @@ export const AddTower = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6 ,duplicate: true },
                     {
                         text: 'Project', field: 'projectId', type: 'lookup', required: false, width: 6,
                         schema: { module: 'project' }

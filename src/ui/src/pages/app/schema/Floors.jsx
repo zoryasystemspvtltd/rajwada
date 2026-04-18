@@ -151,7 +151,7 @@ export const EditFloor = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6, duplicate: true },
                     {
                         text: 'Tower', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
                         schema: { module: 'plan', filter: 'type', value: 'tower' }
@@ -237,7 +237,7 @@ export const AddFloor = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6 },
+                    { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6, duplicate: true },
                     {
                         text: 'Tower', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
                         schema: { module: 'plan', filter: 'type', value: 'tower' }

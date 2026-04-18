@@ -25,6 +25,9 @@
         public DateTime? ExpectedStartDate { get; set; }
         public DateTime? ExpectedEndDate { get; set; }
         public string Type { get; set; } = null!;
+        public long? FlatId { get; set; } = null!;
+        public string WorkId { get; set; } = null!;
+        public long? OutSideEntityId { get; set; } = null!;
     }
 
     public class StatusGroup

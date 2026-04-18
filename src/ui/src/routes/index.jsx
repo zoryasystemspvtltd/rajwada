@@ -583,11 +583,19 @@ const Routes = () => {
                     element: <EditFlatTemplateMapping />
                 },
                 {
-                    path: "/audit-logs",
-                    element: <ListAuditLog id={null} childModule={null} />
+                    path: "/:childModule/:moduleId/audit-logs",
+                    element: <ListAuditLog />
                 },
                 {
-                    path: "/audit-logs/:id",
+                    path: "/audit-report",
+                    element: <ListAuditLog />
+                },
+                {
+                    path: "/audit-report/:id",
+                    element: <ViewAuditLog />
+                },
+                {
+                    path: "/:childModule/:moduleId/audit-logs/:id",
                     element: <ViewAuditLog />
                 },
                 {

@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml.InkML;
+﻿
 using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
@@ -25,8 +25,13 @@ public class RajDataHandler : LabDataHandler
     public override IQueryable<T> FilterIdentity<T>(DbSet<T> dbSet)
     {
         // This is used to assign entity to member,
-        if ((typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
-            || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0))
+        if (!Identity.IsAdmin &&
+            (
+                (typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
+                    || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0)
+                    || (typeof(T).GetInterfaces().Count(p => p == typeof(IProject)) > 0)
+                )
+            )
         {
             var name = typeof(T).Name;
             var query = dbSet
@@ -527,7 +532,10 @@ public class RajDataHandler : LabDataHandler
                     Name = activity.Name,
                     ExpectedStartDate = activity.StartDate,
                     ExpectedEndDate = activity.EndDate,
-                    Type = activity.Type
+                    Type = activity.Type,
+                    FlatId = activity.FlatId,
+                    WorkId = activity.WorkId,
+                    OutSideEntityId = activity.OutSideEntityId
                 };
 
                 // ✅ PRIORITY LOGIC (IMPORTANT)
@@ -900,10 +908,23 @@ public class RajDataHandler : LabDataHandler
                             await BulkDeleteAsync(workflowsPlan, token);
                         }
 
-                        //Delete All Floor and flat related to Tower
+                        //Get All Floor related to Tower
                         var planChild = dbContext.Set<Plan>().Where(x => x.ParentId == id);
                         if (planChild != null && planChild.Any())
                         {
+                            //Delete All Flat related to Tower
+                            var planFlats = await planChild
+                                     .Join(dbContext.Set<Plan>(),
+                                         flr => flr.Id,
+                                         fl => fl.ParentId,
+                                         (flr, fl) => fl)
+                                     .ToListAsync(token);
+                            if (planFlats != null && planFlats.Any())
+                            {
+                                await BulkDeleteAsync(planFlats, token);
+                            }
+
+                            //Delete All Floor related to Tower
                             await BulkDeleteAsync(planChild, token);
                         }
                     }
@@ -1751,42 +1772,132 @@ public class RajDataHandler : LabDataHandler
 
     public dynamic GetActivtyDetailsForUser(string member, long projectId, long? towerId, long? floorId, long? flatId)
     {
-        var logs = dbContext.Set<ApplicationLog>()
-                    .Where(l => l.Member == member && l.Name == "Activity").Select(a => a.EntityId).Distinct();
-
-        var activityQuery = dbContext.Set<Activity>()
-                            .Where(a => a.ProjectId == projectId);
-
-        if (towerId != null)
+        try
         {
-            activityQuery = activityQuery.Where(a => a.TowerId == towerId);
-        }
-        if (floorId != null)
-        {
-            activityQuery = activityQuery.Where(a => a.FloorId == floorId);
-        }
-        if (flatId != null)
-        {
-            activityQuery = activityQuery.Where(a => a.FlatId == flatId);
-        }
+            var logs = dbContext.Set<ApplicationLog>()
+                        .Where(l => l.Member == member && l.Name == "Activity").Select(a => a.EntityId).Distinct();
 
-        var query =
-            from a in activityQuery
-            join l in logs on a.Id equals l
-            select a;
+            var activityQuery = dbContext.Set<Activity>()
+                                .Where(a => a.ProjectId == projectId);
 
-        var result = query.ToList();
-        return result;
+            if (towerId != null)
+            {
+                activityQuery = activityQuery.Where(a => a.TowerId == towerId);
+            }
+            if (floorId != null)
+            {
+                activityQuery = activityQuery.Where(a => a.FloorId == floorId);
+            }
+            if (flatId != null)
+            {
+                activityQuery = activityQuery.Where(a => a.FlatId == flatId);
+            }
+
+            var query =
+                from a in activityQuery
+                join l in logs on a.Id equals l
+                select a;
+
+            var result = query.ToList();
+            return result;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetActivtyDetailsForUser method and details: '{ex.Message}'");
+            return null;
+        }
+    }
+
+    public bool DuplicateChecking(string model, Type type, dynamic updatedata)
+    {
+        try
+        {
+            if (model.ToUpperInvariant() == "WORKFLOW")
+            {
+                Workflow data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
+
+                var work = dbContext.Set<Workflow>()
+                     .Where(w => w.Status != StatusType.Deleted  && (w.Id == 0 || w.Id != data.Id))
+                     .Where(w =>
+                         w.ProjectId == data.ProjectId && w.Type.Equals(data.Type) &&
+                         (data.TowerId == null || w.TowerId == data.TowerId) &&
+                         (data.FloorId == null || w.FloorId == data.FloorId) &&
+                         (data.FlatId == null || w.FlatId == data.FlatId) &&
+                         (data.RoomId == null || w.RoomId == data.RoomId) &&
+                         (data.OutSideEntityId == null || w.OutSideEntityId == data.OutSideEntityId)
+                         )
+                     .Count() > 0;
+                return work;
+
+            }
+            else if (model.ToUpperInvariant() == "ACTIVITY")
+            {
+                Activity data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
+
+                var activity = dbContext.Set<Activity>()
+                         .Where(w => w.Status != StatusType.Deleted && (w.Id == 0 || w.Id != data.Id))
+                         .Where(w =>
+                             w.ProjectId == data.ProjectId && w.WorkflowId == data.WorkflowId &&
+                             (data.TowerId == null || w.TowerId == data.TowerId) &&
+                             (data.FloorId == null || w.FloorId == data.FloorId) &&
+                             (data.FlatId == null || w.FlatId == data.FlatId) &&
+                             (data.RoomId == null || w.RoomId == data.RoomId) &&
+                             (data.DependencyId == null || w.DependencyId == data.DependencyId)
+                         )
+                         .Count() > 0;
+                return activity;
+            }
+            else if (model.ToUpperInvariant() == "PLAN")
+            {
+                Plan data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
+
+                var activity = dbContext.Set<Plan>()
+                         .Where(w => w.Status != StatusType.Deleted && (w.Id == 0 || w.Id != data.Id))
+                         .Where(w =>
+                            w.ProjectId == data.ProjectId &&
+                            w.Type.Equals(data.Type) &&
+                            w.Name == data.Name &&
+                            (data.ParentId == null || w.ParentId == data.ParentId)
+                         )
+                         .Count() > 0;
+                return activity;
+            }
+            else if (model.ToUpperInvariant() == "PROJECT")
+            {
+                Project data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
+
+                var proj = dbContext.Set<Project>()
+                         .Where(w => w.Status != StatusType.Deleted && (w.Id == 0 || w.Id != data.Id))
+                         .Where(w =>
+                            w.CompanyId == data.CompanyId &&
+                            w.Name.Equals(data.Name)
+                         )
+                         .Count() > 0;
+                return proj;
+            }
+            else
+                return false;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in DuplicateChecking method and details: '{ex.Message}'");
+            return false;
+        }
     }
 }
 
 public class ModuleIdentity
 {
-    public ModuleIdentity(string member, string key)
+    public ModuleIdentity(string member, string key, bool isAdmin = false)
     {
         Member = member;
         Key = key;
+        IsAdmin = isAdmin;
     }
     public string Member { get; }
     public string Key { get; }
+    public bool IsAdmin { get; set; }
+
 }
