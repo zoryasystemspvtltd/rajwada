@@ -108,6 +108,14 @@ public class LabModelController : ControllerBase
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
 
+            //Duplicate check for Activity and Workflow module
+            bool flag = await dataService.DuplicateChecking(module, data);
+            if (flag)
+            {
+                logger.LogInformation("Duplicate data found.");
+                return -1;
+            }
+
             if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
             {
                 data = UpdateAcutualDate(module, data);

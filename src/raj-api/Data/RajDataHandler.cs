@@ -1815,6 +1815,7 @@ public class RajDataHandler : LabDataHandler
                 Workflow data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
 
                 var work = dbContext.Set<Workflow>()
+                     .Where(w => w.Status != StatusType.Deleted  && (w.Id == 0 || w.Id != data.Id))
                      .Where(w =>
                          w.ProjectId == data.ProjectId && w.Type.Equals(data.Type) &&
                          (data.TowerId == null || w.TowerId == data.TowerId) &&
@@ -1822,7 +1823,8 @@ public class RajDataHandler : LabDataHandler
                          (data.FlatId == null || w.FlatId == data.FlatId) &&
                          (data.RoomId == null || w.RoomId == data.RoomId) &&
                          (data.OutSideEntityId == null || w.OutSideEntityId == data.OutSideEntityId)
-                         ).Count() > 0;
+                         )
+                     .Count() > 0;
                 return work;
 
             }
@@ -1831,12 +1833,16 @@ public class RajDataHandler : LabDataHandler
                 Activity data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
 
                 var activity = dbContext.Set<Activity>()
-                         .Where(w => w.ProjectId == data.ProjectId && w.WorkflowId == data.WorkflowId &&
-                          (data.TowerId == null || w.TowerId == data.TowerId) &&
-                         (data.FloorId == null || w.FloorId == data.FloorId) &&
-                         (data.FlatId == null || w.FlatId == data.FlatId) &&
-                         (data.RoomId == null || w.RoomId == data.RoomId) &&
-                         (data.DependencyId == null || w.DependencyId == data.DependencyId)).Count() > 0;
+                         .Where(w => w.Status != StatusType.Deleted && (w.Id == 0 || w.Id != data.Id))
+                         .Where(w =>
+                             w.ProjectId == data.ProjectId && w.WorkflowId == data.WorkflowId &&
+                             (data.TowerId == null || w.TowerId == data.TowerId) &&
+                             (data.FloorId == null || w.FloorId == data.FloorId) &&
+                             (data.FlatId == null || w.FlatId == data.FlatId) &&
+                             (data.RoomId == null || w.RoomId == data.RoomId) &&
+                             (data.DependencyId == null || w.DependencyId == data.DependencyId)
+                         )
+                         .Count() > 0;
                 return activity;
             }
             else if (model.ToUpperInvariant() == "PLAN")
@@ -1844,10 +1850,14 @@ public class RajDataHandler : LabDataHandler
                 Plan data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
 
                 var activity = dbContext.Set<Plan>()
-                         .Where(w => w.ProjectId == data.ProjectId && w.Type.Equals(data.Type) &&
-                         w.Name == data.Name &&
-                          (data.ParentId == null || w.ParentId == data.ParentId)
-                         ).Count() > 0;
+                         .Where(w => w.Status != StatusType.Deleted && (w.Id == 0 || w.Id != data.Id))
+                         .Where(w =>
+                            w.ProjectId == data.ProjectId &&
+                            w.Type.Equals(data.Type) &&
+                            w.Name == data.Name &&
+                            (data.ParentId == null || w.ParentId == data.ParentId)
+                         )
+                         .Count() > 0;
                 return activity;
             }
             else if (model.ToUpperInvariant() == "PROJECT")
@@ -1855,9 +1865,12 @@ public class RajDataHandler : LabDataHandler
                 Project data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
 
                 var proj = dbContext.Set<Project>()
-                         .Where(w => w.CompanyId == data.CompanyId &&
-                         w.Name.Equals(data.Name)
-                         ).Count() > 0;
+                         .Where(w => w.Status != StatusType.Deleted && (w.Id == 0 || w.Id != data.Id))
+                         .Where(w =>
+                            w.CompanyId == data.CompanyId &&
+                            w.Name.Equals(data.Name)
+                         )
+                         .Count() > 0;
                 return proj;
             }
             else
