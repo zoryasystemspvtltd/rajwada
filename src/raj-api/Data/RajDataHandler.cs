@@ -25,8 +25,13 @@ public class RajDataHandler : LabDataHandler
     public override IQueryable<T> FilterIdentity<T>(DbSet<T> dbSet)
     {
         // This is used to assign entity to member,
-        if ((typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
-            || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0))
+        if (!Identity.IsAdmin &&
+            (
+                (typeof(T).GetInterfaces().Count(p => p == typeof(IAssignable)) > 0)
+                    || (typeof(T).GetInterfaces().Count(p => p == typeof(IApproval)) > 0)
+                    || (typeof(T).GetInterfaces().Count(p => p == typeof(IProject)) > 0)
+                )
+            )
         {
             var name = typeof(T).Name;
             var query = dbSet
@@ -1807,29 +1812,53 @@ public class RajDataHandler : LabDataHandler
         {
             if (model.ToUpperInvariant() == "WORKFLOW")
             {
-
                 Workflow data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
 
                 var work = dbContext.Set<Workflow>()
                      .Where(w =>
-                         w.ProjectId == data.ProjectId && data.Type == data.Type &&
+                         w.ProjectId == data.ProjectId && w.Type.Equals(data.Type) &&
                          (data.TowerId == null || w.TowerId == data.TowerId) &&
                          (data.FloorId == null || w.FloorId == data.FloorId) &&
                          (data.FlatId == null || w.FlatId == data.FlatId) &&
                          (data.RoomId == null || w.RoomId == data.RoomId) &&
                          (data.OutSideEntityId == null || w.OutSideEntityId == data.OutSideEntityId)
-                         ).FirstOrDefault();
-                return work != null ? true : false;
+                         ).Count() > 0;
+                return work;
 
             }
             else if (model.ToUpperInvariant() == "ACTIVITY")
             {
-
                 Activity data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
 
                 var activity = dbContext.Set<Activity>()
-                         .Where(w => w.ProjectId == data.ProjectId && w.WorkflowId == data.WorkflowId).FirstOrDefault();
-                return activity != null ? true : false;
+                         .Where(w => w.ProjectId == data.ProjectId && w.WorkflowId == data.WorkflowId &&
+                          (data.TowerId == null || w.TowerId == data.TowerId) &&
+                         (data.FloorId == null || w.FloorId == data.FloorId) &&
+                         (data.FlatId == null || w.FlatId == data.FlatId) &&
+                         (data.RoomId == null || w.RoomId == data.RoomId) &&
+                         (data.DependencyId == null || w.DependencyId == data.DependencyId)).Count() > 0;
+                return activity;
+            }
+            else if (model.ToUpperInvariant() == "PLAN")
+            {
+                Plan data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
+
+                var activity = dbContext.Set<Plan>()
+                         .Where(w => w.ProjectId == data.ProjectId && w.Type.Equals(data.Type) &&
+                         w.Name == data.Name &&
+                          (data.ParentId == null || w.ParentId == data.ParentId)
+                         ).Count() > 0;
+                return activity;
+            }
+            else if (model.ToUpperInvariant() == "PROJECT")
+            {
+                Project data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
+
+                var proj = dbContext.Set<Project>()
+                         .Where(w => w.CompanyId == data.CompanyId &&
+                         w.Name.Equals(data.Name)
+                         ).Count() > 0;
+                return proj;
             }
             else
                 return false;
@@ -1845,11 +1874,14 @@ public class RajDataHandler : LabDataHandler
 
 public class ModuleIdentity
 {
-    public ModuleIdentity(string member, string key)
+    public ModuleIdentity(string member, string key, bool isAdmin = false)
     {
         Member = member;
         Key = key;
+        IsAdmin = isAdmin;
     }
     public string Member { get; }
     public string Key { get; }
+    public bool IsAdmin { get; set; }
+
 }

@@ -37,6 +37,9 @@ export const ViewProject = () => {
         deleting: true,
         back: true,
         readonly: true,
+        assign: true,
+        assignType: 'single',
+        assignChild: true,
         fields: [
             {
                 type: "area", width: 12

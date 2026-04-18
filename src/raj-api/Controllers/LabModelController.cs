@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RajApi.Data;
 using RajApi.Helpers;
+using System.Security.Claims;
 
 namespace RajApi.Controllers;
 
@@ -26,7 +27,13 @@ public class LabModelController : ControllerBase
     {
         var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
         var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
-        dataService.Identity = new ModuleIdentity(member, key);
+        var roles = User.Claims
+                .Where(c => c.Type == ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
+        var IsAdmin = roles.Exists(p => p.ToUpperInvariant() == "ADMIN");
+
+        dataService.Identity = new ModuleIdentity(member, key, IsAdmin);
         return dataService.Get(module, this.GetApiOption());
     }
 
@@ -65,7 +72,7 @@ public class LabModelController : ControllerBase
             if (flag)
             {
                 logger.LogInformation("Duplicate data found.");
-                return 0;
+                return -1;
             }
 
             var updatedata = await dataService.ConvertBase64toFile(module, data);
@@ -75,7 +82,7 @@ public class LabModelController : ControllerBase
             }
             if (module.ToUpper() != "OUTSIDEENTITY")
             {
-                
+
                 Id = await dataService.AddAsync(module, updatedata, token);
             }
 
