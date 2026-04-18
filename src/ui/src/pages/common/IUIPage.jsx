@@ -218,7 +218,7 @@ const IUIPage = (props) => {
 
 
     const handleAuditClick = () => {
-        navigate("/audit-logs", { state: { id: id, childModule: module, disableSelection: true } });
+        navigate(`/${module}/${id}/audit-logs`);
     };
 
     useEffect(() => {
@@ -268,11 +268,11 @@ const IUIPage = (props) => {
             if (item.required && values && !values[item?.field]) {
                 errors[item.field] = `Required field.`;
             }
-            if (item.type === 'text' && values && values[item?.field]) {
-                if (values[item?.field]?.includes("/") && !id) {
-                    errors[item.field] = 'Text cannot contain /';
-                }
-            }
+            // if (item.type === 'text' && values && values[item?.field]) {
+            //     if (values[item?.field]?.includes("/") && !id) {
+            //         errors[item.field] = 'Text cannot contain /';
+            //     }
+            // }
             if (item.type === 'email' && values && values[item?.field]) {
                 if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
                     errors[item.field] = 'Invalid email address.'

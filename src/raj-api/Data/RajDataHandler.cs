@@ -532,7 +532,10 @@ public class RajDataHandler : LabDataHandler
                     Name = activity.Name,
                     ExpectedStartDate = activity.StartDate,
                     ExpectedEndDate = activity.EndDate,
-                    Type = activity.Type
+                    Type = activity.Type,
+                    FlatId = activity.FlatId,
+                    WorkId = activity.WorkId,
+                    OutSideEntityId = activity.OutSideEntityId
                 };
 
                 // ✅ PRIORITY LOGIC (IMPORTANT)

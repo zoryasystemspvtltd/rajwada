@@ -275,7 +275,7 @@ const IUIActivityWizard = (props) => {
                 setIsCreationSuccessful(false); // Reset success state on step change
                 setActiveIndex(stepNumber)
 
-                if (stepPosition === "last") {
+                if (stepPosition === "last" || sequence?.length === 1) {
                     $(".sw-btn-next").hide(); // Hide Next button on last step
                     $("#finish-btn").fadeIn();
                 } else {

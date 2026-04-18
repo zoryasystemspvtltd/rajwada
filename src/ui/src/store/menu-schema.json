@@ -68,13 +68,6 @@
                 "access": "uom"
             },
             {
-                "name": "contractor",
-                "text": "Contractor",
-                "icon": "cubes-stacked",
-                "path": "/contractors",
-                "access": "contractor"
-            },
-            {
                 "name": "supplier",
                 "text": "Supplier",
                 "icon": "cubes-stacked",
@@ -143,6 +136,20 @@
                 "icon": "cubes",
                 "path": "/roomtypes",
                 "access": "roomType"
+            },
+            {
+                "name": "work",
+                "text": "Work",
+                "icon": "vector-square",
+                "path": "/works",
+                "access": "activity"
+            },
+            {
+                "name": "contractor",
+                "text": "Contractor & Developer",
+                "icon": "cubes-stacked",
+                "path": "/contractors",
+                "access": "contractor"
             },
             {
                 "name": "flatTemplateManagement",
@@ -261,7 +268,15 @@
                 "name": "siteMaterialApprovalReport",
                 "text": "Site Material Approval",
                 "icon": "vector-square",
-                "path": "/site-material-approval-report"
+                "path": "/site-material-approval-report",
+                "access": "activity"
+            },
+            {
+                "name": "auditReport",
+                "text": "Audit",
+                "icon": "user",
+                "path": "/audit-report",
+                "access": "auditLog"
             }
         ]
     },

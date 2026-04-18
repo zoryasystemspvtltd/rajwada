@@ -1,23 +1,28 @@
 
 
 import { useState, useEffect } from 'react';
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import Pagination from 'react-bootstrap/Pagination';
 import Table from 'react-bootstrap/Table';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
 import { getData } from '../../../store/api-db';
 import api from '../../../store/api-service';
 import { getFormattedDateTime } from '../../../store/datetime-formatter';
 import IUILookUp from '../../common/shared/IUILookUp';
 import IUIPage from '../../common/IUIPage';
+import menuSchema from "../../../store/menu-schema.json";
 import { notify } from '../../../store/notification';
 
 
 export const ListAuditLog = (props) => {
     const module = 'auditLog';
+    const { moduleId } = useParams();
+    const { childModule } = useParams();
+    const [baseData, setBaseData] = useState("");
+
     const schema = {
         module: 'auditLog',
         title: 'Audit Log',
@@ -33,38 +38,52 @@ export const ListAuditLog = (props) => {
         ]
     }
     const dispatch = useDispatch();
+    const loggedInUser = useSelector((state) => state.api.loggedInUser);
+    const privileges = loggedInUser?.privileges;
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [dataSet, setDataSet] = useState([]);
     const [allModules, setAllModules] = useState([]);
     const [entityId, setEntityId] = useState(null);
+    const [selectedMenu, setSelectedMenu] = useState('');
     const [selectedChildModule, setSelectedChildModule] = useState('');
     const location = useLocation();
     // Get values from props first, otherwise fallback to navigation state
-    const id = props.id ?? location.state?.id ?? null;
-    const childModule = props.childModule ?? location.state?.childModule ?? null;
-    const disableModuleSelection = location.state?.disableSelection ?? false;
+    const disableModuleSelection = childModule ? true : false;
 
-    useEffect(() => {
-        async function fetchAllModules() {
-            const response = await api.getModules();
-            let items = response?.data;
-            setAllModules(items);
+    const filterMasterMenu = (s) => {
+        if (s.master) {
+            s.master.forEach(item => {
+                item.visible = filterMasterMenu(item);
+            })
+
+            return s.master.some(sch => sch.visible)
         }
 
-        fetchAllModules()
-    }, []);
-
+        if (s.access) {
+            if (privileges?.filter(p => p.name !== 'public')?.some(p => p.module === s.access)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
 
     useEffect(() => {
         async function fetchData() {
-            if (id && childModule) {
-                setEntityId(parseInt(id));
+            if (moduleId && childModule) {
+                setEntityId(parseInt(moduleId));
                 setSelectedChildModule(`${childModule[0].toUpperCase()}${childModule.substring(1)}`);
+
+                const item = await api.getSingleData({ module: childModule, id: parseInt(moduleId) });
+                setBaseData(item.data);
 
                 const newBaseFilter = {
                     name: 'entityId',
-                    value: parseInt(id),
+                    value: parseInt(moduleId),
                     and: {
                         name: 'name',
                         value: `${childModule[0].toUpperCase()}${childModule.substring(1)}`
@@ -73,18 +92,16 @@ export const ListAuditLog = (props) => {
 
                 const pageOptions = { recordPerPage: 0, searchCondition: newBaseFilter };
                 const response = await api.getData({ module: module, options: pageOptions });
+                console.log(response)
                 setDataSet(response?.data);
+            }
+            else {
+                setDataSet([]);
             }
         }
 
         fetchData();
-    }, [id, childModule]);
-
-
-    const handleModuleSelection = async (event) => {
-        event.preventDefault();
-        setSelectedChildModule(event.target.value);
-    };
+    }, [moduleId, childModule]);
 
     const handleSearch = async () => {
         const start = new Date(startDate);
@@ -128,7 +145,7 @@ export const ListAuditLog = (props) => {
                     operator: 'lessThan',
                     and: {
                         name: 'name',
-                        value: selectedChildModule,
+                        value: selectedChildModule.charAt(0).toUpperCase() + selectedChildModule.slice(1),
                     }
                 }
             };
@@ -159,6 +176,7 @@ export const ListAuditLog = (props) => {
 
     const handleReset = () => {
         setDataSet([]);
+        setSelectedMenu('');
         setStartDate('');
         setEndDate('');
         setSelectedChildModule('');
@@ -168,7 +186,7 @@ export const ListAuditLog = (props) => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading text-uppercase">Audit Report</div>
+                <div className="page-title-heading">{childModule ? `Audit Log - ${baseData?.name}` : `Audit Log`}</div>
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -204,7 +222,36 @@ export const ListAuditLog = (props) => {
                                                     <Col sm={12} md={3}>
                                                         <Form.Group className="position-relative form-group" controlId="childModule">
                                                             <Form.Label className='fw-bold'>
-                                                                Select a module <span className="text-danger">*</span>
+                                                                Select a menu <span className="text-danger">*</span>
+                                                            </Form.Label>
+
+                                                            < select
+                                                                aria-label={`audit-menu`}
+                                                                id={`audit-select-menu`}
+                                                                value={selectedMenu}
+                                                                data-name={'audit-menu'}
+                                                                name='select'
+                                                                className={`form-control`}
+                                                                disabled={disableModuleSelection}
+                                                                onChange={(e) => {
+                                                                    setSelectedMenu(e.target.value);
+                                                                    Object.keys(menuSchema).forEach(item => {
+                                                                        menuSchema[item].visible = filterMasterMenu(menuSchema[item]);
+                                                                    })
+                                                                    setAllModules(menuSchema[e.target.value]?.master?.filter(item => item?.visible))
+                                                                }}>
+                                                                <option>--Select--</option>
+                                                                {Object.keys(menuSchema)?.map((item, i) => (
+                                                                    <option key={i} value={item}>{menuSchema[item].text}</option>
+                                                                ))}
+                                                            </select>
+
+                                                        </Form.Group >
+                                                    </Col>
+                                                    <Col sm={12} md={3}>
+                                                        <Form.Group className="position-relative form-group" controlId="childModule">
+                                                            <Form.Label className='fw-bold'>
+                                                                Select a master <span className="text-danger">*</span>
                                                             </Form.Label>
 
                                                             < select
@@ -215,10 +262,10 @@ export const ListAuditLog = (props) => {
                                                                 name='select'
                                                                 className={`form-control`}
                                                                 disabled={disableModuleSelection}
-                                                                onChange={(e) => handleModuleSelection(e)}>
+                                                                onChange={(e) => setSelectedChildModule(e.target.value)}>
                                                                 <option>--Select--</option>
                                                                 {allModules?.map((item, i) => (
-                                                                    <option key={i} value={item.name}>{item.name}</option>
+                                                                    <option key={i} value={item.access}>{item.text}</option>
                                                                 ))}
                                                             </select>
 
@@ -352,11 +399,28 @@ export const ListAuditLog = (props) => {
 }
 
 export const ViewAuditLog = () => {
+    const { moduleId } = useParams();
+    const { childModule } = useParams();
+    const [baseData, setBaseData] = useState(null);
+
+    useEffect(() => {
+        async function fetchData() {
+            if (moduleId && childModule) {
+                const item = await api.getSingleData({ module: childModule, id: parseInt(moduleId) });
+                setBaseData(item.data);
+            }
+        }
+
+        if (moduleId && childModule) {
+            fetchData();
+        }
+    }, [moduleId, childModule]);
+
     const schema = {
         module: 'auditLog',
-        title: 'Audit Log',
+        title: baseData ? `Audit Log - ${baseData?.name}` : 'Audit Log',
         path: 'audit-logs',
-        showBreadcrumbs: true,
+        showBreadcrumbs: false,
         editing: false,
         adding: false,
         deleting: false,

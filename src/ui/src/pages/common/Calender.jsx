@@ -671,7 +671,7 @@ const Calendar = () => {
                 <div>
                     <div className="card shadow-sm p-2">
                         <div className="d-flex flex-column flex-md-row gap-3">
-                            <strong className="mb-0">Select Type:</strong>
+                            <strong className="mb-0">Select Work Type:</strong>
                             <div className="d-flex gap-3">
                                 <div className="form-check">
                                     <input

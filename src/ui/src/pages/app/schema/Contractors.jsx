@@ -4,7 +4,7 @@ import IUIPage from "../../common/IUIPage"
 export const ListContractor = () => {
     const schema = {
         module: 'contractor',
-        title: 'Contractor Master',
+        title: 'Contractor & Developer Master',
         path: 'contractors',
         paging: true,
         searching: true,
@@ -27,7 +27,7 @@ export const ListContractor = () => {
 export const ViewContractor = () => {
     const schema = {
         module: 'contractor',
-        title: 'Contractor Master',
+        title: 'Contractor & Developer Master',
         path: 'contractors',
         showBreadcrumbs: true,
         editing: true,
@@ -63,7 +63,7 @@ export const ViewContractor = () => {
 export const EditContractor = () => {
     const schema = {
         module: 'contractor',
-        title: 'Contractor Master',
+        title: 'Contractor & Developer Master',
         path: 'contractors',
         back: false,
         fields: [
@@ -100,7 +100,7 @@ export const EditContractor = () => {
 export const AddContractor = () => {
     const schema = {
         module: 'contractor',
-        title: 'Contractor Master',
+        title: 'Contractor & Developer Master',
         path: 'contractors',
         back: true,
         fields: [
