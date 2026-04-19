@@ -16,9 +16,9 @@ export const ListItemMaster = () => {
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Alias', field: 'code', type: 'text', sorting: true, searching: true },
-            { text: 'Group', field: 'groupId', type: 'lookup', schema: { module: 'assetGroup' }, sorting: true, searching: true },
-            { text: 'UOM', field: 'uomId', type: 'lookup', schema: { module: 'uom' }, sorting: true, searching: true },
-            { text: 'Type', field: 'typeId', type: 'lookup', schema: { module: 'assetType' }, sorting: true, searching: true },
+            { text: 'Group', field: 'groupId', type: 'lookup', schema: { module: 'assetGroup' }, sorting: true, searching: false },
+            { text: 'UOM', field: 'uomId', type: 'lookup', schema: { module: 'uom' }, sorting: true, searching: false },
+            { text: 'Type', field: 'typeId', type: 'lookup', schema: { module: 'assetType' }, sorting: true, searching: false },
         ]
     }
 

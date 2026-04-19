@@ -19,10 +19,10 @@ export const ListFlat = () => {
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: true },
             {
-                text: 'Floor', field: 'parentName', type: 'text', sorting: false, searching: true,
+                text: 'Floor', field: 'parentName', type: 'text', sorting: false, searching: false,
             },
             {
-                text: 'Priority', field: 'priorityStatus', type: 'lookup-enum', sorting: false, searching: true,
+                text: 'Priority', field: 'priorityStatus', type: 'lookup-enum', sorting: false, searching: false,
                 schema: { module: 'priorityStatusType' }
             },
         ]
