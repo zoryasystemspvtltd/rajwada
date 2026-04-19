@@ -1818,14 +1818,12 @@ public class RajDataHandler : LabDataHandler
                 Workflow data = JsonConvert.DeserializeObject(updatedata.ToString(), type);
 
                 var work = dbContext.Set<Workflow>()
-                     .Where(w => w.Status != StatusType.Deleted  && (w.Id == 0 || w.Id != data.Id))
+                     .Where(w => w.Status != StatusType.Deleted && (w.Id == 0 || w.Id != data.Id))
                      .Where(w =>
                          w.ProjectId == data.ProjectId && w.Type.Equals(data.Type) &&
-                         (data.TowerId == null || w.TowerId == data.TowerId) &&
-                         (data.FloorId == null || w.FloorId == data.FloorId) &&
-                         (data.FlatId == null || w.FlatId == data.FlatId) &&
-                         (data.RoomId == null || w.RoomId == data.RoomId) &&
-                         (data.OutSideEntityId == null || w.OutSideEntityId == data.OutSideEntityId)
+                         w.TowerId == data.TowerId && w.FloorId == data.FloorId &&
+                         w.FlatId == data.FlatId && w.RoomId == data.RoomId &&
+                         w.OutSideEntityId == data.OutSideEntityId
                          )
                      .Count() > 0;
                 return work;
@@ -1839,11 +1837,9 @@ public class RajDataHandler : LabDataHandler
                          .Where(w => w.Status != StatusType.Deleted && (w.Id == 0 || w.Id != data.Id))
                          .Where(w =>
                              w.ProjectId == data.ProjectId && w.WorkflowId == data.WorkflowId &&
-                             (data.TowerId == null || w.TowerId == data.TowerId) &&
-                             (data.FloorId == null || w.FloorId == data.FloorId) &&
-                             (data.FlatId == null || w.FlatId == data.FlatId) &&
-                             (data.RoomId == null || w.RoomId == data.RoomId) &&
-                             (data.DependencyId == null || w.DependencyId == data.DependencyId)
+                             w.TowerId == data.TowerId && w.FloorId == data.FloorId &&
+                             w.FlatId == data.FlatId && w.RoomId == data.RoomId &&
+                             w.DependencyId == data.DependencyId
                          )
                          .Count() > 0;
                 return activity;
@@ -1855,10 +1851,8 @@ public class RajDataHandler : LabDataHandler
                 var activity = dbContext.Set<Plan>()
                          .Where(w => w.Status != StatusType.Deleted && (w.Id == 0 || w.Id != data.Id))
                          .Where(w =>
-                            w.ProjectId == data.ProjectId &&
-                            w.Type.Equals(data.Type) &&
-                            w.Name == data.Name &&
-                            (data.ParentId == null || w.ParentId == data.ParentId)
+                            w.ProjectId == data.ProjectId && w.Type.Equals(data.Type) &&
+                            w.Name == data.Name && w.ParentId == data.ParentId
                          )
                          .Count() > 0;
                 return activity;
