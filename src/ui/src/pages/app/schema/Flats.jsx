@@ -86,7 +86,7 @@ export const ViewFlat = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', module: 'project' },
+                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', module: 'plan' },
                 ]
             },
             {
