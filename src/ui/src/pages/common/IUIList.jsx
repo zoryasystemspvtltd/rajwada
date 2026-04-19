@@ -17,6 +17,7 @@ import api from '../../store/api-service';
 import { notify } from "../../store/notification";
 import IUIResetPasswordElement from '../ResetUserPassword';
 import { formatStringDate } from '../../store/datetime-formatter';
+import IUILookUpEnum from './shared/IUILookUpEnum';
 
 const IUIList = (props) => {
     const schema = props?.schema;
@@ -362,6 +363,14 @@ const IUIList = (props) => {
                                                                                 {fld.type === 'date' && !item[fld.field] && 'Not Provided'}
                                                                                 {(fld.type === 'lookup') &&
                                                                                     <IUILookUp
+                                                                                        value={item[fld.field]}
+                                                                                        schema={fld.schema}
+                                                                                        readonly={true}
+                                                                                        textonly={true}
+                                                                                    />
+                                                                                }
+                                                                                {(fld.type === 'lookup-enum') &&
+                                                                                    <IUILookUpEnum
                                                                                         value={item[fld.field]}
                                                                                         schema={fld.schema}
                                                                                         readonly={true}
