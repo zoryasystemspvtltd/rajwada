@@ -1,9 +1,7 @@
 import IUIListFilter from "../../common/IUIListFilter";
 import IUIPage from "../../common/IUIPage"
 
-
 export const ListFloor = () => {
-
 
     const schema = {
         module: 'plan',
@@ -25,15 +23,11 @@ export const ListFloor = () => {
         ]
     }
 
-
-
-
     return (<IUIListFilter schema={schema} filter="floor" />)
 }
 
 
 export const FloorDashboard = () => {
-
 
     const schema = {
         module: 'plan',
@@ -55,16 +49,12 @@ export const FloorDashboard = () => {
         ]
     }
 
-
-
-
     return (<IUIListFilter schema={schema} filter="floor" />)
 }
 
 
 export const ViewFloor = () => {
     // const { id } = useParams();
-
 
     const schema = {
         module: 'plan',
@@ -125,14 +115,12 @@ export const ViewFloor = () => {
         ]
     }
 
-
     return (<IUIPage schema={schema} />)
 }
 
 
 export const EditFloor = () => {
     // const { id } = useParams();
-
 
     const schema = {
         module: 'plan',
@@ -152,10 +140,10 @@ export const EditFloor = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6, duplicate: true },
-                    {
-                        text: 'Tower', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
-                        schema: { module: 'plan', filter: 'type', value: 'tower' }
-                    },
+                    // {
+                    //     text: 'Tower', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
+                    //     schema: { module: 'plan', filter: 'type', value: 'tower' }
+                    // },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
             },
@@ -222,7 +210,6 @@ export const EditFloor = () => {
         ]
     }
 
-
     return (<IUIPage schema={schema} />)
 }
 
@@ -238,6 +225,10 @@ export const AddFloor = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6, duplicate: true },
+                    {
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 6,
+                        schema: { module: 'project' }
+                    },
                     {
                         text: 'Tower', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
                         schema: { module: 'plan', filter: 'type', value: 'tower' }

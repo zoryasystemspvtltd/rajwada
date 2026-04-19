@@ -162,7 +162,7 @@ export const EditFlat = () => {
                     },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 },
                     {
-                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: true,
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: false,
                         schema: { module: 'priorityStatusType' }
                     }
                 ]
@@ -219,6 +219,10 @@ export const AddFlat = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6, duplicate: true },
+                    {
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 6,
+                        schema: { module: 'project' }
+                    },
                     {
                         text: 'Floor', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
                         schema: { module: 'plan', filter: 'type', value: 'floor' }

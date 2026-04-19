@@ -14,3 +14,5 @@ src/ui/.env
 /db
 /src/raj-host/wwwroot/Rajwada/UploadedData/plan
 /src/raj-host/wwwroot/Rajwada/UploadedData/project/94295ab818d34cff9990092c0dec608c.jpeg
+/src/raj-host/wwwroot/Rajwada/UploadedData/project
+/src/raj-host/wwwroot/Rajwada/UploadedData/**
