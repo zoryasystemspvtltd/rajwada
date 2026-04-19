@@ -22,6 +22,11 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+
+      - name: Backup Rajwada folder
+        run: |
+            if not exist C:\inetpub\sites\Rajwada mkdir C:\inetpub\sites\Rajwada
+            xcopy /e /i C:\inetpub\sites\dev\wwwroot\Rajwada\* C:\inetpub\sites\Rajwada\* /Y
       
       - name: Replace appsettings.json
         run: copy appsettings.json ./src/raj-host/appsettings.json
@@ -72,4 +77,9 @@ jobs:
       - run: .\install.ps1
       - run: .\build.ps1
       - run: xcopy /e /i .\src\ui\build\* C:\inetpub\sites\dev\wwwroot\* /Y
+      - name: Restore Rajwada folder
+        run: |
+          if not exist C:\inetpub\sites\dev\wwwroot\Rajwada mkdir C:\inetpub\sites\dev\wwwroot\Rajwada
+          xcopy /e /i C:\inetpub\sites\Rajwada\* C:\inetpub\sites\dev\wwwroot\Rajwada\* /Y
+          rmdir /s /q C:\inetpub\sites\Rajwada
       
