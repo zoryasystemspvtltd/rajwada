@@ -105,8 +105,6 @@ export const ViewFloor = () => {
                             fields: [
                                 { text: 'Flat', field: 'name', type: 'link', sorting: true, searching: true, width: 100, },
                                 { text: 'Description', field: 'description', type: 'text', sorting: false, searching: false },
-
-
                             ]
                         },
                     }
@@ -140,10 +138,10 @@ export const EditFloor = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6, duplicate: true },
-                    // {
-                    //     text: 'Tower', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
-                    //     schema: { module: 'plan', filter: 'type', value: 'tower' }
-                    // },
+                    {
+                        text: 'Tower', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
+                        schema: { module: 'plan', filter: 'type', value: 'tower' }
+                    },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 }
                 ]
             },

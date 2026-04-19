@@ -86,29 +86,7 @@ export const ViewFlat = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    {
-                        text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
-                        imageModule: 'plan',
-                        schema: {
-                            readonly: true,
-                            upload: false,
-                            save: false,
-                            parentId: id,
-                            parent: {
-                                module: 'plan',
-                                filter: 'planId',
-                            },
-                            controls: {
-                                balloon: false,
-                                rectangle: false,
-                                pencil: false,
-                                camera: false,
-                                delete: false,
-                                reset: false
-                            },
-                            module: 'unitOfWork'
-                        }
-                    },
+                    { text: 'Project Blueprint', field: 'blueprint', placeholder: 'Project Blueprint here...', type: 'picture-upload', shape: 'rect', module: 'project' },
                 ]
             },
             {
@@ -125,7 +103,7 @@ export const ViewFlat = () => {
                             paging: true,
                             searching: true,
                             editing: false,
-                            adding: false,
+                            adding: true,
                             fields: [
                                 {
                                     text: 'Room ID', field: 'roomId', type: 'text', sorting: true, searching: true,
