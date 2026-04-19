@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 import Form from 'react-bootstrap/Form';
-import api from '../../../store/api-service'
+import api from '../../../store/api-service';
+
 const IUILookUpEnum = (props) => {
     const schema = props?.schema;
     const [value, setValue] = useState("")
@@ -11,8 +12,8 @@ const IUILookUpEnum = (props) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        async function fetchData() {            
-            const response = await api.getEnumData({ module: schema?.module});
+        async function fetchData() {
+            const response = await api.getEnumData({ module: schema?.module });
             setDataSet(response?.data)
         }
 
@@ -61,7 +62,7 @@ const IUILookUpEnum = (props) => {
                     }
                     {props?.textonly &&
                         <>
-                           <b> :</b> <span>{text}</span>
+                            <b> </b> <span>{text}</span>
                         </>
                     }
                 </>

@@ -16,6 +16,7 @@ import { saveAs } from 'file-saver';
 import api from '../../store/api-service';
 import { notify } from "../../store/notification";
 import { formatStringDate } from '../../store/datetime-formatter';
+import IUILookUpEnum from './shared/IUILookUpEnum';
 
 const IUIListFilter = (props) => {
     const schema = props.schema;
@@ -344,6 +345,14 @@ const IUIListFilter = (props) => {
                                                                     {fld.type === 'date' && formatStringDate(item[fld.field])}
                                                                     {(fld.type === 'lookup') &&
                                                                         <IUILookUp
+                                                                            value={item[fld.field]}
+                                                                            schema={fld.schema}
+                                                                            readonly={true}
+                                                                            textonly={true}
+                                                                        />
+                                                                    }
+                                                                    {(fld.type === 'lookup-enum') &&
+                                                                        <IUILookUpEnum
                                                                             value={item[fld.field]}
                                                                             schema={fld.schema}
                                                                             readonly={true}

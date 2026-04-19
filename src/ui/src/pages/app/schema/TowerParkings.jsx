@@ -13,15 +13,15 @@ export const ListTowerParking = () => {
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             {
-                text: 'Parking Type', field: 'parkingTypeId', type: 'lookup', sorting: true, searching: true,
+                text: 'Parking Type', field: 'parkingTypeId', type: 'lookup', sorting: true, searching: false,
                 schema: { module: 'parkingType' }
             },
             {
-                text: 'Project', field: 'projectId', type: 'lookup', sorting: true, searching: true,
+                text: 'Project', field: 'projectId', type: 'lookup', sorting: true, searching: false,
                 schema: { module: 'project' }
             },
             {
-                text: 'Tower', field: 'towerId', type: 'lookup', sorting: true, searching: true,
+                text: 'Tower', field: 'towerId', type: 'lookup', sorting: true, searching: false,
                 schema: { module: 'plan' }
             }
         ]

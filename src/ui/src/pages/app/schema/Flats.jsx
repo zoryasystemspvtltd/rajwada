@@ -19,10 +19,10 @@ export const ListFlat = () => {
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: false, searching: true },
             {
-                text: 'Floor', field: 'parentName', type: 'text', sorting: false, searching: true,
+                text: 'Floor', field: 'parentName', type: 'text', sorting: false, searching: false,
             },
             {
-                text: 'Priority', field: 'priorityStatus', type: 'lookup-enum', sorting: false, searching: true,
+                text: 'Priority', field: 'priorityStatus', type: 'lookup-enum', sorting: false, searching: false,
                 schema: { module: 'priorityStatusType' }
             },
         ]
@@ -86,29 +86,7 @@ export const ViewFlat = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    {
-                        text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
-                        imageModule: 'plan',
-                        schema: {
-                            readonly: true,
-                            upload: false,
-                            save: false,
-                            parentId: id,
-                            parent: {
-                                module: 'plan',
-                                filter: 'planId',
-                            },
-                            controls: {
-                                balloon: false,
-                                rectangle: false,
-                                pencil: false,
-                                camera: false,
-                                delete: false,
-                                reset: false
-                            },
-                            module: 'unitOfWork'
-                        }
-                    },
+                    { text: 'Flat Blueprint', field: 'blueprint', placeholder: 'Flat Blueprint here...', type: 'picture-upload', shape: 'rect', module: 'plan' },
                 ]
             },
             {
@@ -125,7 +103,7 @@ export const ViewFlat = () => {
                             paging: true,
                             searching: true,
                             editing: false,
-                            adding: false,
+                            adding: true,
                             fields: [
                                 {
                                     text: 'Room ID', field: 'roomId', type: 'text', sorting: true, searching: true,
@@ -162,7 +140,7 @@ export const EditFlat = () => {
                     },
                     { text: 'Description', field: 'description', placeholder: 'Description here...', type: 'textarea', required: true, width: 12 },
                     {
-                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: true,
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: false,
                         schema: { module: 'priorityStatusType' }
                     }
                 ]
@@ -219,6 +197,10 @@ export const AddFlat = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', type: 'text', required: true, width: 6, duplicate: true },
+                    {
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 6,
+                        schema: { module: 'project' }
+                    },
                     {
                         text: 'Floor', field: 'parentId', type: 'lookup-filter', required: false, width: 6,
                         schema: { module: 'plan', filter: 'type', value: 'floor' }

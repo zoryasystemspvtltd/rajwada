@@ -16,8 +16,8 @@ export const ListActivity = () => {
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
-            { text: 'Expected Start Date', field: 'startDate', type: 'date', sorting: true, searching: true },
-            { text: 'Expected End Date', field: 'endDate', type: 'date', sorting: true, searching: true },
+            { text: 'Expected Start Date', field: 'startDate', type: 'date', sorting: true, searching: false },
+            { text: 'Expected End Date', field: 'endDate', type: 'date', sorting: true, searching: false },
             { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false },
             {
                 text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
