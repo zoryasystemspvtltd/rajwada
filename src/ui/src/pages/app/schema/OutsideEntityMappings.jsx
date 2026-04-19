@@ -13,19 +13,19 @@ export const ListOutsideEntityMappings = () => {
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
             {
-                text: 'Outside Entity Type', field: 'outSideEntityTypeId', type: 'lookup', sorting: true, searching: true,
+                text: 'Outside Entity Type', field: 'outSideEntityTypeId', type: 'lookup', sorting: true, searching: false,
                 schema: { module: 'outSideEntityType' }
             },
             {
-                text: 'Project', field: 'projectId', type: 'lookup', sorting: true, searching: true,
+                text: 'Project', field: 'projectId', type: 'lookup', sorting: true, searching: false,
                 schema: { module: 'project' }
             },
             {
-                text: 'Tower', field: 'towerId', type: 'lookup', sorting: true, searching: true,
+                text: 'Tower', field: 'towerId', type: 'lookup', sorting: true, searching: false,
                 schema: { module: 'plan' }
             },
             {
-                text: 'Floor', field: 'floorId', type: 'lookup', sorting: true, searching: true,
+                text: 'Floor', field: 'floorId', type: 'lookup', sorting: true, searching: false,
                 schema: { module: 'plan' }
             }
         ]
