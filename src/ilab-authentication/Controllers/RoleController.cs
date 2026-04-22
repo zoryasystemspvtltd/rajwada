@@ -153,14 +153,24 @@ namespace IlabAuthentication.Controllers
             return role.Id;
         }
 
-        [HasPrivileges("eole", "delete")]
+        [HasPrivileges("role", "delete")]
         [HttpDelete("{id}")]
         public async Task<long> Delete(long id)
         {
-            var existing = await _dbContext.Roles.SingleAsync(p => p.Id == id);
-            _dbContext.Roles.Remove(existing);
-            await _dbContext.SaveChangesAsync();
-            return existing.Id;
+            try
+            {
+                var existing = await _dbContext.Roles.SingleAsync(p => p.Id == id);
+                var privileges = _dbContext.Privileges.Where(p => p.RoleId == id).ToList();
+                _dbContext.Privileges.RemoveRange(privileges);
+                _dbContext.Roles.Remove(existing);
+                await _dbContext.SaveChangesAsync();
+                return existing.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Exception in Delete, message:'{ex.Message}'");
+                return id;
+            }
         }
     }
 }
