@@ -72,7 +72,7 @@ export const ViewTower = () => {
         adding: false,
         deleting: true,
         assign: true,
-        assignType: 'single',
+        assignType: 'multiple',
         back: true,
         readonly: true,
         fields: [

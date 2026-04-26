@@ -812,6 +812,7 @@ const IUIPageElement = (props) => {
                                                     height={800}
                                                     id={fld.field}
                                                     file={data[fld.field] || []}
+                                                    imageModule={fld.imageModule}
                                                     className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                                     schema={fld.schema}
                                                     onChange={handleChange}
