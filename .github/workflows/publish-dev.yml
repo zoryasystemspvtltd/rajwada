@@ -82,5 +82,4 @@ jobs:
             if (-not (Test-Path "C:\inetpub\sites\dev\wwwroot\Rajwada")) { New-Item -ItemType Directory -Path "C:\inetpub\sites\dev\wwwroot\Rajwada" }
             xcopy /e /i C:\inetpub\sites\Rajwada\* C:\inetpub\sites\dev\wwwroot\Rajwada\* /Y
             Remove-Item -Recurse -Force "C:\inetpub\sites\Rajwada"
-        shell: pwsh
       
