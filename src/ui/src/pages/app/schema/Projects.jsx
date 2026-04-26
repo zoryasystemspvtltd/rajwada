@@ -38,7 +38,7 @@ export const ViewProject = () => {
         back: true,
         readonly: true,
         assign: true,
-        assignType: 'single',
+        assignType: 'multiple',
         assignChild: true,
         fields: [
             {

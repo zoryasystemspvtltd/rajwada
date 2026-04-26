@@ -1,27 +1,32 @@
-import IUIList from "../../common/IUIList";
+import IUIListFilter from "../../common/IUIListFilter";
 import IUIPage from "../../common/IUIPage";
 import IUIActivityCreate from "../work-plan/IUIActivityCreate.jsx";
+import { useState } from "react";
 
 export const ListActivity = () => {
 
-    const schema = {
+    const [type, setType] = useState("inside");
+
+    const insideSchema = {
         module: 'activity',
         title: 'Work',
         path: 'works',
         paging: true,
         searching: true,
         editing: true,
-        adding: true,
+        adding: false,
         relationKey: "type",
         fields: [
             { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
-            { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
             { text: 'Expected Start Date', field: 'startDate', type: 'date', sorting: true, searching: false },
             { text: 'Expected End Date', field: 'endDate', type: 'date', sorting: true, searching: false },
-            { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false },
             {
                 text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
                 schema: { module: 'project' }
+            },
+            {
+                text: 'Flat', field: 'flatId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'plan' }
             },
             {
                 text: 'Dependency', field: 'workflowId', type: 'lookup', sorting: false, searching: false,
@@ -30,7 +35,81 @@ export const ListActivity = () => {
         ]
     }
 
-    return (<IUIList schema={schema} />)
+    const outsideSchema = {
+        module: 'activity',
+        title: 'Work',
+        path: 'works',
+        paging: true,
+        searching: true,
+        editing: true,
+        adding: false,
+        relationKey: "type",
+        fields: [
+            { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
+            { text: 'Expected Start Date', field: 'startDate', type: 'date', sorting: true, searching: false },
+            { text: 'Expected End Date', field: 'endDate', type: 'date', sorting: true, searching: false },
+            {
+                text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'project' }
+            },
+            {
+                text: 'Outside Entity', field: 'outSideEntityId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'outSideEntity' }
+            },
+            {
+                text: 'Dependency', field: 'workflowId', type: 'lookup', sorting: false, searching: false,
+                schema: { module: 'workflow' }
+            }
+        ]
+    }
+
+    return (
+        <>
+            <div className="card p-2 mb-4">
+                <div className="d-flex flex-column flex-md-row gap-3">
+                    <strong className="mb-0">Select Type:</strong>
+                    <div className="d-flex gap-3">
+                        <div className="form-check">
+                            <input
+                                className="form-check-input"
+                                type="radio"
+                                name="type"
+                                id="inside"
+                                value="inside"
+                                checked={type === "inside"}
+                                onChange={(e) => setType(e.target.value)}
+                            />
+                            <label className="form-check-label" htmlFor="inside">
+                                Inside
+                            </label>
+                        </div>
+
+                        <div className="form-check">
+                            <input
+                                className="form-check-input"
+                                type="radio"
+                                name="type"
+                                id="outside"
+                                value="outside"
+                                checked={type === "outside"}
+                                onChange={(e) => setType(e.target.value)}
+                            />
+                            <label className="form-check-label" htmlFor="outside">
+                                Outside
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/* Conditional Rendering */}
+            <div className="mt-2">
+                {type === "inside" ?
+                    <IUIListFilter schema={insideSchema} filter="Inside" /> :
+                    <IUIListFilter schema={outsideSchema} filter="Outside" />
+                }
+            </div>
+        </>
+    );
 }
 
 export const ViewActivity = () => {
@@ -119,7 +198,7 @@ export const ViewActivity = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    
+
 
                     {
                         type: 'module-mapping',
@@ -210,7 +289,7 @@ export const EditActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', width: 4, type: 'text', required: true },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: true },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: false },
                     {
                         text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
                         schema: {
@@ -383,6 +462,30 @@ export const EditActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     {
+                        text: 'Checkpoint List', field: 'checkpoints', width: 12, type: 'table-input', required: false,
+                        schema: {
+                            title: 'Checkpoint',
+                            module: 'activity',
+                            paging: true,
+                            searching: true,
+                            editing: true,
+                            adding: true,
+                            delete: true,
+                            assign: true, // for assign accordion
+                            fields: [
+                                {
+                                    text: 'Work Checkpoint', field: 'checkpointId', type: 'lookup', required: true, width: 12,
+                                    schema: { module: 'workCheckPoint' }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
                         text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
                         schema: {
                             title: 'Item',
@@ -522,7 +625,7 @@ export const AddActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', width: 4, type: 'text', required: true },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: true },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: false },
                     {
                         text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
                         schema: {
@@ -737,7 +840,7 @@ export const AddActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Work Checkpoint List', field: 'checkpoints', width: 12, type: 'table-input', required: true,
+                        text: 'Work Checkpoint List', field: 'checkpoints', width: 12, type: 'table-input', required: false,
                         schema: {
                             title: 'Checkpoint',
                             module: 'activity',
@@ -866,7 +969,7 @@ export const AddActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', width: 4, type: 'text', required: true },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: true },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: false },
                     {
                         text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
                         schema: {
@@ -1050,7 +1153,7 @@ export const AddActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Checkpoint List', field: 'checkpoints', width: 12, type: 'table-input', required: true,
+                        text: 'Checkpoint List', field: 'checkpoints', width: 12, type: 'table-input', required: false,
                         schema: {
                             title: 'Checkpoint',
                             module: 'activity',

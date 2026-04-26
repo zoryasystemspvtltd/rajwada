@@ -68,7 +68,7 @@ export const ViewFlat = () => {
         back: true,
         deleting: true,
         assign: true,
-        assignType: 'single',
+        assignType: 'multiple',
         readonly: true,
         fields: [
             {

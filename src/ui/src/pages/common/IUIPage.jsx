@@ -646,6 +646,8 @@ const IUIPage = (props) => {
     }
 
     const saveWorkCheckpoints = async (data, activityId) => {
+        if (!data?.checkpoints) return;
+
         const checkPointItems = JSON.parse(data?.checkpoints);
 
         if (checkPointItems?.length > 0) {

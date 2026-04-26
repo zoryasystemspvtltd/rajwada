@@ -102,6 +102,11 @@ const IUIPdfTool = (props) => {
         syncStageToPdfCanvas();
     };
 
+    const fetchBase64 = async (fileName, fileModule) => {
+        const response = await api.getBase64({ module: fileModule, file: fileName });
+        return response?.data;
+    }
+
     // ====== Data Fetch ======
     useEffect(() => {
         async function fetchParentData() {
@@ -114,9 +119,31 @@ const IUIPdfTool = (props) => {
         if (schema?.parent?.module && schema?.parentId) fetchParentData();
     }, [schema?.parent?.module, schema?.parentId]);
 
+    // useEffect(() => {
+    //     if (props?.file) setFile(props?.file);
+    // }, [props?.file]);
+
     useEffect(() => {
-        if (props?.file) setFile(props?.file);
-    }, [props?.file]);
+        const setImage = async (val) => {
+            if (val && val?.length > 0) {
+                if (!val?.includes("base64")) {
+                    let type = val?.split('.')[1];
+
+                    const base64Output = await fetchBase64(val, props?.imageModule);
+                    const rawData = (type === "pdf") ? `data:application/pdf;base64,${base64Output?.base64}` : `data:image/${type};base64,${base64Output?.base64}`;
+
+                    setFile(rawData);
+                }
+                else {
+                    setFile(val);
+                }
+            }
+        }
+
+        if (!props?.file) return;
+
+        setImage(props?.file);
+    }, [props?.file, props?.imageModule]);
 
     useEffect(() => {
         async function fetchExistingMarkerData() {

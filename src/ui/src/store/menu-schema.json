@@ -206,7 +206,7 @@
                 "name": "work",
                 "text": "Work Planning",
                 "icon": "vector-square",
-                "path": "/works",
+                "path": "/works/add",
                 "access": "activity"
             },
             {
