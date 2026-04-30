@@ -99,7 +99,7 @@ namespace ILab.Data
                         existingData.QCApprovedBy = jsonData?.QCApprovedBy;
                         existingData.QCApprovedDate = jsonData?.QCApprovedDate;
                         existingData.QCRemarks = jsonData?.QCRemarks;
-                        remarks = jsonData?.Remarks;
+                        remarks = jsonData?.QCRemarks;
                     }
                     //When HOD Approved
                     if (jsonData != null && jsonData?.IsApproved != null)

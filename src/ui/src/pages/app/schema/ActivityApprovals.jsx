@@ -51,22 +51,36 @@ export const ListActivityApproval = () => {
                                 <div className="card-header card-header-tab-animation">
                                     <ul className="nav nav-justified">
                                         <li className="nav-item">
-                                            <a data-bs-toggle="tab" href="#approval-pending" className="active nav-link">Approval Pending</a>
+                                            <a data-bs-toggle="tab" href="#approval-pending-inside" className="active nav-link">Approval Pending (Inside)</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a data-bs-toggle="tab" href="#approval-completed" className="nav-link">Approval Completed</a>
+                                            <a data-bs-toggle="tab" href="#approval-completed-inside" className="nav-link">Approval Completed (Inside)</a>
+                                        </li>
+                                        <li className="nav-item">
+                                            <a data-bs-toggle="tab" href="#approval-pending-outside" className="nav-link">Approval Pending (Outside)</a>
+                                        </li>
+                                        <li className="nav-item">
+                                            <a data-bs-toggle="tab" href="#approval-completed-outside" className="nav-link">Approval Completed (Outside)</a>
                                         </li>
                                     </ul>
                                 </div>
 
                                 <div className="card-body">
                                     <div className="tab-content">
-                                        <div className="tab-pane active" id="approval-pending" role="tabpanel">
-                                            <IUIApprovalList schema={schema} filter='Sub Task' filterSchema={filterSchema?.approvalPending} />
+                                        <div className="tab-pane active" id="approval-pending-inside" role="tabpanel">
+                                            <IUIApprovalList schema={schema} filter='Inside' filterSchema={filterSchema?.approvalPending} />
                                         </div>
 
-                                        <div className="tab-pane" id="approval-completed" role="tabpanel">
-                                            <IUIApprovalList schema={schema} filter='Sub Task' filterSchema={filterSchema?.approvalCompleted} />
+                                        <div className="tab-pane" id="approval-completed-inside" role="tabpanel">
+                                            <IUIApprovalList schema={schema} filter='Inside' filterSchema={filterSchema?.approvalCompleted} />
+                                        </div>
+
+                                        <div className="tab-pane" id="approval-pending-outside" role="tabpanel">
+                                            <IUIApprovalList schema={schema} filter='Outside' filterSchema={filterSchema?.approvalPending} />
+                                        </div>
+
+                                        <div className="tab-pane" id="approval-completed-outside" role="tabpanel">
+                                            <IUIApprovalList schema={schema} filter='Outside' filterSchema={filterSchema?.approvalCompleted} />
                                         </div>
                                     </div>
                                 </div>
@@ -85,15 +99,21 @@ export const ViewActivityApproval = () => {
     const schema = {
         module: 'activity',
         title: 'Work Approval',
-        path: 'activities',
-        showBreadcrumbs: true,
-        editing: true,
+        path: 'works',
+        showBreadcrumbs: false,
+        editing: false,
         adding: false,
         deleting: false,
         approving: true,
         back: true,
         readonly: true,
         fields: [
+            {
+                type: "area", width: 12
+                , fields: [
+                    { text: 'Work ID', field: 'workId', width: 4, type: 'label' },
+                ]
+            },
             {
                 type: "area", width: 12
                 , fields: [
@@ -112,29 +132,43 @@ export const ViewActivityApproval = () => {
                         text: 'Project', field: 'projectId', width: 4, type: 'lookup-link',
                         schema: { module: 'project', path: 'projects' }
                     },
-                    {
-                        text: 'Parent Activity', field: 'parentId', width: 4, type: 'lookup-link',
-                        schema: { module: 'activity', path: 'activities' }
-                    },
                     { text: 'Start Date', field: 'startDate', width: 4, type: 'label-date' },
                     { text: 'End Date', field: 'endDate', width: 4, type: 'label-date', },
                     { text: 'Actual Start Date', field: 'actualStartDate', width: 4, type: 'label-date', },
                     { text: 'Actual End Date', field: 'actualEndDate', width: 4, type: 'label-date', },
                     {
-                        text: 'Status', field: 'status', type: 'lookup-enum', width: 4, textonly: true,
-                        schema: { module: 'statusType' }
+                        text: 'Status', field: 'status', width: 4, type: 'status-badge',
+                        // schema: { module: 'stateType' }
+                        schema: {
+                            items: [ // or use items for fixed value
+                                { name: 'New' },
+                                { name: 'In Progress' },
+                                { name: 'Completed' }
+                            ]
+                        }
                     },
-
-                    { text: 'Duration', field: 'Duration', width: 4, type: 'label' },
+                    // {
+                    //     text: 'Priority', field: 'PriorityStatus', width: 4, type: 'lookup-link',
+                    //     schema: { module: 'priorityStatusType' }
+                    // },
+                    { text: 'Duration', field: 'duration', width: 4, type: 'label' },
                     { text: 'Progress(%)', field: 'progressPercentage', width: 4, type: 'label' },
+
                     { text: 'Estimate Cost', field: 'costEstimate', width: 4, type: 'label' },
                     { text: 'Actual Cost', field: 'actualCost', width: 4, type: 'label' },
                     {
                         text: 'Assigned To', field: 'member', width: 4, type: 'label',
                         schema: { module: 'user', path: 'users' }
                     },
-                    { text: 'QC Remarks', field: 'qcRemarks', type: 'label', width: 4 },
-                    { text: 'HOD Remarks', field: 'hodRemarks', type: 'label', width: 4 },
+                    { text: 'Notes', field: 'notes', width: 4, type: 'label' },
+                    {
+                        text: 'Labour Provided By', field: 'labourProvidedBy', width: 4, type: 'lookup-link',
+                        schema: { module: 'contractor', path: 'contractors' }
+                    },
+                    {
+                        text: 'Material Provided By', field: 'materialProvidedBy', width: 4, type: 'lookup-link',
+                        schema: { module: 'contractor', path: 'contractors' }
+                    }
                 ]
             },
             {
@@ -150,16 +184,9 @@ export const ViewActivityApproval = () => {
                             editing: false,
                             adding: false,
                             delete: false,
-                            collate: true,
-                            collateSchema: {
-                                module: 'activitytracking',
-                                parentKey: 'activityId',
-                                parentValue: id,
-                                searchKey: 'item'
-                            },
                             fields: [
                                 {
-                                    text: 'Item', field: 'itemId', type: 'lookup', required: true, width: 4,
+                                    text: 'Item', field: 'assetId', type: 'lookup', required: true, width: 4,
                                     schema: { module: 'asset' }
                                 },
                                 { text: 'Quantity', field: 'quantity', placeholder: 'Item quantity here...', type: 'number', width: 4, required: true },
@@ -170,35 +197,6 @@ export const ViewActivityApproval = () => {
                             ]
                         }
                     },
-                ]
-            },
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        text: 'Activity Blueprint', field: 'photoUrl', placeholder: 'Flat Blueprint here...', type: 'ilab-canvas', shape: 'rect',
-                        schema: {
-                            readonly: true,
-                            upload: false,
-                            save: false,
-                            parentId: id,
-                            goBack: true,
-                            parent: {
-                                module: 'activity',
-                                filter: 'activityId',
-                                path: 'activities'
-                            },
-                            controls: {
-                                balloon: false,
-                                rectangle: false,
-                                pencil: false,
-                                camera: false,
-                                delete: false,
-                                reset: false
-                            },
-                            module: 'unitOfWork'
-                        }
-                    }
                 ]
             },
             {

@@ -2,7 +2,7 @@ import { Card, ListGroup } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 
-const ReportsList = ({ groupedReports }) => {
+const ReportsList = ({ activityId, groupedReports }) => {
     return (
         <Card className="my-2 shadow-sm p-2">
             <Card.Body>
@@ -15,7 +15,7 @@ const ReportsList = ({ groupedReports }) => {
                             className="d-flex justify-content-between align-items-center flex-wrap"
                         >
                             <Link
-                                to={`/reports/${group.date}`}
+                                to={`/reports/${activityId}/${group.date}`}
                                 className="fw-bold text-decoration-none"
                             >
                                 {dayjs(group.date).format("DD MMM YYYY")}

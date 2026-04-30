@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Button, Col, Row, Container } from "react-bootstrap";
 import { useDispatch, useSelector } from 'react-redux'
 import Form from 'react-bootstrap/Form';
-import api from '../../../store/api-service'
+import api from '../../../store/api-service';
+
 const IUILookUpFilter = (props) => {
     const schema = props?.schema;
     const [value, setValue] = useState("")

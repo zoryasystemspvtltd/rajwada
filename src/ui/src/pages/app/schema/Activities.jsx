@@ -157,7 +157,7 @@ export const ViewActivity = () => {
                     { text: 'Actual Start Date', field: 'actualStartDate', width: 4, type: 'label-date', },
                     { text: 'Actual End Date', field: 'actualEndDate', width: 4, type: 'label-date', },
                     {
-                        text: 'Status', field: 'workflowState', width: 4, type: 'lookup-link',
+                        text: 'Status', field: 'status', width: 4, type: 'status-badge',
                         // schema: { module: 'stateType' }
                         schema: {
                             items: [ // or use items for fixed value
@@ -381,17 +381,17 @@ export const EditActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Estimate Cost', field: 'costEstimate', placeholder: 'Estimate Cost here...', width: 4, type: 'number', required: false },
-                    {
-                        text: 'Status', field: 'workflowState', width: 4, type: 'lookup', required: false,
-                        // schema: { module: 'stateType' }
-                        schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'New' },
-                                { name: 'In Progress' },
-                                { name: 'Completed' }
-                            ]
-                        }
-                    },
+                    // {
+                    //     text: 'Status', field: 'workflowState', width: 4, type: 'lookup', required: false,
+                    //     // schema: { module: 'stateType' }
+                    //     schema: {
+                    //         items: [ // or use items for fixed value
+                    //             { name: 'New' },
+                    //             { name: 'In Progress' },
+                    //             { name: 'Completed' }
+                    //         ]
+                    //     }
+                    // },
                     {
                         text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: true,
                         hasDefaultValue: true,
@@ -532,8 +532,17 @@ export const AddActivity = () => {
                         schema: { module: 'project' }
                     },
                     {
-                        text: 'Tower', field: 'towerId', parent: 'projectId', type: 'lookup-filter', required: false, width: 12,
-                        schema: { module: 'plan', filter: 'type', value: 'tower' }
+                        type: 'lookup-tower',
+                        parent: 'projectId',
+                        field: 'towerId',
+                        required: true,
+                        text: 'Tower',
+                        width: 12,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "projectId",
+                            path: 'towers'
+                        },
                     },
                     {
                         type: 'lookup-relation',
@@ -652,8 +661,17 @@ export const AddActivity = () => {
                         schema: { module: 'dependency' }
                     },
                     {
-                        text: 'Tower', field: 'towerId', type: 'lookup-filter', required: true, width: 4, readonly: true,
-                        schema: { module: 'plan', filter: 'type', value: 'tower' }
+                        type: 'lookup-tower',
+                        parent: 'projectId',
+                        field: 'towerId',
+                        required: true,
+                        text: 'Tower',
+                        width: 4,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "projectId",
+                            path: 'towers'
+                        },
                     },
                     // {
                     //     text: 'Floor', field: 'floorId', type: 'lookup-filter', required: false, width: 4,
@@ -996,8 +1014,17 @@ export const AddActivity = () => {
                         schema: { module: 'dependency' }
                     },
                     {
-                        text: 'Tower', field: 'towerId', type: 'lookup-filter', required: true, width: 4, readonly: true,
-                        schema: { module: 'plan', filter: 'type', value: 'tower' }
+                        type: 'lookup-tower',
+                        parent: 'projectId',
+                        field: 'towerId',
+                        required: true,
+                        text: 'Tower',
+                        width: 4,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "projectId",
+                            path: 'towers'
+                        },
                     },
                     // {
                     //     text: 'Floor', field: 'floorId', type: 'lookup-filter', required: false, width: 4,

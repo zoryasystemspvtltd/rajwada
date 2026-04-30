@@ -188,7 +188,9 @@ const IUIApprovalPage = (props) => {
 
     const approvedPageValue = async (e, reviewType) => {
         e.preventDefault();
-        let isApproved = false;
+
+        let isApproved = ["average", "good", "excellent"].includes(reviewType) ? true : false;
+
         if (!remarks || remarks === '') {
             notify("error", "Remarks is mandatory!");
             return;
@@ -199,7 +201,7 @@ const IUIApprovalPage = (props) => {
         let amendmentAction = {};
         let isAlreadyAmended = false;
 
-        if (loggedInUser?.roles?.includes("Quality Engineer")) {
+        if (loggedInUser?.roles?.some(role => ["Quality Engineer", "Quality", "QC"].some(r => r.includes(role)))) {
             // QC is approving
             if (isApproved) {
                 patchAction = {
@@ -302,7 +304,6 @@ const IUIApprovalPage = (props) => {
                 await api.editData(editAction);
             }
 
-
             if (Object.keys(amendmentAction).length > 0) {
                 if (isAlreadyAmended) {
                     await api.editData(amendmentAction);
@@ -312,27 +313,24 @@ const IUIApprovalPage = (props) => {
                 }
             }
 
-
             if (Object.keys(patchAction).length > 0) {
+                console.log(patchAction)
                 await api.editPartialData(patchAction);
             }
 
-
             dispatch(setSave({ module: module }));
-
 
             const timeId = setTimeout(async () => {
                 // After 3 seconds set the show value to false
                 notify('success', 'Approval submission successful!');
                 setShowRemarksModal(false);
-                navigate(0);
+                window.location.reload();
+                // navigate(0);
             }, 1000)
-
 
             return () => {
                 clearTimeout(timeId)
             }
-
 
         } catch (e) {
             // TODO
@@ -405,7 +403,7 @@ const IUIApprovalPage = (props) => {
                                                                     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-sm mr-2"
                                                                     onClick={(e) => { setShowRemarksModal(true); }}> Reject</Button>
                                                             } */}
-                                                              {
+                                                            {
                                                                 schema?.readonly && privileges?.approve &&
                                                                 <Button variant="contained"
                                                                     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
@@ -422,7 +420,7 @@ const IUIApprovalPage = (props) => {
                                                 </Col>
                                             </Row>
                                             {
-                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity' && schema?.editing) ?
+                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity') ?
                                                     <hr /> : null
                                             }
                                             <Row>

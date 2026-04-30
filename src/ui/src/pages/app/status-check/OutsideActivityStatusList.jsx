@@ -23,12 +23,21 @@ const OutsideActivityListByStatus = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 2,
                         schema: { module: 'project' }
                     },
                     {
-                        text: 'Tower', field: 'towerId', parent: 'projectId', type: 'lookup-filter', required: true, width: 3,
-                        schema: { module: 'plan', filter: 'type', value: 'tower' }
+                        type: 'lookup-tower',
+                        parent: 'projectId',
+                        field: 'towerId',
+                        required: true,
+                        text: 'Tower',
+                        width: 2,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "projectId",
+                            path: 'towers'
+                        },
                     },
                     {
                         type: 'lookup-relation',
@@ -36,7 +45,7 @@ const OutsideActivityListByStatus = () => {
                         field: 'floorId',
                         required: true,
                         text: 'Floor',
-                        width: 3,
+                        width: 2,
                         schema: {
                             module: 'plan',
                             relationKey: "parentId",
@@ -49,7 +58,7 @@ const OutsideActivityListByStatus = () => {
                         field: 'outsideEntityId',
                         required: true,
                         text: 'Outside Entity',
-                        width: 3,
+                        width: 2,
                         schema: {
                             module: 'outSideEntity',
                             relationKey: "towerId",

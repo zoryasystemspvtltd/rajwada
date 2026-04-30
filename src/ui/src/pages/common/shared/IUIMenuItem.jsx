@@ -35,7 +35,9 @@ const IUIMenuItem = (props) => {
                             {!item.schema &&
                                 <>
                                     {
-                                        item?.access ? privileges?.some(p => (p.module === item.access) && (item?.role ? loggedInUser?.roles?.filter(role => item.role.includes(role))?.length > 0 : true)) ?
+                                        item?.access ? privileges?.some(p => (p.module === item.access) && (item?.role ? loggedInUser?.roles?.some(role =>
+                                            item.role.some(r => r.includes(role))
+                                        ) > 0 : true)) ?
                                             (
                                                 <Link to={item.path}>
                                                     <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`} title={item.text}></i>{item.text}

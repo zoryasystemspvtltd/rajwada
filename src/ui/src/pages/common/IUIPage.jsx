@@ -947,7 +947,7 @@ const IUIPage = (props) => {
                                                         </>
                                                     }
                                                     {
-                                                        (approvalStatus === 3 || approvalStatus === 7) && loggedInUser?.email === data.member &&
+                                                        ([3, 7].includes(approvalStatus)) && loggedInUser?.email === data.member &&
                                                         <>
                                                             {
                                                                 schema?.readonly && privileges?.approve &&
@@ -969,10 +969,10 @@ const IUIPage = (props) => {
                                                     {schema?.assign && privileges?.assign && schema?.assignType === 'multiple' && (approvalStatus !== 4 && approvalStatus !== 6) &&
                                                         <IUIMultiAssign onClick={assignMultiPageValue} schema={{ module: module, id: id }} />
                                                     }
-                                                    {/* Condition modified by Adrish */}
-                                                    {schema?.approving && privileges?.assign && approvalStatus === 3 && loggedInUser?.email !== data.member &&
+                                                    {/* Condition modified by Adrish, here 2 means QC Assigned */}
+                                                    {/* {schema?.approving && privileges?.assign && approvalStatus === 2 && loggedInUser?.email !== data.member &&
                                                         <IUIApprover onClick={assignApprover} />
-                                                    }
+                                                    } */}
                                                     <IUIModuleMessage schema={props.schema} />
                                                 </Col>
                                             </Row>

@@ -9,6 +9,7 @@
 @tailwind utilities;
 @import url(./assets/css/calender.css);
 @import url(./assets/fonts/OpenSans/OpenSans.css);
+@import url(./assets/css/statusBadge.css);
 
 .Wrapper {
     margin-bottom: 2rem;

@@ -15,6 +15,7 @@ dayjs.extend(timezone);
 
 const ReportDetailsPage = () => {
     const { date } = useParams();
+    const { activityId } = useParams();
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -68,7 +69,11 @@ const ReportDetailsPage = () => {
                     and: {
                         name: 'date',
                         value: utcEnd,
-                        operator: 'lessThan'
+                        operator: 'lessThan',
+                        and: {
+                            name: "activityId",
+                            value: parseInt(activityId)
+                        }
                     }
                 };
 
@@ -124,10 +129,34 @@ const ReportDetailsPage = () => {
         setShowDeleteModal(true);
     };
 
+    const deleteCheckpointTracking = async (itemId) => {
+        const response = await api.deleteData({ module: 'workCheckPointTracking', id: itemId });
+        return response.data;
+    }
+
     // ✅ DELETE HANDLER
     const deletePageValue = async (e, id) => {
         try {
             e.preventDefault();
+            // Need to delete Work Checkpoint Trackings which are related to this activity tracking id
+            const newBaseFilter = {
+                name: 'activityTrackingId',
+                value: parseInt(id)
+            }
+
+            const pageOptions = {
+                recordPerPage: 0,
+                searchCondition: newBaseFilter
+            }
+
+            const response = await api.getData({ module: 'workCheckPointTracking', options: pageOptions });
+            let itemData = response?.data?.items;
+
+            if (itemData.length > 0) {
+                const deletePromises = itemData.map(unit => deleteCheckpointTracking(unit.id));
+                await Promise.all(deletePromises);
+            }
+
             await api.deleteData({ module: "activitytracking", id: parseInt(id) });
 
             setReports((prev) => prev.filter((r) => r.id !== id));

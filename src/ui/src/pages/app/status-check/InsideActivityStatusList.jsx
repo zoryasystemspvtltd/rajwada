@@ -23,12 +23,21 @@ const InsideActivityListByStatus = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 2,
                         schema: { module: 'project' }
                     },
                     {
-                        text: 'Tower', field: 'towerId', parent: 'projectId', type: 'lookup-filter', required: true, width: 3,
-                        schema: { module: 'plan', filter: 'type', value: 'tower' }
+                        type: 'lookup-tower',
+                        parent: 'projectId',
+                        field: 'towerId',
+                        required: true,
+                        text: 'Tower',
+                        width: 2,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "projectId",
+                            path: 'towers'
+                        },
                     },
                     {
                         type: 'lookup-relation',
@@ -36,7 +45,7 @@ const InsideActivityListByStatus = () => {
                         field: 'floorId',
                         required: true,
                         text: 'Floor',
-                        width: 3,
+                        width: 2,
                         schema: {
                             module: 'plan',
                             relationKey: "parentId",
@@ -49,10 +58,23 @@ const InsideActivityListByStatus = () => {
                         field: 'flatId',
                         required: true,
                         text: 'Flat',
-                        width: 3,
+                        width: 2,
                         schema: {
                             module: 'plan',
                             relationKey: "parentId",
+                            path: 'flats'
+                        },
+                    },
+                    {
+                        type: 'lookup-relation',
+                        parent: 'flatId',
+                        field: 'roomId',
+                        required: true,
+                        text: 'Room',
+                        width: 2,
+                        schema: {
+                            module: 'roomDetails',
+                            relationKey: "planId",
                             path: 'flats'
                         },
                     },
@@ -255,8 +277,6 @@ const InsideActivityListByStatus = () => {
         e.preventDefault();
 
         const updatedValues = e.target.value;
-
-        console.log(updatedValues);
 
         setData(prev => ({ ...prev, ...updatedValues }));
 

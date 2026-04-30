@@ -1,0 +1,119 @@
+import React, { useEffect, useState } from 'react';
+import { Form } from "react-bootstrap";
+import { useDispatch, useSelector } from 'react-redux';
+import api from '../../../store/api-service';
+import { getData } from '../../../store/api-db';
+
+const IUILookUpTower = (props) => {
+    const schema = props.schema;
+    const module = `${schema.module}#${props.parentId}`;
+    const pageLength = schema.paging ? 10 : 0;
+    const [dataSet, setDataSet] = useState(useSelector((state) => state.api[module]))
+    const [baseFilter, setBaseFilter] = useState({});
+    const [value, setValue] = useState("")
+    const [text, setText] = useState("")
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        async function fetchData() {
+            const newBaseFilter = {
+                name: schema?.relationKey,
+                value: props?.parentId,
+                and: {
+                    name: 'type',
+                    value: 'tower'
+                }
+            }
+
+            setBaseFilter(newBaseFilter)
+
+            // const pageOptions = {
+            //     ...dataSet?.options
+            //     , recordPerPage: pageLength
+            //     , searchCondition: newBaseFilter
+            // }
+            // dispatch(getData({ module: module, options: pageOptions }));
+
+            const pageOptions = {
+                recordPerPage: 0
+                , searchCondition: newBaseFilter
+            }
+
+            const response = await api.getData({ module: schema?.module, options: pageOptions });
+            setDataSet(response?.data)
+        }
+
+        if (props?.parentId) {
+            fetchData();
+        }
+    }, [props?.parentId]);
+
+
+    useEffect(() => {
+        const newValue = schema?.module
+            ? dataSet?.items?.find(item => item.id === parseInt(value))?.name
+            : value
+        if (newValue) {
+            setText(newValue);
+        }
+    }, [dataSet?.items, value, schema?.module]);
+
+    useEffect(() => {
+        if (props?.value) {
+            setValue(props?.value);
+        }
+    }, [props?.value]);
+
+    const handleChange = (e) => {
+        e.preventDefault();
+        if (!props?.readonly) {
+            setValue({ ...value, [e.target.id]: e.target.value });
+            props.onChange(e);
+        }
+    };
+
+    return (
+        <>
+            <>
+                {props?.readonly &&
+                    <>
+                        {!props?.textonly &&
+                            <Form.Control type="text"
+                                aria-label={props.placeholder}
+                                id={props.id}
+                                value={text}
+                                disabled={true}
+                                readOnly={true}
+                                className={`${props.className}`} />
+                        }
+                        {props?.textonly &&
+                            <>
+                                {text}
+                            </>
+                        }
+                    </>
+                }
+                {!props?.readonly &&
+                    <select
+                        aria-label={props.placeholder}
+                        id={props.id}
+                        value={value}
+                        name='select'
+                        className={`form-control ${props.className}`}
+                        disabled={props.readonly || false}
+                        onChange={(e) => handleChange(e)}>
+                        <option>--Select--</option>
+                        {
+                            dataSet?.items?.map((item, i) => (
+                                <option key={i} value={item.id || item.name}>{item.name}</option>
+                            ))
+                        }
+
+                    </select>
+                }
+            </>
+        </>
+    )
+}
+
+export default IUILookUpTower;
