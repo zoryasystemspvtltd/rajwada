@@ -254,7 +254,7 @@ const ViewActivityStatus = () => {
                         {error && <Alert variant="danger">{error}</Alert>}
 
                         {!loading && (
-                            <ReportsList groupedReports={groupedReports} />
+                            <ReportsList activityId={id} groupedReports={groupedReports} />
                         )}
 
                         <ReportModal
@@ -263,6 +263,7 @@ const ViewActivityStatus = () => {
                             onClose={() => {
                                 setModalOpen(false);
                                 loadReports();
+                                window.location.reload();
                             }}
                         />
                     </div>

@@ -215,8 +215,17 @@ export const AddWorkflow = () => {
                             schema: { module: 'project' }
                         },
                         {
-                            text: 'Tower', field: 'towerId', parent: 'projectId', type: 'lookup-filter', required: false, width: 3,
-                            schema: { module: 'plan', filter: 'type', value: 'tower' }
+                            type: 'lookup-tower',
+                            parent: 'projectId',
+                            field: 'towerId',
+                            required: false,
+                            text: 'Tower',
+                            width: 3,
+                            schema: {
+                                module: 'plan',
+                                relationKey: "projectId",
+                                path: 'towers'
+                            },
                         },
                         {
                             type: 'lookup-relation',
@@ -271,26 +280,23 @@ export const AddWorkflow = () => {
             {
                 type: "area", width: 12
                 , fields: [
-                    // {
-                    //     type: 'lookup-relation',
-                    //     parent: 'projectId',
-                    //     field: 'towerId',
-                    //     // exclusionCondition:{
-                    //     //     field: 'type',
-                    //     //     value: 'Inside'
-                    //     // },
-                    //     text: 'Tower',
-                    //     width: 3,
-                    //     schema: {
-                    //         module: 'plan',
-                    //         relationKey: "projectId",
-                    //         path: 'towers'
-                    //     },
-                    // },
                     {
-                        text: 'Tower', field: 'towerId', type: 'lookup-filter', required: false, width: 3,
-                        schema: { module: 'plan', filter: 'type', value: 'tower' }
+                        type: 'lookup-tower',
+                        parent: 'projectId',
+                        field: 'towerId',
+                        required: false,
+                        text: 'Tower',
+                        width: 3,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "projectId",
+                            path: 'towers'
+                        },
                     },
+                    // {
+                    //     text: 'Tower', field: 'towerId', type: 'lookup-filter', required: false, width: 3,
+                    //     schema: { module: 'plan', filter: 'type', value: 'tower' }
+                    // },
                     {
                         type: 'lookup-relation',
                         parent: 'towerId',

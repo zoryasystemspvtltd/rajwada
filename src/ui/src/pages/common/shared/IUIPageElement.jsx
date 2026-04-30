@@ -30,6 +30,7 @@ import IUIJsonTable from './IUIJsonTable';
 import IUILookUpNullFilter from './IUILookUpNullFilter';
 import IUILookUpRelationRooms from './IUILookUpRelationRooms';
 import IUILookUpAsync from './IUILookUpAsync';
+import IUILookUpTower from './IUILookUpTower';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -734,6 +735,35 @@ const IUIPageElement = (props) => {
                                                     </Form.Label>
 
                                                     <IUILookUpRelation
+                                                        schema={fld.schema}
+                                                        id={fld.field}
+                                                        value={data[fld.field]}
+                                                        className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                                        parentId={parseInt(data[fld.parent])}
+                                                        onChange={handleChange}
+                                                        readonly={props.readonly || fld.readonly || false}
+                                                    />
+                                                </Form.Group>
+                                            )
+                                        }
+                                        <br />
+                                    </>
+                                }
+                                 {fld.type === 'lookup-tower' &&
+                                    <>
+                                        {
+                                            data[fld.parent] &&
+                                            (
+                                                !fld?.enableIf ||
+                                                data[fld.enableIf.field] === fld.enableIf.value
+                                            ) && (
+                                                <Form.Group className="position-relative form-group">
+                                                    <Form.Label htmlFor={fld.field}>
+                                                        {fld.text}
+                                                        {fld.required && <span className="text-danger">*</span>}
+                                                    </Form.Label>
+
+                                                    <IUILookUpTower
                                                         schema={fld.schema}
                                                         id={fld.field}
                                                         value={data[fld.field]}

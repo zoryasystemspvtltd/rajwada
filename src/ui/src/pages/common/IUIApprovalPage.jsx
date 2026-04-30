@@ -188,7 +188,9 @@ const IUIApprovalPage = (props) => {
 
     const approvedPageValue = async (e, reviewType) => {
         e.preventDefault();
-        let isApproved = false;
+
+        let isApproved = ["average", "good", "excellent"].includes(reviewType) ? true : false;
+
         if (!remarks || remarks === '') {
             notify("error", "Remarks is mandatory!");
             return;
@@ -314,6 +316,7 @@ const IUIApprovalPage = (props) => {
 
 
             if (Object.keys(patchAction).length > 0) {
+                console.log(patchAction)
                 await api.editPartialData(patchAction);
             }
 
@@ -325,7 +328,7 @@ const IUIApprovalPage = (props) => {
                 // After 3 seconds set the show value to false
                 notify('success', 'Approval submission successful!');
                 setShowRemarksModal(false);
-                navigate(0);
+                // navigate(0);
             }, 1000)
 
 
@@ -405,7 +408,7 @@ const IUIApprovalPage = (props) => {
                                                                     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-sm mr-2"
                                                                     onClick={(e) => { setShowRemarksModal(true); }}> Reject</Button>
                                                             } */}
-                                                              {
+                                                            {
                                                                 schema?.readonly && privileges?.approve &&
                                                                 <Button variant="contained"
                                                                     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
@@ -422,7 +425,7 @@ const IUIApprovalPage = (props) => {
                                                 </Col>
                                             </Row>
                                             {
-                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity' && schema?.editing) ?
+                                                ((module !== 'activity') && (schema?.back || schema?.adding || schema?.editing)) || (module === 'activity') ?
                                                     <hr /> : null
                                             }
                                             <Row>

@@ -667,7 +667,7 @@ const Routes = () => {
                     element: <ViewActivityStatus />
                 },
                 {
-                    path: "/reports/:date",
+                    path: "/reports/:activityId/:date",
                     element: <ReportDetailsPage />
                 },
                 {

@@ -4,10 +4,13 @@ import api from '../../../store/api-service';
 import IUITableInput from "../../common/shared/IUITableInput";
 import { getToday, getFormattedDate } from "./dateUtils";
 import WorkCheckpointTrackings from "../schema/WorkCheckpointTrackings";
+import { useSelector } from "react-redux";
+import { notify } from "../../../store/notification";
 
 const ReportModal = ({ activityId, show, onClose, submitDisabled = false, reportDate = null }) => {
 
     const today = reportDate ? getFormattedDate(reportDate) : getToday();
+    const loggedInUser = useSelector((state) => state.api.loggedInUser);
 
     const createDefaultForm = (activity = {}) => ({
         activityId,
@@ -225,7 +228,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
                 data: formData
             });
 
-            console.log(trackingId)
+            // console.log(trackingId)
 
             await saveWorkCheckpoints(trackingId.data);
 
@@ -287,175 +290,251 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
         await Promise.all(promises);
     };
 
+    const handleCompletionConfirmationClose = () => {
+        updateField("isCompleted", false);
+    };
+
+    const handleCompletionConfirmation = async () => {
+        try {
+            setLoading(true);
+            // Fetch List of users who are assigned that activity
+            let allUsersResponse = await api.assignedUsers({ module: "activity", id: parseInt(activityId) });
+
+            // Filter users with Role QC Engineer
+            let userList = allUsersResponse?.data?.filter(item => `${item?.member}`.toLowerCase().includes("qc"));
+
+            const updatedData_a = {
+                ...activityData,
+                progressPercentage: formData.progressPercentage,
+                status: 2,
+                isCompleted: userList?.length > 0 ? true : false
+            };
+
+            await api.editData({ module: 'activity', data: updatedData_a });
+
+            const trackingId = await api.addData({
+                module: "activitytracking",
+                data: formData
+            });
+
+            await saveWorkCheckpoints(trackingId.data);
+
+            if (userList?.length > 0) {
+                for (let user of userList) {
+                    const action = { module: "activity", data: { id: parseInt(activityId), member: user?.member, status: 2, modifiedBy: loggedInUser?.email } }
+                    try {
+                        await api.editPartialData(action);
+                    } catch (e) {
+                        // TODO
+                    }
+                }
+                notify("success", "Assignment to QC Successful");
+            }
+            else {
+                notify("info", "No QC Engineer has been assigned for this work till now. Contact your HOD");
+            }
+        }
+        catch (error) {
+
+        } finally {
+            setLoading(false);
+            onClose();
+        }
+    }
+
     return (
+        <>
+            <Modal show={show} onHide={onClose} size="xl">
 
-        <Modal show={show} onHide={onClose} size="xl">
+                <Modal.Header>
+                    <Modal.Title>Submit Daily Report</Modal.Title>
+                </Modal.Header>
 
-            <Modal.Header>
-                <Modal.Title>Submit Daily Report</Modal.Title>
-            </Modal.Header>
+                <Modal.Body>
 
-            <Modal.Body>
-
-                <div className="row mb-3">
-                    <div className="col-md-6">
-                        <strong>Date:</strong> {today}
-                    </div>
-
-                    <div className="col-md-6">
-                        <strong>Task:</strong> {activityData?.name}
-                    </div>
-                </div>
-
-                <Form>
-
-                    {/* Cost + Manpower */}
-
-                    <div className="row">
-                        <div className="col">
-                            <Form.Label>Cost</Form.Label>
-
-                            <Form.Control
-                                type="number"
-                                value={formData.cost}
-                                disabled={activityData?.isCompleted || submitDisabled}
-                                onChange={(e) =>
-                                    updateField("cost", e.target.value)
-                                }
-                            />
+                    <div className="row mb-3">
+                        <div className="col-md-6">
+                            <strong>Date:</strong> {today}
                         </div>
 
-                        <div className="col">
-                            <Form.Label>Man Power</Form.Label>
-
-                            <Form.Control
-                                type="number"
-                                value={formData.manPower}
-                                disabled={activityData?.isCompleted || submitDisabled}
-                                onChange={(e) =>
-                                    updateField("manPower", e.target.value)
-                                }
-                            />
+                        <div className="col-md-6">
+                            <strong>Task:</strong> {activityData?.name}
                         </div>
                     </div>
 
-                    {/* progressPercentage */}
+                    <Form>
 
-                    <div className="row mt-3">
-                        <div className="col">
-                            <Form.Label>Progress Percentage</Form.Label>
+                        {/* Cost + Manpower */}
 
-                            <Form.Range
-                                max={100}
-                                step={1}
-                                value={formData.progressPercentage}
-                                disabled={activityData?.isCompleted || submitDisabled}
-                                onChange={(e) => {
-                                    const newValue = Number(e.target.value);
+                        <div className="row">
+                            <div className="col">
+                                <Form.Label>Cost</Form.Label>
 
-                                    if (newValue >= activityData?.progressPercentage) {
-                                        updateField("progressPercentage", Number(e.target.value))
-                                    }
-                                }
-                                }
-                            />
-
-                            <ProgressBar
-                                now={formData.progressPercentage}
-                                label={`${formData.progressPercentage}%`}
-                                className="mt-2"
-                                style={{ height: 20 }}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Checkpoints */}
-
-                    <div className="row mt-4">
-                        <div className="col-sm-12">
-                            <Form.Label className="fw-bold mb-2">
-                                Checkpoints
-                            </Form.Label>
-
-                            {formData.checkpoints?.map((cp, index) => (
-                                <Form.Check
-                                    key={cp.id || index}
-                                    type="checkbox"
-                                    label={cp.name}
-                                    checked={cp.isChecked}
+                                <Form.Control
+                                    type="number"
+                                    value={formData.cost}
                                     disabled={activityData?.isCompleted || submitDisabled}
-                                    onChange={() => toggleCheckpoint(index)}
+                                    onChange={(e) =>
+                                        updateField("cost", e.target.value)
+                                    }
                                 />
-                            ))}
+                            </div>
+
+                            <div className="col">
+                                <Form.Label>Man Power</Form.Label>
+
+                                <Form.Control
+                                    type="number"
+                                    value={formData.manPower}
+                                    disabled={activityData?.isCompleted || submitDisabled}
+                                    onChange={(e) =>
+                                        updateField("manPower", e.target.value)
+                                    }
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="row mt-4">
-                        <div className="col-sm-12">
-                            <Form.Label className="fw-bold mb-2">
-                                Checkpoints History
-                            </Form.Label>
+                        {/* progressPercentage */}
 
-                            <WorkCheckpointTrackings activityId={activityId} reportDate={reportDate} />
+                        <div className="row mt-3">
+                            <div className="col">
+                                <Form.Label>Progress Percentage</Form.Label>
+
+                                <Form.Range
+                                    max={100}
+                                    step={1}
+                                    value={formData.progressPercentage}
+                                    disabled={activityData?.isCompleted || submitDisabled}
+                                    onChange={(e) => {
+                                        const newValue = Number(e.target.value);
+
+                                        if (newValue >= activityData?.progressPercentage) {
+                                            updateField("progressPercentage", Number(e.target.value))
+                                        }
+                                    }
+                                    }
+                                />
+
+                                <ProgressBar
+                                    now={formData.progressPercentage}
+                                    label={`${formData.progressPercentage}%`}
+                                    className="mt-2"
+                                    style={{ height: 20 }}
+                                />
+                            </div>
                         </div>
-                    </div>
-                    {/* Item List */}
 
-                    <div className="row my-3">
-                        <div className="col-sm-12">
-                            <Form.Label className="fw-bold">
-                                Item List
-                            </Form.Label>
+                        {/* Checkpoints */}
 
-                            <IUITableInput
-                                value={formData.item}
-                                schema={itemListSchema.schema}
-                                readonly={itemListSchema.readonly}
-                                onChange={(e) =>
-                                    updateField("item", e.target.value)
-                                }
-                            />
+                        <div className="row mt-4">
+                            <div className="col-sm-12">
+                                <Form.Label className="fw-bold mb-2">
+                                    Checkpoints
+                                </Form.Label>
+
+                                {formData.checkpoints?.map((cp, index) => (
+                                    <Form.Check
+                                        key={cp.id || index}
+                                        type="checkbox"
+                                        label={cp.name}
+                                        checked={cp.isChecked}
+                                        disabled={activityData?.isCompleted || submitDisabled}
+                                        onChange={() => toggleCheckpoint(index)}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Assign QC */}
+                        <div className="row mt-4">
+                            <div className="col-sm-12">
+                                <Form.Label className="fw-bold mb-2">
+                                    Checkpoints History
+                                </Form.Label>
 
-                    <div className="row">
-                        <div className="col-sm-12">
-                            <Form.Check
-                                type="checkbox"
-                                label="Assign to QC"
-                                checked={formData.isCompleted}
-                                disabled={
-                                    formData.progressPercentage !== 100 ||
-                                    activityData?.isCompleted
-                                }
-                                onChange={(e) =>
-                                    updateField("isCompleted", e.target.checked)
-                                }
-                            />
+                                <WorkCheckpointTrackings activityId={activityId} reportDate={reportDate} />
+                            </div>
                         </div>
-                    </div>
-                </Form>
-            </Modal.Body>
+                        {/* Item List */}
 
-            <Modal.Footer>
-                <Button
-                    className="btn-secondary btn btn-pill"
-                    onClick={onClose}
-                >
-                    Close
-                </Button>
+                        <div className="row my-3">
+                            <div className="col-sm-12">
+                                <Form.Label className="fw-bold">
+                                    Item List
+                                </Form.Label>
 
-                <Button
-                    className="btn-primary btn btn-pill"
-                    disabled={loading || submitDisabled}
-                    onClick={handleSubmit}
-                >
-                    {loading ? "Submitting..." : "Submit"}
-                </Button>
-            </Modal.Footer>
-        </Modal>
+                                <IUITableInput
+                                    value={formData.item}
+                                    schema={itemListSchema.schema}
+                                    readonly={itemListSchema.readonly}
+                                    onChange={(e) =>
+                                        updateField("item", e.target.value)
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        {/* Assign QC */}
+
+                        <div className="row">
+                            <div className="col-sm-12">
+                                <Form.Check
+                                    type="checkbox"
+                                    label="Assign to QC"
+                                    checked={formData.isCompleted}
+                                    disabled={
+                                        formData.progressPercentage !== 100 ||
+                                        activityData?.isCompleted
+                                    }
+                                    onChange={(e) =>
+                                        updateField("isCompleted", e.target.checked)
+                                    }
+                                />
+                            </div>
+                        </div>
+                    </Form>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button
+                        className="btn-secondary btn btn-pill"
+                        onClick={onClose}
+                    >
+                        Close
+                    </Button>
+
+                    <Button
+                        className="btn-primary btn btn-pill"
+                        disabled={loading || submitDisabled || activityData?.isCompleted}
+                        onClick={handleSubmit}
+                    >
+                        {loading ? "Submitting..." : "Submit"}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {
+                (formData.isCompleted) && (
+                    <Modal show={formData.isCompleted} onHide={handleCompletionConfirmationClose}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>QC Assignment Confirmation</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <p>
+                                Are you sure to assign the task <strong>{activityData?.name}</strong> to QC?
+                            </p>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" className="btn-primary btn btn-pill" onClick={handleCompletionConfirmationClose}>
+                                Cancel
+                            </Button>
+                            <Button variant="primary" className="btn-primary btn btn-pill" onClick={handleCompletionConfirmation}>
+                                Confirm
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                )
+            }
+        </>
     );
 };
 

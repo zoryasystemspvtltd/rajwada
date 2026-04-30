@@ -149,8 +149,17 @@ export const AddOutsideEntityMappings = () => {
                         schema: { module: 'project' }
                     },
                     {
-                        text: 'Tower', field: 'towerId', parent: 'projectId', type: 'lookup-filter', required: false, width: 3,
-                        schema: { module: 'plan', filter: 'type', value: 'tower' }
+                        type: 'lookup-tower',
+                        parent: 'projectId',
+                        field: 'towerId',
+                        required: true,
+                        text: 'Tower',
+                        width: 4,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "projectId",
+                            path: 'towers'
+                        },
                     },
                     {
                         type: 'lookup-relation',
