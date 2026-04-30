@@ -157,7 +157,7 @@ export const ViewActivity = () => {
                     { text: 'Actual Start Date', field: 'actualStartDate', width: 4, type: 'label-date', },
                     { text: 'Actual End Date', field: 'actualEndDate', width: 4, type: 'label-date', },
                     {
-                        text: 'Status', field: 'workflowState', width: 4, type: 'lookup-link',
+                        text: 'Status', field: 'status', width: 4, type: 'status-badge',
                         // schema: { module: 'stateType' }
                         schema: {
                             items: [ // or use items for fixed value
@@ -381,17 +381,17 @@ export const EditActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Estimate Cost', field: 'costEstimate', placeholder: 'Estimate Cost here...', width: 4, type: 'number', required: false },
-                    {
-                        text: 'Status', field: 'workflowState', width: 4, type: 'lookup', required: false,
-                        // schema: { module: 'stateType' }
-                        schema: {
-                            items: [ // or use items for fixed value
-                                { name: 'New' },
-                                { name: 'In Progress' },
-                                { name: 'Completed' }
-                            ]
-                        }
-                    },
+                    // {
+                    //     text: 'Status', field: 'workflowState', width: 4, type: 'lookup', required: false,
+                    //     // schema: { module: 'stateType' }
+                    //     schema: {
+                    //         items: [ // or use items for fixed value
+                    //             { name: 'New' },
+                    //             { name: 'In Progress' },
+                    //             { name: 'Completed' }
+                    //         ]
+                    //     }
+                    // },
                     {
                         text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: true,
                         hasDefaultValue: true,

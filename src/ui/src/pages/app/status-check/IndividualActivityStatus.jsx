@@ -56,7 +56,7 @@ const ViewActivityStatus = () => {
                     { text: 'Actual Start Date', field: 'actualStartDate', width: 4, type: 'label-date', },
                     { text: 'Actual End Date', field: 'actualEndDate', width: 4, type: 'label-date', },
                     {
-                        text: 'Status', field: 'workflowState', width: 4, type: 'lookup-link',
+                        text: 'Status', field: 'status', width: 4, type: 'status-badge',
                         // schema: { module: 'stateType' }
                         schema: {
                             items: [ // or use items for fixed value

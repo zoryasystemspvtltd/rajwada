@@ -31,6 +31,7 @@ import IUILookUpNullFilter from './IUILookUpNullFilter';
 import IUILookUpRelationRooms from './IUILookUpRelationRooms';
 import IUILookUpAsync from './IUILookUpAsync';
 import IUILookUpTower from './IUILookUpTower';
+import IUIStatusBadge from './IUIStatusBadge';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -205,6 +206,17 @@ const IUIPageElement = (props) => {
                                         <Form.Group className="position-relative form-group">
                                             <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
                                             <span id={fld.field}> {data[fld.field] ? getFormattedDateTime(data[fld.field]) : ""} </span>
+                                        </Form.Group>
+                                    </>
+                                }
+                                {
+                                    fld.type === 'status-badge' &&
+                                    <>
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label htmlFor={fld.field} className='mr-2'>{fld.text} : </Form.Label>
+                                            <IUIStatusBadge
+                                                value={data[fld.field]}
+                                            />
                                         </Form.Group>
                                     </>
                                 }
@@ -749,7 +761,7 @@ const IUIPageElement = (props) => {
                                         <br />
                                     </>
                                 }
-                                 {fld.type === 'lookup-tower' &&
+                                {fld.type === 'lookup-tower' &&
                                     <>
                                         {
                                             data[fld.parent] &&

@@ -201,7 +201,7 @@ const IUIApprovalPage = (props) => {
         let amendmentAction = {};
         let isAlreadyAmended = false;
 
-        if (loggedInUser?.roles?.includes("Quality Engineer")) {
+        if (loggedInUser?.roles?.some(role => ["Quality Engineer", "Quality", "QC"].some(r => r.includes(role)))) {
             // QC is approving
             if (isApproved) {
                 patchAction = {
@@ -304,7 +304,6 @@ const IUIApprovalPage = (props) => {
                 await api.editData(editAction);
             }
 
-
             if (Object.keys(amendmentAction).length > 0) {
                 if (isAlreadyAmended) {
                     await api.editData(amendmentAction);
@@ -314,28 +313,24 @@ const IUIApprovalPage = (props) => {
                 }
             }
 
-
             if (Object.keys(patchAction).length > 0) {
                 console.log(patchAction)
                 await api.editPartialData(patchAction);
             }
 
-
             dispatch(setSave({ module: module }));
-
 
             const timeId = setTimeout(async () => {
                 // After 3 seconds set the show value to false
                 notify('success', 'Approval submission successful!');
                 setShowRemarksModal(false);
+                window.location.reload();
                 // navigate(0);
             }, 1000)
-
 
             return () => {
                 clearTimeout(timeId)
             }
-
 
         } catch (e) {
             // TODO

@@ -1,0 +1,38 @@
+.badge.badge-purple {
+    background-color: #6f42c1 !important;
+    color: white;
+}
+
+.badge.badge-teal {
+    background-color: #20c997 !important;
+    color: white;
+}
+
+.badge.badge-orange {
+    background-color: #fd7e14 !important;
+    color: white;
+}
+
+.badge.badge-green {
+    background-color: #21b43f !important;
+    color: white;
+}
+
+.badge.badge-yellow {
+    background-color: #eac809 !important;
+    color: black;
+}
+
+.badge.badge-red {
+    background-color: #b33105 !important;
+    color: white;
+}
+
+.badge.badge-blue {
+    background-color: #073da1 !important;
+    color: white;
+}
+
+.badge.badge.bg-primary {
+    background-color: transparent;
+}
