@@ -1,4 +1,4 @@
-﻿
+﻿using DocumentFormat.OpenXml.Spreadsheet;
 using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
@@ -1880,8 +1880,61 @@ public class RajDataHandler : LabDataHandler
             return false;
         }
     }
-}
 
+    public dynamic? GetActivityFullDetails(long activityId)
+    {
+        try
+        {
+            Activity data = dbContext.Set<Activity>().Where(w => w.Id == activityId).FirstOrDefault();
+            if (data != null)
+            {
+                var activityTrackings = dbContext.Set<ActivityTracking>()
+                         .Where(w => w.Status != StatusType.Deleted)
+                         .Where(w => w.ActivityId == data.Id).OrderBy(a => a.Date).ToList();
+                int manpowers = 0, pregressPercentage = 0;
+                decimal accumulatedCost = 0;
+                List<ActivityItemTracking> trackingList = new List<ActivityItemTracking>();
+                foreach (var tracking in activityTrackings)
+                {
+                    pregressPercentage = Convert.ToInt32(tracking.ProgressPercentage);
+                    manpowers += Convert.ToInt32(tracking.ManPower);
+                    accumulatedCost += Convert.ToDecimal(tracking.Cost);
+
+                    if (!string.IsNullOrEmpty(tracking.Item))
+                    {
+                        var items = JsonConvert.DeserializeObject<List<ActivityItemTracking>>(tracking.Item);
+                        if (items != null)
+                            trackingList.AddRange(items);
+                    }
+                }
+
+                var result = trackingList
+                        .GroupBy(x => new { x.AssetId, x.UomId })
+                        .Select(g => new ActivityItemTracking
+                        {
+                            AssetId = g.Key.AssetId,
+                            UomId = g.Key.UomId,
+                            Quantity = g.Sum(x => x.Quantity ?? 0)
+                        })
+                        .ToList();
+
+                data.ProgressPercentage = pregressPercentage;
+                data.ActualCost = accumulatedCost;
+                data.ManPowers = manpowers;
+                data.ActivityItemTrackings = result;
+                return data;
+            }
+            else
+                return null;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetActivityFullDetails method and details: '{ex.Message}'");
+            return false;
+        }
+
+    }
+}
 public class ModuleIdentity
 {
     public ModuleIdentity(string member, string key, bool isAdmin = false)

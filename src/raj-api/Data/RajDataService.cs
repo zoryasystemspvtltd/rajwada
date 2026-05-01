@@ -1258,5 +1258,12 @@ namespace ILab.Data
             return method?.Invoke(handler, parameters);
 
         }
+        internal async Task<dynamic> GetActivityFullDetails(long activityId)
+        {
+            var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetActivityFullDetails));
+            object[] parameters = [activityId];
+            return method?.Invoke(handler, parameters);
+
+        }
     }
 }
