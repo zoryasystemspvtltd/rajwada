@@ -248,4 +248,11 @@ namespace RajApi.Data.Models
         public long? UomId { get; set; }
         public int? Quantity { get; set; }
     }
+
+    public class AssigenedUser
+    {
+        public string Member { get; set; }
+        public long EntityId { get; set; }
+        public string RoleName { get; set; }
+    }
 }

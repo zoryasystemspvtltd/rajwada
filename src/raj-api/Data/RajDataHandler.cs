@@ -1,8 +1,11 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RajApi.Data.Models;
@@ -756,23 +759,40 @@ public class RajDataHandler : LabDataHandler
 
     public dynamic GetAllAssignedUsers(string module, long id)
     {
-        var result = dbContext.Set<ApplicationLog>()
-                    .Select(p => new
-                    {
-                        p.Member,
-                        p.EntityId,
-                        data = dbContext.Set<ApplicationLog>()
-                            .Where(apl => apl.EntityId == id && apl.Name.Equals(module) &&
-                            apl.EntityId == p.EntityId && apl.Name == p.Name && apl.Member == p.Member)
-                            .OrderByDescending(apl => apl.Date)
-                            .Select(apl => new { apl.ActivityType, apl.Member, apl.Date })
-                            .FirstOrDefault()
-                    })
-                    .Where(x => x.data != null && x.data.ActivityType != StatusType.UnAssigned)
-                    .Select(a => new { a.EntityId, a.Member })
-                    .Distinct();
+        var query = $"SELECT DISTINCT   al.Member,  al.EntityId, r.Name AS RoleName " +
+                    "FROM[dbo].[ApplicationLogs] al " +
+                    "INNER JOIN[dbo].[AspNetUsers] u " +
+                        "ON u.UserName = al.Member " +
+                    "INNER JOIN[dbo].[AspNetUserRoles] ur " +
+                        "ON ur.UserId = u.Id " +
+                    "INNER JOIN[dbo].[AspNetRoles] r " +
+                        "ON r.Id = ur.RoleId " +
+                    $"   WHERE  al.Name = '{module}' " +
+                        " AND al.EntityId = " + id +
+                        " AND al.ActivityType != -3";
+        var list = new List<AssigenedUser>();
+        using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = query;
+            command.CommandType = CommandType.Text;
 
-        return result;
+            dbContext.Database.OpenConnection();
+
+            using (var result = command.ExecuteReader())
+            {
+                while (result.Read())
+                {
+                    list.Add(new AssigenedUser()
+                    {
+                        Member = result.GetString("Member"),
+                        EntityId = result.GetInt64("EntityId"),
+                        RoleName = result.GetString("RoleName")
+                    });
+                }
+            }
+        }
+
+        return list;
     }
 
     public dynamic GetAllAssignedModules(string module, string member)
@@ -1918,6 +1938,7 @@ public class RajDataHandler : LabDataHandler
                         })
                         .ToList();
 
+                //data.Status = GetWorkStatus(data);
                 data.ProgressPercentage = pregressPercentage;
                 data.ActualCost = accumulatedCost;
                 data.ManPowers = manpowers;
@@ -1933,6 +1954,95 @@ public class RajDataHandler : LabDataHandler
             return false;
         }
 
+    }
+
+    private static StatusType GetWorkStatus(Activity item)
+    {
+        var currentDate = DateTime.Now;
+        //    0: "New",
+        //    1: "In Progress",
+        //    2: "QC Assigned",
+        //    3: "Assigned",
+        //    4: "Approved",
+        //    5: "Hold",
+        //    6: "Rejected",
+        //    7: "HOD Assigned"
+
+
+        //    Draft = 0,
+        //Modified = 1,
+        //QCAssigned = 2,
+        //Assigned = 3,
+        //Approved = 4,
+        //Hold = 5,
+        //Rejected = 6,
+        //HODAssigned = 7,
+        StatusType status = StatusType.Draft; //New
+
+
+        if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate == null)
+        {
+            status = StatusType.Draft;  // 0: "New";
+        }
+        if (item.StartDate != null && item.StartDate < currentDate && item.EndDate != null
+            && item.EndDate > currentDate && item.ActualStartDate != null)
+        {
+            status = StatusType.Modified; // 1: "In Progress";
+        }
+        //if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate != null
+        //    && item.IsQCApproved == null && item.IsCompleted != null && item.IsCompleted == true &&
+        //    item.Status == StatusType.QCAssigned || item.Status == StatusType.Assigned) // QC Assigened but not approved
+        //{
+        //    status = StatusType.QCAssigned; // 2: "QC Assigned";
+        //}
+        //if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate != null 
+        //    && item.IsQCApproved == null && item.Status == StatusType.Assigned) // Assigened
+        //{
+        //    status = StatusType.Assigned; // 3: "Assigned";
+        //}
+        if (item.ActualEndDate <= item.EndDate && item.ActualStartDate >= item.StartDate
+           && item.IsCompleted != null && item.IsCompleted == true)
+        {
+            status = StatusType.Approved; // 4: "Approved";
+        }
+        if (item.StartDate != null && item.EndDate != null && item.StartDate < currentDate
+            && currentDate < item.EndDate && item.IsOnHold != null && item.IsOnHold == true)
+        {
+            status = StatusType.Hold;   // 5: "Hold";
+        }
+        if (item.Status == StatusType.Rejected)
+        {
+            status = StatusType.Rejected; // 6: "Rejected";
+        }
+        if (item.IsCompleted != null && item.IsCompleted == true && item.IsQCApproved != null
+           && item.IsQCApproved == true && item.IsApproved == null && item.Status == StatusType.HODAssigned) //HOD Assigend but not approved
+        {
+            status = StatusType.HODAssigned; // 7: "HODAssigned";
+        }
+
+        //if (item.EndDate != null && item.ActualEndDate == null
+        //    && item.EndDate < currentDate && item.ActualStartDate != null)
+        //{
+        //    status = "Delayed";
+        //}
+
+        //if (item.IsCompleted != null && item.IsCompleted == true
+        //  && item.IsQCApproved != null && item.IsQCApproved == true)// QC Approved
+        //{
+        //    status = "Inspection Passed";
+        //}
+        //if (item.IsCompleted != null && item.IsCompleted == true
+        //    && item.IsQCApproved != null && item.IsQCApproved == false) //QC is rejected
+        //{
+        //    status = StatusType.Rejected; // "Inspection Failed/Rework Required";
+        //}
+
+        //if (item.IsCompleted == true && item.IsAbandoned == true)//Is Abanndoned
+        //{
+        //    status = "Short Closed/Abandoned";
+        //}
+
+        return status;
     }
 }
 public class ModuleIdentity
