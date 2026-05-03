@@ -7,7 +7,7 @@ namespace RajApi.Data.Models
 {
     public class ActivityAmendment : LabModel, IActivityAmendment
     {
-        [StringLength(50)]
+        [StringLength(150)]
         public string? Code { get; set; }        
         public virtual bool RejectedByQC { get; set; }
         public virtual string? QCRemarks { get; set; }
