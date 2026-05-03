@@ -46,7 +46,15 @@ public class LabModelController : ControllerBase
             var member = User.Claims.First(p => p.Type.Equals("activity-member")).Value;
             var key = User.Claims.First(p => p.Type.Equals("activity-key")).Value;
             dataService.Identity = new ModuleIdentity(member, key);
-            var item = await dataService.Get(module, id);
+            dynamic item;
+            if (module.Equals("ACTIVITY", StringComparison.CurrentCultureIgnoreCase))
+            {
+                item = await dataService.GetActivityFullDetails(id);
+            }
+            else
+            {
+                item = await dataService.Get(module, id);
+            }
             return item;
         }
         catch (Exception ex)

@@ -208,6 +208,12 @@ namespace RajApi.Data.Models
 
         [NotMapped]
         public string? ModifiedBy { get; set; }
+
+        [NotMapped]
+        public int? ManPowers { get; set; }
+
+        [NotMapped]
+        public List<ActivityItemTracking>? ActivityItemTrackings { get; set; }
     }
 
     public class WorkerReportRequestPayload
@@ -235,5 +241,18 @@ namespace RajApi.Data.Models
         public string? ActivityStatus { get; set; }
         public  int? ProgressPercentage { get; set; }
         public int? Duration { get; set; }
+    }
+    public class ActivityItemTracking
+    {
+        public long? AssetId { get; set; }
+        public long? UomId { get; set; }
+        public int? Quantity { get; set; }
+    }
+
+    public class AssigenedUser
+    {
+        public string Member { get; set; }
+        public long EntityId { get; set; }
+        public string RoleName { get; set; }
     }
 }

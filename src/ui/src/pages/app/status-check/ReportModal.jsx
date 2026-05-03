@@ -301,8 +301,11 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
             let allUsersResponse = await api.assignedUsers({ module: "activity", id: parseInt(activityId) });
 
             // Filter users with Role QC Engineer
-            let userList = allUsersResponse?.data?.filter(item => `${item?.member}`.toLowerCase().includes("qc"));
-
+            let userList = allUsersResponse?.data?.filter(item => {
+                const role = item?.roleName?.toLowerCase() || "";
+                return role.includes("quality") || role.includes("qc");
+            });
+            
             const updatedData_a = {
                 ...activityData,
                 progressPercentage: formData.progressPercentage,

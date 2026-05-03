@@ -1323,6 +1323,13 @@
 "ModifiedBy": {
 "type": "string",
 },
+"ManPowers": {
+"type": "string",
+"nullable": true
+},
+"ActivityItemTrackings": {
+"type": "string",
+},
 "Id": {
 "type": "string",
 },
