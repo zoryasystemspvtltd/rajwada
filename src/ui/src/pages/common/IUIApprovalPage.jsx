@@ -241,7 +241,6 @@ const IUIApprovalPage = (props) => {
                     amendmentAction = {
                         module: 'activityamendment',
                         data: {
-                            code: `Amendment-${data?.workId}`,
                             name: `Amendment-${data?.workId}`,
                             rejectedByQC: !isApproved,
                             qCRemarks: remarks,
