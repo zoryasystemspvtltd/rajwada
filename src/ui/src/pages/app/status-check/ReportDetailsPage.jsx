@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card, Spinner, Alert, Form, Button } from "react-bootstrap";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaArrowLeft } from "react-icons/fa";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -26,6 +26,7 @@ const ReportDetailsPage = () => {
     const [editData, setEditData] = useState({});
     const [selectedItem, setSelectedItem] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const navigate = useNavigate();
 
     const itemListSchema = {
         text: 'Item List', field: 'item', width: 12, type: 'table-input', required: false, readonly: true,
@@ -169,6 +170,9 @@ const ReportDetailsPage = () => {
 
     return (
         <div>
+            <Button
+                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
+                onClick={() => navigate(-1)}> Back</Button>
             <Card className="shadow-sm p-3">
                 <h4>Reports for {date}</h4>
 
