@@ -170,15 +170,23 @@ const ReportDetailsPage = () => {
 
     return (
         <div>
-            <Button
-                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                onClick={() => navigate(-1)}> Back</Button>
             <Card className="shadow-sm p-3">
-                <h4>Reports for {date}</h4>
+                <div className="row">
+                    <div className="col-sm-6">
+                        <h4>Reports for {date}</h4>
+                    </div>
+                    <div className="col-sm-6">
+                        <Button style={{float : "right"}}
+                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2 btn btn-contained"
+                            onClick={() => navigate(-1)}> Back</Button>
+                    </div>
+                </div>
+                
 
                 {loading && <Spinner animation="border" />}
                 {error && <Alert variant="danger">{error}</Alert>}
-
+                
+                
                 {reports.map((report) => (
                     <Card key={report.id} className="mt-3 shadow-sm">
 
