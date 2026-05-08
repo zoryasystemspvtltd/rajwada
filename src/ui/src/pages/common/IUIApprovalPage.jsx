@@ -297,6 +297,58 @@ const IUIApprovalPage = (props) => {
                     module: module,
                     data: { ...data, isCompleted: false, isAbandoned: true }
                 }
+
+                // Check whether amendment already exists for the rejected activity
+                const baseFilter = {
+                    name: 'activityId',
+                    value: parseInt(id)
+                }
+
+                const pageOptions = {
+                    recordPerPage: 0,
+                    searchCondition: baseFilter
+                };
+
+                const response = await api.getData({ module: 'activityamendment', options: pageOptions });
+                const existingAmendments = response?.data?.items;
+
+                if (existingAmendments?.length === 0) {
+                    // Create new record in Work Amendments if not already amended activity
+                    amendmentAction = {
+                        module: 'activityamendment',
+                        data: {
+                            code: `Amendment-${data?.workId}`,
+                            name: `Amendment-${data?.workId}`,
+                            rejectedByQC: !isApproved,
+                            qCRemarks: remarks,
+                            amendmentReason: "QC Rejection",
+                            newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
+                            amendmentStatus: 0, // assuming status is 0 for newly created amendment
+                            reviewedBy: loggedInUser?.email,
+                            activityId: id
+                        }
+                    }
+                }
+                else {
+                    // Already amended
+                    isAlreadyAmended = true;
+
+                    const mainAmendment = existingAmendments?.filter(amendment => amendment?.parentId === null)[0];
+
+                    // Update the main amendment record in the Amendment table
+                    amendmentAction = {
+                        module: 'activityamendment',
+                        data: {
+                            ...mainAmendment,
+                            rejectedByQC: !isApproved,
+                            qCRemarks: remarks,
+                            amendmentReason: "QC Rejection",
+                            newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
+                            reviewedBy: loggedInUser?.email,
+                            activityId: id
+                        }
+                    }
+                }
             }
         }
         try {
@@ -500,41 +552,65 @@ const IUIApprovalPage = (props) => {
                                         {/* Radio Buttons */}
                                         <Form.Group>
                                             <Form.Label className='mb-2'><b>Approval Type :</b></Form.Label>
+                                            {approvalStatus === 2 && (
+                                                <div>
 
-                                            <div>
-                                                <Form.Check
-                                                    type="radio"
-                                                    label="Poor"
-                                                    name="approvalType"
-                                                    value="poor"
-                                                    checked={approvalType === "poor"}
-                                                    onChange={(e) => setApprovalType(e.target.value)}
-                                                />
-                                                <Form.Check
-                                                    type="radio"
-                                                    label="Average"
-                                                    name="approvalType"
-                                                    value="average"
-                                                    checked={approvalType === "average"}
-                                                    onChange={(e) => setApprovalType(e.target.value)}
-                                                />
-                                                <Form.Check
-                                                    type="radio"
-                                                    label="Good"
-                                                    name="approvalType"
-                                                    value="good"
-                                                    checked={approvalType === "good"}
-                                                    onChange={(e) => setApprovalType(e.target.value)}
-                                                />
-                                                <Form.Check
-                                                    type="radio"
-                                                    label="Excellent"
-                                                    name="approvalType"
-                                                    value="excellent"
-                                                    checked={approvalType === "excellent"}
-                                                    onChange={(e) => setApprovalType(e.target.value)}
-                                                />
-                                            </div>
+                                                    <Form.Check
+                                                        type="radio"
+                                                        label="Poor"
+                                                        name="approvalType"
+                                                        value="poor"
+                                                        checked={approvalType === "poor"}
+                                                        onChange={(e) => setApprovalType(e.target.value)}
+                                                    />
+                                                    <Form.Check
+                                                        type="radio"
+                                                        label="Average"
+                                                        name="approvalType"
+                                                        value="average"
+                                                        checked={approvalType === "average"}
+                                                        onChange={(e) => setApprovalType(e.target.value)}
+                                                    />
+                                                    <Form.Check
+                                                        type="radio"
+                                                        label="Good"
+                                                        name="approvalType"
+                                                        value="good"
+                                                        checked={approvalType === "good"}
+                                                        onChange={(e) => setApprovalType(e.target.value)}
+                                                    />
+                                                    <Form.Check
+                                                        type="radio"
+                                                        label="Excellent"
+                                                        name="approvalType"
+                                                        value="excellent"
+                                                        checked={approvalType === "excellent"}
+                                                        onChange={(e) => setApprovalType(e.target.value)}
+                                                    />
+
+                                                </div>)}
+
+                                            {approvalStatus === 7 && (
+                                                <div>
+
+                                                    <Form.Check
+                                                        type="radio"
+                                                        label="Reject"
+                                                        name="approvalType"
+                                                        value="poor"
+                                                        checked={approvalType === "poor"}
+                                                        onChange={(e) => setApprovalType(e.target.value)}
+                                                    />
+                                                    <Form.Check
+                                                        type="radio"
+                                                        label="Approve"
+                                                        name="approvalType"
+                                                        value="excellent"
+                                                        checked={approvalType === "excellent"}
+                                                        onChange={(e) => setApprovalType(e.target.value)}
+                                                    />
+
+                                                </div>)}
                                         </Form.Group>
 
                                         {/* Remarks Input */}

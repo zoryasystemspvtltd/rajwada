@@ -78,6 +78,19 @@ const InsideActivityListByStatus = () => {
                             path: 'flats'
                         },
                     },
+                    {
+                        type: 'lookup-relation',
+                        parent: 'roomId',
+                        field: 'workId',
+                        required: true,
+                        text: 'Work',
+                        width: 2,
+                        schema: {
+                            module: 'activity',
+                            relationKey: "roomId",
+                            path: 'rooms'
+                        },
+                    }
                 ]
             },
         ]
