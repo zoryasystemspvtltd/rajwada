@@ -81,34 +81,47 @@ namespace ILab.Data
                         modifiedBy = jsonData?.ModifiedBy;
                     }
                 }
-                if (type == typeof(Activity))
+                if (type == typeof(Activity) && jsonData != null)
                 {
-                    //When Activity Assigned
-                    if (jsonData != null && jsonData?.Status != null)
+                    // When Activity Assigned
+                    if (jsonData.Status != null)
                     {
-                        existingData.Status = jsonData?.Status;
-                        modifiedBy = jsonData?.ModifiedBy;
+                        existingData.Status = jsonData.Status;
+                        modifiedBy = jsonData.ModifiedBy;
 
-                        //Assigned also Project,Tower,Floor,Flat,Room
+                        // Assign linked modules: Project, Tower, Floor, Flat, Room
                         await AssginedLinkedModule(existingData, token);
                     }
-                    //When QC Approved
-                    if (jsonData != null && jsonData?.IsQCApproved != null)
+
+                    // Common handling for On Hold / Cancelled
+                    if (jsonData.IsOnHold == true || jsonData.IsCancelled == true)
                     {
-                        existingData.IsQCApproved = jsonData?.IsQCApproved;
-                        existingData.QCApprovedBy = jsonData?.QCApprovedBy;
-                        existingData.QCApprovedDate = jsonData?.QCApprovedDate;
-                        existingData.QCRemarks = jsonData?.QCRemarks;
-                        remarks = jsonData?.QCRemarks;
+                        existingData.IsOnHold = jsonData.IsOnHold;
+                        existingData.IsCancelled = jsonData.IsCancelled;
+                        existingData.IsApproved = jsonData.IsApproved;
+                        existingData.HODRemarks = jsonData.HODRemarks;
                     }
-                    //When HOD Approved
-                    if (jsonData != null && jsonData?.IsApproved != null)
+
+                    // When QC Approved
+                    if (jsonData.IsQCApproved == true)
                     {
-                        existingData.ApprovedBy = jsonData?.ApprovedBy;
-                        existingData.ApprovedDate = jsonData?.ApprovedDate;
-                        existingData.IsApproved = jsonData?.IsApproved;
-                        existingData.HODRemarks = jsonData?.HODRemarks;
-                        remarks = jsonData?.HODRemarks;
+                        existingData.IsQCApproved = jsonData.IsQCApproved;
+                        existingData.QCApprovedBy = jsonData.QCApprovedBy;
+                        existingData.QCApprovedDate = jsonData.QCApprovedDate;
+                        existingData.QCRemarks = jsonData.QCRemarks;
+
+                        remarks = jsonData.QCRemarks;
+                    }
+
+                    // When HOD Approved
+                    if (jsonData.IsApproved == true)
+                    {
+                        existingData.ApprovedBy = jsonData.ApprovedBy;
+                        existingData.ApprovedDate = jsonData.ApprovedDate;
+                        existingData.IsApproved = jsonData.IsApproved;
+                        existingData.HODRemarks = jsonData.HODRemarks;
+
+                        remarks = jsonData.HODRemarks;
                     }
                 }
 

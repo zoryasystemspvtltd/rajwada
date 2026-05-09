@@ -496,6 +496,9 @@ public class RajDataHandler : LabDataHandler
             if (request.FloorId.HasValue)
                 query = query.Where(x => x.FloorId == request.FloorId);
 
+            if (request.WorkId.HasValue)
+                query = query.Where(x => x.Id == request.WorkId);
+
             if (request.Type == "inside")
             {
                 query = query.Where(x => x.Type == "inside");

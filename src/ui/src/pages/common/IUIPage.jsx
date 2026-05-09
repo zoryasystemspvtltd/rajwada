@@ -17,6 +17,7 @@ import IUIMultiCopyFilter from './shared/IUIMultiCopyFilter';
 import { preprocess } from '../../store/preprocesser';
 import deleteDependency from '../../store/delete-dependencies';
 import IUIDeleteModal from './IUIDeleteModal';
+import { Background } from 'react-flow-renderer';
 
 const IUIPage = (props) => {
     // Properties
@@ -462,7 +463,7 @@ const IUIPage = (props) => {
         }
     }
 
-    const approvedPageValue = async (e, isApproved) => {
+    const approvedPageValue = async (e, approvalstatus) => {
         e.preventDefault();
         if (!remarks || remarks === '') {
             notify("error", "Remarks is mandatory !");
@@ -471,7 +472,15 @@ const IUIPage = (props) => {
         const current = new Date();
         const action = {
             module: module,
-            data: { id: id, status: isApproved ? 4 : 6, approvedBy: approvedMemeber, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, approvedRemarks: remarks, modifiedBy: loggedInUser?.email }
+            data: {
+                id: id,
+                status: approvalstatus,
+                isApproved: approvalstatus === 4,
+                isOnHold: approvalstatus === 5,
+                isCancelled: approvalstatus === 12,
+                hodRemarks: remarks,
+                modifiedBy: loggedInUser?.email
+            }
         }
         try {
             await api.editPartialData(action);
@@ -481,10 +490,12 @@ const IUIPage = (props) => {
                 // After 3 seconds set the show value to false
                 setShowRemarksModal(false);
                 // Mark Activity as Completed
-                if (module === 'activity' && isApproved) {
+                if (module === 'activity' && approvalstatus === 4) {
                     const updatedActivityData = {
                         ...data,
                         isCompleted: true,
+                        approvedBy: approvedMemeber,
+                        approvedDate: current,
                         actualEndDate: new Date()
                     };
                     await api.editData({ module: 'activity', data: updatedActivityData });
@@ -945,6 +956,20 @@ const IUIPage = (props) => {
                                                                 Change History
                                                             </Button>
                                                         </>
+
+                                                    }
+                                                    {
+                                                        (module === 'activity') &&
+                                                        <>
+                                                            <Button variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                style={{ backgroundColor: '#D9D30C' }}
+                                                                onClick={(e) => { setShowRemarksModal(true); setApprovalType("Hold"); }}>Hold</Button>
+                                                            <Button variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-sm mr-2"
+                                                                style={{ backgroundColor: '#d94e0c' }}
+                                                                onClick={(e) => { setShowRemarksModal(true); setApprovalType("Cancelled"); }}> Cancel</Button>
+                                                        </>
                                                     }
                                                     {
                                                         ([3, 7].includes(approvalStatus)) && loggedInUser?.email === data.member &&
@@ -1117,7 +1142,10 @@ const IUIPage = (props) => {
                                     <Button
                                         variant="contained"
                                         className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
-                                        onClick={(e) => (approvalType === "Approve") ? approvedPageValue(e, true) : approvedPageValue(e, false)}
+                                        onClick={(e) => (approvalType === "Approve") ?
+                                            approvedPageValue(e, 4) : (approvalType === "Reject")
+                                                ? approvedPageValue(e, 6) : (approvalType === "Hold") ?
+                                                    approvedPageValue(e, 5) : approvedPageValue(e, 12)}
                                     >
                                         Submit
                                     </Button>

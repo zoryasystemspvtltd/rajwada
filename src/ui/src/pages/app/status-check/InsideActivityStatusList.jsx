@@ -128,6 +128,7 @@ const InsideActivityListByStatus = () => {
         floorId: null,
         flatId: null,
         roomId: null,
+        workId: null,
         userId: loggedInUser?.email
     };
 
