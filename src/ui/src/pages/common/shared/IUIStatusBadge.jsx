@@ -1,7 +1,7 @@
 import Badge from "react-bootstrap/Badge";
 
 const IUIStatusBadge = ({ value }) => {
-    const getText = (num) => {         
+    const getText = (num) => {
         if (isNaN(num)) return "";
 
         const textMap = {
@@ -12,7 +12,8 @@ const IUIStatusBadge = ({ value }) => {
             4: "Approved",
             5: "Hold",
             6: "Rejected",
-            7: "HOD Assigned"
+            7: "HOD Assigned",
+            12: "Cancelled"
         };
 
         return textMap[num] || "Unknown";
@@ -29,7 +30,8 @@ const IUIStatusBadge = ({ value }) => {
             4: "badge-green",
             5: "badge-yellow",
             6: "badge-red",
-            7: "badge-blue"
+            7: "badge-blue",
+            12: "badge-gray"
         };
 
         return classMap[num] || "bg-dark";

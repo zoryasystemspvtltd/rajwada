@@ -7,11 +7,12 @@
         public long? ProjectId { get; set; }
         public long? TowerId { get; set; }
         public long? FloorId { get; set; }
+        public long? WorkId { get; set; }
 
         // Inside only
         public long? FlatId { get; set; }
         public long? RoomId { get; set; }
-
+        
         // Outside only
         public long? OutsideEntityId { get; set; }
 
