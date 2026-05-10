@@ -959,7 +959,7 @@ const IUIPage = (props) => {
 
                                                     }
                                                     {
-                                                        (module === 'activity') &&
+                                                        (module === 'activity') && (approvalStatus !== 4 && auditPrivileges?.view) &&
                                                         <>
                                                             <Button variant="contained"
                                                                 className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"

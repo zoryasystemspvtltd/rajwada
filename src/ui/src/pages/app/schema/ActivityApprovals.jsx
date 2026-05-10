@@ -28,7 +28,7 @@ export const ListActivityApproval = () => {
                 schema: { module: 'project' }
             },
             {
-                text: 'Dependency', field: 'dependencyId', type: 'lookup', sorting: false, searching: false,
+                text: 'Dependency', field: 'workflowId', type: 'lookup', sorting: false, searching: false,
                 schema: { module: 'workflow' }
             }
         ]
