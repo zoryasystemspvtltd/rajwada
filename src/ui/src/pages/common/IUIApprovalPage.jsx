@@ -216,10 +216,10 @@ const IUIApprovalPage = (props) => {
             }
             // QC is rejecting
             else {
-                // patchAction = {
-                //     module: module,
-                //     data: { id: id, status: 3, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
-                // }
+                patchAction = {
+                    module: module,
+                    data: { id: id, status: 6, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
+                }
 
                 // Edit the main activity in the Activity table so that work continues
                 editAction = {
@@ -293,7 +293,7 @@ const IUIApprovalPage = (props) => {
                 editAction = {
                     module: module,
                     data: {
-                        ...data, status: 4, approvedBy: loggedInUser?.email, approvedDate: current,
+                        ...data, approvedBy: loggedInUser?.email, approvedDate: current,
                         isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks,
                         isAbandoned: false, actualEndDate: current
                     }
@@ -302,16 +302,16 @@ const IUIApprovalPage = (props) => {
             // HOD is rejecting
             else {
 
-                // patchAction = {
-                //     module: module,
-                //     data: { id: id, status: 6, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
-                // }
+                patchAction = {
+                    module: module,
+                    data: { id: id, status: 6, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
+                }
                 editAction = {
                     module: module,
                     data: {
-                        ...data, status: 6, approvedBy: loggedInUser?.email, approvedDate: current,
+                        ...data, approvedBy: loggedInUser?.email, approvedDate: current,
                         isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks,
-                        isAbandoned: true
+                        isAbandoned: true,isQCApproved: isApproved,
                     }
                 }
 
