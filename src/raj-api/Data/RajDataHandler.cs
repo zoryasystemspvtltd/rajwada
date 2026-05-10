@@ -557,7 +557,7 @@ public class RajDataHandler : LabDataHandler
                 {
                     response.Closed.Activities.Add(dto);
                 }
-                else if (activity.AmendmentId != null)
+                else if (activity.AmendmentId != null && activity.IsAbandoned == true)
                 {
                     response.Rework.Activities.Add(dto);
                 }
@@ -1959,94 +1959,6 @@ public class RajDataHandler : LabDataHandler
 
     }
 
-    private static StatusType GetWorkStatus(Activity item)
-    {
-        var currentDate = DateTime.Now;
-        //    0: "New",
-        //    1: "In Progress",
-        //    2: "QC Assigned",
-        //    3: "Assigned",
-        //    4: "Approved",
-        //    5: "Hold",
-        //    6: "Rejected",
-        //    7: "HOD Assigned"
-
-
-        //    Draft = 0,
-        //Modified = 1,
-        //QCAssigned = 2,
-        //Assigned = 3,
-        //Approved = 4,
-        //Hold = 5,
-        //Rejected = 6,
-        //HODAssigned = 7,
-        StatusType status = StatusType.Draft; //New
-
-
-        if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate == null)
-        {
-            status = StatusType.Draft;  // 0: "New";
-        }
-        if (item.StartDate != null && item.StartDate < currentDate && item.EndDate != null
-            && item.EndDate > currentDate && item.ActualStartDate != null)
-        {
-            status = StatusType.Modified; // 1: "In Progress";
-        }
-        //if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate != null
-        //    && item.IsQCApproved == null && item.IsCompleted != null && item.IsCompleted == true &&
-        //    item.Status == StatusType.QCAssigned || item.Status == StatusType.Assigned) // QC Assigened but not approved
-        //{
-        //    status = StatusType.QCAssigned; // 2: "QC Assigned";
-        //}
-        //if (item.StartDate != null && item.StartDate < currentDate && item.ActualStartDate != null 
-        //    && item.IsQCApproved == null && item.Status == StatusType.Assigned) // Assigened
-        //{
-        //    status = StatusType.Assigned; // 3: "Assigned";
-        //}
-        if (item.ActualEndDate <= item.EndDate && item.ActualStartDate >= item.StartDate
-           && item.IsCompleted != null && item.IsCompleted == true)
-        {
-            status = StatusType.Approved; // 4: "Approved";
-        }
-        if (item.StartDate != null && item.EndDate != null && item.StartDate < currentDate
-            && currentDate < item.EndDate && item.IsOnHold != null && item.IsOnHold == true)
-        {
-            status = StatusType.Hold;   // 5: "Hold";
-        }
-        if (item.Status == StatusType.Rejected)
-        {
-            status = StatusType.Rejected; // 6: "Rejected";
-        }
-        if (item.IsCompleted != null && item.IsCompleted == true && item.IsQCApproved != null
-           && item.IsQCApproved == true && item.IsApproved == null && item.Status == StatusType.HODAssigned) //HOD Assigend but not approved
-        {
-            status = StatusType.HODAssigned; // 7: "HODAssigned";
-        }
-
-        //if (item.EndDate != null && item.ActualEndDate == null
-        //    && item.EndDate < currentDate && item.ActualStartDate != null)
-        //{
-        //    status = "Delayed";
-        //}
-
-        //if (item.IsCompleted != null && item.IsCompleted == true
-        //  && item.IsQCApproved != null && item.IsQCApproved == true)// QC Approved
-        //{
-        //    status = "Inspection Passed";
-        //}
-        //if (item.IsCompleted != null && item.IsCompleted == true
-        //    && item.IsQCApproved != null && item.IsQCApproved == false) //QC is rejected
-        //{
-        //    status = StatusType.Rejected; // "Inspection Failed/Rework Required";
-        //}
-
-        //if (item.IsCompleted == true && item.IsAbandoned == true)//Is Abanndoned
-        //{
-        //    status = "Short Closed/Abandoned";
-        //}
-
-        return status;
-    }
 }
 public class ModuleIdentity
 {

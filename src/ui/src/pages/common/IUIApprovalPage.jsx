@@ -206,7 +206,12 @@ const IUIApprovalPage = (props) => {
             if (isApproved) {
                 patchAction = {
                     module: module,
-                    data: { id: id, status: 7, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
+                    data: {
+                        id: id, status: 7, qcApprovedBy: loggedInUser?.email,
+                        qcApprovedDate: current, isQCApproved: isApproved,
+                        isAbandoned: false,
+                        isCompleted: isApproved, qcRemarks: remarks
+                    }
                 }
             }
             // QC is rejecting
@@ -219,7 +224,10 @@ const IUIApprovalPage = (props) => {
                 // Edit the main activity in the Activity table so that work continues
                 editAction = {
                     module: module,
-                    data: { ...data, isCompleted: false, isInProgress: true, progressPercentage: 50 }
+                    data: {
+                        ...data, isCompleted: false, isInProgress: true,
+                        isAbandoned: true, qcRemarks: remarks
+                    }
                 }
 
                 // Check whether amendment already exists for the rejected activity
@@ -284,18 +292,27 @@ const IUIApprovalPage = (props) => {
                 }
                 editAction = {
                     module: module,
-                    data: { ...data, isCompleted: true, actualEndDate: current }
+                    data: {
+                        ...data, status: 4, approvedBy: loggedInUser?.email, approvedDate: current,
+                        isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks,
+                        isAbandoned: false, actualEndDate: current
+                    }
                 }
             }
             // HOD is rejecting
             else {
-                patchAction = {
-                    module: module,
-                    data: { id: id, status: 6, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
-                }
+
+                // patchAction = {
+                //     module: module,
+                //     data: { id: id, status: 6, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
+                // }
                 editAction = {
                     module: module,
-                    data: { ...data, isCompleted: false, isAbandoned: true }
+                    data: {
+                        ...data, status: 6, approvedBy: loggedInUser?.email, approvedDate: current,
+                        isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks,
+                        isAbandoned: true
+                    }
                 }
 
                 // Check whether amendment already exists for the rejected activity
@@ -352,17 +369,19 @@ const IUIApprovalPage = (props) => {
             }
         }
         try {
-            if (Object.keys(editAction).length > 0) {
-                await api.editData(editAction);
-            }
-
+            var response;
             if (Object.keys(amendmentAction).length > 0) {
                 if (isAlreadyAmended) {
                     await api.editData(amendmentAction);
                 }
                 else {
-                    await api.addData(amendmentAction);
+                    response = await api.addData(amendmentAction);
+                    editAction.data = { ...editAction.data, amendmentId: response.data };
                 }
+            }
+
+            if (Object.keys(editAction).length > 0) {
+                await api.editData(editAction);
             }
 
             if (Object.keys(patchAction).length > 0) {
