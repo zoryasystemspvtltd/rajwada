@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Button, Card, Spinner, Modal, Form } from "react-bootstrap";
-import { useSelector } from 'react-redux';
+import { Alert, Button, Card, Spinner, Modal, Form, Row, Col } from "react-bootstrap";
+import { setSave } from '../../../store/api-db';
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from "react-router-dom";
 import api from '../../../store/api-service';
 import IUIPage from "../../common/IUIPage";
@@ -73,6 +75,7 @@ const ViewActivityStatus = () => {
                     { text: 'Duration', field: 'duration', width: 4, type: 'label' },
                     { text: 'Progress(%)', field: 'progressPercentage', width: 4, type: 'label' },
 
+
                     { text: 'Estimate Cost', field: 'costEstimate', width: 4, type: 'label' },
                     { text: 'Actual Cost', field: 'actualCost', width: 4, type: 'label' },
                     {
@@ -122,6 +125,9 @@ const ViewActivityStatus = () => {
     }
 
     const { id } = useParams();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const loggedInUser = useSelector((state) => state.api.loggedInUser)
 
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -129,24 +135,48 @@ const ViewActivityStatus = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [commentsModalOpen, setCommentsModalOpen] = useState(false);
     const [selectedActivityId, setSelectedActivityId] = useState(null);
+    const [activityData, setActivityData] = useState(null);
+    const [auditPrivileges, setAuditPrivileges] = useState({});
 
-    // useEffect(() => {
-    //     const commentPrivileges = loggedInUser?.privileges?.filter(p => p.module === "comment")?.map(p => p.name);
-    //     const imagePrivileges = loggedInUser?.privileges?.filter(p => p.module === "attachment")?.map(p => p.name);
-    //     const activityTrackingPrivileges = loggedInUser?.privileges?.filter(p => p.module === "activityTracking")?.map(p => p.name);
-    //     let access = {};
-    //     commentPrivileges.forEach(p => {
-    //         access["comment"] = { ...access["comment"], ...{ [p]: true } }
-    //     })
-    //     imagePrivileges.forEach(p => {
-    //         access["image"] = { ...access["image"], ...{ [p]: true } }
-    //     })
-    //     activityTrackingPrivileges.forEach(p => {
-    //         access["activitytracking"] = { ...access["activitytracking"], ...{ [p]: true } }
-    //     })
-    //     setPrivileges(access)
-    // }, [loggedInUser]);
+    const [remarks, setRemarks] = useState('');
+    const [approvalType, setApprovalType] = useState('');
+    const [showRemarksModal, setShowRemarksModal] = useState(false);
 
+    useEffect(() => {
+        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === "auditLog")?.map(p => p.name);
+        let access = {};
+        modulePrivileges.forEach(p => {
+            access = { ...access, ...{ [p]: true } }
+        })
+        setAuditPrivileges(access);
+        if (module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
+    }, [loggedInUser, module]);
+
+
+    /* ---------------- LOAD ACTIVITY ON FIRST MOUNT ---------------- */
+
+    useEffect(() => {
+        async function fetchActivity() {
+            if (!id) return;
+
+            try {
+                const res = await api.getSingleData({
+                    module: "activity",
+                    id: parseInt(id)
+                });
+                const activity = res.data;
+                setActivityData(activity);
+
+
+            } catch (err) {
+                console.error("Failed to load activity", err);
+            }
+        }
+
+        fetchActivity();
+    }, [id]);
 
     const loadReports = async () => {
         try {
@@ -206,11 +236,58 @@ const ViewActivityStatus = () => {
         setCommentsModalOpen(true);
     };
 
-
     const closeCommentsModal = () => {
         setCommentsModalOpen(false);
         setSelectedActivityId(null);
     };
+
+    const handleModalClose = () => {
+        setShowRemarksModal(false);
+        setRemarks('');
+    };
+
+    const handleRemarksChange = (event) => {
+        const { value } = event.target;
+        setRemarks(value);
+    };
+
+    const approvedPageValue = async (e, approvalstatus) => {
+        e.preventDefault();
+        if (!remarks || remarks === '') {
+            notify("error", "Remarks is mandatory !");
+            return;
+        }
+        const current = new Date();
+        const action = {
+            module: module,
+            data: {
+                id: id,
+                status: approvalstatus,
+                isApproved: approvalstatus === 4,
+                isOnHold: approvalstatus === 5,
+                isCancelled: approvalstatus === 12,
+                hodRemarks: remarks,
+                modifiedBy: loggedInUser?.email
+            }
+        }
+        try {
+            await api.editPartialData(action);
+            dispatch(setSave({ module: module }));
+
+            const timeId = setTimeout(async () => {
+                // After 3 seconds set the show value to false
+                setShowRemarksModal(false);
+                navigate(0);
+            }, 1000)
+
+            return () => {
+                clearTimeout(timeId)
+            }
+
+        } catch (e) {
+            // TODO
+        }
+    }
 
     return (
         <>
@@ -229,6 +306,7 @@ const ViewActivityStatus = () => {
                                     <Button
                                         variant="contained"
                                         className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md"
+                                        disabled={[5, 12].includes(activityData?.status)}
                                         onClick={() => setModalOpen(true)}
                                     >
                                         Submit Today's Report
@@ -266,6 +344,37 @@ const ViewActivityStatus = () => {
                                 window.location.reload();
                             }}
                         />
+
+                        {
+                            (showRemarksModal) && <Modal show={showRemarksModal} onHide={handleModalClose}>
+                                <Modal.Header closeButton>
+                                    <h4 style={{ color: "black" }}>Remarks</h4>
+                                </Modal.Header>
+                                <Modal.Body style={{ color: "black" }}>
+                                    <Form.Group as={Row} controlId="remarksInput">
+                                        <Col>
+                                            <Form.Control type="text" value={remarks} onChange={handleRemarksChange} placeholder="Remarks here....." />
+                                        </Col>
+                                    </Form.Group>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <Button
+                                        variant="contained"
+                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary mr-2'
+                                        onClick={handleModalClose}
+                                    >
+                                        Close
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        className='btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary'
+                                        onClick={(e) => (approvalType === "In Progress") ? approvedPageValue(e, 1) : approvedPageValue(e, 12)}
+                                    >
+                                        Submit
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal>
+                        }
                     </div>
                 </div>
 

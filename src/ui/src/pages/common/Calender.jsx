@@ -14,6 +14,7 @@ import CommentsModal from '../app/status-check/CommentsModal';
 import ReportModal from '../app/status-check/ReportModal';
 import IUIImageGallery from './shared/IUIImageGallery';
 import IUITableInput from './shared/IUITableInput';
+import IUIStatusBadge from './shared/IUIStatusBadge';
 
 
 const Calendar = () => {
@@ -742,6 +743,9 @@ const Calendar = () => {
                                                 >
                                                     {task.name}
                                                     {task.curingStatus && <span className="badge badge-warning" >C</span>}
+                                                    <IUIStatusBadge
+                                                        value={task.status}
+                                                    />
                                                 </Button>
                                             </div>
                                             <div className="col-2 d-flex align-items-center">
@@ -803,7 +807,7 @@ const Calendar = () => {
                     activityId={selectedActivityId}
                     show={taskModalOpen}
                     reportDate={selectedDate}
-                    submitDisabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted}
+                    submitDisabled={!isSameDay(selectedDate, startOfToday()) || selectedTask?.isCompleted || [5, 12].includes(selectedTask?.status)}
                     onClose={() => {
                         setTaskModalOpen(false);
                     }}
