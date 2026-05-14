@@ -958,17 +958,35 @@ const IUIPage = (props) => {
                                                         </>
 
                                                     }
+                                                    {/* Button to undo Hold */}
                                                     {
-                                                        (module === 'activity') && (approvalStatus !== 4 && auditPrivileges?.view) &&
+                                                        (module === 'activity') && (approvalStatus === 5 && auditPrivileges?.view) &&
                                                         <>
                                                             <Button variant="contained"
-                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                style={{ backgroundColor: '#D9D30C' }}
-                                                                onClick={(e) => { setShowRemarksModal(true); setApprovalType("Hold"); }}>Hold</Button>
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-success btn-sm mr-2"
+                                                                onClick={(e) => { setShowRemarksModal(true); setApprovalType("In Progress"); }}>Undo Hold
+                                                            </Button>
+                                                        </>
+                                                    }
+                                                    {/* Button to undo Cancel */}
+                                                    {
+                                                        (module === 'activity') && (approvalStatus === 12 && auditPrivileges?.view) &&
+                                                        <>
                                                             <Button variant="contained"
-                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-sm mr-2"
-                                                                style={{ backgroundColor: '#d94e0c' }}
-                                                                onClick={(e) => { setShowRemarksModal(true); setApprovalType("Cancelled"); }}> Cancel</Button>
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm mr-2"
+                                                                onClick={(e) => { setShowRemarksModal(true); setApprovalType("In Progress"); }}>Undo Cancel
+                                                            </Button>
+                                                        </>
+                                                    }
+                                                    {
+                                                        (module === 'activity') && (![5, 12, 4, 6].includes(approvalStatus) && auditPrivileges?.view) &&
+                                                        <>
+                                                            <Button variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-warning btn-sm mr-2"
+                                                                onClick={(e) => { setShowRemarksModal(true); setApprovalType("Hold"); }}>Hold Work</Button>
+                                                            <Button variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm mr-2"
+                                                                onClick={(e) => { setShowRemarksModal(true); setApprovalType("Cancelled"); }}> Cancel Work</Button>
                                                         </>
                                                     }
                                                     {
@@ -1145,7 +1163,7 @@ const IUIPage = (props) => {
                                         onClick={(e) => (approvalType === "Approve") ?
                                             approvedPageValue(e, 4) : (approvalType === "Reject")
                                                 ? approvedPageValue(e, 6) : (approvalType === "Hold") ?
-                                                    approvedPageValue(e, 5) : approvedPageValue(e, 12)}
+                                                    approvedPageValue(e, 5) : (approvalType === "In Progress") ? approvedPageValue(e, 1) : approvedPageValue(e, 12)}
                                     >
                                         Submit
                                     </Button>

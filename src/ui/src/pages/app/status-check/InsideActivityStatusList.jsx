@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Button, Col, Row, Form } from "react-bootstrap";
 import Table from 'react-bootstrap/Table';
-import { useSelector } from 'react-redux';
+import { setSave } from '../../../store/api-db';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom";
 import statusList from '../../../store/activity-status-check';
 import api from '../../../store/api-service';
@@ -10,6 +11,7 @@ import { notify } from '../../../store/notification';
 import IUILookUp from '../../common/shared/IUILookUp';
 import IUIPageElement from '../../common/shared/IUIPageElement';
 import ActivityStatusDashboard from './ActivityDashboard';
+import IUIMultiAssign from '../../common/shared/IUIMultiAssign';
 
 const InsideActivityListByStatus = () => {
     // Properties
@@ -118,6 +120,7 @@ const InsideActivityListByStatus = () => {
     }
 
     const module = "activity";
+    const dispatch = useDispatch();
 
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
 
@@ -151,6 +154,19 @@ const InsideActivityListByStatus = () => {
     const [dependencySelectParams, setDependencySelectParams] = useState(initialParams);
     const [isLoading, setIsLoading] = useState(false);
     const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false);
+    const [selectedActivities, setSelectedActivities] = useState([]);
+
+    useEffect(() => {
+        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
+        let access = {};
+        modulePrivileges.forEach(p => {
+            access = { ...access, ...{ [p]: true } }
+        })
+        setPrivileges(access);
+        if (module !== 'workflow') {
+            localStorage.removeItem("dependency-flow");
+        }
+    }, [loggedInUser, module]);
 
     useEffect(() => {
         let isMounted = true;
@@ -309,6 +325,87 @@ const InsideActivityListByStatus = () => {
         window.location.reload();
     };
 
+    const handleCheckboxChange = (activityId, checked) => {
+        if (checked) {
+            setSelectedActivities((prev) => [...prev, activityId]);
+        } else {
+            setSelectedActivities((prev) =>
+                prev.filter((id) => id !== activityId)
+            );
+        }
+    };
+
+    const assignMultiPageValue = async (e, userList, uncheckedUserList) => {
+        e.preventDefault();
+        try {
+            await multiUserAssignment(userList);
+            await multiUserUnassignment(uncheckedUserList); // unassign users
+
+            notify("success", "Assignments Successful !");
+            window.location.reload();
+        }
+        catch (e) {
+            notify("error", "One or more assignments failed !");
+        }
+    }
+
+    const multiUserAssignment = async (userList) => {
+        for (let dataId of selectedActivities) {
+            for (let user of userList) {
+                let action = {};
+
+                action = {
+                    module: module,
+                    data: {
+                        id: dataId,
+                        member: user.email,
+                        userId: user.id,
+                        status: 3,
+                        modifiedBy: loggedInUser?.email
+                    }
+                };
+
+                try {
+                    await api.editPartialData(action);
+
+                } catch (e) {
+                    // TODO
+                }
+            }
+        }
+
+        dispatch(setSave({ module: 'activity' }));
+        return;
+    };
+
+    const multiUserUnassignment = async (uncheckedUserList) => {
+        for (let dataId of selectedActivities) {
+            for (let user of uncheckedUserList) {
+                let action = {};
+
+                action = {
+                    module: module,
+                    data: {
+                        id: dataId,
+                        member: user.email,
+                        userId: user.id,
+                        status: -3,
+                        modifiedBy: loggedInUser?.email
+                    }
+                };
+
+                try {
+                    await api.editPartialData(action);
+
+                } catch (e) {
+                    // TODO
+                }
+            }
+        }
+        dispatch(setSave({ module: 'activity' }));
+        return;
+    };
+
     return (
         <>
             <div className="tab-content">
@@ -395,6 +492,22 @@ const InsideActivityListByStatus = () => {
                         <div className="col-md-12">
                             {(!isLoading) && (
                                 <div className="main-card mb-3 card">
+
+                                    {/* 🔹 MULTI ASSIGN BUTTON */}
+                                    {
+                                        privileges?.assign &&
+                                        selectedActivities.length > 0 && (
+                                            <div className="p-3 border-bottom">
+                                                <IUIMultiAssign
+                                                    onClick={assignMultiPageValue}
+                                                    schema={{
+                                                        module: module,
+                                                        id: selectedActivities[0]
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+
                                     <div className="card-body">
                                         <Row>
                                             <Col>
@@ -402,44 +515,92 @@ const InsideActivityListByStatus = () => {
                                                     <Table responsive>
                                                         <thead>
                                                             <tr>
+                                                                {/* CHECKBOX HEADER */}
+                                                                <th width={20}></th>
+
                                                                 {schema?.editing && (
                                                                     <th>
                                                                         {privileges.edit && (
-                                                                            <button type="submit" className="btn btn-link text-white p-0">#</button>
+                                                                            <button
+                                                                                type="submit"
+                                                                                className="btn btn-link text-white p-0"
+                                                                            >
+                                                                                #
+                                                                            </button>
                                                                         )}
                                                                     </th>
                                                                 )}
+
                                                                 {schema?.fields?.map((fld, f) => (
                                                                     <th key={f} width={fld.width}>
-                                                                        <button type="submit" className="btn btn-link text-white p-0">
+                                                                        <button
+                                                                            type="submit"
+                                                                            className="btn btn-link text-white p-0"
+                                                                        >
                                                                             {fld.text}
                                                                         </button>
                                                                     </th>
                                                                 ))}
                                                             </tr>
                                                         </thead>
+
                                                         <tbody>
                                                             {activities.map((item, i) => (
                                                                 <tr key={i}>
+
+                                                                    {/* CHECKBOX COLUMN */}
+                                                                    <td>
+                                                                        {item.status === 0 && (
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                checked={selectedActivities.includes(item.activityId)}
+                                                                                onChange={(e) =>
+                                                                                    handleCheckboxChange(
+                                                                                        item.activityId,
+                                                                                        e.target.checked
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        )}
+                                                                    </td>
+
                                                                     {schema?.editing && (
                                                                         <td width={10}>
                                                                             {privileges.edit && (
-                                                                                <Link to={`${item.id}/edit`} title='Edit'>
+                                                                                <Link
+                                                                                    to={`${item.id}/edit`}
+                                                                                    title='Edit'
+                                                                                >
                                                                                     <i className="fa-solid fa-pencil"></i>
                                                                                 </Link>
                                                                             )}
                                                                         </td>
                                                                     )}
+
                                                                     {schema?.fields?.map((fld, f) => (
                                                                         <td key={f}>
                                                                             {fld.type === 'link' && (
-                                                                                <Link to={`${item?.id ? item.id : item[schema?.linkField]}`}>
+                                                                                <Link
+                                                                                    to={`${item?.id
+                                                                                        ? item.id
+                                                                                        : item[schema?.linkField]
+                                                                                        }`}
+                                                                                >
                                                                                     {item[fld.field]}
                                                                                 </Link>
                                                                             )}
-                                                                            {(!fld.type || fld.type === 'text') && item[fld.field]}
-                                                                            {fld.type === 'date' && item[fld.field] && formatStringDate(item[fld.field])}
-                                                                            {fld.type === 'date' && !item[fld.field] && 'Not Provided'}
+
+                                                                            {(!fld.type || fld.type === 'text') &&
+                                                                                item[fld.field]}
+
+                                                                            {fld.type === 'date' &&
+                                                                                item[fld.field] &&
+                                                                                formatStringDate(item[fld.field])}
+
+                                                                            {fld.type === 'date' &&
+                                                                                !item[fld.field] &&
+                                                                                'Not Provided'}
+
                                                                             {fld.type === 'lookup' && (
                                                                                 <IUILookUp
                                                                                     value={item[fld.field]}
@@ -454,7 +615,11 @@ const InsideActivityListByStatus = () => {
                                                             ))}
                                                         </tbody>
                                                     </Table>
-                                                ) : <strong>No Activities found based on the given condition</strong>}
+                                                ) : (
+                                                    <strong>
+                                                        No Activities found based on the given condition
+                                                    </strong>
+                                                )}
                                             </Col>
                                         </Row>
                                     </div>

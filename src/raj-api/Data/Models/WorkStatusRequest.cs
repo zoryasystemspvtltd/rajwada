@@ -1,4 +1,6 @@
-﻿namespace RajApi.Data.Models
+﻿using ILab.Extensionss.Data.Models;
+
+namespace RajApi.Data.Models
 {
     public class WorkStatusRequest
     {
@@ -29,6 +31,7 @@
         public long? FlatId { get; set; } = null!;
         public string WorkId { get; set; } = null!;
         public long? OutSideEntityId { get; set; } = null!;
+        public StatusType? Status { get; set; } = null!;
     }
 
     public class StatusGroup

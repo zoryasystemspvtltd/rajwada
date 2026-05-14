@@ -20,6 +20,7 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 ));
 
 const IUIMultiAssign = (props) => {
+    console.log(props?.schema)
     const module = "user";
     const schema = props?.schema;
     const dropdownRef = useRef(null);
