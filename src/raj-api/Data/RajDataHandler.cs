@@ -541,7 +541,8 @@ public class RajDataHandler : LabDataHandler
                     Type = activity.Type,
                     FlatId = activity.FlatId,
                     WorkId = activity.WorkId,
-                    OutSideEntityId = activity.OutSideEntityId
+                    OutSideEntityId = activity.OutSideEntityId,
+                    Status = activity.Status
                 };
 
                 // ✅ PRIORITY LOGIC (IMPORTANT)
