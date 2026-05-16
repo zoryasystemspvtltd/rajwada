@@ -1828,7 +1828,7 @@ public class RajDataHandler : LabDataHandler
         catch (Exception ex)
         {
             logger.LogError(ex, $"Exception in GetActivtyDetailsForUser method and details: '{ex.Message}'");
-            return null;
+            throw;
         }
     }
 
@@ -1900,7 +1900,7 @@ public class RajDataHandler : LabDataHandler
         catch (Exception ex)
         {
             logger.LogError(ex, $"Exception in DuplicateChecking method and details: '{ex.Message}'");
-            return false;
+            throw;
         }
     }
 
@@ -1954,7 +1954,7 @@ public class RajDataHandler : LabDataHandler
         catch (Exception ex)
         {
             logger.LogError(ex, $"Exception in GetActivityFullDetails method and details: '{ex.Message}'");
-            return false;
+            throw;
         }
 
     }

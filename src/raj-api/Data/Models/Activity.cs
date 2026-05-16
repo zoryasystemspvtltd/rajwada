@@ -246,7 +246,7 @@ namespace RajApi.Data.Models
     {
         public long? AssetId { get; set; }
         public long? UomId { get; set; }
-        public int? Quantity { get; set; }
+        public decimal? Quantity { get; set; }
     }
 
     public class AssigenedUser
