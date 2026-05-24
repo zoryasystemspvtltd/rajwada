@@ -311,7 +311,7 @@ const IUIApprovalPage = (props) => {
                     data: {
                         ...data, approvedBy: loggedInUser?.email, approvedDate: current,
                         isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks,
-                        isAbandoned: true,isQCApproved: isApproved,
+                        isAbandoned: true, isQCApproved: isApproved,
                     }
                 }
 

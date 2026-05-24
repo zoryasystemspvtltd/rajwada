@@ -104,11 +104,14 @@ const OutsideActivityListByStatus = () => {
         towerId: null,
         floorId: null,
         outsideEntityId: null,
+        workId: null,
         userId: loggedInUser?.email
     };
 
     const [data, setData] = useState({});
     const [userList, setUserList] = useState([]);
+    const [filteredWorkIds, setFilteredWorkIds] = useState([]);
+    const [selectedWorkId, setSelectedWorkId] = useState(null);
     const [errors, setErrors] = useState({});
     const [activities, setActivities] = useState([]);
     const [rawResponse, setRawResponse] = useState({});
@@ -127,6 +130,12 @@ const OutsideActivityListByStatus = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false);
     const [selectedActivities, setSelectedActivities] = useState([]);
+
+    const handleStatusChange = (status) => {
+        setSelectedStatus(status);
+        setActivities([]);
+        setSelectedWorkId(null);
+    }
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
@@ -241,6 +250,8 @@ const OutsideActivityListByStatus = () => {
             //  Default activities (based on selected status)
             const defaultStatus = selectedStatus || "notStarted";
             setActivities(res?.[defaultStatus]?.activities || []);
+            // set Work IDs
+            setFilteredWorkIds(res?.[defaultStatus]?.activities?.map(activity => activity?.workId) || []);
 
         } catch (error) {
             console.error("Error fetching activities:", error);
@@ -262,6 +273,11 @@ const OutsideActivityListByStatus = () => {
             setActivities(rawResponse?.[selectedStatus]?.activities || []);
         }
     }, [selectedStatus, rawResponse]);
+
+    const handleWorkIdSelection = (e) => {
+        e.preventDefault();
+        setSelectedWorkId(e.target.value);
+    }
 
     //  Handle Filter Change
     const handleChange = (e) => {
@@ -403,9 +419,9 @@ const OutsideActivityListByStatus = () => {
                                         </Row>
                                     ))}
 
-                                    {
-                                        (isCurrentUserAdmin) && (
-                                            <div className="row">
+                                    <div className="row">
+                                        {
+                                            (isCurrentUserAdmin) && (
                                                 <div className="col-md-3">
                                                     <Form.Group className="position-relative form-group">
                                                         <Form.Label className='mb-2'>
@@ -429,9 +445,37 @@ const OutsideActivityListByStatus = () => {
                                                         </div>
                                                     </Form.Group>
                                                 </div>
-                                            </div>
-                                        )
-                                    }
+                                            )
+                                        }
+
+                                        {
+                                            (dependencySelectParams.roomId) && (
+                                                <div className="col-md-3">
+                                                    <Form.Group className="position-relative form-group">
+                                                        <Form.Label className='mb-2'>
+                                                            Work ID
+                                                        </Form.Label>
+                                                        <div>
+                                                            < select
+                                                                aria-label={`select-work-id`}
+                                                                id={`select-work-id`}
+                                                                value={dependencySelectParams.workId}
+                                                                data-name={"workId"}
+                                                                name='select'
+                                                                className={`form-control`}
+                                                                disabled={false}
+                                                                onChange={handleWorkIdSelection}>
+                                                                <option>--Select--</option>
+                                                                {filteredWorkIds?.map((item, i) => (
+                                                                    <option key={i} value={item}>{item}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    </Form.Group>
+                                                </div>
+                                            )
+                                        }
+                                    </div>
 
                                     <Button
                                         className="btn btn-pill btn-secondary"
@@ -501,7 +545,7 @@ const OutsideActivityListByStatus = () => {
                                                         </thead>
 
                                                         <tbody>
-                                                            {activities.map((item, i) => (
+                                                            {activities.filter(act => (selectedWorkId ? act.workId === selectedWorkId : true)).map((item, i) => (
                                                                 <tr key={i}>
 
                                                                     {/* CHECKBOX COLUMN */}

@@ -80,19 +80,19 @@ const InsideActivityListByStatus = () => {
                             path: 'flats'
                         },
                     },
-                    {
-                        type: 'lookup-relation',
-                        parent: 'roomId',
-                        field: 'workId',
-                        required: true,
-                        text: 'Work',
-                        width: 2,
-                        schema: {
-                            module: 'activity',
-                            relationKey: "roomId",
-                            path: 'rooms'
-                        },
-                    }
+                    // {
+                    //     type: 'lookup-relation',
+                    //     parent: 'roomId',
+                    //     field: 'workId',
+                    //     required: true,
+                    //     text: 'Work',
+                    //     width: 2,
+                    //     schema: {
+                    //         module: 'activity',
+                    //         relationKey: "roomId",
+                    //         path: 'rooms'
+                    //     },
+                    // }
                 ]
             },
         ]
@@ -137,6 +137,8 @@ const InsideActivityListByStatus = () => {
 
     const [data, setData] = useState({});
     const [userList, setUserList] = useState([]);
+    const [filteredWorkIds, setFilteredWorkIds] = useState([]);
+    const [selectedWorkId, setSelectedWorkId] = useState(null);
     const [errors, setErrors] = useState({});
     const [activities, setActivities] = useState([]);
     const [rawResponse, setRawResponse] = useState({});
@@ -156,6 +158,12 @@ const InsideActivityListByStatus = () => {
     const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false);
     const [selectedActivities, setSelectedActivities] = useState([]);
 
+    const handleStatusChange = (status) => {
+        setSelectedStatus(status);
+        setActivities([]);
+        setSelectedWorkId(null);
+    }
+
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
         let access = {};
@@ -167,6 +175,10 @@ const InsideActivityListByStatus = () => {
             localStorage.removeItem("dependency-flow");
         }
     }, [loggedInUser, module]);
+
+    useEffect(() => {
+
+    }, [dependencySelectParams.roomId])
 
     useEffect(() => {
         let isMounted = true;
@@ -269,7 +281,8 @@ const InsideActivityListByStatus = () => {
             //  Default activities (based on selected status)
             const defaultStatus = selectedStatus || "notStarted";
             setActivities(res?.[defaultStatus]?.activities || []);
-
+            // set Work IDs
+            setFilteredWorkIds(res?.[defaultStatus]?.activities?.map(activity => activity?.workId) || []);
         } catch (error) {
             console.error("Error fetching activities:", error);
         } finally {
@@ -282,7 +295,7 @@ const InsideActivityListByStatus = () => {
         if (dependencySelectParams?.userId) {
             fetchActivities(dependencySelectParams);
         }
-    }, [dependencySelectParams]);
+    }, [dependencySelectParams, selectedStatus]);
 
     // useEffect(() => {
     //     if (
@@ -319,6 +332,11 @@ const InsideActivityListByStatus = () => {
     const handleUserSelection = (e) => {
         e.preventDefault();
         setDependencySelectParams({ ...dependencySelectParams, userId: e.target.value });
+    }
+
+    const handleWorkIdSelection = (e) => {
+        e.preventDefault();
+        setSelectedWorkId(e.target.value);
     }
 
     const clearSelection = () => {
@@ -417,7 +435,7 @@ const InsideActivityListByStatus = () => {
                             <ActivityStatusDashboard
                                 counts={counts}
                                 selected={selectedStatus}
-                                onStatusChange={setSelectedStatus}
+                                onStatusChange={handleStatusChange}
                             />
                         </div>
 
@@ -439,10 +457,9 @@ const InsideActivityListByStatus = () => {
                                             </Col>
                                         </Row>
                                     ))}
-
-                                    {
-                                        (isCurrentUserAdmin) && (
-                                            <div className="row">
+                                    <div className="row">
+                                        {
+                                            (isCurrentUserAdmin) && (
                                                 <div className="col-md-3">
                                                     <Form.Group className="position-relative form-group">
                                                         <Form.Label className='mb-2'>
@@ -466,9 +483,37 @@ const InsideActivityListByStatus = () => {
                                                         </div>
                                                     </Form.Group>
                                                 </div>
-                                            </div>
-                                        )
-                                    }
+                                            )
+                                        }
+
+                                        {
+                                            (dependencySelectParams.roomId) && (
+                                                <div className="col-md-3">
+                                                    <Form.Group className="position-relative form-group">
+                                                        <Form.Label className='mb-2'>
+                                                            Work ID
+                                                        </Form.Label>
+                                                        <div>
+                                                            < select
+                                                                aria-label={`select-work-id`}
+                                                                id={`select-work-id`}
+                                                                value={dependencySelectParams.workId}
+                                                                data-name={"workId"}
+                                                                name='select'
+                                                                className={`form-control`}
+                                                                disabled={false}
+                                                                onChange={handleWorkIdSelection}>
+                                                                <option>--Select--</option>
+                                                                {filteredWorkIds?.map((item, i) => (
+                                                                    <option key={i} value={item}>{item}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    </Form.Group>
+                                                </div>
+                                            )
+                                        }
+                                    </div>
                                     {/* <Button
                                         disabled={!isSetupComplete}
                                         className="btn btn-pill btn-primary mr-2"
@@ -545,7 +590,7 @@ const InsideActivityListByStatus = () => {
                                                         </thead>
 
                                                         <tbody>
-                                                            {activities.map((item, i) => (
+                                                            {activities.filter(act => (selectedWorkId ? act.workId === selectedWorkId : true)).map((item, i) => (
                                                                 <tr key={i}>
 
                                                                     {/* CHECKBOX COLUMN */}

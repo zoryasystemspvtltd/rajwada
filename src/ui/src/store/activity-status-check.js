@@ -25,7 +25,11 @@ const statusList = [
         icon: FaPauseCircle,
         query: {
             name: "isOnHold",
-            value: true
+            value: true,
+            and: {
+                name: "status",
+                value: 5
+            }
         }
     },
     {
@@ -46,7 +50,11 @@ const statusList = [
         icon: FaExclamationTriangle,
         query: {
             name: "isCancelled",
-            value: true
+            value: true,
+            and: {
+                name: "status",
+                value: 12
+            }
         }
     },
     {
@@ -56,7 +64,15 @@ const statusList = [
         icon: FaCheckCircle,
         query: {
             name: "isCompleted",
-            value: true
+            value: true,
+            and: {
+                name: "status",
+                value: 4,
+                or: {
+                    name: "status",
+                    value: 6
+                }
+            }
         }
     },
     {
