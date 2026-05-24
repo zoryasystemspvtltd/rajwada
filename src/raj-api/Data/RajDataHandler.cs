@@ -546,15 +546,16 @@ public class RajDataHandler : LabDataHandler
                 };
 
                 // ✅ PRIORITY LOGIC (IMPORTANT)
-                if (activity.IsCancelled == true)
+                if (activity.IsCancelled == true && activity.Status == StatusType.Cancelled)
                 {
                     response.Delayed.Activities.Add(dto);
                 }
-                else if (activity.IsOnHold == true)
+                else if (activity.Status == StatusType.Hold)
                 {
                     response.Hold.Activities.Add(dto);
                 }
-                else if (activity.IsCompleted == true)
+                else if (activity.IsCompleted == true && 
+                    (activity.Status == StatusType.Approved || activity.Status == StatusType.Rejected))
                 {
                     response.Closed.Activities.Add(dto);
                 }
