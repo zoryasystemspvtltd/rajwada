@@ -1968,9 +1968,35 @@ public class RajDataHandler : LabDataHandler
         try
         {
             ItemList<dynamic> itemList = new ItemList<dynamic>();
-            string? searchText = string.Empty;
-            var type = Convert.ToString(option.SearchCondition?.Name) == "type" ? Convert.ToString(option.SearchCondition?.Value) : "INSIDE";
-            searchText = Convert.ToString(option.SearchCondition?.Name) != "type" ? Convert.ToString(option.SearchCondition?.Value) : "";
+            
+
+            string GetType(Condition condition){
+                if (condition.Name.Equals("type", StringComparison.Ordinal))
+                {
+                    return condition.Value as String;
+                }
+                if (condition.And != null)
+                {
+                    return GetType(condition.And);
+                }
+                return "INSIDE";
+            }
+
+            string GetSearchText(Condition condition)
+            {
+                if (condition.Name.Equals("activityName", StringComparison.Ordinal))
+                {
+                    return condition.Value as String;
+                }
+                if (condition.Or != null)
+                {
+                    return GetSearchText(condition.Or);
+                }
+                return "";
+            }
+
+            var type = option.SearchCondition != null ? GetType(option.SearchCondition) : "outside";
+            var searchText = option.SearchCondition != null ? GetSearchText(option.SearchCondition) : "";
 
             if (type.ToUpper() == "INSIDE")
             {
