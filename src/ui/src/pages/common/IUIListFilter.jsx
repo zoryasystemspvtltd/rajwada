@@ -196,7 +196,7 @@ const IUIListFilter = (props) => {
             const searchOptions = {
                 currentPage: 1,
                 search: search,
-                searchCondition: null
+                searchCondition: baseFilter
             }
             dispatch(getData({ module: module, options: searchOptions }));
         }

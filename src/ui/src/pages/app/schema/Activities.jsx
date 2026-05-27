@@ -17,21 +17,12 @@ export const ListActivity = () => {
         adding: false,
         relationKey: "type",
         fields: [
-            { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
+            { text: 'Name', field: 'activityName', type: 'link', sorting: true, searching: true },
             { text: 'Expected Start Date', field: 'startDate', type: 'date', sorting: true, searching: false },
             { text: 'Expected End Date', field: 'endDate', type: 'date', sorting: true, searching: false },
-            {
-                text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
-                schema: { module: 'project' }
-            },
-            {
-                text: 'Flat', field: 'flatId', type: 'lookup', sorting: false, searching: false,
-                schema: { module: 'plan' }
-            },
-            {
-                text: 'Dependency', field: 'workflowId', type: 'lookup', sorting: false, searching: false,
-                schema: { module: 'workflow' }
-            }
+            { text: 'Project', field: 'projectName', type: 'text', sorting: true, searching: true },
+            { text: 'Flat', field: 'flatName', type: 'text', sorting: true, searching: true },
+            { text: 'Dependency', field: 'workflowName', type: 'text', sorting: true, searching: true },
         ]
     }
 
@@ -45,21 +36,12 @@ export const ListActivity = () => {
         adding: false,
         relationKey: "type",
         fields: [
-            { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
+            { text: 'Name', field: 'activityName', type: 'link', sorting: true, searching: true },
             { text: 'Expected Start Date', field: 'startDate', type: 'date', sorting: true, searching: false },
             { text: 'Expected End Date', field: 'endDate', type: 'date', sorting: true, searching: false },
-            {
-                text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
-                schema: { module: 'project' }
-            },
-            {
-                text: 'Outside Entity', field: 'outSideEntityId', type: 'lookup', sorting: false, searching: false,
-                schema: { module: 'outSideEntity' }
-            },
-            {
-                text: 'Dependency', field: 'workflowId', type: 'lookup', sorting: false, searching: false,
-                schema: { module: 'workflow' }
-            }
+            { text: 'Project', field: 'projectName', type: 'text', sorting: true, searching: true },
+            { text: 'Outside Entity', field: 'outSideEntityName', type: 'text', sorting: true, searching: true },
+            { text: 'Dependency', field: 'workflowName', type: 'text', sorting: true, searching: true },
         ]
     }
 

@@ -34,6 +34,13 @@ public class LabModelController : ControllerBase
         var IsAdmin = roles.Exists(p => p.ToUpperInvariant() == "ADMIN");
 
         dataService.Identity = new ModuleIdentity(member, key, IsAdmin);
+
+        if(module.Equals("activity", StringComparison.CurrentCultureIgnoreCase))
+        {
+            var result = dataService.GetActivities(this.GetApiOption());
+            return result;
+        }
+        
         return dataService.Get(module, this.GetApiOption());
     }
 

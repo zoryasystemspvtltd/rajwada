@@ -1278,5 +1278,10 @@ namespace ILab.Data
             return method?.Invoke(handler, parameters);
 
         }
+
+        internal dynamic GetActivities(ListOptions listOptions)
+        {
+            return dataHandler.GetActivities(listOptions);
+        }
     }
 }
