@@ -18,19 +18,17 @@ export const ListActivityApproval = () => {
         adding: false,
         relationKey: "type",
         fields: [
-            { text: 'Name', field: 'name', type: 'link', sorting: true, searching: true },
-            { text: 'Description', field: 'description', type: 'text', sorting: true, searching: true },
+            { text: 'Name', field: 'activityName', type: 'link', sorting: true, searching: true },
             { text: 'Planned Start Date', field: 'startDate', type: 'date', sorting: true, searching: true },
             { text: 'Planned End Date', field: 'endDate', type: 'date', sorting: true, searching: true },
-            { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false },
+            // { text: 'Type', field: 'type', type: 'text', sorting: false, searching: false },
             {
-                text: 'Project', field: 'projectId', type: 'lookup', sorting: false, searching: false,
-                schema: { module: 'project' }
+                text: 'Project', field: 'projectName', type: 'text', sorting: false, searching: false,
             },
-            {
-                text: 'Dependency', field: 'workflowId', type: 'lookup', sorting: false, searching: false,
-                schema: { module: 'workflow' }
-            }
+            // {
+            //     text: 'Dependency', field: 'workflowId', type: 'lookup', sorting: false, searching: false,
+            //     schema: { module: 'workflow' }
+            // }
         ]
     }
 
