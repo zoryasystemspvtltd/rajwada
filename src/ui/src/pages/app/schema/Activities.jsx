@@ -8,7 +8,7 @@ export const ListActivity = () => {
     const [type, setType] = useState("inside");
 
     const insideSchema = {
-        module: 'activity',
+        module: 'work',
         title: 'Work',
         path: 'works',
         paging: true,
@@ -27,7 +27,7 @@ export const ListActivity = () => {
     }
 
     const outsideSchema = {
-        module: 'activity',
+        module: 'work',
         title: 'Work',
         path: 'works',
         paging: true,
