@@ -43,6 +43,12 @@ public class HasPrivilegesFilter : IAuthorizationFilter
         }
         else
             module = context.HttpContext.Request.RouteValues.GetValueOrDefault("module").ToString();
+
+
+        if (module.Equals("work", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
         if (!publicModules.Contains(module))
         {
             if (module == null)

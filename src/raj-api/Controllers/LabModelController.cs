@@ -35,7 +35,7 @@ public class LabModelController : ControllerBase
 
         dataService.Identity = new ModuleIdentity(member, key, IsAdmin);
 
-        if(module.Equals("activity", StringComparison.CurrentCultureIgnoreCase))
+        if(module.Equals("work", StringComparison.CurrentCultureIgnoreCase))
         {
             var result = dataService.GetActivities(this.GetApiOption());
             return result;

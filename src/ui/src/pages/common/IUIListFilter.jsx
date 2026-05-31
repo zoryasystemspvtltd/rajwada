@@ -38,7 +38,8 @@ const IUIListFilter = (props) => {
     }
 
     useEffect(() => {
-        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === schema.module)?.map(p => p.name);
+        const privilegeModule = schema?.priviliegeModule ? schema.priviliegeModule : schema.module;
+        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === privilegeModule)?.map(p => p.name);
         let access = {};
         modulePrivileges.forEach(p => {
             access = { ...access, ...{ [p]: true } }
