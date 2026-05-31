@@ -2112,7 +2112,7 @@ public class RajDataHandler : LabDataHandler
             }
             itemList.Items = queryable.Skip(num2).Take(count)
                 .ToList();
-            itemList.Items = queryable.ToList();
+            //itemList.Items = queryable.ToList();
 
             return itemList;
 
@@ -2222,7 +2222,7 @@ public class RajDataHandler : LabDataHandler
             }
             itemList.Items = queryable.Skip(num2).Take(count)
                 .ToList();
-            itemList.Items = queryable.ToList();
+            //itemList.Items = queryable.ToList();
 
             return itemList;
 
