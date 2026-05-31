@@ -9,6 +9,7 @@ export const ListActivity = () => {
 
     const insideSchema = {
         module: 'work',
+        priviliegeModule: 'activity',
         title: 'Work',
         path: 'works',
         paging: true,
@@ -28,6 +29,7 @@ export const ListActivity = () => {
 
     const outsideSchema = {
         module: 'work',
+        priviliegeModule: 'activity',
         title: 'Work',
         path: 'works',
         paging: true,
