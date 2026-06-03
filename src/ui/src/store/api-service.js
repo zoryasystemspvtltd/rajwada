@@ -223,5 +223,16 @@ api.workProgressReport = async (action) => {
     const response = await api.post(url, action.data);
     return response;
 }
+
+api.projectwiseOnHoldReport = async (action) => {
+    const url = `/projectwise-onhold-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.activitywiseBudgetVsActualReport = async (action) => {
+    const url = `/activitywise-budgetvsactual-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
 export default api;
 

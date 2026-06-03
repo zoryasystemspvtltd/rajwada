@@ -285,6 +285,20 @@
                 "icon": "vector-square",
                 "path": "/work-progress-report",
                 "access": "activity"
+            },
+            {
+                "name": "ProjectWiseOnHoldReport",
+                "text": "Project Wise On Hold Report",
+                "icon": "vector-square",
+                "path": "/project-wise-on-hold-report",
+                "access": "activity"
+            },
+            {
+                "name": "ActivitywiseBudgetVsActualReport",
+                "text": "Activity Wise Budget Vs Actual Report",
+                "icon": "vector-square",
+                "path": "/activity-wise-budget-vs-actual-report",
+                "access": "activity"
             }
         ]
     },

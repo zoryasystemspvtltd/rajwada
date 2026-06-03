@@ -12,15 +12,15 @@ namespace RajApi.Controllers
     /// Work Progress Report Controller - Detailed work tracking and progress reporting
     /// Retrieves comprehensive activity data across company, project, and tower hierarchy
     /// </summary>
-    [Route("api/work-progress-report")]
+    [Route("api")]
     [ApiController]
     [Authorize]
-    public class WorkProgressReportController : ControllerBase
+    public class WorkReportController : ControllerBase
     {
-        private readonly ILogger<WorkProgressReportController> logger;
+        private readonly ILogger<WorkReportController> logger;
         private readonly RajDataService dataService;
 
-        public WorkProgressReportController(ILogger<WorkProgressReportController> logger, RajDataService dataService)
+        public WorkReportController(ILogger<WorkReportController> logger, RajDataService dataService)
         {
             this.logger = logger;
             this.dataService = dataService;
@@ -35,15 +35,15 @@ namespace RajApi.Controllers
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>List of work progress records with all fields</returns>
         [AllowAnonymous]
-        [HttpPost]
-        public async Task<ActionResult<IEnumerable<WorkProgressReportDto>>> GetWorkProgressReportDetail(
-            [FromBody] WorkProgressReportRequest? request,
+        [HttpPost("work-progress-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetWorkProgressReportDetail(
+            [FromBody] WorkReportRequest? request,
             CancellationToken cancellationToken)
         {
             try
             {
                 //SetUserIdentity();
-                logger.LogInformation($"Fetching work progress report with filters - CompanyId: {request?.CompanyId}, ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+                logger.LogInformation($"Fetching work progress report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
 
                 var result = await dataService.GetWorkProgressReportAsync(request, cancellationToken);
 
@@ -60,7 +60,61 @@ namespace RajApi.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-       
+
+        [AllowAnonymous]
+        [HttpPost("projectwise-onhold-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetProjectWiseOnHoldReport(
+            [FromBody] WorkReportRequest? request,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching Project Wise On Hold report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetProjectWiseOnHoldReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetProjectWiseOnHoldReportDetail: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("activitywise-budgetvsactual-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetActivitywiseBudgetVsActualReport(
+           [FromBody] WorkReportRequest? request,
+           CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching activity wise budget vs actual report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetActivitywiseBudgetVsActualReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetActivitywiseBudgetVsActualReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
 
         /// <summary>
         /// Helper method to set user identity from JWT claims

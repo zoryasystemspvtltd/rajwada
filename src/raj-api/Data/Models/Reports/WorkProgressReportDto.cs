@@ -6,7 +6,7 @@ namespace RajApi.Data.Models.Reports
     /// Work Progress Report DTO
     /// Exposes comprehensive activity progress data with hierarchical structure
     /// </summary>
-    public class WorkProgressReportDto
+    public class WorkReportDto
     {
         public long ActivityId { get; set; }
         public string CompanyName { get; set; } = null!;
@@ -21,19 +21,22 @@ namespace RajApi.Data.Models.Reports
         public string? Contractor { get; set; } // Contractor name if available
         public string? Engineer { get; set; } // ModifiedBy member
         public DateTime? ReportDate { get; set; }
-        public decimal CostEstimate { get; set; }
-        public decimal ActualCost { get; set; }
-        public int ProgressPercentage { get; set; }
-        public bool IsApproved { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public decimal? EstimateCost { get; set; }
+        public decimal? ActualCost { get; set; }
+        public decimal? Variance { get; set; }
+        public int? ProgressPercentage { get; set; }
+        public bool? IsApproved { get; set; }
         public StatusType Status { get; set; }
     }
 
     /// <summary>
     /// Work Progress Report Request filter
     /// </summary>
-    public class WorkProgressReportRequest
+    public class WorkReportRequest
     {
-        public long? CompanyId { get; set; }
+        //public long? CompanyId { get; set; }
         public long? ProjectId { get; set; }
         public long? TowerId { get; set; }
         //public long? FloorId { get; set; }

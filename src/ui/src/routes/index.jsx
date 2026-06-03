@@ -36,6 +36,8 @@ import { ListAuditLog, ViewAuditLog } from "../pages/app/reports/AuditLog";
 import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
 import WorkProgressReport from "../pages/app/reports/WorkProgressReport";
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
+import ProjectWiseOnHoldReport from "../pages/app/reports/ProjectWiseOnHoldReport";
+import ActivitywiseBudgetVsActualReport from "../pages/app/reports/ActivitywiseBudgetVsActualReport";
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
 import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
@@ -538,6 +540,14 @@ const Routes = () => {
                 {
                     path: "/work-progress-report",
                     element: <WorkProgressReport />
+                },
+                {
+                    path: "/project-wise-on-hold-report",
+                    element: <ProjectWiseOnHoldReport />
+                },
+                {
+                    path: "/activity-wise-budget-vs-actual-report",
+                    element: <ActivitywiseBudgetVsActualReport />
                 },
                 {
                     path: "/site-material-approval-report",
