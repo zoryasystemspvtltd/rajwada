@@ -359,10 +359,6 @@ const Routes = () => {
                     element: <ListActivityApproval />
                 },
                 {
-                    path: "/approvals/:id",
-                    element: <ViewActivityApproval />
-                },
-                {
                     path: "/amendments",
                     element: <ListAmendment />
                 },
