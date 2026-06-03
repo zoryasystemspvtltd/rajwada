@@ -1384,7 +1384,7 @@
 "properties": {
 "Code": {
 "type": "string",
-"maxLength": 150,
+"maxLength": 511,
 "minLength": 0,
 },
 "RejectedByQC": {

@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using RajApi.Controllers;
 using RajApi.Data;
 using RajApi.Data.Models;
+using RajApi.Data.Models.Reports;
 using RajApi.Helpers;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -1283,5 +1284,74 @@ namespace ILab.Data
         {
             return dataHandler.GetActivities(listOptions);
         }
+
+        #region Work Report
+
+        public async Task<List<WorkReportDto>> GetWorkProgressReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetWorkProgressReportAsync));
+                object[] parameters = [request, cancellationToken];
+                var result = method?.Invoke(dataHandler, parameters);
+                if (result is Task task)
+                {
+                    await task;
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    return (List<WorkReportDto>)(resultProperty?.GetValue(task) ?? new List<WorkReportDto>());
+                }
+                return new List<WorkReportDto>();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
+                throw;
+            }
+        }
+
+        public async Task<List<WorkReportDto>> GetProjectWiseOnHoldReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetProjectWiseOnHoldReportAsync));
+                object[] parameters = [request, cancellationToken];
+                var result = method?.Invoke(dataHandler, parameters);
+                if (result is Task task)
+                {
+                    await task;
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    return (List<WorkReportDto>)(resultProperty?.GetValue(task) ?? new List<WorkReportDto>());
+                }
+                return new List<WorkReportDto>();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
+                throw;
+            }
+        }
+
+        public async Task<List<WorkReportDto>> GetActivitywiseBudgetVsActualReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetActivitywiseBudgetVsActualReportAsync));
+                object[] parameters = [request, cancellationToken];
+                var result = method?.Invoke(dataHandler, parameters);
+                if (result is Task task)
+                {
+                    await task;
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    return (List<WorkReportDto>)(resultProperty?.GetValue(task) ?? new List<WorkReportDto>());
+                }
+                return new List<WorkReportDto>();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetActivitywiseBudgetVsActualReportAsync: '{ex.Message}'");
+                throw;
+            }
+        }
+        #endregion
     }
 }
