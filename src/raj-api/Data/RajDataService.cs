@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using RajApi.Controllers;
 using RajApi.Data;
 using RajApi.Data.Models;
+using RajApi.Data.Models.Reports;
 using RajApi.Helpers;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -1283,5 +1284,30 @@ namespace ILab.Data
         {
             return dataHandler.GetActivities(listOptions);
         }
+
+        #region Work Progress Report
+
+        public async Task<List<WorkProgressReportDto>> GetWorkProgressReportAsync(WorkProgressReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetWorkProgressReportAsync));
+                object[] parameters = [request, cancellationToken];
+                var result = method?.Invoke(dataHandler, parameters);
+                if (result is Task task)
+                {
+                    await task;
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    return (List<WorkProgressReportDto>)(resultProperty?.GetValue(task) ?? new List<WorkProgressReportDto>());
+                }
+                return new List<WorkProgressReportDto>();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
+                throw;
+            }
+        }
+        #endregion
     }
 }

@@ -278,6 +278,13 @@
                 "icon": "user",
                 "path": "/audit-report",
                 "access": "auditLog"
+            },
+            {
+                "name": "WorkProgressReport",
+                "text": "Work Progress Report",
+                "icon": "vector-square",
+                "path": "/work-progress-report",
+                "access": "activity"
             }
         ]
     },

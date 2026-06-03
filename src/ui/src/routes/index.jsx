@@ -34,6 +34,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 
 import { ListAuditLog, ViewAuditLog } from "../pages/app/reports/AuditLog";
 import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
+import WorkProgressReport from "../pages/app/reports/WorkProgressReport";
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
 import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
@@ -533,6 +534,10 @@ const Routes = () => {
                 {
                     path: "/statusreport",
                     element: <WorkStatusReport />
+                },
+                {
+                    path: "/work-progress-report",
+                    element: <WorkProgressReport />
                 },
                 {
                     path: "/site-material-approval-report",
