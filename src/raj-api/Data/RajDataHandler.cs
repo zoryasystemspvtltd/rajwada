@@ -2236,9 +2236,9 @@ public class RajDataHandler : LabDataHandler
                                 : queryable.OrderByDescending(p => p.Id);
                     break;
             }
-            //itemList.Items = queryable.OrderBy(option.SortColumnName, option.SortDirection).Skip(num2).Take(count)
-            //    .ToList();
-            itemList.Items = queryable.ToList();
+            itemList.Items = queryable.Skip(num2).Take(count)
+                .ToList();
+            //itemList.Items = queryable.ToList();
 
             return itemList;
 
@@ -2346,9 +2346,9 @@ public class RajDataHandler : LabDataHandler
                                 : queryable.OrderByDescending(p => p.Id);
                     break;
             }
-            //itemList.Items = queryable.OrderBy(option.SortColumnName, option.SortDirection).Skip(num2).Take(count)
-            //    .ToList();
-            itemList.Items = queryable.ToList();
+            itemList.Items = queryable.Skip(num2).Take(count)
+                .ToList();
+            //itemList.Items = queryable.ToList();
 
             return itemList;
 
