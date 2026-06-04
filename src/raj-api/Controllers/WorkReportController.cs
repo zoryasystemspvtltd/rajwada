@@ -116,6 +116,168 @@ namespace RajApi.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [HttpPost("engineer-performance-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetEngineerPerformanceReport(
+         [FromBody] WorkReportRequest? request,
+         CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching Engineer Performance report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetEngineerPerformanceReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetEngineerPerformanceReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("projectwise-notstarted-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetProjectWiseNotStartedReport(
+         [FromBody] WorkReportRequest? request,
+         CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching Project Wise Not Started report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetProjectWiseNotStartedReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetProjectWiseNotStartedReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("projectwise-inprogress-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetProjectWiseInProgressReport(
+        [FromBody] WorkReportRequest? request,
+        CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching Project Wise In Progress report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetProjectWiseInProgressReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetProjectWiseInProgressReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("projectwise-cancelled-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetProjectWiseCancelledReport(
+        [FromBody] WorkReportRequest? request,
+        CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching Project Wise Cancelled report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetProjectWiseCancelledReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetProjectWiseCancelledReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("projectwise-closed-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetProjectWiseClosedReport(
+       [FromBody] WorkReportRequest? request,
+       CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching Project Wise Closed report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetProjectWiseClosedReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetProjectWiseClosedReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("projectwise-rework-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetProjectWiseReworkReport(
+       [FromBody] WorkReportRequest? request,
+       CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching Project Wise ReWork report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetProjectWiseReWorkReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetProjectWiseReworkReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
         /// <summary>
         /// Helper method to set user identity from JWT claims
         /// </summary>

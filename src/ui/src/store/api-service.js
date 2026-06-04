@@ -234,5 +234,35 @@ api.activitywiseBudgetVsActualReport = async (action) => {
     const response = await api.post(url, action.data);
     return response;
 }
+api.engineerPerformanceReport = async (action) => {
+    const url = `/engineer-performance-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.projectWiseNotStartedReport = async (action) => {
+    const url = `/projectwise-notstarted-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.projectWiseInProgressReport = async (action) => {
+    const url = `/projectwise-inprogress-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.projectWiseCancelledReport = async (action) => {
+    const url = `/projectwise-cancelled-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.projectWiseClosedReport = async (action) => {
+    const url = `/projectwise-closed-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.projectWiseReWorkReport = async (action) => {
+    const url = `/projectwise-rework-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
 export default api;
 

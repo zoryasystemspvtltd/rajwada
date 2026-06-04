@@ -38,6 +38,13 @@ import WorkProgressReport from "../pages/app/reports/WorkProgressReport";
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
 import ProjectWiseOnHoldReport from "../pages/app/reports/ProjectWiseOnHoldReport";
 import ActivitywiseBudgetVsActualReport from "../pages/app/reports/ActivitywiseBudgetVsActualReport";
+import EngineerPerformanceReport from "../pages/app/reports/EngineerPerformanceReport";
+import ProjectWiseNotStartedReport from "../pages/app/reports/ProjectWiseNotStartedReport";
+import ProjectWiseInProgressReport from "../pages/app/reports/ProjectWiseInProgressReport";
+import ProjectWiseCancelledReport from "../pages/app/reports/ProjectWiseCancelledReport";
+import ProjectWiseClosedReport from "../pages/app/reports/ProjectWiseClosedReport";
+import ProjectWiseReWorkReport from "../pages/app/reports/ProjectWiseReWorkReport";
+
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
 import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
@@ -548,6 +555,30 @@ const Routes = () => {
                 {
                     path: "/activity-wise-budget-vs-actual-report",
                     element: <ActivitywiseBudgetVsActualReport />
+                },
+                {
+                    path: "/engineer-performance-report",
+                    element: <EngineerPerformanceReport />
+                },
+                {
+                    path: "/projectwise-notstarted-report",
+                    element: <ProjectWiseNotStartedReport />
+                },
+                {
+                    path: "/projectwise-inprogress-report",
+                    element: <ProjectWiseInProgressReport />
+                },
+                {
+                    path: "/projectwise-cancelled-report",
+                    element: <ProjectWiseCancelledReport />
+                },
+                {
+                    path: "/projectwise-closed-report",
+                    element: <ProjectWiseClosedReport />
+                },
+                {
+                    path: "/projectwise-rework-report",
+                    element: <ProjectWiseReWorkReport />
                 },
                 {
                     path: "/site-material-approval-report",

@@ -23,6 +23,7 @@ namespace RajApi.Data.Models.Reports
         public DateTime? ReportDate { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public int? Day { get; set; }
         public decimal? EstimateCost { get; set; }
         public decimal? ActualCost { get; set; }
         public decimal? Variance { get; set; }
@@ -42,19 +43,24 @@ namespace RajApi.Data.Models.Reports
         //public long? FloorId { get; set; }
         //public long? FlatId { get; set; }
         //public long? RoomId { get; set; }
-        //public DateTime? FromDate { get; set; }
-        //public DateTime? ToDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         //public string? InsideOutside { get; set; } // "inside" or "outside"
     }
-   
-
-    /// <summary>
-    /// Count by type for summary statistics
-    /// </summary>
-    public class CountByType
+    public class ReportGroup
     {
-        public string Type { get; set; } = null!;
-        public int Count { get; set; }
+        public List<WorkReportDto> Activities { get; set; } = new();
+    }
+
+    public class WorkReportData
+    {
+        public ReportGroup NotStarted { get; set; } = new();
+        public ReportGroup Hold { get; set; } = new();
+        public ReportGroup Cancelled { get; set; } = new();
+        public ReportGroup InProgress { get; set; } = new();
+        public ReportGroup Delayed { get; set; } = new();
+        public ReportGroup Closed { get; set; } = new();
+        public ReportGroup Rework { get; set; } = new();
     }
 }
 
