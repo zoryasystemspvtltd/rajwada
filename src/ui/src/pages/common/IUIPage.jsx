@@ -727,15 +727,15 @@ const IUIPage = (props) => {
                             // Update the data in amendment table
                             // Change planned end date in activity table
                             let amendmentAction = {
-                                module: 'activityamendment',
+                                module: 'activityAmendment',
                                 data: {
                                     ...amendmentData, oldData: JSON.stringify(oldData), newValues: JSON.stringify(data), amendmentStatus: 1
                                 }
                             }
 
-                            await api.editData(amendmentAction);
+                            response = await api.editData(amendmentAction);
 
-                            response = await api.editData({ module: 'activity', data: { ...data, oldValues: JSON.stringify(oldData), progressPercentage: 50 } });
+                            // response = await api.editData({ module: 'activity', data: { ...data, oldValues: JSON.stringify(oldData), progressPercentage: 50 } });
                         }
                         else {
                             response = await api.editData({ module: module, data: (module === 'workflow') ? { ...data, oldValues: JSON.stringify(oldData), data: localStorage.getItem(flowchartKey) ? localStorage.getItem(flowchartKey) : "" } : { ...data, oldValues: JSON.stringify(oldData) } });

@@ -507,7 +507,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
 
                     <Button
                         className="btn-primary btn btn-pill"
-                        disabled={loading || submitDisabled || activityData?.isCompleted}
+                        disabled={loading || submitDisabled || activityData?.isCompleted || formData.progressPercentage === 100}
                         onClick={handleSubmit}
                     >
                         {loading ? "Submitting..." : "Submit"}

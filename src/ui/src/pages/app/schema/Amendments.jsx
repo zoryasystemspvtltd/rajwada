@@ -128,32 +128,32 @@ export const ViewAmendment = () => {
                     }
                 ]
             },
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        type: 'module-relation',
-                        schema: {
-                            module: 'activityamendment',
-                            relationKey: "parentId",
-                            title: 'Related Amendments',
-                            path: 'amendments',
-                            paging: true,
-                            searching: true,
-                            editing: false,
-                            adding: false,
-                            fields: [
-                                { text: 'Code', field: 'code', type: 'link', sorting: true, searching: true },
-                                {
-                                    text: 'Activity', field: 'activityId', type: 'lookup', sorting: false, searching: false,
-                                    schema: { module: 'activity' }
-                                },
-                                { text: 'Status', field: 'amendmentStatus', type: 'text', sorting: false, searching: false }
-                            ]
-                        },
-                    }
-                ]
-            }
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         {
+            //             type: 'module-relation',
+            //             schema: {
+            //                 module: 'activityamendment',
+            //                 relationKey: "parentId",
+            //                 title: 'Related Amendments',
+            //                 path: 'amendments',
+            //                 paging: true,
+            //                 searching: true,
+            //                 editing: false,
+            //                 adding: false,
+            //                 fields: [
+            //                     { text: 'Code', field: 'code', type: 'link', sorting: true, searching: true },
+            //                     {
+            //                         text: 'Activity', field: 'activityId', type: 'lookup', sorting: false, searching: false,
+            //                         schema: { module: 'activity' }
+            //                     },
+            //                     { text: 'Status', field: 'amendmentStatus', type: 'text', sorting: false, searching: false }
+            //                 ]
+            //             },
+            //         }
+            //     ]
+            // }
         ]
     }
 
@@ -172,7 +172,7 @@ export const EditAmendment = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', width: 4, type: 'text', required: true, readonly: true },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: true },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: false },
                     {
                         text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4, readonly: true,
                         schema: {

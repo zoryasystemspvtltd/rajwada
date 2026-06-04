@@ -18,10 +18,25 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
+    const [privileges, setPrivileges] = useState({});
     const [profilePicture, setProfilePicture] = useState([]);
     // Get the theme from localStorage or set the default to 'theme1'
     const savedTheme = loggedInUser?.theme || 'red';
     const [theme, setTheme] = useState(savedTheme);
+
+    useEffect(() => {
+        const commentPrivileges = loggedInUser?.privileges
+            ?.filter(p => p.module === "activity")
+            ?.map(p => p.name);
+
+        let access = {};
+
+        commentPrivileges?.forEach(p => {
+            access["activity"] = { ...access["activity"], [p]: true }
+        });
+
+        setPrivileges(access);
+    }, [loggedInUser]);
 
     const menuToHeader = (roleName) => {
         headerMenuToLayout(roleName);
@@ -130,6 +145,11 @@ const Header = ({ headerToLayout, headerMenuToLayout }) => {
                         <IUIHeaderMenu schema={{ type: 'reports', schema: schema }} />
                         <IUIHeaderMenu schema={{ type: 'master', schema: schema }} />
                         <IUIHeaderMenu schema={{ type: 'module', schema: schema }} menuToHeader={menuToHeader} />
+                        {
+                            privileges?.activity?.notify && (
+                                <IUIHeaderMenu schema={{ type: 'notifications', schema: schema }} />
+                            )
+                        }
                         <div className="header-dots" ref={dropDownRef}>
                             <select
                                 id="theme-select"
