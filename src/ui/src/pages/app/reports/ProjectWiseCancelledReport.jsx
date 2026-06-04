@@ -95,12 +95,9 @@ const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
         conditions.push({ name: 'towerId', value: parseInt(towerId, 10) });
     }
 
-    const searchCondition = conditions.length
-        ? conditions.reduceRight((acc, next) => (acc ? { ...next, and: acc } : next), null)
-        : null;
-
     return {
-        ...(searchCondition ? { searchCondition } : {}),
+        ...(projectId ? { projectId } : {}),
+        ...(towerId ? { towerId } : {}),
         ...(startDate ? { startDate } : {}),
         ...(endDate ? { endDate } : {}),
     };

@@ -86,7 +86,7 @@ const mapReportRow = (item) => ({
     progressPercentage: (item?.progressPercentage)
 });
 
-const buildSearchCondition = ({ projectId, towerId }) => {
+const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
     const conditions = [];
     if (projectId) {
         conditions.push({ name: 'projectId', value: parseInt(projectId, 10) });
@@ -95,14 +95,12 @@ const buildSearchCondition = ({ projectId, towerId }) => {
         conditions.push({ name: 'towerId', value: parseInt(towerId, 10) });
     }
 
-    if (conditions.length === 0) {
-        return null;
-    }
-
-    return conditions.reduceRight((acc, next) => {
-        if (!acc) return next;
-        return { ...next, and: acc };
-    }, null);
+    return {
+        ...(projectId ? { projectId } : {}),
+        ...(towerId ? { towerId } : {}),
+        ...(startDate ? { startDate } : {}),
+        ...(endDate ? { endDate } : {}),
+    };
 };
 
 const ProjectWiseOnHoldReport = () => {
@@ -175,7 +173,7 @@ const ProjectWiseOnHoldReport = () => {
     const handleSearch = async () => {
         try {
             setLoading(true);
-            const options = buildSearchCondition(filters);
+            const options = buildSearchPayload(filters);
             console.log('Search options:', options);
 
             const response = await api.projectwiseOnHoldReport({ data: options });
@@ -202,8 +200,8 @@ const ProjectWiseOnHoldReport = () => {
         }
     };
 
-    const handleReset = () => {
-        setFilters({ companyId: '', projectId: '', towerId: '' });
+     const handleReset = () => {
+        setFilters({ projectId: '', towerId: '', startDate: '', endDate: '' });
         setReportRows([]);
     };
 
@@ -280,7 +278,7 @@ const ProjectWiseOnHoldReport = () => {
                                 <div className="card-body">
                                     <Form>
                                         <Row className="g-3">
-                                            <Col sm={12} md={4}>
+                                            <Col sm={12} md={3}>
                                                 <Form.Group controlId="projectId">
                                                     <Form.Label className="fw-bold">Project</Form.Label>
                                                     <Form.Select name="projectId" value={filters.projectId} onChange={handleFilterChange}>
@@ -291,7 +289,7 @@ const ProjectWiseOnHoldReport = () => {
                                                     </Form.Select>
                                                 </Form.Group>
                                             </Col>
-                                            <Col sm={12} md={4}>
+                                            <Col sm={12} md={3}>
                                                 <Form.Group controlId="towerId">
                                                     <Form.Label className="fw-bold">Tower</Form.Label>
                                                     <Form.Select name="towerId" value={filters.towerId} onChange={handleFilterChange}>
@@ -300,6 +298,28 @@ const ProjectWiseOnHoldReport = () => {
                                                             <option key={tower.id} value={tower.id}>{tower.name || tower.towerName || tower.title}</option>
                                                         ))}
                                                     </Form.Select>
+                                                </Form.Group>
+                                            </Col>
+                                            <Col sm={12} md={2}>
+                                                <Form.Group controlId="startDate">
+                                                    <Form.Label className="fw-bold">Start Date</Form.Label>
+                                                    <Form.Control
+                                                        type="date"
+                                                        name="startDate"
+                                                        value={filters.startDate}
+                                                        onChange={handleFilterChange}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                            <Col sm={12} md={2}>
+                                                <Form.Group controlId="endDate">
+                                                    <Form.Label className="fw-bold">End Date</Form.Label>
+                                                    <Form.Control
+                                                        type="date"
+                                                        name="endDate"
+                                                        value={filters.endDate}
+                                                        onChange={handleFilterChange}
+                                                    />
                                                 </Form.Group>
                                             </Col>
                                         </Row>

@@ -92,7 +92,7 @@ const mapReportRow = (item) => ({
     isApproved: item?.isApproved === true || item?.isApproved === 'true' || item?.approvalStatus === 4 ? 'Yes' : 'No',
 });
 
-const buildSearchPayload = ({ companyId, projectId, towerId, startDate, endDate }) => {
+const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
     const conditions = [];
     if (projectId) {
         conditions.push({ name: 'projectId', value: parseInt(projectId, 10) });
@@ -101,12 +101,9 @@ const buildSearchPayload = ({ companyId, projectId, towerId, startDate, endDate 
         conditions.push({ name: 'towerId', value: parseInt(towerId, 10) });
     }
 
-    const searchCondition = conditions.length
-        ? conditions.reduceRight((acc, next) => (acc ? { ...next, and: acc } : next), null)
-        : null;
-
     return {
-        ...(searchCondition ? { searchCondition } : {}),
+        ...(projectId ? { projectId } : {}),
+        ...(towerId ? { towerId } : {}),
         ...(startDate ? { startDate } : {}),
         ...(endDate ? { endDate } : {}),
     };
@@ -217,7 +214,7 @@ const EngineerPerformanceReport = () => {
     };
 
     const handleReset = () => {
-        setFilters({ companyId: '', projectId: '', towerId: '', startDate: '', endDate: '' });
+        setFilters({ projectId: '', towerId: '', startDate: '', endDate: '' });
         setReportRows([]);
     };
 
