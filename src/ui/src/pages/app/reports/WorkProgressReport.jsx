@@ -242,10 +242,10 @@ const WorkProgressReport = () => {
 
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Construction Report');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'WorkProgress Report');
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
         const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `ConstructionReport-${new Date().toISOString().split('T')[0]}.xlsx`);
+        saveAs(blob, `WorkProgressReport-${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
     const renderedRows = reportRows.map((item, index) => {
