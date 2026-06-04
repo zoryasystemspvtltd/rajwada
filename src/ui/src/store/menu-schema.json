@@ -309,35 +309,35 @@
             },
             {
                 "name": "ProjectWiseNotStartedReport",
-                "text": "Projectwise NotStarted Report",
+                "text": "Project Wise Not Started Report",
                 "icon": "vector-square",
                 "path": "/projectwise-notstarted-report",
                 "access": "activity"
             },
             {
                 "name": "ProjectWiseInProgressReport",
-                "text": "Projectwise InProgress Report",
+                "text": "Project Wise InProgress Report",
                 "icon": "vector-square",
                 "path": "/projectwise-inprogress-report",
                 "access": "activity"
             },
             {
                 "name": "ProjectWiseCancelledReport",
-                "text": "Projectwise Cancelled Report",
+                "text": "Project Wise Cancelled Report",
                 "icon": "vector-square",
                 "path": "/projectwise-cancelled-report",
                 "access": "activity"
             },
             {
                 "name": "ProjectWiseClosedReport",
-                "text": "Projectwise Closed Report",
+                "text": "Project Wise Closed Report",
                 "icon": "vector-square",
                 "path": "/projectwise-closed-report",
                 "access": "activity"
             },
             {
                 "name": "ProjectWiseReWorkReport",
-                "text": "Projectwise ReWork Report",
+                "text": "Project Wise ReWork Report",
                 "icon": "vector-square",
                 "path": "/projectwise-rework-report",
                 "access": "activity"
