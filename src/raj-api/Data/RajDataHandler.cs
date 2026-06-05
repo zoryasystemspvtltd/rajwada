@@ -1083,9 +1083,25 @@ public class RajDataHandler : LabDataHandler
     {
         DateTime currentDateTime = DateTime.Now;
         DateOnly dateOnly = DateOnly.FromDateTime(currentDateTime);
-        var result = dbContext.Set<ActivityResource>()
-                    .Where(x => x.Member.Equals(member) && x.NotificationStartDate <= dateOnly)
+        var activityResource = dbContext.Set<ActivityResource>()
+                    .Where(x => x.Status != StatusType.Deleted)
                     .Distinct();
+
+        var applog = dbContext.Set<ApplicationLog>()
+                    .Where(x => x.Member.Equals(member)
+                    && x.Name.Equals("Activity")
+                    && x.ActivityType != StatusType.Deleted
+                    && x.ActivityType != StatusType.Hold
+                    && x.ActivityType != StatusType.Cancelled
+                     && x.ActivityType != StatusType.Rejected)
+                    .Distinct();
+
+        var result = activityResource.Join(applog,
+                         act => act.ActivityId,
+                         tr => tr.EntityId,
+                         (act, tr) => act)
+                      .Where(a => a.NotificationStartDate <= dateOnly)
+                     .ToList();
 
         return result;
     }
