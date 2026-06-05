@@ -2054,11 +2054,6 @@ public class RajDataHandler : LabDataHandler
                        .ToListAsync(cancellationToken);
 
             var developer = await dbContext.Set<Contractor>()
-                        .Where(x => x.Type.Equals("Developer"))
-                       .ToListAsync(cancellationToken);
-
-            var contractor = await dbContext.Set<Contractor>()
-                       .Where(x => x.Type.Equals("Contractor"))
                        .ToListAsync(cancellationToken);
 
             // Map to DTOs
@@ -2067,7 +2062,7 @@ public class RajDataHandler : LabDataHandler
                 var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
                 var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
                 var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = contractor.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
+                var contractors = developer.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
 
                 return new WorkReportDto
                 {
@@ -2161,11 +2156,6 @@ public class RajDataHandler : LabDataHandler
                        .ToListAsync(cancellationToken);
 
             var developer = await dbContext.Set<Contractor>()
-                        .Where(x => x.Type.Equals("Developer"))
-                       .ToListAsync(cancellationToken);
-
-            var contractor = await dbContext.Set<Contractor>()
-                       .Where(x => x.Type.Equals("Contractor"))
                        .ToListAsync(cancellationToken);
 
             // Map to DTOs
@@ -2174,7 +2164,7 @@ public class RajDataHandler : LabDataHandler
                 var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
                 var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
                 var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = contractor.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
+                var contractors = developer.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
                 var variance = activity.CostEstimate - activity.ActualCost;
                 return new WorkReportDto
                 {
