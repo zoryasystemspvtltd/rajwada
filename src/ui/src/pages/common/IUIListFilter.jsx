@@ -292,7 +292,7 @@ const IUIListFilter = (props) => {
                                     <Table responsive>
                                         <thead>
                                             <tr>
-                                                {schema?.editing &&
+                                                {schema?.editing && privileges?.edit &&
                                                     <th>
                                                         <button type="submit" className="btn btn-link text-white p-0">#</button>
 

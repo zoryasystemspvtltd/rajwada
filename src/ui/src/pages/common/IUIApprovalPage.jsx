@@ -9,7 +9,7 @@ import IUIApprover from './shared/IUIApprover';
 import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUIPageElement from './shared/IUIPageElement';
-
+import { getToday } from '../app/status-check/dateUtils';
 
 const IUIApprovalPage = (props) => {
     // Properties
@@ -36,7 +36,7 @@ const IUIApprovalPage = (props) => {
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
+    const today = getToday();
 
     useEffect(() => {
         async function fetchData() {
@@ -216,19 +216,34 @@ const IUIApprovalPage = (props) => {
             }
             // QC is rejecting
             else {
-                patchAction = {
-                    module: module,
-                    data: { id: id, status: 6, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
-                }
+                // patchAction = {
+                //     module: module,
+                //     data: { id: id, status: 6, qcApprovedBy: loggedInUser?.email, qcApprovedDate: current, isQCApproved: isApproved, isCompleted: isApproved, qcRemarks: remarks }
+                // }
 
                 // Edit the main activity in the Activity table so that work continues
                 editAction = {
                     module: module,
                     data: {
-                        ...data, isCompleted: false, isInProgress: true,
-                        isAbandoned: true, qcRemarks: remarks
+                        ...data, isCompleted: false, isInProgress: true, isQCApproved: isApproved,
+                        isAbandoned: true, qcRemarks: remarks, status: 1, progressPercentage: 50
                     }
                 }
+
+                // Insert a record in tracking table
+                await api.addData({
+                    module: "activitytracking",
+                    data: {
+                        activityId: data?.id,
+                        date: today,
+                        cost: "",
+                        manPower: "",
+                        progressPercentage: 50,
+                        checkpoints: [],
+                        item: '',
+                        isCompleted: false
+                    }
+                });
 
                 // Check whether amendment already exists for the rejected activity
                 const baseFilter = {
@@ -241,15 +256,15 @@ const IUIApprovalPage = (props) => {
                     searchCondition: baseFilter
                 };
 
-                const response = await api.getData({ module: 'activityamendment', options: pageOptions });
+                const response = await api.getData({ module: 'activityAmendment', options: pageOptions });
                 const existingAmendments = response?.data?.items;
 
                 if (existingAmendments?.length === 0) {
                     // Create new record in Work Amendments if not already amended activity
                     amendmentAction = {
-                        module: 'activityamendment',
+                        module: 'activityAmendment',
                         data: {
-                            code: `Amendment-${data?.workId}`,
+                            code: `Amendment-${data?.workId}/1`,
                             name: `Amendment-${data?.workId}`,
                             rejectedByQC: !isApproved,
                             qCRemarks: remarks,
@@ -257,27 +272,23 @@ const IUIApprovalPage = (props) => {
                             newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
                             amendmentStatus: 0, // assuming status is 0 for newly created amendment
                             reviewedBy: loggedInUser?.email,
-                            activityId: id
+                            activityId: parseInt(id)
                         }
                     }
                 }
                 else {
-                    // Already amended
-                    isAlreadyAmended = true;
-
-                    const mainAmendment = existingAmendments?.filter(amendment => amendment?.parentId === null)[0];
-
-                    // Update the main amendment record in the Amendment table
                     amendmentAction = {
-                        module: 'activityamendment',
+                        module: 'activityAmendment',
                         data: {
-                            ...mainAmendment,
+                            code: `Amendment-${data?.workId}/${existingAmendments?.length + 1}`,
+                            name: `Amendment-${data?.workId}`,
                             rejectedByQC: !isApproved,
                             qCRemarks: remarks,
                             amendmentReason: "QC Rejection",
                             newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
+                            amendmentStatus: 0, // assuming status is 0 for newly created amendment
                             reviewedBy: loggedInUser?.email,
-                            activityId: id
+                            activityId: parseInt(id)
                         }
                     }
                 }
@@ -286,34 +297,49 @@ const IUIApprovalPage = (props) => {
         else {
             // HOD is approving
             if (isApproved) {
-                patchAction = {
-                    module: module,
-                    data: { id: id, status: 4, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
-                }
+                // patchAction = {
+                //     module: module,
+                //     data: { id: id, status: 4, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
+                // }
                 editAction = {
                     module: module,
                     data: {
                         ...data, approvedBy: loggedInUser?.email, approvedDate: current,
                         isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks,
-                        isAbandoned: false, actualEndDate: current
+                        isAbandoned: false, actualEndDate: current, status: 4
                     }
                 }
             }
             // HOD is rejecting
             else {
 
-                patchAction = {
-                    module: module,
-                    data: { id: id, status: 6, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
-                }
+                // patchAction = {
+                //     module: module,
+                //     data: { id: id, status: 6, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
+                // }
                 editAction = {
                     module: module,
                     data: {
                         ...data, approvedBy: loggedInUser?.email, approvedDate: current,
                         isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks,
-                        isAbandoned: true, isQCApproved: isApproved,
+                        isAbandoned: true, status: 1, progressPercentage: 50
                     }
                 }
+
+                // Insert a record in tracking table
+                await api.addData({
+                    module: "activitytracking",
+                    data: {
+                        activityId: data?.id,
+                        date: today,
+                        cost: "",
+                        manPower: "",
+                        progressPercentage: 50,
+                        checkpoints: [],
+                        item: '',
+                        isCompleted: false
+                    }
+                });
 
                 // Check whether amendment already exists for the rejected activity
                 const baseFilter = {
@@ -326,19 +352,19 @@ const IUIApprovalPage = (props) => {
                     searchCondition: baseFilter
                 };
 
-                const response = await api.getData({ module: 'activityamendment', options: pageOptions });
+                const response = await api.getData({ module: 'activityAmendment', options: pageOptions });
                 const existingAmendments = response?.data?.items;
 
                 if (existingAmendments?.length === 0) {
                     // Create new record in Work Amendments if not already amended activity
                     amendmentAction = {
-                        module: 'activityamendment',
+                        module: 'activityAmendment',
                         data: {
-                            code: `Amendment-${data?.workId}`,
+                            code: `Amendment-${data?.workId}/1`,
                             name: `Amendment-${data?.workId}`,
                             rejectedByQC: !isApproved,
                             qCRemarks: remarks,
-                            amendmentReason: "QC Rejection",
+                            amendmentReason: "HOD Rejection",
                             newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
                             amendmentStatus: 0, // assuming status is 0 for newly created amendment
                             reviewedBy: loggedInUser?.email,
@@ -347,20 +373,16 @@ const IUIApprovalPage = (props) => {
                     }
                 }
                 else {
-                    // Already amended
-                    isAlreadyAmended = true;
-
-                    const mainAmendment = existingAmendments?.filter(amendment => amendment?.parentId === null)[0];
-
-                    // Update the main amendment record in the Amendment table
                     amendmentAction = {
-                        module: 'activityamendment',
+                        module: 'activityAmendment',
                         data: {
-                            ...mainAmendment,
+                            code: `Amendment-${data?.workId}/${existingAmendments?.length + 1}`,
+                            name: `Amendment-${data?.workId}`,
                             rejectedByQC: !isApproved,
                             qCRemarks: remarks,
-                            amendmentReason: "QC Rejection",
+                            amendmentReason: "HOD Rejection",
                             newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
+                            amendmentStatus: 0, // assuming status is 0 for newly created amendment
                             reviewedBy: loggedInUser?.email,
                             activityId: id
                         }
@@ -371,16 +393,17 @@ const IUIApprovalPage = (props) => {
         try {
             var response;
             if (Object.keys(amendmentAction).length > 0) {
-                if (isAlreadyAmended) {
-                    await api.editData(amendmentAction);
-                }
-                else {
-                    response = await api.addData(amendmentAction);
-                    editAction.data = { ...editAction.data, amendmentId: response.data };
-                }
+                // if (isAlreadyAmended) {
+                //     await api.editData(amendmentAction);
+                // }
+                // else {
+                response = await api.addData(amendmentAction);
+                editAction.data = { ...editAction.data, amendmentId: response.data };
+                //}
             }
 
             if (Object.keys(editAction).length > 0) {
+                console.log(editAction)
                 await api.editData(editAction);
             }
 
@@ -395,8 +418,8 @@ const IUIApprovalPage = (props) => {
                 // After 3 seconds set the show value to false
                 notify('success', 'Approval submission successful!');
                 setShowRemarksModal(false);
-                window.location.reload();
-                // navigate(0);
+                // window.location.reload();
+                navigate(0);
             }, 1000)
 
             return () => {

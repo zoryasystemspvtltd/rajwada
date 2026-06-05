@@ -42,11 +42,11 @@ export const ListAmendment = () => {
                                             <a data-bs-toggle="tab" href="#amendments-in-queue" className="active nav-link">Amendments In Queue</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a data-bs-toggle="tab" href="#amendments-in-progress" className="nav-link">Amendments In Progress</a>
+                                            <a data-bs-toggle="tab" href="#amendments-in-progress" className="nav-link">Amendments Completed</a>
                                         </li>
-                                        <li className="nav-item">
+                                        {/* <li className="nav-item">
                                             <a data-bs-toggle="tab" href="#completed-amendments" className="nav-link">Amendments Completed</a>
-                                        </li>
+                                        </li> */}
                                     </ul>
                                 </div>
 
@@ -62,9 +62,9 @@ export const ListAmendment = () => {
                                         </div>
 
 
-                                        <div className="tab-pane" id="completed-amendments" role="tabpanel">
+                                        {/* <div className="tab-pane" id="completed-amendments" role="tabpanel">
                                             <IUIAmendmentList schema={schema} filter={null} amendmentType={'completed'} filterSchema={filterSchema?.amendmentCompleted} />
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
                             </div>
@@ -128,32 +128,32 @@ export const ViewAmendment = () => {
                     }
                 ]
             },
-            {
-                type: "area", width: 12
-                , fields: [
-                    {
-                        type: 'module-relation',
-                        schema: {
-                            module: 'activityamendment',
-                            relationKey: "parentId",
-                            title: 'Related Amendments',
-                            path: 'amendments',
-                            paging: true,
-                            searching: true,
-                            editing: false,
-                            adding: false,
-                            fields: [
-                                { text: 'Code', field: 'code', type: 'link', sorting: true, searching: true },
-                                {
-                                    text: 'Activity', field: 'activityId', type: 'lookup', sorting: false, searching: false,
-                                    schema: { module: 'activity' }
-                                },
-                                { text: 'Status', field: 'amendmentStatus', type: 'text', sorting: false, searching: false }
-                            ]
-                        },
-                    }
-                ]
-            }
+            // {
+            //     type: "area", width: 12
+            //     , fields: [
+            //         {
+            //             type: 'module-relation',
+            //             schema: {
+            //                 module: 'activityamendment',
+            //                 relationKey: "parentId",
+            //                 title: 'Related Amendments',
+            //                 path: 'amendments',
+            //                 paging: true,
+            //                 searching: true,
+            //                 editing: false,
+            //                 adding: false,
+            //                 fields: [
+            //                     { text: 'Code', field: 'code', type: 'link', sorting: true, searching: true },
+            //                     {
+            //                         text: 'Activity', field: 'activityId', type: 'lookup', sorting: false, searching: false,
+            //                         schema: { module: 'activity' }
+            //                     },
+            //                     { text: 'Status', field: 'amendmentStatus', type: 'text', sorting: false, searching: false }
+            //                 ]
+            //             },
+            //         }
+            //     ]
+            // }
         ]
     }
 
@@ -172,7 +172,7 @@ export const EditAmendment = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Name', field: 'name', fieldIcon: 'object-group', placeholder: 'Name here...', width: 4, type: 'text', required: true, readonly: true },
-                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: true },
+                    { text: 'Description', field: 'description', placeholder: 'Description here...', width: 4, type: 'text', required: false },
                     {
                         text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4, readonly: true,
                         schema: {

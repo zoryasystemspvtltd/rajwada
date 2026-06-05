@@ -34,7 +34,17 @@ import { ProtectedRoute } from "./ProtectedRoute";
 
 import { ListAuditLog, ViewAuditLog } from "../pages/app/reports/AuditLog";
 import { SiteMaterialApprovalReport } from "../pages/app/reports/SiteMaterialApprovalReport";
+import WorkProgressReport from "../pages/app/reports/WorkProgressReport";
 import WorkStatusReport from "../pages/app/reports/WorkStatusReport";
+import ProjectWiseOnHoldReport from "../pages/app/reports/ProjectWiseOnHoldReport";
+import ActivitywiseBudgetVsActualReport from "../pages/app/reports/ActivitywiseBudgetVsActualReport";
+import EngineerPerformanceReport from "../pages/app/reports/EngineerPerformanceReport";
+import ProjectWiseNotStartedReport from "../pages/app/reports/ProjectWiseNotStartedReport";
+import ProjectWiseInProgressReport from "../pages/app/reports/ProjectWiseInProgressReport";
+import ProjectWiseCancelledReport from "../pages/app/reports/ProjectWiseCancelledReport";
+import ProjectWiseClosedReport from "../pages/app/reports/ProjectWiseClosedReport";
+import ProjectWiseReWorkReport from "../pages/app/reports/ProjectWiseReWorkReport";
+
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
 import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
 import { AddContractor, EditContractor, ListContractor, ViewContractor } from "../pages/app/schema/Contractors";
@@ -60,6 +70,7 @@ import ViewActivityStatus from "../pages/app/status-check/IndividualActivityStat
 import ReportDetailsPage from "../pages/app/status-check/ReportDetailsPage";
 import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from "../pages/common/ItemAvailabilityTrack";
 import WorkTransfer from "../pages/common/WorkTransfer";
+import ItemNotification from "../pages/common/ItemNotification";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -359,10 +370,6 @@ const Routes = () => {
                     element: <ListActivityApproval />
                 },
                 {
-                    path: "/approvals/:id",
-                    element: <ViewActivityApproval />
-                },
-                {
                     path: "/amendments",
                     element: <ListAmendment />
                 },
@@ -533,6 +540,42 @@ const Routes = () => {
                 {
                     path: "/statusreport",
                     element: <WorkStatusReport />
+                },
+                {
+                    path: "/work-progress-report",
+                    element: <WorkProgressReport />
+                },
+                {
+                    path: "/project-wise-on-hold-report",
+                    element: <ProjectWiseOnHoldReport />
+                },
+                {
+                    path: "/activity-wise-budget-vs-actual-report",
+                    element: <ActivitywiseBudgetVsActualReport />
+                },
+                {
+                    path: "/engineer-performance-report",
+                    element: <EngineerPerformanceReport />
+                },
+                {
+                    path: "/projectwise-notstarted-report",
+                    element: <ProjectWiseNotStartedReport />
+                },
+                {
+                    path: "/projectwise-inprogress-report",
+                    element: <ProjectWiseInProgressReport />
+                },
+                {
+                    path: "/projectwise-cancelled-report",
+                    element: <ProjectWiseCancelledReport />
+                },
+                {
+                    path: "/projectwise-closed-report",
+                    element: <ProjectWiseClosedReport />
+                },
+                {
+                    path: "/projectwise-rework-report",
+                    element: <ProjectWiseReWorkReport />
                 },
                 {
                     path: "/site-material-approval-report",
@@ -709,6 +752,10 @@ const Routes = () => {
                 {
                     path: "/works/:activityId/checkpointmappings/add",
                     element: <AddWorkCheckpointMapping />
+                },
+                {
+                    path: "/notifications",
+                    element: <ItemNotification />
                 },
             ],
         },

@@ -65,7 +65,8 @@ const IUIRolePrivilege = (props) => {
                                 { id: 5, name: "assign" },
                                 { id: 6, name: "approve" },
                                 { id: 7, name: "report" },
-                                { id: 8, name: "statusCheck" }
+                                { id: 8, name: "statusCheck" },
+                                { id: 9, name: "notify" }
                             ])
                             : privileges
                     )

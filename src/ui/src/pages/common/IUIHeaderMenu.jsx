@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import abstract2 from "../../assets/images/dropdown-header/abstract2.jpg";
 import abstract4 from "../../assets/images/dropdown-header/abstract4.jpg";
@@ -14,6 +14,7 @@ const IUIHeaderMenu = (props) => {
     const [isOpen, setIsOpen] = useState(false);
     const headerMenuClassName = "dropdown-menu-xl rm-pointers dropdown-menu dropdown-menu-right";
     const dropdownRef = useRef(null);
+    const navigate = useNavigate();
     const loggedInUser = useSelector((state) => state.api.loggedInUser);
     const privileges = loggedInUser?.privileges;
 
@@ -266,6 +267,19 @@ const IUIHeaderMenu = (props) => {
                                 </div>
                             )
                         }
+                    </div>
+                )
+            }
+            {
+                menuType === 'notifications' && (
+                    <div className="dropdown" ref={dropdownRef}>
+                        <button type="button" aria-haspopup="true" aria-expanded="false"
+                            className="p-0 mr-2 btn btn-link" onClick={() => { navigate('/notifications') }}>
+                            <span className="icon-wrapper icon-wrapper-alt rounded-circle">
+                                <span className="icon-wrapper-bg bg-danger"></span>
+                                <i className="fa-solid fa-bell text-danger" title="Notifications Menu"></i>
+                            </span>
+                        </button>
                     </div>
                 )
             }
