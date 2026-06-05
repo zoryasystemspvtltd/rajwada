@@ -559,7 +559,7 @@ public class RajDataHandler : LabDataHandler
                 {
                     response.Closed.Activities.Add(dto);
                 }
-                else if (activity.AmendmentId != null && activity.IsAbandoned == true)
+                else if (activity.AmendmentId != null && (activity.Status != StatusType.Approved && activity.Status != StatusType.Rejected))
                 {
                     response.Rework.Activities.Add(dto);
                 }

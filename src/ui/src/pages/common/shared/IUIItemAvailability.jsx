@@ -7,10 +7,13 @@ import { formatStringDate } from '../../../store/datetime-formatter';
 import IUILookUp from '../../common/shared/IUILookUp';
 import IUITableInputElement from './IUITableInputElement';
 import api from "../../../store/api-service";
+import { FaCheck, FaTimes } from 'react-icons/fa';
+import IUIPage from '../IUIPage';
 
 const IUIItemAvailability = (props) => {
     // Properties
     const schema = props?.schema;
+    const activitySchema = props?.activitySchema;
     const module = schema?.module;
 
     // Global State
@@ -43,7 +46,7 @@ const IUIItemAvailability = (props) => {
                 options: pageOptions,
             });
 
-            console.log(response)
+            // console.log(response)
             setDataArray(response?.data?.items || []);
         } catch (error) {
             console.error("Failed to load data:", error);
@@ -67,18 +70,29 @@ const IUIItemAvailability = (props) => {
         };
     }, [loadData]);
 
-     const handleChange = (e) => {
+    const handleChange = (e) => {
         e.preventDefault();
     };
 
     useEffect(() => {
-        const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
+        const activityResourcePrivileges = loggedInUser?.privileges
+            ?.filter(p => p.module === "activityResource")
+            ?.map(p => p.name);
+
+        const activityPrivileges = loggedInUser?.privileges?.filter(p => p.module === "activity")?.map(p => p.name);
+
         let access = {};
-        modulePrivileges.forEach(p => {
-            access = { ...access, ...{ [p]: true } }
+
+        activityResourcePrivileges?.forEach(p => {
+            access["activityResource"] = { ...access["activityResource"], [p]: true }
+        });
+
+        activityPrivileges.forEach(p => {
+            access["activity"] = { ...access["activity"], ...{ [p]: true } }
         })
-        setPrivileges(access)
-    }, [loggedInUser, module]);
+
+        setPrivileges(access);
+    }, [loggedInUser]);
 
     const addToAvailableList = (e, itemId) => {
         e.preventDefault();
@@ -105,8 +119,8 @@ const IUIItemAvailability = (props) => {
     };
 
     const getRowClass = (itemId) => {
-        if (availableIds.includes(itemId)) return "table-success";   // green
-        if (unavailableIds.includes(itemId)) return "table-danger";  // red
+        if (availableIds.includes(itemId)) return "bg-success";   // green
+        if (unavailableIds.includes(itemId)) return "bg-danger";  // red
         return "";
     };
 
@@ -138,6 +152,14 @@ const IUIItemAvailability = (props) => {
 
     return (
         <>
+            <div className="app-page-title mb-4">
+                <div className="page-title-heading"> Work Item Availability Tracker</div>
+            </div>
+            {
+                (privileges?.activity?.view) && (
+                    <IUIPage schema={activitySchema} />
+                )
+            }
             <div className="tab-content">
                 <div className="tabs-animation">
                     <div className="row">
@@ -190,7 +212,7 @@ const IUIItemAvailability = (props) => {
                                                 )
                                             }
 
-                                            {(!schema?.readonly && (privileges?.add || privileges?.edit)) && (dataArray.length > 0) &&
+                                            {(!schema?.readonly && (privileges?.activityResource?.add || privileges?.activityResource?.edit)) && (dataArray.length > 0) &&
                                                 <hr />
                                             }
 
@@ -211,7 +233,7 @@ const IUIItemAvailability = (props) => {
                                                                         </th>
                                                                     ))}
                                                                     {
-                                                                        (!schema?.readonly) && (
+                                                                        (privileges?.activityResource?.edit) && (
                                                                             <th>
                                                                                 Actions
                                                                             </th>
@@ -240,28 +262,29 @@ const IUIItemAvailability = (props) => {
                                                                                                 textonly={true}
                                                                                             />
                                                                                         )}
+                                                                                        {fld.type === 'tick' && (
+                                                                                            (item[fld.field] === 1) ? <FaCheck color="green" /> : <FaTimes color="red" />
+                                                                                        )}
                                                                                     </td>
                                                                                 ))}
 
-
-
-
-                                                                                {!schema?.readonly && privileges?.edit && (
+                                                                                {privileges?.activityResource?.edit && (
                                                                                     <td>
-                                                                                        <button
-                                                                                            className="btn btn-pill btn-shadow btn-hover-shine btn btn-warning btn-sm mr-2"
-                                                                                            onClick={(e) => addToAvailableList(e, item.id)}
-                                                                                        >
-                                                                                            Mark Available
-                                                                                        </button>
+                                                                                        <div className="d-flex gap-2">
+                                                                                            <button
+                                                                                                className="btn btn-pill btn-shadow btn-hover-shine btn-success btn-sm"
+                                                                                                onClick={(e) => addToAvailableList(e, item.id)}
+                                                                                            >
+                                                                                                Available
+                                                                                            </button>
 
-
-                                                                                        <button
-                                                                                            className="btn btn-pill btn-shadow btn-hover-shine btn btn-danger btn-sm"
-                                                                                            onClick={(e) => addToUnAvailableList(e, item.id)}
-                                                                                        >
-                                                                                            Mark Unavailable
-                                                                                        </button>
+                                                                                            <button
+                                                                                                className="btn btn-pill btn-shadow btn-hover-shine btn-danger btn-sm"
+                                                                                                onClick={(e) => addToUnAvailableList(e, item.id)}
+                                                                                            >
+                                                                                                Unavailable
+                                                                                            </button>
+                                                                                        </div>
                                                                                     </td>
                                                                                 )}
                                                                             </tr>
@@ -269,15 +292,14 @@ const IUIItemAvailability = (props) => {
                                                                     ))}
                                                                 </tbody>
 
-
                                                             }
                                                         </Table>
 
-                                                        {(availableIds.length > 0 || unavailableIds.length > 0) && !schema?.readonly && privileges?.edit && (
+                                                        {(availableIds.length > 0 || unavailableIds.length > 0) && privileges?.activityResource?.edit && (
                                                             <Row>
                                                                 <Col>
                                                                     <button
-                                                                        className="btn btn-primary"
+                                                                        className="btn btn-pill btn-shadow btn-primary"
                                                                         onClick={handleUpdateStatus}
                                                                     >
                                                                         Update Availability

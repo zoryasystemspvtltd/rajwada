@@ -70,6 +70,7 @@ import ViewActivityStatus from "../pages/app/status-check/IndividualActivityStat
 import ReportDetailsPage from "../pages/app/status-check/ReportDetailsPage";
 import { ListActivityForItemAvailability, ViewActivityForItemAvailability } from "../pages/common/ItemAvailabilityTrack";
 import WorkTransfer from "../pages/common/WorkTransfer";
+import ItemNotification from "../pages/common/ItemNotification";
 
 const Routes = () => {
     const { token } = useAuth();
@@ -751,6 +752,10 @@ const Routes = () => {
                 {
                     path: "/works/:activityId/checkpointmappings/add",
                     element: <AddWorkCheckpointMapping />
+                },
+                {
+                    path: "/notifications",
+                    element: <ItemNotification />
                 },
             ],
         },

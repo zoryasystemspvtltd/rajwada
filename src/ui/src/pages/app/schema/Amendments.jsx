@@ -42,11 +42,11 @@ export const ListAmendment = () => {
                                             <a data-bs-toggle="tab" href="#amendments-in-queue" className="active nav-link">Amendments In Queue</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a data-bs-toggle="tab" href="#amendments-in-progress" className="nav-link">Amendments In Progress</a>
+                                            <a data-bs-toggle="tab" href="#amendments-in-progress" className="nav-link">Amendments Completed</a>
                                         </li>
-                                        <li className="nav-item">
+                                        {/* <li className="nav-item">
                                             <a data-bs-toggle="tab" href="#completed-amendments" className="nav-link">Amendments Completed</a>
-                                        </li>
+                                        </li> */}
                                     </ul>
                                 </div>
 
@@ -62,9 +62,9 @@ export const ListAmendment = () => {
                                         </div>
 
 
-                                        <div className="tab-pane" id="completed-amendments" role="tabpanel">
+                                        {/* <div className="tab-pane" id="completed-amendments" role="tabpanel">
                                             <IUIAmendmentList schema={schema} filter={null} amendmentType={'completed'} filterSchema={filterSchema?.amendmentCompleted} />
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
                             </div>

@@ -9,7 +9,7 @@ import IUIApprover from './shared/IUIApprover';
 import IUIBreadcrumb from './shared/IUIBreadcrumb';
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUIPageElement from './shared/IUIPageElement';
-
+import { getToday } from '../app/status-check/dateUtils';
 
 const IUIApprovalPage = (props) => {
     // Properties
@@ -36,7 +36,7 @@ const IUIApprovalPage = (props) => {
     // Usage
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
+    const today = getToday();
 
     useEffect(() => {
         async function fetchData() {
@@ -230,6 +230,21 @@ const IUIApprovalPage = (props) => {
                     }
                 }
 
+                // Insert a record in tracking table
+                await api.addData({
+                    module: "activitytracking",
+                    data: {
+                        activityId: data?.id,
+                        date: today,
+                        cost: "",
+                        manPower: "",
+                        progressPercentage: 50,
+                        checkpoints: [],
+                        item: '',
+                        isCompleted: false
+                    }
+                });
+
                 // Check whether amendment already exists for the rejected activity
                 const baseFilter = {
                     name: 'activityId',
@@ -257,8 +272,7 @@ const IUIApprovalPage = (props) => {
                             newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
                             amendmentStatus: 0, // assuming status is 0 for newly created amendment
                             reviewedBy: loggedInUser?.email,
-                            activityId: parseInt(id),
-                            amendmentStatus: 0
+                            activityId: parseInt(id)
                         }
                     }
                 }
@@ -274,8 +288,7 @@ const IUIApprovalPage = (props) => {
                             newValues: JSON.stringify({ ...data, isCompleted: false, isAbandoned: true, isInProgress: true }),
                             amendmentStatus: 0, // assuming status is 0 for newly created amendment
                             reviewedBy: loggedInUser?.email,
-                            activityId: parseInt(id),
-                            amendmentStatus: 0
+                            activityId: parseInt(id)
                         }
                     }
                 }
@@ -312,6 +325,21 @@ const IUIApprovalPage = (props) => {
                         isAbandoned: true, status: 1, progressPercentage: 50
                     }
                 }
+
+                // Insert a record in tracking table
+                await api.addData({
+                    module: "activitytracking",
+                    data: {
+                        activityId: data?.id,
+                        date: today,
+                        cost: "",
+                        manPower: "",
+                        progressPercentage: 50,
+                        checkpoints: [],
+                        item: '',
+                        isCompleted: false
+                    }
+                });
 
                 // Check whether amendment already exists for the rejected activity
                 const baseFilter = {

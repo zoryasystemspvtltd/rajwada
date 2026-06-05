@@ -273,12 +273,6 @@ const IUIHeaderMenu = (props) => {
             {
                 menuType === 'notifications' && (
                     <div className="dropdown" ref={dropdownRef}>
-                        <button
-                            onClick={() => { navigate('/notifications') }}
-                        >
-
-                        </button>
-
                         <button type="button" aria-haspopup="true" aria-expanded="false"
                             className="p-0 mr-2 btn btn-link" onClick={() => { navigate('/notifications') }}>
                             <span className="icon-wrapper icon-wrapper-alt rounded-circle">

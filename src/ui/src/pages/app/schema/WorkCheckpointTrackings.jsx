@@ -4,6 +4,7 @@ import { FaCheck, FaTimes } from "react-icons/fa";
 import { Table, Spinner, Alert } from "react-bootstrap";
 import IUILookUp from "../../common/shared/IUILookUp";
 import { getFormattedDateTime, formatStringDate } from '../../../store/datetime-formatter';
+import { getToday } from "../status-check/dateUtils";
 
 const WorkCheckpointTrackings = ({ activityId, reportDate = null }) => {
 
@@ -98,7 +99,7 @@ const WorkCheckpointTrackings = ({ activityId, reportDate = null }) => {
     if (checkpoints.length === 0) {
         return (
             <Alert variant="info">
-                {`No checkpoints found for this activity on ${formatStringDate(reportDate)}`}
+                {`No checkpoints found for this activity on ${formatStringDate(reportDate ?? getToday())}`}
             </Alert>
         );
     }
