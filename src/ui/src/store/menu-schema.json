@@ -278,69 +278,6 @@
                 "icon": "user",
                 "path": "/audit-report",
                 "access": "auditLog"
-            },
-            {
-                "name": "WorkProgressReport",
-                "text": "Work Progress Report",
-                "icon": "vector-square",
-                "path": "/work-progress-report",
-                "access": "activity"
-            },
-            {
-                "name": "ProjectWiseOnHoldReport",
-                "text": "Project Wise On Hold Report",
-                "icon": "vector-square",
-                "path": "/project-wise-on-hold-report",
-                "access": "activity"
-            },
-            {
-                "name": "ActivitywiseBudgetVsActualReport",
-                "text": "Activity Wise Budget Vs Actual Report",
-                "icon": "vector-square",
-                "path": "/activity-wise-budget-vs-actual-report",
-                "access": "activity"
-            },
-            {
-                "name": "EngineerPerformanceReport",
-                "text": "Engineer Performance Report",
-                "icon": "vector-square",
-                "path": "/engineer-performance-report",
-                "access": "activity"
-            },
-            {
-                "name": "ProjectWiseNotStartedReport",
-                "text": "Project Wise Not Started Report",
-                "icon": "vector-square",
-                "path": "/projectwise-notstarted-report",
-                "access": "activity"
-            },
-            {
-                "name": "ProjectWiseInProgressReport",
-                "text": "Project Wise InProgress Report",
-                "icon": "vector-square",
-                "path": "/projectwise-inprogress-report",
-                "access": "activity"
-            },
-            {
-                "name": "ProjectWiseCancelledReport",
-                "text": "Project Wise Cancelled Report",
-                "icon": "vector-square",
-                "path": "/projectwise-cancelled-report",
-                "access": "activity"
-            },
-            {
-                "name": "ProjectWiseClosedReport",
-                "text": "Project Wise Closed Report",
-                "icon": "vector-square",
-                "path": "/projectwise-closed-report",
-                "access": "activity"
-            },
-            {
-                "name": "ProjectWiseReWorkReport",
-                "text": "Project Wise ReWork Report",
-                "icon": "vector-square",
-                "path": "/projectwise-rework-report",
-                "access": "activity"
             }
         ]
     },
