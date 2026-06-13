@@ -1485,5 +1485,35 @@ namespace ILab.Data
             }
         }
         #endregion
+
+        #region Calender API
+        public async Task<List<ActiveWorksCountResponse>> GetActiveWorksCountByMonthAsync(ActiveWorksCountRequest request, CancellationToken cancellationToken)
+        {
+            var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetActiveWorksCountByMonthAsync));
+            object[] parameters = [request, cancellationToken];
+            var result = method?.Invoke(handler, parameters);
+            if (result is Task task)
+            {
+                await task;
+                var resultProperty = task.GetType().GetProperty("Result");
+                return (List<ActiveWorksCountResponse>)(resultProperty?.GetValue(task) ?? new List<ActiveWorksCountResponse>());
+            }
+            return new List<ActiveWorksCountResponse>();
+        }
+
+        public async Task<List<ActiveWorkResponse>> GetActiveWorksByDayAsync(ActiveWorksByDayRequest request, CancellationToken cancellationToken)
+        {
+            var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetActiveWorksByDayAsync));
+            object[] parameters = [request, cancellationToken];
+            var result = method?.Invoke(handler, parameters);
+            if (result is Task task)
+            {
+                await task;
+                var resultProperty = task.GetType().GetProperty("Result");
+                return (List<ActiveWorkResponse>)(resultProperty?.GetValue(task) ?? new List<ActiveWorkResponse>());
+            }
+            return new List<ActiveWorkResponse>();
+        }
+        #endregion
     }
 }
