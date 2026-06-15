@@ -9,7 +9,6 @@ using RajApi.Data.Models;
 using RajApi.Data.Models.Reports;
 using RajApi.Helpers;
 using System.Data;
-using System.Diagnostics.Contracts;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
 using ListOptions = ILab.Extensionss.Data.ListOptions;
@@ -2258,10 +2257,142 @@ public class RajDataHandler : LabDataHandler
     {
         try
         {
-            var query = dbContext.Set<Activity>().AsQueryable();
+            var data = await GetActivityReportData(request, cancellationToken);
 
-            // Exclude deleted activities
-            query = query.Where(x => x.Status != StatusType.Deleted);
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+        
+    /// <summary>
+    /// Get detailed Activity Wise Budget vs Actual report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetActivitywiseBudgetVsActualReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Project Wise Budget vs Actual report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetProjectwiseBudgetVsActualReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Exception occurred in GetProjectwiseBudgetVsActualReportAsync");
+
+            throw;
+        }
+    }
+    
+    /// <summary>
+    /// Get detailed Engineer Performance report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetEngineerPerformanceReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetEngineerPerformanceReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Contractor  Wise Work report with all required fields
+    /// </summary>
+    /// 
+    public async Task<List<WorkReportDto>> GetContractorWiseWorkReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ThenBy(x => x.Contractor)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetContractorWiseWorkReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Developer Wise Work report with all required fields
+    /// </summary>
+    /// 
+    public async Task<List<WorkReportDto>> GetDeveloperWiseWorkReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ThenBy(x => x.Developer)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetContractorWiseWorkReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+    private async Task<List<WorkReportDto>> GetActivityReportData(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = dbContext.Set<Activity>()
+                   .AsNoTracking()
+                   .Where(x => x.Status != StatusType.Deleted);
 
             if (request?.ProjectId.HasValue == true)
                 query = query.Where(x => x.ProjectId == request.ProjectId);
@@ -2269,13 +2400,12 @@ public class RajDataHandler : LabDataHandler
             if (request?.TowerId.HasValue == true)
                 query = query.Where(x => x.TowerId == request.TowerId);
 
-            //if (request?.FromDate.HasValue == true)
-            //    query = query.Where(x => x.Date >= request.FromDate);
+            if (request?.StartDate.HasValue == true)
+                query = query.Where(x => x.Date >= request.StartDate.Value);
 
-            //if (request?.ToDate.HasValue == true)
-            //    query = query.Where(x => x.Date <= request.ToDate);
+            if (request?.EndDate.HasValue == true)
+                query = query.Where(x => x.Date <= request.EndDate.Value);
 
-            // Load related entities
             var activities = await query
                 .Include(x => x.Project)
                 .Include(x => x.Tower)
@@ -2284,53 +2414,102 @@ public class RajDataHandler : LabDataHandler
                 .Include(x => x.RoomDetails)
                 .ToListAsync(cancellationToken);
 
-            // Also get activity tracking data for each activity
+            // Company lookup
+            var companyLookup = await dbContext.Set<Company>()
+                .AsNoTracking()
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            // Contractor lookup (used for both Developer and Contractor)
+            var contractorLookup = await dbContext.Set<Contractor>()
+                .AsNoTracking()
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            // Prefetch all relevant activity trackings to avoid awaiting inside LINQ projection
             var activityIds = activities.Select(a => a.Id).ToList();
-            var trackingData = await dbContext.Set<ActivityTracking>()
-                        .ToListAsync(cancellationToken);
+            var allTrackings = new List<ActivityTracking>();
+            if (activityIds.Count > 0)
+            {
+                allTrackings = await dbContext.Set<ActivityTracking>()
+                    .AsNoTracking()
+                    .Where(w => w.Status != StatusType.Deleted && w.ActivityId != null && activityIds.Contains(w.ActivityId.Value))
+                    .OrderBy(a => a.Date)
+                    .ToListAsync(cancellationToken);
+            }
 
-            var companies = await dbContext.Set<Company>()
-                       .ToListAsync(cancellationToken);
-
-            var developer = await dbContext.Set<Contractor>()
-                       .ToListAsync(cancellationToken);
-
-            // Map to DTOs
             var result = activities.Select(activity =>
             {
-                var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
-                var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
-                var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = developer.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
+                companyLookup.TryGetValue(
+                    activity.Project?.CompanyId ?? 0,
+                    out var company);
+
+                contractorLookup.TryGetValue(
+                    activity.MaterialProvidedBy ?? 0,
+                    out var developer);
+
+                contractorLookup.TryGetValue(
+                    activity.LabourProvidedBy ?? 0,
+                    out var contractor);
+
+                decimal estimateCost = activity.CostEstimate;
+
+                // Use prefetched trackings for this activity
+                var activityTrackings = allTrackings.Where(t => t.ActivityId == activity.Id).ToList();
+
+                decimal accumulatedCost = activityTrackings.Sum(t => t.Cost ?? 0m);
+
+                int pregressPercentage = 0;
+                if (activityTrackings.Count > 0)
+                {
+                    // take the last tracking (ordered by Date) progress percentage similar to original logic
+                    var last = activityTrackings.LastOrDefault();
+                    pregressPercentage = last?.ProgressPercentage ?? 0;
+                }
 
                 return new WorkReportDto
                 {
                     ActivityId = activity.Id,
+
                     CompanyName = company?.Name ?? "N/A",
+
                     ProjectName = activity.Project?.Name ?? "N/A",
-                    InsideOutside = activity.Type?.ToUpper() ?? "N/A",
-                    TowerName = activity.Tower?.Name ?? "N/A",
-                    FloorName = activity.Floor?.Name,
-                    FlatName = activity.Flat?.Name,
-                    RoomName = activity.RoomDetails?.Name,
-                    Developer = developers?.Name,
-                    Contractor = contractors?.Name,
-                    ActivityName = activity.Name,
-                    ReportDate = activity.ActualStartDate,
-                    EstimateCost = activity.CostEstimate,
-                    ActualCost = activity.ActualCost,
+
+                    InsideOutside = string.IsNullOrWhiteSpace(activity.Type)
+                        ? "N/A"
+                        : activity.Type.ToUpper(),
+
+                    TowerName = activity.Tower?.Name ?? string.Empty,
+                    FloorName = activity.Floor?.Name ?? string.Empty,
+                    FlatName = activity.Flat?.Name ?? string.Empty,
+                    RoomName = activity.RoomDetails?.Name ?? string.Empty,
+
+                    Developer = developer?.Name ?? string.Empty,
+                    Contractor = contractor?.Name ?? string.Empty,
+
+                    ActivityName = activity.Name ?? string.Empty,
+
+                    ActualCost = accumulatedCost,
+                    EstimateCost = estimateCost,
+                    Variance = (estimateCost - accumulatedCost),
+
+                    StartDate = activity.ActualStartDate,
+                    EndDate = activity.ActualEndDate,
+                    ReportDate = activity.StartDate,
+                    Day = (Convert.ToDateTime(activity.ActualEndDate) - Convert.ToDateTime(activity.ActualStartDate)).Days,
                     Engineer = activity.Member,
-                    ProgressPercentage = activity.ProgressPercentage,
+                    Assignee = activity.Member,
+                    ProgressPercentage = pregressPercentage,
                     Status = (StatusType)activity.Status,
                     IsApproved = activity.IsApproved ?? false
                 };
-            }).ToList();
+            })
+            .ToList();
 
             return result;
+
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
+            logger.LogError(ex, "Exception occurred in GetActivityReportData");
             throw;
         }
     }
@@ -2342,7 +2521,7 @@ public class RajDataHandler : LabDataHandler
     {
         try
         {
-            var data = await GetWorkReportAsync(request, cancellationToken);
+            var data = await GetWorkReportData(request, cancellationToken);
 
             return data.Hold.Activities;
         }
@@ -2354,184 +2533,13 @@ public class RajDataHandler : LabDataHandler
     }
 
     /// <summary>
-    /// Get detailed Activity Wise Budget vs Actual report with all required fields
-    /// </summary>
-    public async Task<List<WorkReportDto>> GetActivitywiseBudgetVsActualReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var query = dbContext.Set<Activity>().AsQueryable();
-
-            // Exclude deleted activities
-            query = query.Where(x => x.Status != StatusType.Deleted);
-
-            if (request?.ProjectId.HasValue == true)
-                query = query.Where(x => x.ProjectId == request.ProjectId);
-
-            if (request?.TowerId.HasValue == true)
-                query = query.Where(x => x.TowerId == request.TowerId);
-
-            //if (request?.FromDate.HasValue == true)
-            //    query = query.Where(x => x.Date >= request.FromDate);
-
-            //if (request?.ToDate.HasValue == true)
-            //    query = query.Where(x => x.Date <= request.ToDate);
-
-            // Load related entities
-            var activities = await query
-                .Include(x => x.Project)
-                .Include(x => x.Tower)
-                .Include(x => x.Floor)
-                .Include(x => x.Flat)
-                .Include(x => x.RoomDetails)
-                .ToListAsync(cancellationToken);
-
-            // Also get activity tracking data for each activity
-            var activityIds = activities.Select(a => a.Id).ToList();
-            var trackingData = await dbContext.Set<ActivityTracking>()
-                        .ToListAsync(cancellationToken);
-
-            var companies = await dbContext.Set<Company>()
-                       .ToListAsync(cancellationToken);
-
-            var developer = await dbContext.Set<Contractor>()
-                       .ToListAsync(cancellationToken);
-
-            // Map to DTOs
-            var result = activities.Select(activity =>
-            {
-                var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
-                var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
-                var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = developer.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
-                var variance = activity.CostEstimate - activity.ActualCost;
-                return new WorkReportDto
-                {
-                    ActivityId = activity.Id,
-                    CompanyName = company?.Name ?? "N/A",
-                    ProjectName = activity.Project?.Name ?? "N/A",
-                    InsideOutside = activity.Type?.ToUpper() ?? "N/A",
-                    TowerName = activity.Tower?.Name ?? "N/A",
-                    FloorName = activity.Floor?.Name,
-                    FlatName = activity.Flat?.Name,
-                    RoomName = activity.RoomDetails?.Name,
-                    Developer = developers?.Name,
-                    Contractor = contractors?.Name,
-                    ActivityName = activity.Name,
-                    EstimateCost = activity.CostEstimate,
-                    ActualCost = activity.ActualCost,
-                    Variance = variance
-                };
-            }).ToList();
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Get detailed Engineer Performance report with all required fields
-    /// </summary>
-    public async Task<List<WorkReportDto>> GetEngineerPerformanceReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var query = dbContext.Set<Activity>().AsQueryable();
-
-            // Exclude deleted activities
-            query = query.Where(x => x.Status != StatusType.Deleted && x.ActualEndDate != null);
-
-            if (request?.ProjectId.HasValue == true)
-                query = query.Where(x => x.ProjectId == request.ProjectId);
-
-            if (request?.TowerId.HasValue == true)
-                query = query.Where(x => x.TowerId == request.TowerId);
-
-            //if (request?.FromDate.HasValue == true)
-            //    query = query.Where(x => x.Date >= request.FromDate);
-
-            //if (request?.ToDate.HasValue == true)
-            //    query = query.Where(x => x.Date <= request.ToDate);
-
-            // Load related entities
-            var activities = await query
-                .Include(x => x.Project)
-                .Include(x => x.Tower)
-                .Include(x => x.Floor)
-                .Include(x => x.Flat)
-                .Include(x => x.RoomDetails)
-                .ToListAsync(cancellationToken);
-
-            // Also get activity tracking data for each activity
-            var activityIds = activities.Select(a => a.Id).ToList();
-            var trackingData = await dbContext.Set<ActivityTracking>()
-                        .ToListAsync(cancellationToken);
-
-            var companies = await dbContext.Set<Company>()
-                       .ToListAsync(cancellationToken);
-
-            var developer = await dbContext.Set<Contractor>()
-                        .Where(x => x.Type.Equals("Developer"))
-                       .ToListAsync(cancellationToken);
-
-            var contractor = await dbContext.Set<Contractor>()
-                       .Where(x => x.Type.Equals("Contractor"))
-                       .ToListAsync(cancellationToken);
-
-            // Map to DTOs
-            var result = activities.Select(activity =>
-            {
-                var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
-                var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
-                var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = contractor.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
-                var days = (Convert.ToDateTime(activity.ActualEndDate) - Convert.ToDateTime(activity.ActualStartDate)).Days;
-                return new WorkReportDto
-                {
-                    ActivityId = activity.Id,
-                    CompanyName = company?.Name ?? "N/A",
-                    ProjectName = activity.Project?.Name ?? "N/A",
-                    InsideOutside = activity.Type?.ToUpper() ?? "N/A",
-                    TowerName = activity.Tower?.Name ?? "N/A",
-                    FloorName = activity.Floor?.Name,
-                    FlatName = activity.Flat?.Name,
-                    RoomName = activity.RoomDetails?.Name,
-                    Developer = developers?.Name,
-                    Contractor = contractors?.Name,
-                    ActivityName = activity.Name,
-                    StartDate = activity.ActualStartDate,
-                    EndDate = activity.ActualEndDate,
-                    ReportDate = activity.StartDate,
-                    Day = days,
-                    ActualCost = activity.ActualCost,
-                    Engineer = activity.Member,
-                    ProgressPercentage = activity.ProgressPercentage,
-                    Status = (StatusType)activity.Status,
-                    IsApproved = activity.IsApproved ?? false
-                };
-            }).ToList();
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetEngineerPerformanceReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-
-    /// <summary>
     /// Get detailed Project Wise NotStarted report with all required fields
     /// </summary>
     public async Task<List<WorkReportDto>> GetProjectWiseNotStartedReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
     {
         try
         {
-            var data = await GetWorkReportAsync(request, cancellationToken);
+            var data = await GetWorkReportData(request, cancellationToken);
 
             return data.NotStarted.Activities;
         }
@@ -2549,7 +2557,7 @@ public class RajDataHandler : LabDataHandler
     {
         try
         {
-            var data = await GetWorkReportAsync(request, cancellationToken);
+            var data = await GetWorkReportData(request, cancellationToken);
 
             return data.InProgress.Activities;
         }
@@ -2567,7 +2575,7 @@ public class RajDataHandler : LabDataHandler
     {
         try
         {
-            var data = await GetWorkReportAsync(request, cancellationToken);
+            var data = await GetWorkReportData(request, cancellationToken);
 
             return data.Cancelled.Activities;
         }
@@ -2585,7 +2593,7 @@ public class RajDataHandler : LabDataHandler
     {
         try
         {
-            var data = await GetWorkReportAsync(request, cancellationToken);
+            var data = await GetWorkReportData(request, cancellationToken);
 
             return data.Closed.Activities;
         }
@@ -2599,11 +2607,12 @@ public class RajDataHandler : LabDataHandler
     /// <summary>
     /// Get detailed Project Wise Rework report with all required fields
     /// </summary>
+    /// 
     public async Task<List<WorkReportDto>> GetProjectWiseReWorkReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
     {
         try
         {
-            var data = await GetWorkReportAsync(request, cancellationToken);
+            var data = await GetWorkReportData(request, cancellationToken);
 
             return data.Rework.Activities;
         }
@@ -2613,7 +2622,8 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
-    public async Task<WorkReportData> GetWorkReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    
+    private async Task<WorkReportData> GetWorkReportData(WorkReportRequest? request, CancellationToken cancellationToken)
     {
         try
         {
@@ -2622,17 +2632,17 @@ public class RajDataHandler : LabDataHandler
             query = query.Where(x => x.Status != StatusType.Deleted);
 
             // ✅ Null-safe filtering
-            if (request?.ProjectId.HasValue == true)
+            if (request.ProjectId.HasValue)
                 query = query.Where(x => x.ProjectId == request.ProjectId);
 
-            if (request?.TowerId.HasValue == true)
+            if (request.TowerId.HasValue)
                 query = query.Where(x => x.TowerId == request.TowerId);
 
             if (request?.StartDate.HasValue == true)
-                query = query.Where(x => x.Date >= request.StartDate);
+                query = query.Where(x => x.Date >= request.StartDate.Value);
 
             if (request?.EndDate.HasValue == true)
-                query = query.Where(x => x.Date <= request.EndDate);
+                query = query.Where(x => x.Date <= request.EndDate.Value);
 
             var data = await query
                .Include(x => x.Project)
@@ -2642,20 +2652,12 @@ public class RajDataHandler : LabDataHandler
                .Include(x => x.RoomDetails)
                .ToListAsync(cancellationToken);
 
-            //var data = await query.ToListAsync();
-            var trackingData = await dbContext.Set<ActivityTracking>()
-                       .ToListAsync(cancellationToken);
-
             var companies = await dbContext.Set<Company>()
                        .ToListAsync(cancellationToken);
 
             var developer = await dbContext.Set<Contractor>()
-                        .Where(x => x.Type.Equals("Developer"))
                        .ToListAsync(cancellationToken);
 
-            var contractor = await dbContext.Set<Contractor>()
-                       .Where(x => x.Type.Equals("Contractor"))
-                       .ToListAsync(cancellationToken);
             var now = DateTime.UtcNow;
 
             // ✅ Initialize response
@@ -2663,10 +2665,9 @@ public class RajDataHandler : LabDataHandler
 
             foreach (var activity in data)
             {
-                var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
                 var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
                 var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = contractor.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
+                var contractors = developer.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
                 var days = (Convert.ToDateTime(activity.ActualEndDate) - Convert.ToDateTime(activity.ActualStartDate)).Days;
                 var dto = new WorkReportDto
                 {
@@ -2678,9 +2679,9 @@ public class RajDataHandler : LabDataHandler
                     FloorName = activity.Floor?.Name,
                     FlatName = activity.Flat?.Name,
                     RoomName = activity.RoomDetails?.Name,
-                    Developer = developers?.Name,
-                    Contractor = contractors?.Name,
-                    ActivityName = activity.Name,
+                    Developer = developers?.Name ?? string.Empty,
+                    Contractor = developers?.Name ?? string.Empty,
+                    ActivityName = activity.Name ?? string.Empty,
                     StartDate = activity.ActualStartDate,
                     EndDate = activity.ActualEndDate,
                     ReportDate = activity.StartDate,

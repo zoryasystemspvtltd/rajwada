@@ -273,6 +273,27 @@
                 "access": "activity"
             },
             {
+                "name": "projectwiseBudgetVsActualReport",
+                "text": "Project Wise Budget Vs Actual",
+                "icon": "vector-square",
+                "path": "/projectwise-budget-vs-actual-report",
+                "access": "activity"
+            },
+            {
+                "name": "developerWiseWorkReport",
+                "text": "Developer Wise Work",
+                "icon": "vector-square",
+                "path": "/developerwise-work-report",
+                "access": "activity"
+            },
+            {
+                "name": "contractorWiseWorkReport",
+                "text": "Contractor Wise Work",
+                "icon": "vector-square",
+                "path": "/contractorwise-work-report",
+                "access": "activity"
+            },
+            {
                 "name": "auditReport",
                 "text": "Audit",
                 "icon": "user",
