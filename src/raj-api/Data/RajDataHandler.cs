@@ -1083,9 +1083,25 @@ public class RajDataHandler : LabDataHandler
     {
         DateTime currentDateTime = DateTime.Now;
         DateOnly dateOnly = DateOnly.FromDateTime(currentDateTime);
-        var result = dbContext.Set<ActivityResource>()
-                    .Where(x => x.Member.Equals(member) && x.NotificationStartDate <= dateOnly)
+        var activityResource = dbContext.Set<ActivityResource>()
+                    .Where(x => x.Status != StatusType.Deleted)
                     .Distinct();
+
+        var applog = dbContext.Set<ApplicationLog>()
+                    .Where(x => x.Member.Equals(member)
+                    && x.Name.Equals("Activity")
+                    && x.ActivityType != StatusType.Deleted
+                    && x.ActivityType != StatusType.Hold
+                    && x.ActivityType != StatusType.Cancelled
+                     && x.ActivityType != StatusType.Rejected)
+                    .Distinct();
+
+        var result = activityResource.Join(applog,
+                         act => act.ActivityId,
+                         tr => tr.EntityId,
+                         (act, tr) => act)
+                      .Where(a => a.NotificationStartDate <= dateOnly)
+                     .ToList();
 
         return result;
     }
@@ -1961,6 +1977,7 @@ public class RajDataHandler : LabDataHandler
 
     }
 
+    #region Activity List
     public dynamic GetActivities(ListOptions option)
     {
         try
@@ -2014,6 +2031,228 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
+    public dynamic GetInsideActivities(ListOptions option, string type, string? searchText)
+    {
+        try
+        {
+            ItemList<dynamic> itemList = new ItemList<dynamic>();
+            var activity = dbContext.Set<Activity>().AsQueryable();
+            var plans = dbContext.Set<Plan>().AsQueryable();
+            var projects = dbContext.Set<Project>().AsQueryable();
+            var workflows = dbContext.Set<Workflow>().AsQueryable();
+
+            var queryable = activity
+                .GroupJoin(plans,
+                    a => a.FlatId,
+                    f => f.Id,
+                    (a, fs) => new { a, fs })
+                .SelectMany(x => x.fs.DefaultIfEmpty(), (x, f) => new { x.a, f })
+                .GroupJoin(projects,
+                    af => af.a.ProjectId,
+                    p => p.Id,
+                    (af, ps) => new { af.a, af.f, ps })
+                .SelectMany(x => x.ps.DefaultIfEmpty(), (x, p) => new { x.a, x.f, p })
+                .GroupJoin(workflows,
+                    afp => afp.a.WorkflowId,
+                    w => w.Id,
+                    (afp, ws) => new { afp.a, afp.f, afp.p, ws })
+                .SelectMany(x => x.ws.DefaultIfEmpty(), (x, w) => new { x.a, x.f, x.p, w })
+                .Where(a => a.a.Status != StatusType.Deleted && a.a.Type.Contains(type))
+                .Select(x => new
+                {
+                    Id = x.a.Id,
+                    ActivityName = x.a.Name,
+                    StartDate = x.a.StartDate,
+                    EndDate = x.a.EndDate,
+                    ProjectName = x.p != null ? x.p.Name : null,
+                    FlatName = x.f != null ? x.f.Name : null,
+                    WorkflowName = x.w != null ? x.w.Name : null
+                })
+                .AsQueryable();
+
+            // Search
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                {
+                    queryable = queryable.Where(x =>
+                        (x.ActivityName != null && x.ActivityName.Contains(searchText)) ||
+                        (x.ProjectName != null && x.ProjectName.Contains(searchText)) ||
+                        (x.FlatName != null && x.FlatName.Contains(searchText)) ||
+                        (x.WorkflowName != null && x.WorkflowName.Contains(searchText))
+                    );
+                }
+            }
+
+            int num = queryable.Count();
+            int num2 = (option.CurrentPage - 1) * option.RecordPerPage;
+            int num3 = option.CurrentPage * option.RecordPerPage;
+            int count = ((num - num2 > option.RecordPerPage) ? option.RecordPerPage : (num - num2));
+            option.SortColumnName = (string.IsNullOrEmpty(option.SortColumnName) ? "Id" : option.SortColumnName);
+            if (option.RecordPerPage == 0)
+            {
+                count = num;
+            }
+
+            itemList.TotalRecords = num;
+
+            // Order by
+            switch (option.SortColumnName)
+            {
+                case "activityName":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.ActivityName)
+                                : queryable.OrderByDescending(p => p.ActivityName);
+                    break;
+                case "startDate":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.StartDate)
+                                : queryable.OrderByDescending(p => p.StartDate);
+                    break;
+                case "endDate":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.EndDate)
+                                : queryable.OrderByDescending(p => p.EndDate);
+                    break;
+                case "projectName":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.ProjectName)
+                                : queryable.OrderByDescending(p => p.ProjectName);
+                    break;
+                case "flatName":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.FlatName)
+                                : queryable.OrderByDescending(p => p.FlatName);
+                    break;
+                case "workflowName":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.WorkflowName)
+                                : queryable.OrderByDescending(p => p.WorkflowName);
+                    break;
+                default:
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.Id)
+                                : queryable.OrderByDescending(p => p.Id);
+                    break;
+            }
+            itemList.Items = queryable.Skip(num2).Take(count)
+                .ToList();
+            //itemList.Items = queryable.ToList();
+
+            return itemList;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetActivities method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    public dynamic GetOutsideActivities(ListOptions option, string? type, string? searchText)
+    {
+        try
+        {
+            ItemList<dynamic> itemList = new ItemList<dynamic>();
+            var activity = dbContext.Set<Activity>().AsQueryable();
+            var outSideEntity = dbContext.Set<OutSideEntity>().AsQueryable();
+            var projects = dbContext.Set<Project>().AsQueryable();
+            var workflows = dbContext.Set<Workflow>().AsQueryable();
+
+            var queryable = activity
+                .GroupJoin(outSideEntity,
+                    a => a.OutSideEntityId,
+                    f => f.Id,
+                    (a, fs) => new { a, fs })
+                .SelectMany(x => x.fs.DefaultIfEmpty(), (x, f) => new { x.a, f })
+                .GroupJoin(projects,
+                    af => af.a.ProjectId,
+                    p => p.Id,
+                    (af, ps) => new { af.a, af.f, ps })
+                .SelectMany(x => x.ps.DefaultIfEmpty(), (x, p) => new { x.a, x.f, p })
+                .GroupJoin(workflows,
+                    afp => afp.a.WorkflowId,
+                    w => w.Id,
+                    (afp, ws) => new { afp.a, afp.f, afp.p, ws })
+                .SelectMany(x => x.ws.DefaultIfEmpty(), (x, w) => new { x.a, x.f, x.p, w })
+                .Where(a => a.a.Status != StatusType.Deleted && a.a.Type.Contains(type))
+                .Select(x => new
+                {
+                    Id = x.a.Id,
+                    ActivityName = x.a.Name,
+                    StartDate = x.a.StartDate,
+                    EndDate = x.a.EndDate,
+                    ProjectName = x.p != null ? x.p.Name : null,
+                    OutSideEntityName = x.f != null ? x.f.Name : null,
+                    WorkflowName = x.w != null ? x.w.Name : null
+                })
+                .AsQueryable();
+
+            // Search
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                {
+                    queryable = queryable.Where(x =>
+                        (x.ActivityName != null && x.ActivityName.Contains(searchText)) ||
+                        (x.ProjectName != null && x.ProjectName.Contains(searchText)) ||
+                        (x.OutSideEntityName != null && x.OutSideEntityName.Contains(searchText)) ||
+                        (x.WorkflowName != null && x.WorkflowName.Contains(searchText))
+                    );
+                }
+            }
+
+            int num = queryable.Count();
+            int num2 = (option.CurrentPage - 1) * option.RecordPerPage;
+            int num3 = option.CurrentPage * option.RecordPerPage;
+            int count = ((num - num2 > option.RecordPerPage) ? option.RecordPerPage : (num - num2));
+            option.SortColumnName = (string.IsNullOrEmpty(option.SortColumnName) ? "Id" : option.SortColumnName);
+            if (option.RecordPerPage == 0)
+            {
+                count = num;
+            }
+
+            itemList.TotalRecords = num;
+
+            // Order by
+            switch (option.SortColumnName)
+            {
+                case "activityName":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.ActivityName)
+                                : queryable.OrderByDescending(p => p.ActivityName);
+                    break;
+                case "startDate":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.StartDate)
+                                : queryable.OrderByDescending(p => p.StartDate);
+                    break;
+                case "endDate":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.EndDate)
+                                : queryable.OrderByDescending(p => p.EndDate);
+                    break;
+                case "projectName":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.ProjectName)
+                                : queryable.OrderByDescending(p => p.ProjectName);
+                    break;
+                case "outSideEntityName":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.OutSideEntityName)
+                                : queryable.OrderByDescending(p => p.OutSideEntityName);
+                    break;
+                case "workflowName":
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.WorkflowName)
+                                : queryable.OrderByDescending(p => p.WorkflowName);
+                    break;
+                default:
+                    queryable = option.SortDirection ? queryable.OrderBy(p => p.Id)
+                                : queryable.OrderByDescending(p => p.Id);
+                    break;
+            }
+            itemList.Items = queryable.Skip(num2).Take(count)
+                .ToList();
+            //itemList.Items = queryable.ToList();
+
+            return itemList;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetActivities method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    #endregion
+
     #region Work Progress Report
     public async Task<List<WorkReportDto>> GetWorkProgressReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
     {
@@ -2054,11 +2293,6 @@ public class RajDataHandler : LabDataHandler
                        .ToListAsync(cancellationToken);
 
             var developer = await dbContext.Set<Contractor>()
-                        .Where(x => x.Type.Equals("Developer"))
-                       .ToListAsync(cancellationToken);
-
-            var contractor = await dbContext.Set<Contractor>()
-                       .Where(x => x.Type.Equals("Contractor"))
                        .ToListAsync(cancellationToken);
 
             // Map to DTOs
@@ -2067,7 +2301,7 @@ public class RajDataHandler : LabDataHandler
                 var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
                 var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
                 var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = contractor.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
+                var contractors = developer.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
 
                 return new WorkReportDto
                 {
@@ -2161,11 +2395,6 @@ public class RajDataHandler : LabDataHandler
                        .ToListAsync(cancellationToken);
 
             var developer = await dbContext.Set<Contractor>()
-                        .Where(x => x.Type.Equals("Developer"))
-                       .ToListAsync(cancellationToken);
-
-            var contractor = await dbContext.Set<Contractor>()
-                       .Where(x => x.Type.Equals("Contractor"))
                        .ToListAsync(cancellationToken);
 
             // Map to DTOs
@@ -2174,7 +2403,7 @@ public class RajDataHandler : LabDataHandler
                 var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
                 var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
                 var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = contractor.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
+                var contractors = developer.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
                 var variance = activity.CostEstimate - activity.ActualCost;
                 return new WorkReportDto
                 {
@@ -2503,225 +2732,117 @@ public class RajDataHandler : LabDataHandler
         }
     }
     #endregion
-    public dynamic GetInsideActivities(ListOptions option, string type, string? searchText)
+
+
+    #region Calender API
+    public async Task<List<ActiveWorksCountResponse>> GetActiveWorksCountByMonthAsync(
+    ActiveWorksCountRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            ItemList<dynamic> itemList = new ItemList<dynamic>();
-            var activity = dbContext.Set<Activity>().AsQueryable();
-            var plans = dbContext.Set<Plan>().AsQueryable();
-            var projects = dbContext.Set<Project>().AsQueryable();
-            var workflows = dbContext.Set<Workflow>().AsQueryable();
+            var startDate = new DateTime(request.Year, request.Month, 1);
+            var endDate = startDate.AddMonths(1);
 
-            var queryable = activity
-                .GroupJoin(plans,
-                    a => a.FlatId,
-                    f => f.Id,
-                    (a, fs) => new { a, fs })
-                .SelectMany(x => x.fs.DefaultIfEmpty(), (x, f) => new { x.a, f })
-                .GroupJoin(projects,
-                    af => af.a.ProjectId,
-                    p => p.Id,
-                    (af, ps) => new { af.a, af.f, ps })
-                .SelectMany(x => x.ps.DefaultIfEmpty(), (x, p) => new { x.a, x.f, p })
-                .GroupJoin(workflows,
-                    afp => afp.a.WorkflowId,
-                    w => w.Id,
-                    (afp, ws) => new { afp.a, afp.f, afp.p, ws })
-                .SelectMany(x => x.ws.DefaultIfEmpty(), (x, w) => new { x.a, x.f, x.p, w })
-                .Where(a => a.a.Status != StatusType.Deleted && a.a.Type.Contains(type))
-                .Select(x => new
-                {
-                    Id = x.a.Id,
-                    ActivityName = x.a.Name,
-                    StartDate = x.a.StartDate,
-                    EndDate = x.a.EndDate,
-                    ProjectName = x.p != null ? x.p.Name : null,
-                    FlatName = x.f != null ? x.f.Name : null,
-                    WorkflowName = x.w != null ? x.w.Name : null
-                })
-                .AsQueryable();
+            var query = dbContext.Set<Activity>()
+                .AsNoTracking()
+                .Where(x =>
+                    x.Type.ToLower() == request.Type.ToLower()
+                    && x.StartDate.HasValue
+                    && x.StartDate.Value >= startDate
+                    && x.StartDate.Value < endDate
+                    && x.Status != StatusType.Approved
+                    && x.Status != StatusType.Rejected
+                    && x.Status != StatusType.Deleted);
 
-            // Search
-            if (!string.IsNullOrEmpty(searchText))
+            // Optional Filters
+
+            if (request.ProjectId.HasValue)
+                query = query.Where(x => x.ProjectId == request.ProjectId);
+
+            if (request.TowerId.HasValue)
+                query = query.Where(x => x.TowerId == request.TowerId);
+
+            var result = await query
+                        .GroupBy(x => x.StartDate!.Value.Date)
+                        .Select(g => new
+                        {
+                            Date = g.Key,
+                            Count = g.Count()
+                        })
+                        .OrderBy(x => x.Date)
+                        .ToListAsync(cancellationToken);
+
+            return result.Select(x => new ActiveWorksCountResponse
             {
-                {
-                    queryable = queryable.Where(x =>
-                        (x.ActivityName != null && x.ActivityName.Contains(searchText)) ||
-                        (x.ProjectName != null && x.ProjectName.Contains(searchText)) ||
-                        (x.FlatName != null && x.FlatName.Contains(searchText)) ||
-                        (x.WorkflowName != null && x.WorkflowName.Contains(searchText))
-                    );
-                }
-            }
-
-            int num = queryable.Count();
-            int num2 = (option.CurrentPage - 1) * option.RecordPerPage;
-            int num3 = option.CurrentPage * option.RecordPerPage;
-            int count = ((num - num2 > option.RecordPerPage) ? option.RecordPerPage : (num - num2));
-            option.SortColumnName = (string.IsNullOrEmpty(option.SortColumnName) ? "Id" : option.SortColumnName);
-            if (option.RecordPerPage == 0)
-            {
-                count = num;
-            }
-
-            itemList.TotalRecords = num;
-
-            // Order by
-            switch (option.SortColumnName)
-            {
-                case "activityName":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.ActivityName)
-                                : queryable.OrderByDescending(p => p.ActivityName);
-                    break;
-                case "startDate":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.StartDate)
-                                : queryable.OrderByDescending(p => p.StartDate);
-                    break;
-                case "endDate":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.EndDate)
-                                : queryable.OrderByDescending(p => p.EndDate);
-                    break;
-                case "projectName":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.ProjectName)
-                                : queryable.OrderByDescending(p => p.ProjectName);
-                    break;
-                case "flatName":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.FlatName)
-                                : queryable.OrderByDescending(p => p.FlatName);
-                    break;
-                case "workflowName":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.WorkflowName)
-                                : queryable.OrderByDescending(p => p.WorkflowName);
-                    break;
-                default:
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.Id)
-                                : queryable.OrderByDescending(p => p.Id);
-                    break;
-            }
-            itemList.Items = queryable.Skip(num2).Take(count)
-                .ToList();
-            //itemList.Items = queryable.ToList();
-
-            return itemList;
-
+                Date = x.Date.ToString("dd-MM-yyyy"),
+                Count = x.Count
+            }).ToList();
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Exception in GetActivities method and details: '{ex.Message}'");
+            logger.LogError(ex, $"Exception in GetActiveWorksCountByMonthAsync method and details: '{ex.Message}'");
             throw;
         }
     }
 
-    public dynamic GetOutsideActivities(ListOptions option, string? type, string? searchText)
+    public async Task<List<ActiveWorkResponse>> GetActiveWorksByDayAsync(
+    ActiveWorksByDayRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            ItemList<dynamic> itemList = new ItemList<dynamic>();
-            var activity = dbContext.Set<Activity>().AsQueryable();
-            var outSideEntity = dbContext.Set<OutSideEntity>().AsQueryable();
-            var projects = dbContext.Set<Project>().AsQueryable();
-            var workflows = dbContext.Set<Workflow>().AsQueryable();
 
-            var queryable = activity
-                .GroupJoin(outSideEntity,
-                    a => a.OutSideEntityId,
-                    f => f.Id,
-                    (a, fs) => new { a, fs })
-                .SelectMany(x => x.fs.DefaultIfEmpty(), (x, f) => new { x.a, f })
-                .GroupJoin(projects,
-                    af => af.a.ProjectId,
-                    p => p.Id,
-                    (af, ps) => new { af.a, af.f, ps })
-                .SelectMany(x => x.ps.DefaultIfEmpty(), (x, p) => new { x.a, x.f, p })
-                .GroupJoin(workflows,
-                    afp => afp.a.WorkflowId,
-                    w => w.Id,
-                    (afp, ws) => new { afp.a, afp.f, afp.p, ws })
-                .SelectMany(x => x.ws.DefaultIfEmpty(), (x, w) => new { x.a, x.f, x.p, w })
-                .Where(a => a.a.Status != StatusType.Deleted && a.a.Type.Contains(type))
-                .Select(x => new
+            var selectedDate = new DateTime(
+                request.Year,
+                request.Month,
+                request.Day);
+
+            var query =
+                from activity in dbContext.Set<Activity>().AsNoTracking()
+
+                join log in dbContext.Set<ApplicationLog>().AsNoTracking()
+                    on activity.Id equals log.EntityId into logs
+
+                from applicationLog in logs.DefaultIfEmpty()
+
+                where activity.Type == request.Type
+
+                      && activity.StartDate >= selectedDate.Date
+
+                      // Exclude Approved, Rejected and Deleted
+                      && activity.Status != StatusType.Approved
+                      && activity.Status != StatusType.Rejected
+                      && activity.Status != StatusType.Deleted
+
+                      && (request.ProjectId == null
+                            || activity.ProjectId == request.ProjectId)
+
+                      && (request.TowerId == null
+                            || activity.TowerId == request.TowerId)
+
+                      && (applicationLog == null
+                            || applicationLog.Name == nameof(Activity))
+
+                select new ActiveWorkResponse
                 {
-                    Id = x.a.Id,
-                    ActivityName = x.a.Name,
-                    StartDate = x.a.StartDate,
-                    EndDate = x.a.EndDate,
-                    ProjectName = x.p != null ? x.p.Name : null,
-                    OutSideEntityName = x.f != null ? x.f.Name : null,
-                    WorkflowName = x.w != null ? x.w.Name : null
-                })
-                .AsQueryable();
+                    Id = activity.Id,
+                    Name = activity.Name,
+                    Status = (StatusType)activity.Status
+                };
 
-            // Search
-            if (!string.IsNullOrEmpty(searchText))
-            {
-                {
-                    queryable = queryable.Where(x =>
-                        (x.ActivityName != null && x.ActivityName.Contains(searchText)) ||
-                        (x.ProjectName != null && x.ProjectName.Contains(searchText)) ||
-                        (x.OutSideEntityName != null && x.OutSideEntityName.Contains(searchText)) ||
-                        (x.WorkflowName != null && x.WorkflowName.Contains(searchText))
-                    );
-                }
-            }
-
-            int num = queryable.Count();
-            int num2 = (option.CurrentPage - 1) * option.RecordPerPage;
-            int num3 = option.CurrentPage * option.RecordPerPage;
-            int count = ((num - num2 > option.RecordPerPage) ? option.RecordPerPage : (num - num2));
-            option.SortColumnName = (string.IsNullOrEmpty(option.SortColumnName) ? "Id" : option.SortColumnName);
-            if (option.RecordPerPage == 0)
-            {
-                count = num;
-            }
-
-            itemList.TotalRecords = num;
-
-            // Order by
-            switch (option.SortColumnName)
-            {
-                case "activityName":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.ActivityName)
-                                : queryable.OrderByDescending(p => p.ActivityName);
-                    break;
-                case "startDate":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.StartDate)
-                                : queryable.OrderByDescending(p => p.StartDate);
-                    break;
-                case "endDate":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.EndDate)
-                                : queryable.OrderByDescending(p => p.EndDate);
-                    break;
-                case "projectName":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.ProjectName)
-                                : queryable.OrderByDescending(p => p.ProjectName);
-                    break;
-                case "outSideEntityName":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.OutSideEntityName)
-                                : queryable.OrderByDescending(p => p.OutSideEntityName);
-                    break;
-                case "workflowName":
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.WorkflowName)
-                                : queryable.OrderByDescending(p => p.WorkflowName);
-                    break;
-                default:
-                    queryable = option.SortDirection ? queryable.OrderBy(p => p.Id)
-                                : queryable.OrderByDescending(p => p.Id);
-                    break;
-            }
-            itemList.Items = queryable.Skip(num2).Take(count)
-                .ToList();
-            //itemList.Items = queryable.ToList();
-
-            return itemList;
+            return await query
+                .Distinct()
+                .OrderBy(x => x.Name)
+                .ToListAsync(cancellationToken);
 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Exception in GetActivities method and details: '{ex.Message}'");
+            logger.LogError(ex, $"Exception in GetActiveWorksByDayAsync method and details: '{ex.Message}'");
             throw;
         }
     }
+
+    #endregion Region
 }
 
 public class ModuleIdentity

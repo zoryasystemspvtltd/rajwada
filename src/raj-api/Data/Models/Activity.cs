@@ -255,4 +255,40 @@ namespace RajApi.Data.Models
         public long EntityId { get; set; }
         public string RoleName { get; set; }
     }
+
+    public class ActiveWorksCountRequest
+    {
+        public string Type { get; set; } = string.Empty;
+        public int Month { get; set; }
+        public int Year { get; set; }
+
+        public long? ProjectId { get; set; }
+        public long? TowerId { get; set; }
+        public string? UserId { get; set; }
+    }
+    public class ActiveWorksCountResponse
+    {
+        public string Date { get; set; } = string.Empty;
+        public int Count { get; set; }
+    }
+
+    public class ActiveWorksByDayRequest
+    {
+        public string Type { get; set; } = string.Empty;
+        public int Month { get; set; }
+        public int Day { get; set; }
+        public int Year { get; set; }
+
+        public long? ProjectId { get; set; }
+        public long? TowerId { get; set; }
+        public string? UserId { get; set; }
+    }
+    public class ActiveWorkResponse
+    {
+        public long Id { get; set; }
+
+        public string Name { get; set; } = string.Empty;
+
+        public StatusType Status { get; set; }
+    }
 }
