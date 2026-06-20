@@ -213,7 +213,7 @@ const ProjectWiseNotStartedReport = () => {
         }
     };
 
-     const handleReset = () => {
+    const handleReset = () => {
         setFilters({ projectId: '', towerId: '', startDate: '', endDate: '' });
         setReportRows([]);
     };
@@ -273,7 +273,7 @@ const ProjectWiseNotStartedReport = () => {
                 <td>{row.activityName}</td>
                 <td>{row.startDate}</td>
                 <td>{row.endDate}</td>
-                <td>{row.day}</td>
+                <td>{(row.day >= 0) ? row.day : ""}</td>
                 <td>{row.reportDate}</td>
                 <td>{row.actualCost}</td>
                 <td>{row.engineer}</td>

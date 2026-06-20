@@ -125,9 +125,24 @@ const ReportDetailsPage = () => {
         }
     };
 
-    const handleDeleteClick = (report) => {
-        setSelectedItem({ module: 'activitytracking', id: report.id });
-        setShowDeleteModal(true);
+    const handleDeleteClick = async (report) => {
+        let actiivityDetails = await api.getSingleData({ module: 'activity', id: parseInt(activityId) });
+        if (actiivityDetails.item.status === 2) {
+            notify("info", "Activity submitted for QC Approval, cannot delete report");
+            return;
+        }
+        else if (actiivityDetails.item.status === 7) {
+            notify("info", "Activity submitted for HOD Approval, cannot delete report");
+            return;
+        }
+        else if ([4, 6].includes(actiivityDetails.item.status)) {
+            notify("error", "Activity already completed, cannot delete report");
+            return;
+        }
+        else {
+            setSelectedItem({ module: 'activitytracking', id: report.id });
+            setShowDeleteModal(true);
+        }
     };
 
     const deleteCheckpointTracking = async (itemId) => {
@@ -176,17 +191,17 @@ const ReportDetailsPage = () => {
                         <h4>Reports for {date}</h4>
                     </div>
                     <div className="col-sm-6">
-                        <Button style={{float : "right"}}
+                        <Button style={{ float: "right" }}
                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2 btn btn-contained"
                             onClick={() => navigate(-1)}> Back</Button>
                     </div>
                 </div>
-                
+
 
                 {loading && <Spinner animation="border" />}
                 {error && <Alert variant="danger">{error}</Alert>}
-                
-                
+
+
                 {reports.map((report) => (
                     <Card key={report.id} className="mt-3 shadow-sm">
 

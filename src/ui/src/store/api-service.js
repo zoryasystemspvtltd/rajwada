@@ -228,6 +228,16 @@ api.getItemNotifications = async (action) => {
     const response = await api.get(url);
     return response;
 }
+api.getWorkCountByMonth = async (action) => {
+    const url = `/calender/active-works-count-by-month`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.getActiveWorksByDay = async (action) => {
+    const url = `/calender/active-works-by-day`;
+    const response = await api.post(url, action.data);
+    return response;
+}
 
 api.projectwiseOnHoldReport = async (action) => {
     const url = `/projectwise-onhold-report`;
