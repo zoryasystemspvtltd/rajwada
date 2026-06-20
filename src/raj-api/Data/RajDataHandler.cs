@@ -2736,65 +2736,80 @@ public class RajDataHandler : LabDataHandler
 
     #region Calender API
     public async Task<List<ActiveWorksCountResponse>> GetActiveWorksCountByMonthAsync(
-    ActiveWorksCountRequest request, CancellationToken cancellationToken)
+     ActiveWorksCountRequest request,
+     CancellationToken cancellationToken)
     {
         try
         {
-            var startDate = new DateTime(request.Year, request.Month, 1);
-            var endDate = startDate.AddMonths(1);
+            var monthStart = new DateTime(request.Year, request.Month, 1);
+            var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
             var query = dbContext.Set<Activity>()
                 .AsNoTracking()
                 .Where(x =>
                     x.Type.ToLower() == request.Type.ToLower()
-                    && x.StartDate.HasValue
-                    && x.StartDate.Value >= startDate
-                    && x.StartDate.Value < endDate
                     && x.Status != StatusType.Approved
                     && x.Status != StatusType.Rejected
-                    && x.Status != StatusType.Deleted);
+                    && x.Status != StatusType.Deleted
+                    && x.StartDate.HasValue);
 
             // Optional Filters
-
             if (request.ProjectId.HasValue)
                 query = query.Where(x => x.ProjectId == request.ProjectId);
 
             if (request.TowerId.HasValue)
                 query = query.Where(x => x.TowerId == request.TowerId);
 
-            var result = await query
-                        .GroupBy(x => x.StartDate!.Value.Date)
-                        .Select(g => new
-                        {
-                            Date = g.Key,
-                            Count = g.Count()
-                        })
-                        .OrderBy(x => x.Date)
-                        .ToListAsync(cancellationToken);
+            var activities = await query
+                .Select(x => new
+                {
+                    StartDate = x.StartDate!.Value.Date,
+                    EndDate = x.ActualEndDate.HasValue
+                        ? x.ActualEndDate.Value.Date
+                        : x.EndDate.HasValue
+                            ? x.EndDate.Value.Date.AddDays(365)
+                            : DateTime.MaxValue.Date
+                })
+                .Where(x =>
+                    x.StartDate <= monthEnd &&
+                    x.EndDate >= monthStart)
+                .ToListAsync(cancellationToken);
 
-            return result.Select(x => new ActiveWorksCountResponse
+            var result = new List<ActiveWorksCountResponse>();
+
+            for (var day = monthStart; day <= monthEnd; day = day.AddDays(1))
             {
-                Date = x.Date.ToString("dd-MM-yyyy"),
-                Count = x.Count
-            }).ToList();
+                var count = activities.Count(a =>
+                    a.StartDate <= day.Date &&
+                    a.EndDate >= day.Date);
+
+                result.Add(new ActiveWorksCountResponse
+                {
+                    Date = day.ToString("dd-MM-yyyy"),
+                    Count = count
+                });
+            }
+
+            return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Exception in GetActiveWorksCountByMonthAsync method and details: '{ex.Message}'");
+            logger.LogError(ex,
+                $"Exception in GetActiveWorksCountByMonthAsync method and details: '{ex.Message}'");
             throw;
         }
     }
 
     public async Task<List<ActiveWorkResponse>> GetActiveWorksByDayAsync(
-    ActiveWorksByDayRequest request, CancellationToken cancellationToken)
+     ActiveWorksByDayRequest request,
+     CancellationToken cancellationToken)
     {
         try
         {
-
             var selectedDate = new DateTime(
                 request.Year,
                 request.Month,
-                request.Day);
+                request.Day).Date;
 
             var query =
                 from activity in dbContext.Set<Activity>().AsNoTracking()
@@ -2804,9 +2819,20 @@ public class RajDataHandler : LabDataHandler
 
                 from applicationLog in logs.DefaultIfEmpty()
 
+                let effectiveEndDate =
+                    activity.ActualEndDate.HasValue
+                        ? activity.ActualEndDate.Value
+                        : activity.EndDate.HasValue
+                            ? activity.EndDate.Value.AddDays(365)
+                            : DateTime.MaxValue
+
                 where activity.Type == request.Type
 
-                      && activity.StartDate >= selectedDate.Date
+                      && activity.StartDate.HasValue
+
+                      // Activity active on selected date
+                      && activity.StartDate.Value.Date <= selectedDate
+                      && effectiveEndDate.Date >= selectedDate
 
                       // Exclude Approved, Rejected and Deleted
                       && activity.Status != StatusType.Approved
@@ -2833,11 +2859,11 @@ public class RajDataHandler : LabDataHandler
                 .Distinct()
                 .OrderBy(x => x.Name)
                 .ToListAsync(cancellationToken);
-
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Exception in GetActiveWorksByDayAsync method and details: '{ex.Message}'");
+            logger.LogError(ex,
+                $"Exception in GetActiveWorksByDayAsync method and details: '{ex.Message}'");
             throw;
         }
     }
