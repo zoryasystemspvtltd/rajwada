@@ -249,6 +249,21 @@ api.activitywiseBudgetVsActualReport = async (action) => {
     const response = await api.post(url, action.data);
     return response;
 }
+api.projectwiseBudgetVsActualReport = async (action) => {
+    const url = `/projectwise-budgetvsactual-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.developerwiseworkReport = async (action) => {
+    const url = `/developerwise-work-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.contractorwiseworkReport = async (action) => {
+    const url = `/contractorwise-work-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
 api.engineerPerformanceReport = async (action) => {
     const url = `/engineer-performance-report`;
     const response = await api.post(url, action.data);
