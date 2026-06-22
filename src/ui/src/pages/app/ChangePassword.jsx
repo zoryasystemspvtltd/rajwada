@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Alert, Button, Col, Form, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import api from '../../store/api-service'
@@ -131,6 +131,14 @@ const ChangePassword = () => {
                                                     onClick={() => navigate(-1)}>
                                                     Cancel
                                                 </Button>
+                                            </Col>
+                                        </Row>
+
+                                        <Row className="mt-2">
+                                            <Col>
+                                                <Alert variant="info">
+                                                    {`Password should contain atleast 1 uppercase, 1 lowercase, 1 digit and 1 special character`}
+                                                </Alert>
                                             </Col>
                                         </Row>
                                     </Form>

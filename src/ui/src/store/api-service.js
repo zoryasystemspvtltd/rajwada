@@ -228,6 +228,16 @@ api.getItemNotifications = async (action) => {
     const response = await api.get(url);
     return response;
 }
+api.getWorkCountByMonth = async (action) => {
+    const url = `/calender/active-works-count-by-month`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.getActiveWorksByDay = async (action) => {
+    const url = `/calender/active-works-by-day`;
+    const response = await api.post(url, action.data);
+    return response;
+}
 
 api.projectwiseOnHoldReport = async (action) => {
     const url = `/projectwise-onhold-report`;
@@ -236,6 +246,21 @@ api.projectwiseOnHoldReport = async (action) => {
 }
 api.activitywiseBudgetVsActualReport = async (action) => {
     const url = `/activitywise-budgetvsactual-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.projectwiseBudgetVsActualReport = async (action) => {
+    const url = `/projectwise-budgetvsactual-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.developerwiseworkReport = async (action) => {
+    const url = `/developerwise-work-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.contractorwiseworkReport = async (action) => {
+    const url = `/contractorwise-work-report`;
     const response = await api.post(url, action.data);
     return response;
 }

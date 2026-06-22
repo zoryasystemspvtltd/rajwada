@@ -16,15 +16,9 @@ const FIELD_LABELS = [
     { key: 'developer', label: 'Developer' },
     { key: 'contractor', label: 'Contractor' },
     { key: 'activityName', label: 'Activities' },
-    { key: 'startDate', label: 'Start Date' },
-    { key: 'endDate', label: 'End Date' },
-    { key: 'day', label: 'Day' },
-    { key: 'reportDate', label: 'Date' },
-    { key: 'actualCost', label: 'Cost' },
-    { key: 'engineer', label: 'Engineer' },
-    { key: 'progressPercentage', label: 'Percentage of Work' },
-    { key: 'status', label: 'Status' },
-    { key: 'isApproved', label: 'Is Approved' },
+    { key: 'estimateCost', label: 'EstimateCost' },
+    { key: 'actualCost', label: 'ActualCost' },
+    { key: 'variance', label: 'Variance' }
 ];
 
 const getItemValue = (item, keys, fallback = '') => {
@@ -35,24 +29,6 @@ const getItemValue = (item, keys, fallback = '') => {
     }
     return fallback;
 };
-
-const getText = (num) => {
-    if (isNaN(num)) return "";
-
-    const textMap = {
-        0: "New",
-        1: "In Progress",
-        2: "QC Assigned",
-        3: "Assigned",
-        4: "Approved",
-        5: "Hold",
-        6: "Rejected",
-        7: "HOD Assigned",
-        12: "Cancelled"
-    };
-
-    return textMap[num] || "Unknown";
-}
 
 const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -81,15 +57,9 @@ const mapReportRow = (item) => ({
     developer: (item?.developer),
     contractor: (item?.contractor),
     activityName: (item?.activityName),
-    startDate: formatDate(item?.startDate),
-    endDate: formatDate(item?.endDate),
-    reportDate: formatDate(item?.reportDate),
-    day: (item?.day),
     actualCost: getItemValue(item, ['actualCost'], '') ? `₹${parseFloat(item.actualCost).toLocaleString('en-IN')}` : '',
-    engineer: (item?.engineer),
-    progressPercentage: (item?.progressPercentage),
-    status: getText(item?.status),
-    isApproved: item?.isApproved === true || item?.isApproved === 'true' || item?.approvalStatus === 4 ? 'Yes' : 'No',
+    estimateCost: getItemValue(item, ['estimateCost'], '') ? `₹${parseFloat(item.estimateCost).toLocaleString('en-IN')}` : '',
+    variance: getItemValue(item, ['variance'], '') ? `₹${parseFloat(item.variance).toLocaleString('en-IN')}` : '',
 });
 
 const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
@@ -109,11 +79,11 @@ const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
     };
 };
 
-const ProjectWiseNotStartedReport = () => {
+const ProjectwiseBudgetVsActualReport = () => {
     //const [companies, setCompanies] = useState([]);
     const [projects, setProjects] = useState([]);
     const [towers, setTowers] = useState([]);
-    const [filters, setFilters] = useState({ companyId: '', projectId: '', towerId: '', startDate: '', endDate: '' });
+    const [filters, setFilters] = useState({ projectId: '', towerId: '' });
     const [reportRows, setReportRows] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -124,15 +94,11 @@ const ProjectWiseNotStartedReport = () => {
     }, []);
 
     useEffect(() => {
-        if (filters.companyId) {
-            loadProjects(filters.companyId);
-        } else {
-            loadProjects();
-        }
+        loadProjects();
         setFilters((prev) => ({ ...prev, projectId: '', towerId: '' }));
         setTowers([]);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters.companyId]);
+    }, []);
 
     useEffect(() => {
         if (filters.projectId) {
@@ -144,12 +110,9 @@ const ProjectWiseNotStartedReport = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filters.projectId]);
 
-    const loadProjects = async (companyId) => {
+    const loadProjects = async () => {
         try {
             const options = { recordPerPage: 0 };
-            if (companyId) {
-                options.searchCondition = { name: 'companyId', value: parseInt(companyId, 10) };
-            }
             const response = await api.getData({ module: 'project', options });
             setProjects(response?.data?.items || []);
         } catch (error) {
@@ -186,10 +149,10 @@ const ProjectWiseNotStartedReport = () => {
     const handleSearch = async () => {
         try {
             setLoading(true);
-            const payload = buildSearchPayload(filters);
-            console.log('Search payload:', payload);
+            const options = buildSearchPayload(filters);
+            console.log('Search options:', options);
 
-            const response = await api.projectWiseNotStartedReport({ data: payload });
+            const response = await api.projectwiseBudgetVsActualReport({ data: options });
             console.log('Full API Response:', response);
             console.log('Response data property:', response?.data);
 
@@ -237,24 +200,18 @@ const ProjectWiseNotStartedReport = () => {
                 Developer: row.developer,
                 Contractor: row.contractor,
                 Activities: row.activityName,
-                StartDate: row.startDate,
-                EndDate: row.endDate,
-                Cost: row.actualCost,
-                Day: row.day,
-                Date: row.reportDate,
-                Engineer: row.engineer,
-                'Percentage of Work': row.progressPercentage,
-                Status: row.status,
-                'Is Approved': row.isApproved,
+                EstimateCost: row.estimateCost,
+                ActualCost: row.actualCost,
+                Variance: row.variance
             };
         });
 
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'ProjectWiseNotStarted Report');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'ProjectwiseBudgetVsActual Report');
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
         const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `ProjectWiseNotStartedReport-${new Date().toISOString().split('T')[0]}.xlsx`);
+        saveAs(blob, `ProjectwiseBudgetVsActualReport-${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
     const renderedRows = reportRows.map((item, index) => {
@@ -271,15 +228,9 @@ const ProjectWiseNotStartedReport = () => {
                 <td>{row.developer}</td>
                 <td>{row.contractor}</td>
                 <td>{row.activityName}</td>
-                <td>{row.startDate}</td>
-                <td>{row.endDate}</td>
-                <td>{(row.day >= 0) ? row.day : ""}</td>
-                <td>{row.reportDate}</td>
+                <td>{row.estimateCost}</td>
                 <td>{row.actualCost}</td>
-                <td>{row.engineer}</td>
-                <td>{row.progressPercentage}</td>
-                <td>{row.status}</td>
-                <td>{row.isApproved}</td>
+                <td>{row.variance}</td>
             </tr>
         );
     });
@@ -287,7 +238,7 @@ const ProjectWiseNotStartedReport = () => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading text-uppercase"> Project Wise  Block Wise Total Pending (Not Started ) Report</div>
+                <div className="page-title-heading text-uppercase">Project Wise Budget Vs Actual Report</div>
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -404,4 +355,4 @@ const ProjectWiseNotStartedReport = () => {
     );
 };
 
-export default ProjectWiseNotStartedReport;
+export default ProjectwiseBudgetVsActualReport;

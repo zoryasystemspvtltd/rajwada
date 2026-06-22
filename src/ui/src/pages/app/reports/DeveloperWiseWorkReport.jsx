@@ -14,17 +14,13 @@ const FIELD_LABELS = [
     { key: 'flatName', label: 'Flat' },
     { key: 'roomName', label: 'Room' },
     { key: 'developer', label: 'Developer' },
-    { key: 'contractor', label: 'Contractor' },
     { key: 'activityName', label: 'Activities' },
+    { key: 'status', label: 'Status' },
     { key: 'startDate', label: 'Start Date' },
     { key: 'endDate', label: 'End Date' },
-    { key: 'day', label: 'Day' },
-    { key: 'reportDate', label: 'Date' },
-    { key: 'actualCost', label: 'Cost' },
-    { key: 'engineer', label: 'Engineer' },
-    { key: 'progressPercentage', label: 'Percentage of Work' },
-    { key: 'status', label: 'Status' },
-    { key: 'isApproved', label: 'Is Approved' },
+    { key: 'actualCost', label: 'ActualCost' },
+    { key: 'assignee', label: 'Assignee' },
+    { key: 'progressPercentage', label: 'Progress Percentage' },
 ];
 
 const getItemValue = (item, keys, fallback = '') => {
@@ -79,17 +75,13 @@ const mapReportRow = (item) => ({
     flatName: (item?.flatName),
     roomName: (item?.roomName),
     developer: (item?.developer),
-    contractor: (item?.contractor),
     activityName: (item?.activityName),
+    status: getText(item?.status),
     startDate: formatDate(item?.startDate),
     endDate: formatDate(item?.endDate),
-    reportDate: formatDate(item?.reportDate),
-    day: (item?.day),
     actualCost: getItemValue(item, ['actualCost'], '') ? `₹${parseFloat(item.actualCost).toLocaleString('en-IN')}` : '',
-    engineer: (item?.engineer),
+    assignee: (item?.assignee),
     progressPercentage: (item?.progressPercentage),
-    status: getText(item?.status),
-    isApproved: item?.isApproved === true || item?.isApproved === 'true' || item?.approvalStatus === 4 ? 'Yes' : 'No',
 });
 
 const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
@@ -109,11 +101,11 @@ const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
     };
 };
 
-const ProjectWiseNotStartedReport = () => {
+const DeveloperWiseWorkReport = () => {
     //const [companies, setCompanies] = useState([]);
     const [projects, setProjects] = useState([]);
     const [towers, setTowers] = useState([]);
-    const [filters, setFilters] = useState({ companyId: '', projectId: '', towerId: '', startDate: '', endDate: '' });
+    const [filters, setFilters] = useState({ projectId: '', towerId: '' });
     const [reportRows, setReportRows] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -124,15 +116,11 @@ const ProjectWiseNotStartedReport = () => {
     }, []);
 
     useEffect(() => {
-        if (filters.companyId) {
-            loadProjects(filters.companyId);
-        } else {
-            loadProjects();
-        }
+        loadProjects();
         setFilters((prev) => ({ ...prev, projectId: '', towerId: '' }));
         setTowers([]);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters.companyId]);
+    }, []);
 
     useEffect(() => {
         if (filters.projectId) {
@@ -144,12 +132,9 @@ const ProjectWiseNotStartedReport = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filters.projectId]);
 
-    const loadProjects = async (companyId) => {
+    const loadProjects = async () => {
         try {
             const options = { recordPerPage: 0 };
-            if (companyId) {
-                options.searchCondition = { name: 'companyId', value: parseInt(companyId, 10) };
-            }
             const response = await api.getData({ module: 'project', options });
             setProjects(response?.data?.items || []);
         } catch (error) {
@@ -186,10 +171,10 @@ const ProjectWiseNotStartedReport = () => {
     const handleSearch = async () => {
         try {
             setLoading(true);
-            const payload = buildSearchPayload(filters);
-            console.log('Search payload:', payload);
+            const options = buildSearchPayload(filters);
+            console.log('Search options:', options);
 
-            const response = await api.projectWiseNotStartedReport({ data: payload });
+            const response = await api.developerwiseworkReport({ data: options });
             console.log('Full API Response:', response);
             console.log('Response data property:', response?.data);
 
@@ -235,26 +220,22 @@ const ProjectWiseNotStartedReport = () => {
                 Flat: row.flatName,
                 Room: row.roomName,
                 Developer: row.developer,
-                Contractor: row.contractor,
                 Activities: row.activityName,
+                Status: row.status,
                 StartDate: row.startDate,
                 EndDate: row.endDate,
-                Cost: row.actualCost,
-                Day: row.day,
-                Date: row.reportDate,
-                Engineer: row.engineer,
-                'Percentage of Work': row.progressPercentage,
-                Status: row.status,
-                'Is Approved': row.isApproved,
+                Assignee: row.assignee,
+                ProgressPercentage: row.progressPercentage,
+                ActualCost: row.actualCost,
             };
         });
 
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'ProjectWiseNotStarted Report');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'DeveloperWiseWork Report');
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
         const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `ProjectWiseNotStartedReport-${new Date().toISOString().split('T')[0]}.xlsx`);
+        saveAs(blob, `DeveloperWiseWorkReport-${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
     const renderedRows = reportRows.map((item, index) => {
@@ -269,17 +250,13 @@ const ProjectWiseNotStartedReport = () => {
                 <td>{row.flatName}</td>
                 <td>{row.roomName}</td>
                 <td>{row.developer}</td>
-                <td>{row.contractor}</td>
                 <td>{row.activityName}</td>
+                <td>{row.status}</td>
                 <td>{row.startDate}</td>
                 <td>{row.endDate}</td>
-                <td>{(row.day >= 0) ? row.day : ""}</td>
-                <td>{row.reportDate}</td>
-                <td>{row.actualCost}</td>
-                <td>{row.engineer}</td>
+                <td>{row.assignee}</td>
                 <td>{row.progressPercentage}</td>
-                <td>{row.status}</td>
-                <td>{row.isApproved}</td>
+                <td>{row.actualCost}</td>
             </tr>
         );
     });
@@ -287,7 +264,7 @@ const ProjectWiseNotStartedReport = () => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading text-uppercase"> Project Wise  Block Wise Total Pending (Not Started ) Report</div>
+                <div className="page-title-heading text-uppercase">Developer Wise Work Report</div>
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -404,4 +381,4 @@ const ProjectWiseNotStartedReport = () => {
     );
 };
 
-export default ProjectWiseNotStartedReport;
+export default DeveloperWiseWorkReport;

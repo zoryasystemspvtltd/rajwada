@@ -117,6 +117,85 @@ namespace RajApi.Controllers
         }
 
         [AllowAnonymous]
+        [HttpPost("projectwise-budgetvsactual-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetProjectwiseBudgetVsActualReport(
+           [FromBody] WorkReportRequest? request,
+           CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching project wise budget vs actual report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetProjectwiseBudgetVsActualReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetActivitywiseBudgetVsActualReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("developerwise-work-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetDeveloperWiseWorkReport(
+           [FromBody] WorkReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching developer wise work report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetDeveloperWiseWorkReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetDeveloperWiseWorkReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("contractorwise-work-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetContractorWiseWorkReport(
+           [FromBody] WorkReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching contractor wise work report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetContractorWiseWorkReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetContractorWiseWorkReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
         [HttpPost("engineer-performance-report")]
         public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetEngineerPerformanceReport(
          [FromBody] WorkReportRequest? request,

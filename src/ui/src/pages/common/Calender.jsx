@@ -2,8 +2,8 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { format, isSameDay, startOfToday } from 'date-fns';
-import { useEffect, useState } from 'react';
-import { Button, Card, Modal } from 'react-bootstrap';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Card, Col, Form, Modal, Row } from 'react-bootstrap';
 import { FaRegCommentDots } from "react-icons/fa";
 import { FaImage, FaTrashCan, FaTable } from "react-icons/fa6";
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ import ReportModal from '../app/status-check/ReportModal';
 import IUIImageGallery from './shared/IUIImageGallery';
 import IUITableInput from './shared/IUITableInput';
 import IUIStatusBadge from './shared/IUIStatusBadge';
+import IUIPageElement from './shared/IUIPageElement';
 
 
 const Calendar = () => {
@@ -99,6 +100,12 @@ const Calendar = () => {
     const [taskStatus, setTaskStatus] = useState('');
     const [deleteWorkItems, setDeleteWorkItems] = useState([]);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+    const [monthData, setMonthData] = useState({});
+    const [currentViewDate, setCurrentViewDate] = useState(null);
+    const currentViewDateRef = useRef(null);
+    const [errors, setErrors] = useState({});
+
     // Simple inline styles
     const deleteCardStyles = {
         card: {
@@ -125,6 +132,74 @@ const Calendar = () => {
         }
     };
 
+    // For Searching based on Project And Tower
+    const initialParams = {
+        projectId: null,
+        towerId: null,
+        userId: loggedInUser?.email
+    };
+    const [searchParams, setSearchParams] = useState(initialParams);
+    const [userList, setUserList] = useState([]);
+    const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false);
+
+    const searchSchema = {
+        module: 'activity',
+        title: 'Work Reporting',
+        path: 'works',
+        back: false,
+        fields: [
+            {
+                type: "area", width: 12
+                , fields: [
+                    {
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
+                        schema: { module: 'project' }
+                    },
+                    {
+                        type: 'lookup-tower',
+                        parent: 'projectId',
+                        field: 'towerId',
+                        required: true,
+                        text: 'Tower',
+                        width: 3,
+                        schema: {
+                            module: 'plan',
+                            relationKey: "projectId",
+                            path: 'towers'
+                        },
+                    }
+                ]
+            },
+        ]
+    }
+
+    //  Handle Filter Change
+    const handleChange = (e) => {
+        e.preventDefault();
+
+        const updatedValues = e.target.value;
+
+        setSearchParams(prev => ({
+            ...prev,
+            ...updatedValues
+        }));
+    };
+
+    const handleUserSelection = (e) => {
+        e.preventDefault();
+        setSearchParams({ ...searchParams, userId: e.target.value });
+    }
+
+    const handleApplyFilters = async () => {
+        await fetchMonthData(
+            currentViewDateRef.current,
+            workType,
+            searchParams.projectId,
+            searchParams.towerId,
+            searchParams.userId
+        );
+    };
+
     useEffect(() => {
         const imagePrivileges = loggedInUser?.privileges?.filter(p => p.module === "attachment")?.map(p => p.name);
         const activityTrackingPrivileges = loggedInUser?.privileges?.filter(p => p.module === "activityTracking")?.map(p => p.name);
@@ -139,28 +214,114 @@ const Calendar = () => {
         setPrivileges(access)
     }, [loggedInUser]);
 
-    // Fetch tasks from the API
-    async function fetchData(workType = "Inside") {
-        try {
-            const baseFilter = {
-                name: 'Type',
-                value: workType
+    useEffect(() => {
+        let isMounted = true;
+
+        const fetchUserList = async () => {
+            try {
+                const pageOptions = {
+                    recordPerPage: 0,
+                };
+
+                const response = await api.getData({
+                    module: "user",
+                    options: pageOptions
+                });
+
+
+                if (isMounted) {
+                    setUserList(response?.data?.items);
+                }
+            } catch (error) {
+                console.error("Error fetching user list:", error);
             }
+        };
+
+        if (
+            loggedInUser?.roles?.some(role => role?.includes("Head")) ||
+            loggedInUser?.roles?.some(role => role?.includes("Admin"))
+        ) {
+            fetchUserList();
+        }
+
+        return () => {
+            isMounted = false;
+        };
+    }, [loggedInUser, api]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const updateCurrentUserStatus = async () => {
+            let isAdmin = false;
+            loggedInUser?.roles?.forEach((role) => {
+                if (role?.includes("Head") || role?.includes("Admin")) {
+                    isAdmin = true;
+                }
+            });
+            setIsCurrentUserAdmin(isAdmin);
+
+            const baseFilter = {
+                name: 'email',
+                value: loggedInUser?.email
+            }
+
             const pageOptions = {
                 recordPerPage: 0,
                 searchCondition: baseFilter
             };
 
-            const response = await api.getData({ module: 'activity', options: pageOptions });
-            setTasks(response.data.items);
-        } catch (error) {
-            setError('Failed to fetch tasks');
-        }
-    }
+            const response = await api.getData({
+                module: "user",
+                options: pageOptions
+            });
 
-    useEffect(() => {
-        fetchData(workType);
-    }, []);
+            const userId = response?.data?.items[0]?.email;
+            setSearchParams({ ...initialParams, userId: userId });
+        }
+
+        updateCurrentUserStatus();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [loggedInUser]);
+
+    const fetchMonthData = async (viewDate, type, projectId = null, towerId = null, userId = null) => {
+        if (!viewDate || !type) return;
+
+        const response = await api.getWorkCountByMonth({
+            data: {
+                type,
+                month: viewDate.getMonth() + 1,
+                year: viewDate.getFullYear(),
+                projectId,
+                towerId,
+                userId
+            }
+        });
+
+        const dataMap = {};
+
+        response.data.forEach(item => {
+            const [day, month, year] = item.date.split('-');
+            dataMap[`${year}-${month}-${day}`] = item.count;
+        });
+
+        setMonthData(dataMap);
+    };
+
+    const handleDatesSet = async (info) => {
+        currentViewDateRef.current = info.view.currentStart;
+
+        await fetchMonthData(
+            info.view.currentStart,
+            workType,
+            searchParams.projectId,
+            searchParams.towerId,
+            searchParams.userId
+        );
+    };
 
     function getPreviousDay(dateString) {
         // Convert the string to a Date object
@@ -202,130 +363,70 @@ const Calendar = () => {
         return trackingData;
     };
 
-    // Use useEffect to populate dayData when the component mounts or the calendar is updated
     useEffect(() => {
-        const getDataForAllDays = async () => {
-            const allDays = document.querySelectorAll('.fc-day'); // Get all the day elements
-            for (let day of allDays) {
-                const date = day.getAttribute('data-date'); // Extract the date
-                if (date && !dayData[date]) {
-                    let previousDay = getPreviousDay(date);
-                    const data = await fetchTrackingDataForDate(date);
-                    setDayData((prevData) => ({
-                        ...prevData,
-                        [previousDay]: data,
-                    }));
-                }
-            }
-        };
-
-        getDataForAllDays();
-    }, []);
+        if (currentViewDateRef.current) {
+            fetchMonthData(
+                currentViewDateRef.current,
+                workType,
+                searchParams.projectId,
+                searchParams.towerId,
+                searchParams.userId
+            );
+        }
+    }, [workType]);
 
 
     // Handle date clicks in FullCalendar
     const handleDateClick = async (info) => {
         const clickedDate = new Date(info.date);
+
         setSelectedDate(clickedDate);
 
-        const timeStamp = clickedDate.getTime();
-        const trackingDateStart = new Date(timeStamp);
-        const trackingDateEnd = new Date(timeStamp + 86400000);
-
-        const newBaseFilter = {
-            name: 'date',
-            value: trackingDateStart,
-            operator: 'greaterThan',
-            and: {
-                name: 'date',
-                value: trackingDateEnd,
-                operator: 'lessThan'
+        const activeWorksResponse = await api.getActiveWorksByDay({
+            data: {
+                type: workType,
+                day: clickedDate.getDate(),
+                month: clickedDate.getMonth() + 1,
+                year: clickedDate.getFullYear(),
+                projectId: searchParams.projectId,
+                towerId: searchParams.towerId
             }
-        }
-
-        const pageOptions = {
-            recordPerPage: 0,
-            searchCondition: newBaseFilter
-        }
-        const response = await api.getData({ module: 'activitytracking', options: pageOptions });
-        // console.log(response?.data);
-
-        let trackingData = response?.data?.items;
-        setDailyActivityTrackingData(trackingData);
-
-        // Filter tasks for the clicked date
-        const filteredTasks = tasks.filter((task) => {
-            const taskStartDate = new Date(task.startDate);
-            const endDate = new Date(task.endDate);
-            endDate.setDate(endDate.getDate() + 365);
-            const taskEndDate = task.actualEndDate ? new Date(task.actualEndDate) : endDate;
-            return clickedDate >= taskStartDate && clickedDate <= taskEndDate;
         });
 
-        const finalTasks = await Promise.all(filteredTasks.map(async (task) => {
-            const baseFilter = {
-                name: 'parentId',
-                value: parseInt(task.id)
-            };
-            const pageOptions = {
-                recordPerPage: 0,
-                searchCondition: baseFilter
-            };
+        const activeWorks = activeWorksResponse?.data || [];
 
-            let childActivityIds = [];
-            try {
-                const childActivitiesResponse = await api.getData({ module: 'activity', options: pageOptions });
-                childActivityIds = childActivitiesResponse.data.items?.map(activity => activity.id) || [];
-            } catch (error) {
-                console.error('Error fetching child activities:', error);
-            }
-
-            const activitiesWithCuring = trackingData?.filter(t => t?.isCuringDone)?.map(t => t?.activityId) || [];
-            const curingSet = new Set(activitiesWithCuring);
-            const filteredIds = childActivityIds.filter(id => curingSet.has(id));
-
-            return {
-                ...task,
-                curingStatus: filteredIds.length > 0
-            };
-        }));
-
-
+        // Enable editing only for today
         if (isSameDay(clickedDate, startOfToday())) {
-            setCanvasSchema(
-                {
-                    ...canvasSchema,
-                    schema: {
-                        ...canvasSchema.schema,
-                        readonly: false,
-                        save: true,
-                        controls: {
-                            ...canvasSchema.schema.controls,
-                            balloon: true,
-                            rectangle: true,
-                            pencil: true,
-                            camera: true,
-                            delete: true,
-                            reset: true
-                        }
-                    }
-                }
-            );
-            setItemListSchema(
-                {
-                    ...itemListSchema,
+            setCanvasSchema({
+                ...canvasSchema,
+                schema: {
+                    ...canvasSchema.schema,
                     readonly: false,
-                    schema: {
-                        ...itemListSchema.schema,
-                        readonly: false
+                    save: true,
+                    controls: {
+                        ...canvasSchema.schema.controls,
+                        balloon: true,
+                        rectangle: true,
+                        pencil: true,
+                        camera: true,
+                        delete: true,
+                        reset: true
                     }
                 }
-            );
+            });
+
+            setItemListSchema({
+                ...itemListSchema,
+                readonly: false,
+                schema: {
+                    ...itemListSchema.schema,
+                    readonly: false
+                }
+            });
         }
 
-        setSelectedMainTasks(finalTasks);
-        setMainModalOpen(true); // Open the modal for the date
-
+        setSelectedMainTasks(activeWorks);
+        setMainModalOpen(true);
     };
 
     const handleProgressSliderChange = (event) => {
@@ -618,7 +719,7 @@ const Calendar = () => {
             });
             closeTaskModal();
             // closeModal();
-            await fetchData(workType);
+            // await fetchData(workType);
         }
     }
 
@@ -633,27 +734,27 @@ const Calendar = () => {
     };
 
     const renderDateCell = (cellInfo) => {
-        const cellDate = new Date(cellInfo.date);
-        const taskCount = tasks.filter((task) => {
-            const taskStartDate = new Date(task.startDate);
-            const endDate = new Date(task.endDate);
-            endDate.setDate(endDate.getDate() + 365);
-            const taskEndDate = task.actualEndDate ? new Date(task.actualEndDate) : endDate;
-            return cellDate >= taskStartDate && cellDate <= taskEndDate;
-        }).length;
+        const cellDate = cellInfo.date;
 
-        const dateStr = cellDate.toISOString().split('T')[0];
-        const trackingDataForDay = dayData[dateStr] || null;
-        const isCuringDone = trackingDataForDay && (trackingDataForDay?.filter(t => t?.isCuringDone)?.length > 0);
+        const dateStr =
+            cellDate.getFullYear() +
+            '-' +
+            String(cellDate.getMonth() + 1).padStart(2, '0') +
+            '-' +
+            String(cellDate.getDate()).padStart(2, '0');
+
+        const taskCount = monthData[dateStr] || 0;
 
         return (
-            <div className='d-flex'>
-                {cellInfo.dayNumberText}
+            <div className="day-cell-content">
+                <span className="day-number">
+                    {cellInfo.dayNumberText}
+                </span>
+
                 {taskCount > 0 && (
-                    <div className="task-count-badge bg-primary">{taskCount}</div>
-                )}
-                {isCuringDone && (
-                    <div className="curing-badge bg-success">C</div>
+                    <div className="task-count-badge bg-primary">
+                        {taskCount}
+                    </div>
                 )}
             </div>
         );
@@ -685,7 +786,6 @@ const Calendar = () => {
                                         onChange={(e) => {
                                             const value = e.target.value;
                                             setWorkType(value);
-                                            fetchData(value);
                                         }}
                                     />
                                     <label className="form-check-label" htmlFor="inside">
@@ -704,7 +804,6 @@ const Calendar = () => {
                                         onChange={(e) => {
                                             const value = e.target.value;
                                             setWorkType(value);
-                                            fetchData(value);
                                         }}
                                     />
                                     <label className="form-check-label" htmlFor="outside">
@@ -715,6 +814,71 @@ const Calendar = () => {
                         </div>
                     </div>
                 </div>
+
+                {/*  FILTER SECTION */}
+                <div>
+                    <div className="card shadow-sm">
+                        <div className="card-body">
+
+                            {searchSchema?.fields?.map((fld, f) => (
+                                <Row key={f}>
+                                    <Col>
+                                        <IUIPageElement
+                                            id={searchSchema.module}
+                                            schema={fld.type === 'area' ? fld.fields : [fld]}
+                                            value={searchParams}
+                                            errors={errors}
+                                            onChange={handleChange}
+                                        />
+                                    </Col>
+                                </Row>
+                            ))}
+
+                            {
+                                (isCurrentUserAdmin) && (
+                                    <div className="col-md-3">
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label>
+                                                Engineer
+                                            </Form.Label>
+                                            <div>
+                                                < select
+                                                    aria-label={`select-user`}
+                                                    id={`select-user`}
+                                                    value={searchParams.userId}
+                                                    data-name={"userId"}
+                                                    name='select'
+                                                    className={`form-control`}
+                                                    disabled={false}
+                                                    onChange={handleUserSelection}>
+                                                    <option>--Select--</option>
+                                                    {userList?.map((item, i) => (
+                                                        <option key={i} value={item.email}>{item.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </Form.Group>
+                                    </div>
+                                )
+                            }
+
+                            <Button
+                                className="btn btn-pill btn-primary mr-2"
+                                onClick={handleApplyFilters}
+                            >
+                                Apply Filters
+                            </Button>
+
+                            <Button
+                                className="btn btn-pill btn-secondary"
+                                onClick={() => window.location.reload()}
+                            >
+                                Clear
+                            </Button>
+
+                        </div>
+                    </div>
+                </div>
             </div>
             <div >
                 <FullCalendar
@@ -722,7 +886,7 @@ const Calendar = () => {
                     initialView="dayGridMonth"
                     dateClick={handleDateClick}
                     dayCellContent={renderDateCell}
-                // contentHeight="80vh"
+                    datesSet={handleDatesSet}
                 />
                 {mainModalOpen && (
                     <Modal show={mainModalOpen} onHide={closeMainModal} >

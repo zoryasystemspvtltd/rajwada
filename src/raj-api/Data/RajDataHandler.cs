@@ -9,7 +9,6 @@ using RajApi.Data.Models;
 using RajApi.Data.Models.Reports;
 using RajApi.Helpers;
 using System.Data;
-using System.Diagnostics.Contracts;
 using System.Text;
 using Comment = RajApi.Data.Models.Comment;
 using ListOptions = ILab.Extensionss.Data.ListOptions;
@@ -1083,9 +1082,25 @@ public class RajDataHandler : LabDataHandler
     {
         DateTime currentDateTime = DateTime.Now;
         DateOnly dateOnly = DateOnly.FromDateTime(currentDateTime);
-        var result = dbContext.Set<ActivityResource>()
-                    .Where(x => x.Member.Equals(member) && x.NotificationStartDate <= dateOnly)
+        var activityResource = dbContext.Set<ActivityResource>()
+                    .Where(x => x.Status != StatusType.Deleted)
                     .Distinct();
+
+        var applog = dbContext.Set<ApplicationLog>()
+                    .Where(x => x.Member.Equals(member)
+                    && x.Name.Equals("Activity")
+                    && x.ActivityType != StatusType.Deleted
+                    && x.ActivityType != StatusType.Hold
+                    && x.ActivityType != StatusType.Cancelled
+                     && x.ActivityType != StatusType.Rejected)
+                    .Distinct();
+
+        var result = activityResource.Join(applog,
+                         act => act.ActivityId,
+                         tr => tr.EntityId,
+                         (act, tr) => act)
+                      .Where(a => a.NotificationStartDate <= dateOnly)
+                     .ToList();
 
         return result;
     }
@@ -1961,6 +1976,7 @@ public class RajDataHandler : LabDataHandler
 
     }
 
+    #region Activity List
     public dynamic GetActivities(ListOptions option)
     {
         try
@@ -2014,495 +2030,6 @@ public class RajDataHandler : LabDataHandler
         }
     }
 
-    #region Work Progress Report
-    public async Task<List<WorkReportDto>> GetWorkProgressReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var query = dbContext.Set<Activity>().AsQueryable();
-
-            // Exclude deleted activities
-            query = query.Where(x => x.Status != StatusType.Deleted);
-
-            if (request?.ProjectId.HasValue == true)
-                query = query.Where(x => x.ProjectId == request.ProjectId);
-
-            if (request?.TowerId.HasValue == true)
-                query = query.Where(x => x.TowerId == request.TowerId);
-
-            //if (request?.FromDate.HasValue == true)
-            //    query = query.Where(x => x.Date >= request.FromDate);
-
-            //if (request?.ToDate.HasValue == true)
-            //    query = query.Where(x => x.Date <= request.ToDate);
-
-            // Load related entities
-            var activities = await query
-                .Include(x => x.Project)
-                .Include(x => x.Tower)
-                .Include(x => x.Floor)
-                .Include(x => x.Flat)
-                .Include(x => x.RoomDetails)
-                .ToListAsync(cancellationToken);
-
-            // Also get activity tracking data for each activity
-            var activityIds = activities.Select(a => a.Id).ToList();
-            var trackingData = await dbContext.Set<ActivityTracking>()
-                        .ToListAsync(cancellationToken);
-
-            var companies = await dbContext.Set<Company>()
-                       .ToListAsync(cancellationToken);
-
-            var developer = await dbContext.Set<Contractor>()
-                        .Where(x => x.Type.Equals("Developer"))
-                       .ToListAsync(cancellationToken);
-
-            var contractor = await dbContext.Set<Contractor>()
-                       .Where(x => x.Type.Equals("Contractor"))
-                       .ToListAsync(cancellationToken);
-
-            // Map to DTOs
-            var result = activities.Select(activity =>
-            {
-                var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
-                var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
-                var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = contractor.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
-
-                return new WorkReportDto
-                {
-                    ActivityId = activity.Id,
-                    CompanyName = company?.Name ?? "N/A",
-                    ProjectName = activity.Project?.Name ?? "N/A",
-                    InsideOutside = activity.Type?.ToUpper() ?? "N/A",
-                    TowerName = activity.Tower?.Name ?? "N/A",
-                    FloorName = activity.Floor?.Name,
-                    FlatName = activity.Flat?.Name,
-                    RoomName = activity.RoomDetails?.Name,
-                    Developer = developers?.Name,
-                    Contractor = contractors?.Name,
-                    ActivityName = activity.Name,
-                    ReportDate = activity.ActualStartDate,
-                    EstimateCost = activity.CostEstimate,
-                    ActualCost = activity.ActualCost,
-                    Engineer = activity.Member,
-                    ProgressPercentage = activity.ProgressPercentage,
-                    Status = (StatusType)activity.Status,
-                    IsApproved = activity.IsApproved ?? false
-                };
-            }).ToList();
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Get detailed Project Wise on Hold report with all required fields
-    /// </summary>
-    public async Task<List<WorkReportDto>> GetProjectWiseOnHoldReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var data = await GetWorkReportAsync(request, cancellationToken);
-
-            return data.Hold.Activities;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Get detailed Activity Wise Budget vs Actual report with all required fields
-    /// </summary>
-    public async Task<List<WorkReportDto>> GetActivitywiseBudgetVsActualReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var query = dbContext.Set<Activity>().AsQueryable();
-
-            // Exclude deleted activities
-            query = query.Where(x => x.Status != StatusType.Deleted);
-
-            if (request?.ProjectId.HasValue == true)
-                query = query.Where(x => x.ProjectId == request.ProjectId);
-
-            if (request?.TowerId.HasValue == true)
-                query = query.Where(x => x.TowerId == request.TowerId);
-
-            //if (request?.FromDate.HasValue == true)
-            //    query = query.Where(x => x.Date >= request.FromDate);
-
-            //if (request?.ToDate.HasValue == true)
-            //    query = query.Where(x => x.Date <= request.ToDate);
-
-            // Load related entities
-            var activities = await query
-                .Include(x => x.Project)
-                .Include(x => x.Tower)
-                .Include(x => x.Floor)
-                .Include(x => x.Flat)
-                .Include(x => x.RoomDetails)
-                .ToListAsync(cancellationToken);
-
-            // Also get activity tracking data for each activity
-            var activityIds = activities.Select(a => a.Id).ToList();
-            var trackingData = await dbContext.Set<ActivityTracking>()
-                        .ToListAsync(cancellationToken);
-
-            var companies = await dbContext.Set<Company>()
-                       .ToListAsync(cancellationToken);
-
-            var developer = await dbContext.Set<Contractor>()
-                        .Where(x => x.Type.Equals("Developer"))
-                       .ToListAsync(cancellationToken);
-
-            var contractor = await dbContext.Set<Contractor>()
-                       .Where(x => x.Type.Equals("Contractor"))
-                       .ToListAsync(cancellationToken);
-
-            // Map to DTOs
-            var result = activities.Select(activity =>
-            {
-                var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
-                var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
-                var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = contractor.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
-                var variance = activity.CostEstimate - activity.ActualCost;
-                return new WorkReportDto
-                {
-                    ActivityId = activity.Id,
-                    CompanyName = company?.Name ?? "N/A",
-                    ProjectName = activity.Project?.Name ?? "N/A",
-                    InsideOutside = activity.Type?.ToUpper() ?? "N/A",
-                    TowerName = activity.Tower?.Name ?? "N/A",
-                    FloorName = activity.Floor?.Name,
-                    FlatName = activity.Flat?.Name,
-                    RoomName = activity.RoomDetails?.Name,
-                    Developer = developers?.Name,
-                    Contractor = contractors?.Name,
-                    ActivityName = activity.Name,
-                    EstimateCost = activity.CostEstimate,
-                    ActualCost = activity.ActualCost,
-                    Variance = variance
-                };
-            }).ToList();
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Get detailed Engineer Performance report with all required fields
-    /// </summary>
-    public async Task<List<WorkReportDto>> GetEngineerPerformanceReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var query = dbContext.Set<Activity>().AsQueryable();
-
-            // Exclude deleted activities
-            query = query.Where(x => x.Status != StatusType.Deleted && x.ActualEndDate != null);
-
-            if (request?.ProjectId.HasValue == true)
-                query = query.Where(x => x.ProjectId == request.ProjectId);
-
-            if (request?.TowerId.HasValue == true)
-                query = query.Where(x => x.TowerId == request.TowerId);
-
-            //if (request?.FromDate.HasValue == true)
-            //    query = query.Where(x => x.Date >= request.FromDate);
-
-            //if (request?.ToDate.HasValue == true)
-            //    query = query.Where(x => x.Date <= request.ToDate);
-
-            // Load related entities
-            var activities = await query
-                .Include(x => x.Project)
-                .Include(x => x.Tower)
-                .Include(x => x.Floor)
-                .Include(x => x.Flat)
-                .Include(x => x.RoomDetails)
-                .ToListAsync(cancellationToken);
-
-            // Also get activity tracking data for each activity
-            var activityIds = activities.Select(a => a.Id).ToList();
-            var trackingData = await dbContext.Set<ActivityTracking>()
-                        .ToListAsync(cancellationToken);
-
-            var companies = await dbContext.Set<Company>()
-                       .ToListAsync(cancellationToken);
-
-            var developer = await dbContext.Set<Contractor>()
-                        .Where(x => x.Type.Equals("Developer"))
-                       .ToListAsync(cancellationToken);
-
-            var contractor = await dbContext.Set<Contractor>()
-                       .Where(x => x.Type.Equals("Contractor"))
-                       .ToListAsync(cancellationToken);
-
-            // Map to DTOs
-            var result = activities.Select(activity =>
-            {
-                var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
-                var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
-                var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = contractor.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
-                var days = (Convert.ToDateTime(activity.ActualEndDate) - Convert.ToDateTime(activity.ActualStartDate)).Days;
-                return new WorkReportDto
-                {
-                    ActivityId = activity.Id,
-                    CompanyName = company?.Name ?? "N/A",
-                    ProjectName = activity.Project?.Name ?? "N/A",
-                    InsideOutside = activity.Type?.ToUpper() ?? "N/A",
-                    TowerName = activity.Tower?.Name ?? "N/A",
-                    FloorName = activity.Floor?.Name,
-                    FlatName = activity.Flat?.Name,
-                    RoomName = activity.RoomDetails?.Name,
-                    Developer = developers?.Name,
-                    Contractor = contractors?.Name,
-                    ActivityName = activity.Name,
-                    StartDate = activity.ActualStartDate,
-                    EndDate = activity.ActualEndDate,
-                    ReportDate = activity.StartDate,
-                    Day = days,
-                    ActualCost = activity.ActualCost,
-                    Engineer = activity.Member,
-                    ProgressPercentage = activity.ProgressPercentage,
-                    Status = (StatusType)activity.Status,
-                    IsApproved = activity.IsApproved ?? false
-                };
-            }).ToList();
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetEngineerPerformanceReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Get detailed Project Wise NotStarted report with all required fields
-    /// </summary>
-    public async Task<List<WorkReportDto>> GetProjectWiseNotStartedReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var data = await GetWorkReportAsync(request, cancellationToken);
-
-            return data.NotStarted.Activities;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetProjectWiseNotStartedReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Get detailed Project Wise In Progress report with all required fields
-    /// </summary>
-    public async Task<List<WorkReportDto>> GetProjectWiseInProgressReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var data = await GetWorkReportAsync(request, cancellationToken);
-
-            return data.InProgress.Activities;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetProjectWiseInProgressReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Get detailed Project Wise Cancelled report with all required fields
-    /// </summary>
-    public async Task<List<WorkReportDto>> GetProjectWiseCancelledReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var data = await GetWorkReportAsync(request, cancellationToken);
-
-            return data.Cancelled.Activities;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetProjectWiseCancelledReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Get detailed Project Wise Closed report with all required fields
-    /// </summary>
-    public async Task<List<WorkReportDto>> GetProjectWiseClosedReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var data = await GetWorkReportAsync(request, cancellationToken);
-
-            return data.Closed.Activities;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetProjectWiseClosedReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Get detailed Project Wise Rework report with all required fields
-    /// </summary>
-    public async Task<List<WorkReportDto>> GetProjectWiseReWorkReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var data = await GetWorkReportAsync(request, cancellationToken);
-
-            return data.Rework.Activities;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetProjectWiseReWorkReportAsync: '{ex.Message}'");
-            throw;
-        }
-    }
-    public async Task<WorkReportData> GetWorkReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var query = dbContext.Set<Activity>().AsQueryable();
-
-            query = query.Where(x => x.Status != StatusType.Deleted);
-
-            // ✅ Null-safe filtering
-            if (request?.ProjectId.HasValue == true)
-                query = query.Where(x => x.ProjectId == request.ProjectId);
-
-            if (request?.TowerId.HasValue == true)
-                query = query.Where(x => x.TowerId == request.TowerId);
-
-            if (request?.StartDate.HasValue == true)
-                query = query.Where(x => x.Date >= request.StartDate);
-
-            if (request?.EndDate.HasValue == true)
-                query = query.Where(x => x.Date <= request.EndDate);
-
-            var data = await query
-               .Include(x => x.Project)
-               .Include(x => x.Tower)
-               .Include(x => x.Floor)
-               .Include(x => x.Flat)
-               .Include(x => x.RoomDetails)
-               .ToListAsync(cancellationToken);
-
-            //var data = await query.ToListAsync();
-            var trackingData = await dbContext.Set<ActivityTracking>()
-                       .ToListAsync(cancellationToken);
-
-            var companies = await dbContext.Set<Company>()
-                       .ToListAsync(cancellationToken);
-
-            var developer = await dbContext.Set<Contractor>()
-                        .Where(x => x.Type.Equals("Developer"))
-                       .ToListAsync(cancellationToken);
-
-            var contractor = await dbContext.Set<Contractor>()
-                       .Where(x => x.Type.Equals("Contractor"))
-                       .ToListAsync(cancellationToken);
-            var now = DateTime.UtcNow;
-
-            // ✅ Initialize response
-            var reportData = new WorkReportData();
-
-            foreach (var activity in data)
-            {
-                var tracking = trackingData.FirstOrDefault(t => t.ActivityId == activity.Id);
-                var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
-                var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
-                var contractors = contractor.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
-                var days = (Convert.ToDateTime(activity.ActualEndDate) - Convert.ToDateTime(activity.ActualStartDate)).Days;
-                var dto = new WorkReportDto
-                {
-                    ActivityId = activity.Id,
-                    CompanyName = company?.Name ?? "N/A",
-                    ProjectName = activity.Project?.Name ?? "N/A",
-                    InsideOutside = activity.Type?.ToUpper() ?? "N/A",
-                    TowerName = activity.Tower?.Name ?? "N/A",
-                    FloorName = activity.Floor?.Name,
-                    FlatName = activity.Flat?.Name,
-                    RoomName = activity.RoomDetails?.Name,
-                    Developer = developers?.Name,
-                    Contractor = contractors?.Name,
-                    ActivityName = activity.Name,
-                    StartDate = activity.ActualStartDate,
-                    EndDate = activity.ActualEndDate,
-                    ReportDate = activity.StartDate,
-                    Day = days,
-                    ActualCost = activity.ActualCost,
-                    Engineer = activity.Member,
-                    ProgressPercentage = activity.ProgressPercentage
-                };
-
-                // ✅ PRIORITY LOGIC (IMPORTANT)
-                if (activity.IsCancelled == true && activity.Status == StatusType.Cancelled)
-                {
-                    reportData.Delayed.Activities.Add(dto);
-                }
-                else if (activity.Status == StatusType.Hold)
-                {
-                    reportData.Hold.Activities.Add(dto);
-                }
-                else if (activity.Status == StatusType.Cancelled)
-                {
-                    reportData.Cancelled.Activities.Add(dto);
-                }
-                else if (activity.IsCompleted == true &&
-                    (activity.Status == StatusType.Approved || activity.Status == StatusType.Rejected))
-                {
-                    reportData.Closed.Activities.Add(dto);
-                }
-                else if (activity.AmendmentId != null && activity.IsAbandoned == true)
-                {
-                    reportData.Rework.Activities.Add(dto);
-                }
-                else if (activity.ActualStartDate != null &&
-                         activity.ActualStartDate < now)
-                {
-                    reportData.InProgress.Activities.Add(dto);
-                }
-                else
-                {
-                    reportData.NotStarted.Activities.Add(dto);
-                }
-            }
-            return reportData;
-
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Exception in GetWorkReportAsync method and details: '{ex.Message}'");
-            throw;
-        }
-    }
-    #endregion
     public dynamic GetInsideActivities(ListOptions option, string type, string? searchText)
     {
         try
@@ -2722,6 +2249,634 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
+
+    #endregion
+
+    #region Work Progress Report
+    public async Task<List<WorkReportDto>> GetWorkProgressReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+        
+    /// <summary>
+    /// Get detailed Activity Wise Budget vs Actual report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetActivitywiseBudgetVsActualReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Project Wise Budget vs Actual report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetProjectwiseBudgetVsActualReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Exception occurred in GetProjectwiseBudgetVsActualReportAsync");
+
+            throw;
+        }
+    }
+    
+    /// <summary>
+    /// Get detailed Engineer Performance report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetEngineerPerformanceReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetEngineerPerformanceReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Contractor  Wise Work report with all required fields
+    /// </summary>
+    /// 
+    public async Task<List<WorkReportDto>> GetContractorWiseWorkReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ThenBy(x => x.Contractor)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetContractorWiseWorkReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Developer Wise Work report with all required fields
+    /// </summary>
+    /// 
+    public async Task<List<WorkReportDto>> GetDeveloperWiseWorkReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.ActivityName)
+                    .ThenBy(x => x.Developer)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetContractorWiseWorkReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+    private async Task<List<WorkReportDto>> GetActivityReportData(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = dbContext.Set<Activity>()
+                   .AsNoTracking()
+                   .Where(x => x.Status != StatusType.Deleted);
+
+            if (request?.ProjectId.HasValue == true)
+                query = query.Where(x => x.ProjectId == request.ProjectId);
+
+            if (request?.TowerId.HasValue == true)
+                query = query.Where(x => x.TowerId == request.TowerId);
+
+            if (request?.StartDate.HasValue == true)
+                query = query.Where(x => x.Date >= request.StartDate.Value);
+
+            if (request?.EndDate.HasValue == true)
+                query = query.Where(x => x.Date <= request.EndDate.Value);
+
+            var activities = await query
+                .Include(x => x.Project)
+                .Include(x => x.Tower)
+                .Include(x => x.Floor)
+                .Include(x => x.Flat)
+                .Include(x => x.RoomDetails)
+                .ToListAsync(cancellationToken);
+
+            // Company lookup
+            var companyLookup = await dbContext.Set<Company>()
+                .AsNoTracking()
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            // Contractor lookup (used for both Developer and Contractor)
+            var contractorLookup = await dbContext.Set<Contractor>()
+                .AsNoTracking()
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            // Prefetch all relevant activity trackings to avoid awaiting inside LINQ projection
+            var activityIds = activities.Select(a => a.Id).ToList();
+            var allTrackings = new List<ActivityTracking>();
+            if (activityIds.Count > 0)
+            {
+                allTrackings = await dbContext.Set<ActivityTracking>()
+                    .AsNoTracking()
+                    .Where(w => w.Status != StatusType.Deleted && w.ActivityId != null && activityIds.Contains(w.ActivityId.Value))
+                    .OrderBy(a => a.Date)
+                    .ToListAsync(cancellationToken);
+            }
+
+            var result = activities.Select(activity =>
+            {
+                companyLookup.TryGetValue(
+                    activity.Project?.CompanyId ?? 0,
+                    out var company);
+
+                contractorLookup.TryGetValue(
+                    activity.MaterialProvidedBy ?? 0,
+                    out var developer);
+
+                contractorLookup.TryGetValue(
+                    activity.LabourProvidedBy ?? 0,
+                    out var contractor);
+
+                decimal estimateCost = activity.CostEstimate;
+
+                // Use prefetched trackings for this activity
+                var activityTrackings = allTrackings.Where(t => t.ActivityId == activity.Id).ToList();
+
+                decimal accumulatedCost = activityTrackings.Sum(t => t.Cost ?? 0m);
+
+                int pregressPercentage = 0;
+                if (activityTrackings.Count > 0)
+                {
+                    // take the last tracking (ordered by Date) progress percentage similar to original logic
+                    var last = activityTrackings.LastOrDefault();
+                    pregressPercentage = last?.ProgressPercentage ?? 0;
+                }
+
+                return new WorkReportDto
+                {
+                    ActivityId = activity.Id,
+
+                    CompanyName = company?.Name ?? "N/A",
+
+                    ProjectName = activity.Project?.Name ?? "N/A",
+
+                    InsideOutside = string.IsNullOrWhiteSpace(activity.Type)
+                        ? "N/A"
+                        : activity.Type.ToUpper(),
+
+                    TowerName = activity.Tower?.Name ?? string.Empty,
+                    FloorName = activity.Floor?.Name ?? string.Empty,
+                    FlatName = activity.Flat?.Name ?? string.Empty,
+                    RoomName = activity.RoomDetails?.Name ?? string.Empty,
+
+                    Developer = developer?.Name ?? string.Empty,
+                    Contractor = contractor?.Name ?? string.Empty,
+
+                    ActivityName = activity.Name ?? string.Empty,
+
+                    ActualCost = accumulatedCost,
+                    EstimateCost = estimateCost,
+                    Variance = (estimateCost - accumulatedCost),
+
+                    StartDate = activity.ActualStartDate,
+                    EndDate = activity.ActualEndDate,
+                    ReportDate = activity.StartDate,
+                    Day = (Convert.ToDateTime(activity.ActualEndDate) - Convert.ToDateTime(activity.ActualStartDate)).Days,
+                    Engineer = activity.Member,
+                    Assignee = activity.Member,
+                    ProgressPercentage = pregressPercentage,
+                    Status = (StatusType)activity.Status,
+                    IsApproved = activity.IsApproved ?? false
+                };
+            })
+            .ToList();
+
+            return result;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Exception occurred in GetActivityReportData");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Project Wise on Hold report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetProjectWiseOnHoldReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetWorkReportData(request, cancellationToken);
+
+            return data.Hold.Activities;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkProgressReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Project Wise NotStarted report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetProjectWiseNotStartedReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetWorkReportData(request, cancellationToken);
+
+            return data.NotStarted.Activities;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetProjectWiseNotStartedReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Project Wise In Progress report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetProjectWiseInProgressReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetWorkReportData(request, cancellationToken);
+
+            return data.InProgress.Activities;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetProjectWiseInProgressReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Project Wise Cancelled report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetProjectWiseCancelledReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetWorkReportData(request, cancellationToken);
+
+            return data.Cancelled.Activities;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetProjectWiseCancelledReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Project Wise Closed report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetProjectWiseClosedReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetWorkReportData(request, cancellationToken);
+
+            return data.Closed.Activities;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetProjectWiseClosedReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get detailed Project Wise Rework report with all required fields
+    /// </summary>
+    /// 
+    public async Task<List<WorkReportDto>> GetProjectWiseReWorkReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetWorkReportData(request, cancellationToken);
+
+            return data.Rework.Activities;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetProjectWiseReWorkReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+    
+    private async Task<WorkReportData> GetWorkReportData(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = dbContext.Set<Activity>().AsQueryable();
+
+            query = query.Where(x => x.Status != StatusType.Deleted);
+
+            // ✅ Null-safe filtering
+            if (request.ProjectId.HasValue)
+                query = query.Where(x => x.ProjectId == request.ProjectId);
+
+            if (request.TowerId.HasValue)
+                query = query.Where(x => x.TowerId == request.TowerId);
+
+            if (request?.StartDate.HasValue == true)
+                query = query.Where(x => x.Date >= request.StartDate.Value);
+
+            if (request?.EndDate.HasValue == true)
+                query = query.Where(x => x.Date <= request.EndDate.Value);
+
+            var data = await query
+               .Include(x => x.Project)
+               .Include(x => x.Tower)
+               .Include(x => x.Floor)
+               .Include(x => x.Flat)
+               .Include(x => x.RoomDetails)
+               .ToListAsync(cancellationToken);
+
+            var companies = await dbContext.Set<Company>()
+                       .ToListAsync(cancellationToken);
+
+            var developer = await dbContext.Set<Contractor>()
+                       .ToListAsync(cancellationToken);
+
+            var now = DateTime.UtcNow;
+
+            // ✅ Initialize response
+            var reportData = new WorkReportData();
+
+            foreach (var activity in data)
+            {
+                var company = companies.FirstOrDefault(c => c.Id == activity.Project?.CompanyId);
+                var developers = developer.FirstOrDefault(c => c.Id == activity.MaterialProvidedBy);
+                var contractors = developer.FirstOrDefault(c => c.Id == activity.LabourProvidedBy);
+                var days = (Convert.ToDateTime(activity.ActualEndDate) - Convert.ToDateTime(activity.ActualStartDate)).Days;
+                var dto = new WorkReportDto
+                {
+                    ActivityId = activity.Id,
+                    CompanyName = company?.Name ?? "N/A",
+                    ProjectName = activity.Project?.Name ?? "N/A",
+                    InsideOutside = activity.Type?.ToUpper() ?? "N/A",
+                    TowerName = activity.Tower?.Name ?? "N/A",
+                    FloorName = activity.Floor?.Name,
+                    FlatName = activity.Flat?.Name,
+                    RoomName = activity.RoomDetails?.Name,
+                    Developer = developers?.Name ?? string.Empty,
+                    Contractor = developers?.Name ?? string.Empty,
+                    ActivityName = activity.Name ?? string.Empty,
+                    StartDate = activity.ActualStartDate,
+                    EndDate = activity.ActualEndDate,
+                    ReportDate = activity.StartDate,
+                    Day = days,
+                    ActualCost = activity.ActualCost,
+                    Engineer = activity.Member,
+                    ProgressPercentage = activity.ProgressPercentage
+                };
+
+                // ✅ PRIORITY LOGIC (IMPORTANT)
+                if (activity.IsCancelled == true && activity.Status == StatusType.Cancelled)
+                {
+                    reportData.Delayed.Activities.Add(dto);
+                }
+                else if (activity.Status == StatusType.Hold)
+                {
+                    reportData.Hold.Activities.Add(dto);
+                }
+                else if (activity.Status == StatusType.Cancelled)
+                {
+                    reportData.Cancelled.Activities.Add(dto);
+                }
+                else if (activity.IsCompleted == true &&
+                    (activity.Status == StatusType.Approved || activity.Status == StatusType.Rejected))
+                {
+                    reportData.Closed.Activities.Add(dto);
+                }
+                else if (activity.AmendmentId != null && activity.IsAbandoned == true)
+                {
+                    reportData.Rework.Activities.Add(dto);
+                }
+                else if (activity.ActualStartDate != null &&
+                         activity.ActualStartDate < now)
+                {
+                    reportData.InProgress.Activities.Add(dto);
+                }
+                else
+                {
+                    reportData.NotStarted.Activities.Add(dto);
+                }
+            }
+            return reportData;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetWorkReportAsync method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+    #endregion
+
+
+    #region Calender API
+    public async Task<List<ActiveWorksCountResponse>> GetActiveWorksCountByMonthAsync(
+     ActiveWorksCountRequest request,
+     CancellationToken cancellationToken)
+    {
+        try
+        {
+            var monthStart = new DateTime(request.Year, request.Month, 1);
+            var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+
+            var query = dbContext.Set<Activity>()
+                .AsNoTracking()
+                .Where(x =>
+                    x.Type.ToLower() == request.Type.ToLower()
+                    && x.Status != StatusType.Approved
+                    && x.Status != StatusType.Rejected
+                    && x.Status != StatusType.Deleted
+                    && x.StartDate.HasValue);
+
+            // Optional Filters
+            if (request.ProjectId.HasValue)
+                query = query.Where(x => x.ProjectId == request.ProjectId);
+
+            if (request.TowerId.HasValue)
+                query = query.Where(x => x.TowerId == request.TowerId);
+
+            if (!string.IsNullOrEmpty(request.UserId))
+            {
+                query = query.Where(a =>
+                    dbContext.Set<ApplicationLog>()
+                        .Any(log => log.EntityId == a.Id && log.Name == "Activity" && log.Member == request.UserId));
+            }
+
+            var activities = await query
+                .Select(x => new
+                {
+                    StartDate = x.StartDate!.Value.Date,
+                    EndDate = x.ActualEndDate.HasValue
+                        ? x.ActualEndDate.Value.Date
+                        : x.EndDate.HasValue
+                            ? x.EndDate.Value.Date.AddDays(365)
+                            : DateTime.MaxValue.Date
+                })
+                .Where(x =>
+                    x.StartDate <= monthEnd &&
+                    x.EndDate >= monthStart)
+                .ToListAsync(cancellationToken);
+
+            var result = new List<ActiveWorksCountResponse>();
+
+            for (var day = monthStart; day <= monthEnd; day = day.AddDays(1))
+            {
+                var count = activities.Count(a =>
+                    a.StartDate <= day.Date &&
+                    a.EndDate >= day.Date);
+
+                result.Add(new ActiveWorksCountResponse
+                {
+                    Date = day.ToString("dd-MM-yyyy"),
+                    Count = count
+                });
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex,
+                $"Exception in GetActiveWorksCountByMonthAsync method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    public async Task<List<ActiveWorkResponse>> GetActiveWorksByDayAsync(
+     ActiveWorksByDayRequest request,
+     CancellationToken cancellationToken)
+    {
+        try
+        {
+            var selectedDate = new DateTime(
+                request.Year,
+                request.Month,
+                request.Day).Date;
+
+            var query =
+                from activity in dbContext.Set<Activity>().AsNoTracking()
+
+                join log in dbContext.Set<ApplicationLog>().AsNoTracking()
+                    on activity.Id equals log.EntityId into logs
+
+                from applicationLog in logs.DefaultIfEmpty()
+
+                let effectiveEndDate =
+                    activity.ActualEndDate.HasValue
+                        ? activity.ActualEndDate.Value
+                        : activity.EndDate.HasValue
+                            ? activity.EndDate.Value.AddDays(365)
+                            : DateTime.MaxValue
+
+                where activity.Type == request.Type
+
+                      && activity.StartDate.HasValue
+
+                      // Activity active on selected date
+                      && activity.StartDate.Value.Date <= selectedDate
+                      && effectiveEndDate.Date >= selectedDate
+
+                      // Exclude Approved, Rejected and Deleted
+                      && activity.Status != StatusType.Approved
+                      && activity.Status != StatusType.Rejected
+                      && activity.Status != StatusType.Deleted
+
+                      && (request.ProjectId == null
+                            || activity.ProjectId == request.ProjectId)
+
+                      && (request.TowerId == null
+                            || activity.TowerId == request.TowerId)
+
+                      && (applicationLog == null
+                            || applicationLog.Name == nameof(Activity))
+
+                select new ActiveWorkResponse
+                {
+                    Id = activity.Id,
+                    Name = activity.Name,
+                    Status = (StatusType)activity.Status
+                };
+
+            return await query
+                .Distinct()
+                .OrderBy(x => x.Name)
+                .ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex,
+                $"Exception in GetActiveWorksByDayAsync method and details: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    #endregion Region
 }
 
 public class ModuleIdentity

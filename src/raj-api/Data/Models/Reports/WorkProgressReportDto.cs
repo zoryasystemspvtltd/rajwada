@@ -20,6 +20,8 @@ namespace RajApi.Data.Models.Reports
         public string? Developer { get; set; } // CreatedBy member
         public string? Contractor { get; set; } // Contractor name if available
         public string? Engineer { get; set; } // ModifiedBy member
+        public string? Assignee { get; set; } //Who assigned the activity to memeber
+        public string? TransferAssignee { get; set; } //Who transfer the activity to another member
         public DateTime? ReportDate { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
