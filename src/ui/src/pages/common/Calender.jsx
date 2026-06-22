@@ -3,7 +3,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { format, isSameDay, startOfToday } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
-import { Button, Card, Col, Modal, Row } from 'react-bootstrap';
+import { Button, Card, Col, Form, Modal, Row } from 'react-bootstrap';
 import { FaRegCommentDots } from "react-icons/fa";
 import { FaImage, FaTrashCan, FaTable } from "react-icons/fa6";
 import { useDispatch, useSelector } from 'react-redux';
@@ -135,9 +135,12 @@ const Calendar = () => {
     // For Searching based on Project And Tower
     const initialParams = {
         projectId: null,
-        towerId: null
+        towerId: null,
+        userId: loggedInUser?.email
     };
     const [searchParams, setSearchParams] = useState(initialParams);
+    const [userList, setUserList] = useState([]);
+    const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false);
 
     const searchSchema = {
         module: 'activity',
@@ -149,7 +152,7 @@ const Calendar = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 2,
+                        text: 'Project', field: 'projectId', type: 'lookup', required: true, width: 3,
                         schema: { module: 'project' }
                     },
                     {
@@ -158,7 +161,7 @@ const Calendar = () => {
                         field: 'towerId',
                         required: true,
                         text: 'Tower',
-                        width: 2,
+                        width: 3,
                         schema: {
                             module: 'plan',
                             relationKey: "projectId",
@@ -182,12 +185,18 @@ const Calendar = () => {
         }));
     };
 
+    const handleUserSelection = (e) => {
+        e.preventDefault();
+        setSearchParams({ ...searchParams, userId: e.target.value });
+    }
+
     const handleApplyFilters = async () => {
         await fetchMonthData(
             currentViewDateRef.current,
             workType,
             searchParams.projectId,
-            searchParams.towerId
+            searchParams.towerId,
+            searchParams.userId
         );
     };
 
@@ -205,7 +214,80 @@ const Calendar = () => {
         setPrivileges(access)
     }, [loggedInUser]);
 
-    const fetchMonthData = async (viewDate, type, projectId = null, towerId = null) => {
+    useEffect(() => {
+        let isMounted = true;
+
+        const fetchUserList = async () => {
+            try {
+                const pageOptions = {
+                    recordPerPage: 0,
+                };
+
+                const response = await api.getData({
+                    module: "user",
+                    options: pageOptions
+                });
+
+
+                if (isMounted) {
+                    setUserList(response?.data?.items);
+                }
+            } catch (error) {
+                console.error("Error fetching user list:", error);
+            }
+        };
+
+        if (
+            loggedInUser?.roles?.some(role => role?.includes("Head")) ||
+            loggedInUser?.roles?.some(role => role?.includes("Admin"))
+        ) {
+            fetchUserList();
+        }
+
+        return () => {
+            isMounted = false;
+        };
+    }, [loggedInUser, api]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const updateCurrentUserStatus = async () => {
+            let isAdmin = false;
+            loggedInUser?.roles?.forEach((role) => {
+                if (role?.includes("Head") || role?.includes("Admin")) {
+                    isAdmin = true;
+                }
+            });
+            setIsCurrentUserAdmin(isAdmin);
+
+            const baseFilter = {
+                name: 'email',
+                value: loggedInUser?.email
+            }
+
+            const pageOptions = {
+                recordPerPage: 0,
+                searchCondition: baseFilter
+            };
+
+            const response = await api.getData({
+                module: "user",
+                options: pageOptions
+            });
+
+            const userId = response?.data?.items[0]?.email;
+            setSearchParams({ ...initialParams, userId: userId });
+        }
+
+        updateCurrentUserStatus();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [loggedInUser]);
+
+    const fetchMonthData = async (viewDate, type, projectId = null, towerId = null, userId = null) => {
         if (!viewDate || !type) return;
 
         const response = await api.getWorkCountByMonth({
@@ -214,7 +296,8 @@ const Calendar = () => {
                 month: viewDate.getMonth() + 1,
                 year: viewDate.getFullYear(),
                 projectId,
-                towerId
+                towerId,
+                userId
             }
         });
 
@@ -235,7 +318,8 @@ const Calendar = () => {
             info.view.currentStart,
             workType,
             searchParams.projectId,
-            searchParams.towerId
+            searchParams.towerId,
+            searchParams.userId
         );
     };
 
@@ -285,7 +369,8 @@ const Calendar = () => {
                 currentViewDateRef.current,
                 workType,
                 searchParams.projectId,
-                searchParams.towerId
+                searchParams.towerId,
+                searchParams.userId
             );
         }
     }, [workType]);
@@ -661,8 +746,10 @@ const Calendar = () => {
         const taskCount = monthData[dateStr] || 0;
 
         return (
-            <div className="d-flex">
-                {cellInfo.dayNumberText}
+            <div className="day-cell-content">
+                <span className="day-number">
+                    {cellInfo.dayNumberText}
+                </span>
 
                 {taskCount > 0 && (
                     <div className="task-count-badge bg-primary">
@@ -746,6 +833,34 @@ const Calendar = () => {
                                     </Col>
                                 </Row>
                             ))}
+
+                            {
+                                (isCurrentUserAdmin) && (
+                                    <div className="col-md-3">
+                                        <Form.Group className="position-relative form-group">
+                                            <Form.Label>
+                                                Engineer
+                                            </Form.Label>
+                                            <div>
+                                                < select
+                                                    aria-label={`select-user`}
+                                                    id={`select-user`}
+                                                    value={searchParams.userId}
+                                                    data-name={"userId"}
+                                                    name='select'
+                                                    className={`form-control`}
+                                                    disabled={false}
+                                                    onChange={handleUserSelection}>
+                                                    <option>--Select--</option>
+                                                    {userList?.map((item, i) => (
+                                                        <option key={i} value={item.email}>{item.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </Form.Group>
+                                    </div>
+                                )
+                            }
 
                             <Button
                                 className="btn btn-pill btn-primary mr-2"

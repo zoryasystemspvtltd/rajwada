@@ -2761,6 +2761,13 @@ public class RajDataHandler : LabDataHandler
             if (request.TowerId.HasValue)
                 query = query.Where(x => x.TowerId == request.TowerId);
 
+            if (!string.IsNullOrEmpty(request.UserId))
+            {
+                query = query.Where(a =>
+                    dbContext.Set<ApplicationLog>()
+                        .Any(log => log.EntityId == a.Id && log.Name == "Activity" && log.Member == request.UserId));
+            }
+
             var activities = await query
                 .Select(x => new
                 {
