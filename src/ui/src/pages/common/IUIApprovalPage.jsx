@@ -44,7 +44,7 @@ const IUIApprovalPage = (props) => {
                 const item = await api.getSingleData({ module: module, id: id });
                 setData(item.data);
                 setApprovalStatus(item.data.status);
-                if (loggedInUser?.roles?.includes("Quality Engineer")) {
+                if (loggedInUser?.roles?.some(role => ["Quality Engineer", "Quality", "QC"].some(r => r.includes(role)))) {
                     if (item.data?.isQCApproved) {
                         setDisplayApprovalButtons(false);
                     }
@@ -301,12 +301,22 @@ const IUIApprovalPage = (props) => {
                 //     module: module,
                 //     data: { id: id, status: 4, approvedBy: loggedInUser?.email, approvedDate: current, isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks }
                 // }
-                editAction = {
+                // editAction = {
+                //     module: module,
+                //     data: {
+                //         ...data, approvedBy: loggedInUser?.email, approvedDate: current,
+                //         isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks,
+                //         isAbandoned: false, actualEndDate: current, status: 4
+                //     }
+                // }
+
+                patchAction = {
                     module: module,
                     data: {
-                        ...data, approvedBy: loggedInUser?.email, approvedDate: current,
-                        isApproved: isApproved, isCompleted: isApproved, hodRemarks: remarks,
-                        isAbandoned: false, actualEndDate: current, status: 4
+                        id: id, status: 4, approvedBy: loggedInUser?.email,
+                        approvedDate: current, isApproved: isApproved,
+                        isAbandoned: false,
+                        isCompleted: isApproved, hodRemarks: remarks, actualEndDate: current
                     }
                 }
             }

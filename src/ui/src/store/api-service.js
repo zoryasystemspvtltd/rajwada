@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// const apiBaseUrl = process.env.REACT_APP_API_URL || "https://localhost:7018/api";
+ //const apiBaseUrl = process.env.REACT_APP_API_URL || "https://localhost:7018/api";
 // const apiBaseUrl = "https://civiliererp.live/api";
 // const apiBaseUrl = "https://zoryademo-001-site1.ktempurl.com/backend/api";
 const apiBaseUrl = "/api";
@@ -223,6 +223,11 @@ api.workProgressReport = async (action) => {
     const response = await api.post(url, action.data);
     return response;
 }
+api.workTransferReport = async (action) => {
+    const url = `/work-transfer-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
 api.getItemNotifications = async (action) => {
     const url = `/notification/${action.member}`;
     const response = await api.get(url);
@@ -264,6 +269,16 @@ api.contractorwiseworkReport = async (action) => {
     const response = await api.post(url, action.data);
     return response;
 }
+api.contractorWiseWorkAmendmentReport = async (action) => {
+    const url = `/contractorwise-work-amendment-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.developerWiseWorkAmendmentReport = async (action) => {
+    const url = `/developerwise-work-amendment-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
 api.engineerPerformanceReport = async (action) => {
     const url = `/engineer-performance-report`;
     const response = await api.post(url, action.data);
@@ -291,6 +306,11 @@ api.projectWiseClosedReport = async (action) => {
 }
 api.projectWiseReWorkReport = async (action) => {
     const url = `/projectwise-rework-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.siteMaterialQualityReport = async (action) => {
+    const url = `/site-material-quality-report`;
     const response = await api.post(url, action.data);
     return response;
 }

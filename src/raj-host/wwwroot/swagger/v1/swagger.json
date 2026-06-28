@@ -1415,6 +1415,9 @@
 "type": "string",
 "nullable": true
 },
+"AmendmentRemarks": {
+"type": "string",
+},
 "ParentId": {
 "type": "string",
 "nullable": true
@@ -1776,6 +1779,9 @@
 "type": "string",
 "nullable": true
 },
+"Remarks": {
+"type": "string",
+},
 "ActivityId": {
 "type": "string",
 "nullable": true
@@ -1788,6 +1794,13 @@
 "nullable": true
 },
 "OutSideEntities": {
+"type": "string",
+},
+"ActivityAmendmentId": {
+"type": "string",
+"nullable": true
+},
+"ActivityAmendment": {
 "type": "string",
 },
 "Id": {

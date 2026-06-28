@@ -272,6 +272,12 @@ export const EditAmendment = () => {
             {
                 type: "area", width: 12
                 , fields: [
+                    { text: 'Amendment Remarks', field: 'amendmentRemarks', placeholder: 'Amendment Remarks here...', width: 12, type: 'textarea', required: false },
+                ]
+            },
+            {
+                type: "area", width: 12
+                , fields: [
                     {
                         text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
                         schema: {
@@ -297,7 +303,7 @@ export const EditAmendment = () => {
                         }
                     },
                 ]
-            }
+            },
         ]
     }
 

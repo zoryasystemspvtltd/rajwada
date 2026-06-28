@@ -13,14 +13,17 @@ const FIELD_LABELS = [
     { key: 'floorName', label: 'Floor' },
     { key: 'flatName', label: 'Flat' },
     { key: 'roomName', label: 'Room' },
-    { key: 'contractor', label: 'Contractor' },
+    { key: 'developer', label: 'Developer' },
     { key: 'activityName', label: 'Activities' },
     { key: 'status', label: 'Status' },
     { key: 'startDate', label: 'Start Date' },
     { key: 'endDate', label: 'End Date' },
-    { key: 'actualCost', label: 'ActualCost' },
     { key: 'assignee', label: 'Assignee' },
-    { key: 'progressPercentage', label: 'Progress Percentage' },
+    { key: 'amendmentPercentageOfWork', label: 'Amendment Percentage of Work' },
+    { key: 'beforeAmendmentCost', label: 'Before Amendment Cost' },
+    { key: 'totalCost', label: 'Total Cost' },
+    { key: 'amentmentCost', label: 'Amendment Cost' },
+
 ];
 
 const getItemValue = (item, keys, fallback = '') => {
@@ -74,14 +77,16 @@ const mapReportRow = (item) => ({
     floorName: (item?.floorName),
     flatName: (item?.flatName),
     roomName: (item?.roomName),
-    contractor: (item?.contractor),
+    developer: (item?.developer),
     activityName: (item?.activityName),
     status: getText(item?.status),
     startDate: formatDate(item?.startDate),
     endDate: formatDate(item?.endDate),
-    actualCost: getItemValue(item, ['actualCost'], '') ? `₹${parseFloat(item.actualCost).toLocaleString('en-IN')}` : '',
     assignee: (item?.assignee),
-    progressPercentage: (item?.progressPercentage),
+    amendmentPercentageOfWork: (item?.amendmentPercentageOfWork),
+    beforeAmendmentCost: getItemValue(item, ['beforeAmendmentCost'], '') ? `₹${parseFloat(item.beforeAmendmentCost).toLocaleString('en-IN')}` : '',
+    totalCost: getItemValue(item, ['totalCost'], '') ? `₹${parseFloat(item.totalCost).toLocaleString('en-IN')}` : '',
+    amendmentCost: getItemValue(item, ['amendmentCost'], '') ? `₹${parseFloat(item.amendmentCost).toLocaleString('en-IN')}` : '',
 });
 
 const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
@@ -101,7 +106,7 @@ const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
     };
 };
 
-const ContractorWiseWorkReport = () => {
+const DeveloperWiseWorkAmendmentReport = () => {
     //const [companies, setCompanies] = useState([]);
     const [projects, setProjects] = useState([]);
     const [towers, setTowers] = useState([]);
@@ -174,7 +179,7 @@ const ContractorWiseWorkReport = () => {
             const options = buildSearchPayload(filters);
             console.log('Search options:', options);
 
-            const response = await api.contractorwiseworkReport({ data: options });
+            const response = await api.developerWiseWorkAmendmentReport({ data: options });
             console.log('Full API Response:', response);
             console.log('Response data property:', response?.data);
 
@@ -219,23 +224,25 @@ const ContractorWiseWorkReport = () => {
                 Floor: row.floorName,
                 Flat: row.flatName,
                 Room: row.roomName,
-                Contractor: row.contractor,
+                Developer: row.developer,
                 Activities: row.activityName,
                 Status: row.status,
                 StartDate: row.startDate,
                 EndDate: row.endDate,
                 Assignee: row.assignee,
-                ProgressPercentage: row.progressPercentage,
-                ActualCost: row.actualCost,
+                AmendmentPercentageOfWork: row.amendmentPercentageOfWork,
+                BeforeAmendmentCost: row.beforeAmendmentCost,
+                TotalCost: row.totalCost,
+                AmendmentCost: row.amendmentCost,
             };
         });
 
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'ContractorWiseWork Report');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'DeveloperWiseWorkAmendment Report');
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
         const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `ContractorWiseWorkReport-${new Date().toISOString().split('T')[0]}.xlsx`);
+        saveAs(blob, `DeveloperWiseWorkAmendmentReport-${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
     const renderedRows = reportRows.map((item, index) => {
@@ -249,14 +256,16 @@ const ContractorWiseWorkReport = () => {
                 <td>{row.floorName}</td>
                 <td>{row.flatName}</td>
                 <td>{row.roomName}</td>
-                <td>{row.contractor}</td>
+                <td>{row.developer}</td>
                 <td>{row.activityName}</td>
                 <td>{row.status}</td>
                 <td>{row.startDate}</td>
                 <td>{row.endDate}</td>
                 <td>{row.assignee}</td>
-                <td>{row.progressPercentage}</td>
-                <td>{row.actualCost}</td>
+                <td>{row.amendmentPercentageOfWork}</td>
+                <td>{row.beforeAmendmentCost}</td>
+                <td>{row.totalCost}</td>
+                <td>{row.amendmentCost}</td>
             </tr>
         );
     });
@@ -264,7 +273,7 @@ const ContractorWiseWorkReport = () => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading text-uppercase">Contractor Wise Work Report</div>
+                <div className="page-title-heading text-uppercase">Developer Wise Work Amendment Report</div>
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -381,4 +390,4 @@ const ContractorWiseWorkReport = () => {
     );
 };
 
-export default ContractorWiseWorkReport;
+export default DeveloperWiseWorkAmendmentReport;

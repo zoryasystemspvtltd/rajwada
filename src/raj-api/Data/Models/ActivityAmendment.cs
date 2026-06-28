@@ -17,7 +17,8 @@ namespace RajApi.Data.Models
         public virtual int AmendmentStatus { get; set; }
         [StringLength(255)]
         public virtual string? ReviewedBy { get; set; }       
-        public virtual long? ActivityId { get; set; }      
+        public virtual long? ActivityId { get; set; }
+        public virtual string? AmendmentRemarks { get; set; }
 
         /// <summary>
         /// ActivityAmendment is also a collection of other ActivityAmendment

@@ -7,20 +7,15 @@ import { notify } from '../../../store/notification';
 
 const FIELD_LABELS = [
     { key: 'companyName', label: 'Company Name' },
-    { key: 'projectName', label: 'Project Name' },
-    { key: 'insideOutside', label: 'Inside / Outside' },
-    { key: 'towerName', label: 'Tower Name' },
-    { key: 'floorName', label: 'Floor' },
-    { key: 'flatName', label: 'Flat' },
-    { key: 'roomName', label: 'Room' },
-    { key: 'contractor', label: 'Contractor' },
-    { key: 'activityName', label: 'Activities' },
+    { key: 'projectName', label: 'Project Name' },    
+    { key: 'itemName', label: 'Item Name' },
+    { key: 'uom', label: 'UOM' },
+    { key: 'supplier', label: 'Supplier' },
     { key: 'status', label: 'Status' },
-    { key: 'startDate', label: 'Start Date' },
-    { key: 'endDate', label: 'End Date' },
-    { key: 'actualCost', label: 'ActualCost' },
-    { key: 'assignee', label: 'Assignee' },
-    { key: 'progressPercentage', label: 'Progress Percentage' },
+    { key: 'receivedDate', label: 'Received Date' },
+    { key: 'qualityPercentage', label: 'Quality Percentage' },
+    { key: 'receiverName', label: 'Receiver Name' },
+    { key: 'qualityChecker', label: 'Quality Checker' },
 ];
 
 const getItemValue = (item, keys, fallback = '') => {
@@ -68,20 +63,14 @@ const formatDate = (dateString) => {
 
 const mapReportRow = (item) => ({
     companyName: (item?.companyName),
-    projectName: (item?.projectName),
-    insideOutside: (item?.insideOutside),
-    towerName: (item?.towerName),
-    floorName: (item?.floorName),
-    flatName: (item?.flatName),
-    roomName: (item?.roomName),
-    contractor: (item?.contractor),
-    activityName: (item?.activityName),
+    projectName: (item?.projectName),    
+    itemName: (item?.itemName),
+    uom: (item?.uom),
     status: getText(item?.status),
-    startDate: formatDate(item?.startDate),
-    endDate: formatDate(item?.endDate),
-    actualCost: getItemValue(item, ['actualCost'], '') ? `₹${parseFloat(item.actualCost).toLocaleString('en-IN')}` : '',
-    assignee: (item?.assignee),
-    progressPercentage: (item?.progressPercentage),
+    receivedDate: formatDate(item?.receivedDate),
+    qualityPercentage: (item?.qualityPercentage),
+    receiverName: (item?.receiverName),
+    qualityChecker: (item?.qualityChecker)
 });
 
 const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
@@ -101,7 +90,7 @@ const buildSearchPayload = ({ projectId, towerId, startDate, endDate }) => {
     };
 };
 
-const ContractorWiseWorkReport = () => {
+const SiteMaterialQualityReport = () => {
     //const [companies, setCompanies] = useState([]);
     const [projects, setProjects] = useState([]);
     const [towers, setTowers] = useState([]);
@@ -174,7 +163,7 @@ const ContractorWiseWorkReport = () => {
             const options = buildSearchPayload(filters);
             console.log('Search options:', options);
 
-            const response = await api.contractorwiseworkReport({ data: options });
+            const response = await api.siteMaterialQualityReport({ data: options });
             console.log('Full API Response:', response);
             console.log('Response data property:', response?.data);
 
@@ -213,29 +202,23 @@ const ContractorWiseWorkReport = () => {
             const row = mapReportRow(item);
             return {
                 'Company Name': row.companyName,
-                'Project Name': row.projectName,
-                'Inside / Outside': row.insideOutside,
-                'Tower Name': row.towerName,
-                Floor: row.floorName,
-                Flat: row.flatName,
-                Room: row.roomName,
-                Contractor: row.contractor,
-                Activities: row.activityName,
-                Status: row.status,
-                StartDate: row.startDate,
-                EndDate: row.endDate,
-                Assignee: row.assignee,
-                ProgressPercentage: row.progressPercentage,
-                ActualCost: row.actualCost,
+                'Project Name': row.projectName,                
+                'Item Name': row.itemName,
+                UOM: row.uom,
+                'Received Date': row.receivedDate,
+                'Quality Percentage': row.qualityPercentage,
+                'Receiver Name': row.receiverName,
+                'Quality Checker': row.qualityChecker,
+                'Supplier': row.supplier,
             };
         });
 
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'ContractorWiseWork Report');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'SiteMaterialQuality Report');
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
         const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `ContractorWiseWorkReport-${new Date().toISOString().split('T')[0]}.xlsx`);
+        saveAs(blob, `SiteMaterialQualityReport-${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
     const renderedRows = reportRows.map((item, index) => {
@@ -243,20 +226,14 @@ const ContractorWiseWorkReport = () => {
         return (
             <tr key={index}>
                 <td>{row.companyName}</td>
-                <td>{row.projectName}</td>
-                <td>{row.insideOutside}</td>
-                <td>{row.towerName}</td>
-                <td>{row.floorName}</td>
-                <td>{row.flatName}</td>
-                <td>{row.roomName}</td>
-                <td>{row.contractor}</td>
-                <td>{row.activityName}</td>
-                <td>{row.status}</td>
-                <td>{row.startDate}</td>
-                <td>{row.endDate}</td>
-                <td>{row.assignee}</td>
-                <td>{row.progressPercentage}</td>
-                <td>{row.actualCost}</td>
+                <td>{row.projectName}</td>                        
+                <td>{row.itemName}</td>
+                <td>{row.uom}</td>
+                <td>{row.supplier}</td>
+                <td>{row.receivedDate}</td>
+                <td>{row.qualityPercentage}</td>
+                <td>{row.receiverName}</td>
+                <td>{row.qualityChecker}</td>                
             </tr>
         );
     });
@@ -264,7 +241,7 @@ const ContractorWiseWorkReport = () => {
     return (
         <>
             <div className="app-page-title">
-                <div className="page-title-heading text-uppercase">Contractor Wise Work Report</div>
+                <div className="page-title-heading text-uppercase">Site Material Quality Report</div>
             </div>
             <div className="tab-content">
                 <div className="tabs-animation">
@@ -381,4 +358,4 @@ const ContractorWiseWorkReport = () => {
     );
 };
 
-export default ContractorWiseWorkReport;
+export default SiteMaterialQualityReport;

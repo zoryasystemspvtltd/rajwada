@@ -28,10 +28,13 @@ namespace RajApi.Data.Models.Reports
         public int? Day { get; set; }
         public decimal? EstimateCost { get; set; }
         public decimal? ActualCost { get; set; }
+        public decimal? BeforeAmendmentCost { get; set; }
+        public decimal? AmendmentCost { get; set; }
         public decimal? Variance { get; set; }
         public int? ProgressPercentage { get; set; }
+        public int? AmendmentPercentageOfWork { get; set; }
         public bool? IsApproved { get; set; }
-        public StatusType Status { get; set; }
+        public StatusType Status { get; set; }        
     }
 
     /// <summary>

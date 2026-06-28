@@ -47,6 +47,10 @@ import ProjectWiseClosedReport from "../pages/app/reports/ProjectWiseClosedRepor
 import ProjectWiseReWorkReport from "../pages/app/reports/ProjectWiseReWorkReport";
 import DeveloperWiseWorkReport from "../pages/app/reports/DeveloperWiseWorkReport";
 import ContractorWiseWorkReport from "../pages/app/reports/ContractorWiseWorkReport";
+import ContractorWiseWorkAmendmentReport from "../pages/app/reports/ContractorWiseWorkAmendmentReport";
+import DeveloperWiseWorkAmendmentReport from "../pages/app/reports/DeveloperWiseWorkAmendmentReport";
+import WorkTransferReport from "../pages/app/reports/WorkTransferReport";
+import SiteMaterialQualityReport from "../pages/app/reports/SiteMaterialQualityReport";
 
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
 import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
@@ -541,6 +545,10 @@ const Routes = () => {
                     element: <AddLevelSetup />
                 },
                 {
+                    path: "/site-material-quality-report",
+                    element: <SiteMaterialQualityReport />
+                },
+                {
                     path: "/statusreport",
                     element: <WorkStatusReport />
                 },
@@ -577,6 +585,14 @@ const Routes = () => {
                     element: <ProjectWiseCancelledReport />
                 },
                 {
+                    path: "/projectwise-rework-report",
+                    element: <ProjectWiseReWorkReport />
+                },
+                {
+                    path: "/work-transfer-report",
+                    element: <WorkTransferReport />
+                },
+                {
                     path: "/projectwise-closed-report",
                     element: <ProjectWiseClosedReport />
                 },
@@ -588,9 +604,17 @@ const Routes = () => {
                     path: "/contractorwise-work-report",
                     element: <ContractorWiseWorkReport />
                 },
-                {   
-                    path: "/projectwise-rework-report",
-                    element: <ProjectWiseReWorkReport />
+                {
+                    path: "/contractorwise-work-report",
+                    element: <ContractorWiseWorkReport />
+                },
+                {
+                    path: "/contractorwise-work-amendment-report",
+                    element: <ContractorWiseWorkAmendmentReport />
+                },
+                {
+                    path: "/developerwise-work-amendment-report",
+                    element: <DeveloperWiseWorkAmendmentReport />
                 },
                 {
                     path: "/site-material-approval-report",
