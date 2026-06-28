@@ -49,6 +49,8 @@ import DeveloperWiseWorkReport from "../pages/app/reports/DeveloperWiseWorkRepor
 import ContractorWiseWorkReport from "../pages/app/reports/ContractorWiseWorkReport";
 import ContractorWiseWorkAmendmentReport from "../pages/app/reports/ContractorWiseWorkAmendmentReport";
 import DeveloperWiseWorkAmendmentReport from "../pages/app/reports/DeveloperWiseWorkAmendmentReport";
+import WorkTransferReport from "../pages/app/reports/WorkTransferReport";
+import SiteMaterialQualityReport from "../pages/app/reports/SiteMaterialQualityReport";
 
 import { ListActivityApproval, ViewActivityApproval } from "../pages/app/schema/ActivityApprovals";
 import { EditAmendment, ListAmendment, ViewAmendment } from "../pages/app/schema/Amendments";
@@ -543,6 +545,10 @@ const Routes = () => {
                     element: <AddLevelSetup />
                 },
                 {
+                    path: "/site-material-quality-report",
+                    element: <SiteMaterialQualityReport />
+                },
+                {
                     path: "/statusreport",
                     element: <WorkStatusReport />
                 },
@@ -581,6 +587,10 @@ const Routes = () => {
                 {
                     path: "/projectwise-rework-report",
                     element: <ProjectWiseReWorkReport />
+                },
+                {
+                    path: "/work-transfer-report",
+                    element: <WorkTransferReport />
                 },
                 {
                     path: "/projectwise-closed-report",

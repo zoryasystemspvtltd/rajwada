@@ -34,7 +34,7 @@ namespace RajApi.Data.Models.Reports
         public int? ProgressPercentage { get; set; }
         public int? AmendmentPercentageOfWork { get; set; }
         public bool? IsApproved { get; set; }
-        public StatusType Status { get; set; }
+        public StatusType Status { get; set; }        
     }
 
     /// <summary>

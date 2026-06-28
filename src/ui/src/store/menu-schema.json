@@ -272,6 +272,13 @@
                 "path": "/site-material-approval-report",
                 "access": "activity"
             },
+             {
+                "name": "siteMaterialQualityReport",
+                "text": "Site Material Quality Report",
+                "icon": "vector-square",
+                "path": "/site-material-quality-report",
+                "access": "activity"
+            },
             {
                 "name": "projectwiseBudgetVsActualReport",
                 "text": "Project Wise Budget Vs Actual",
@@ -319,6 +326,13 @@
                 "text": "Work Progress Report",
                 "icon": "vector-square",
                 "path": "/work-progress-report",
+                "access": "activity"
+            },
+             {
+                "name": "WorkTransferReport",
+                "text": "Work Transfer Report",
+                "icon": "vector-square",
+                "path": "/work-transfer-report",
                 "access": "activity"
             },
             {

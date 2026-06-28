@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RajApi.Data;
 using RajApi.Data.Models;
+using RajApi.Data.Models.Reports;
 
 namespace RajApi.Controllers;
 
@@ -115,6 +116,31 @@ public class ReportController : ControllerBase
         });
     }
 
+    [AllowAnonymous]
+    [HttpPost("site-material-quality-report")]
+    public async Task<ActionResult<IEnumerable<SiteMaterialDto>>> GetSiteMaterialQualityReport(
+          [FromBody] SiteMeterialRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            //SetUserIdentity();
+            logger.LogInformation($"Fetching site material quality report with filters - ProjectId: {request?.ProjectId}");
+
+            var result = await dataService.GetSiteMaterialQualityReportAsync(request, cancellationToken);
+
+            return Ok(new
+            {
+                success = true,
+                totalRecords = result.Count,
+                data = result
+            });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetSiteMaterialQualityReport: '{ex.Message}'");
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
+    }
 }
 
 

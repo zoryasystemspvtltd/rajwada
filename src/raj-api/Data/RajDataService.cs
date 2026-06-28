@@ -1308,6 +1308,27 @@ namespace ILab.Data
                 throw;
             }
         }
+        public async Task<List<WorkReportDto>> GetWorkTransferReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetWorkTransferReportAsync));
+                object[] parameters = [request, cancellationToken];
+                var result = method?.Invoke(dataHandler, parameters);
+                if (result is Task task)
+                {
+                    await task;
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    return (List<WorkReportDto>)(resultProperty?.GetValue(task) ?? new List<WorkReportDto>());
+                }
+                return new List<WorkReportDto>();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetWorkTransferReportAsync: '{ex.Message}'");
+                throw;
+            }
+        }
 
         public async Task<List<WorkReportDto>> GetProjectWiseOnHoldReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
         {
@@ -1594,7 +1615,29 @@ namespace ILab.Data
                 throw;
             }
         }
+
         #endregion
+        public async Task<List<SiteMaterialDto>> GetSiteMaterialQualityReportAsync(SiteMeterialRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetSiteMaterialQualityReportAsync));
+                object[] parameters = [request, cancellationToken];
+                var result = method?.Invoke(dataHandler, parameters);
+                if (result is Task task)
+                {
+                    await task;
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    return (List<SiteMaterialDto>)(resultProperty?.GetValue(task) ?? new List<SiteMaterialDto>());
+                }
+                return new List<SiteMaterialDto>();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetSiteMaterialQualityReportAsync: '{ex.Message}'");
+                throw;
+            }
+        }
 
         #region Calender API
         public async Task<List<ActiveWorksCountResponse>> GetActiveWorksCountByMonthAsync(ActiveWorksCountRequest request, CancellationToken cancellationToken)

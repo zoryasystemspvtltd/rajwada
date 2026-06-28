@@ -223,6 +223,11 @@ api.workProgressReport = async (action) => {
     const response = await api.post(url, action.data);
     return response;
 }
+api.workTransferReport = async (action) => {
+    const url = `/work-transfer-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
 api.getItemNotifications = async (action) => {
     const url = `/notification/${action.member}`;
     const response = await api.get(url);
@@ -301,6 +306,11 @@ api.projectWiseClosedReport = async (action) => {
 }
 api.projectWiseReWorkReport = async (action) => {
     const url = `/projectwise-rework-report`;
+    const response = await api.post(url, action.data);
+    return response;
+}
+api.siteMaterialQualityReport = async (action) => {
+    const url = `/site-material-quality-report`;
     const response = await api.post(url, action.data);
     return response;
 }

@@ -62,6 +62,33 @@ namespace RajApi.Controllers
         }
 
         [AllowAnonymous]
+        [HttpPost("work-transfer-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetWorkTransferReportDetail(
+            [FromBody] WorkReportRequest? request,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching work transfer report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetWorkTransferReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetWorkTransferReportDetail: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
         [HttpPost("projectwise-onhold-report")]
         public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetProjectWiseOnHoldReport(
             [FromBody] WorkReportRequest? request,
@@ -407,7 +434,7 @@ namespace RajApi.Controllers
                 logger.LogError(ex, $"Exception in GetDeveloperWiseWorkAmendmentReport: '{ex.Message}'");
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
-        }
+        }        
 
         /// <summary>
         /// Helper method to set user identity from JWT claims

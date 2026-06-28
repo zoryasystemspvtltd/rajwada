@@ -1796,6 +1796,13 @@
 "OutSideEntities": {
 "type": "string",
 },
+"ActivityAmendmentId": {
+"type": "string",
+"nullable": true
+},
+"ActivityAmendment": {
+"type": "string",
+},
 "Id": {
 "type": "string",
 },

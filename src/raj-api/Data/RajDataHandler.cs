@@ -1,5 +1,4 @@
-﻿
-using ILab.Extensionss.Common;
+﻿using ILab.Extensionss.Common;
 using ILab.Extensionss.Data;
 using ILab.Extensionss.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -2253,6 +2252,9 @@ public class RajDataHandler : LabDataHandler
     #endregion
 
     #region Work Progress Report
+    /// <summary>
+    /// Get detailed Activity work  progress report with all required fields
+    /// </summary>
     public async Task<List<WorkReportDto>> GetWorkProgressReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
     {
         try
@@ -2271,6 +2273,129 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
+
+    /// <summary>
+    /// Get detailed Activity work transfer report with all required fields
+    /// </summary>
+    public async Task<List<WorkReportDto>> GetWorkTransferReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = dbContext.Set<Activity>()
+                   .AsNoTracking()
+                   .Where(x => x.Status != StatusType.Deleted);
+
+            if (request?.ProjectId.HasValue == true)
+                query = query.Where(x => x.ProjectId == request.ProjectId);
+
+            if (request?.TowerId.HasValue == true)
+                query = query.Where(x => x.TowerId == request.TowerId);
+
+            if (request?.StartDate.HasValue == true)
+                query = query.Where(x => x.Date >= request.StartDate.Value);
+
+            if (request?.EndDate.HasValue == true)
+                query = query.Where(x => x.Date <= request.EndDate.Value);
+
+            var activities = await query
+                .Include(x => x.Project)
+                .Include(x => x.Tower)
+                .Include(x => x.Floor)
+                .Include(x => x.Flat)
+                .Include(x => x.RoomDetails)
+                .ToListAsync(cancellationToken);
+
+            // Company lookup
+            var companyLookup = await dbContext.Set<Company>()
+                .AsNoTracking()
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            // Contractor lookup (used for both Developer and Contractor)
+            var contractorLookup = await dbContext.Set<Contractor>()
+                .AsNoTracking()
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            // Get all activity logs            
+
+            var applog = await dbContext.Set<ApplicationLog>()
+                     .AsNoTracking()
+                     .Where(x => x.Name == "Activity")
+                     .OrderBy(x => x.Date)
+                     .ToListAsync(cancellationToken);
+
+            var result = activities.Select(activity =>
+            {
+                companyLookup.TryGetValue(
+                    activity.Project?.CompanyId ?? 0,
+                    out var company);
+
+                contractorLookup.TryGetValue(
+                    activity.MaterialProvidedBy ?? 0,
+                    out var developer);
+
+                contractorLookup.TryGetValue(
+                    activity.LabourProvidedBy ?? 0,
+                    out var contractor);
+
+                decimal estimateCost = activity.CostEstimate;
+
+                // Logs for this activity
+                var activityAssignees = applog
+                     .Where(x => x.EntityId == activity.Id)
+                     .ToList();
+
+                // All transferred assignee names (excluding current assignee)
+                var transferAssignee = string.Join(", ",
+                             activityAssignees
+                                 .Select(x => x.Member)
+                                 .Where(x => !string.IsNullOrWhiteSpace(x) &&
+                                             !string.Equals(x, activity.Member, StringComparison.OrdinalIgnoreCase))
+                                 .Distinct());
+
+
+                return new WorkReportDto
+                {
+                    ActivityId = activity.Id,
+                    CompanyName = company?.Name ?? "N/A",
+                    ProjectName = activity.Project?.Name ?? "N/A",
+                    InsideOutside = string.IsNullOrWhiteSpace(activity.Type)
+                        ? "N/A"
+                        : activity.Type.ToUpper(),
+
+                    TowerName = activity.Tower?.Name ?? string.Empty,
+                    FloorName = activity.Floor?.Name ?? string.Empty,
+                    FlatName = activity.Flat?.Name ?? string.Empty,
+                    RoomName = activity.RoomDetails?.Name ?? string.Empty,
+
+                    Developer = developer?.Name ?? string.Empty,
+                    Contractor = contractor?.Name ?? string.Empty,
+
+                    ActivityName = activity.Name ?? string.Empty,
+
+                    StartDate = activity.ActualStartDate,
+                    EndDate = activity.ActualEndDate,
+
+                    // Current assignee
+                    Assignee = activity.Member,
+
+                    // Previous transferred assignees
+                    TransferAssignee = transferAssignee,
+                    Status = (StatusType)activity.Status,
+
+                };
+            })
+            .ToList();
+
+            return result;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Exception occurred in GetWorkTransferReportAsync");
+            throw;
+        }
+    }
+
 
     /// <summary>
     /// Get detailed Activity Wise Budget vs Actual report with all required fields
@@ -2386,6 +2511,65 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
+
+    /// <summary>
+    /// Get detailed Site Material Quality report with all required fields
+    /// </summary>
+    /// 
+    public async Task<List<SiteMaterialDto>> GetSiteMaterialQualityReportAsync(SiteMeterialRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = dbContext.Set<LevelSetup>()
+                   .AsNoTracking()
+                   .Where(x => x.Status != StatusType.Deleted);
+
+            if (request?.ProjectId.HasValue == true)
+                query = query.Where(x => x.ProjectId.Equals(request.ProjectId));
+            if (request?.StartDate.HasValue == true)
+                query = query.Where(x => x.Date >= request.StartDate.Value);
+
+            if (request?.EndDate.HasValue == true)
+                query = query.Where(x => x.Date <= request.EndDate.Value);
+
+
+            //var levelSetups = dbContext.Set<LevelSetup>()
+            //     .Where(l => l.Id == id).ToList();
+            //var details = dbContext.Set<LevelSetupDetails>()
+            //    .Where(l => l.HeaderId == id)
+            //    .ToList();
+
+            //var final = details.Join(levelSetups,
+            //        d => d.HeaderId,
+            //        m => m.Id,
+            //        (d, m) => new SiteMaterialDto()
+            //        {
+            //            Project = m.ProjectName,
+            //            DocumentDate = m.DocumentDate,
+            //            VechileNo = m.VechileNo,
+            //            TrackingNo = m.TrackingNo,
+            //            SupplierName = m.SupplierName,
+            //            QCChargeName = m.InChargeName,
+            //            Item = d.Name,
+            //            Quantity = d.Quantity,
+            //            Price = d.Price,
+            //            UOM = d.UOMName,
+            //            ReceiverStatus = d.ReceiverStatus,
+            //            ReceiverRemarks = d.ReceiverRemarks,
+            //            QCStatus = d.QualityStatus,
+            //            QCRemarks = d.QualityRemarks,
+            //            DirectorFinalRemarks = m.ApprovedRemarks
+            //        });
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetSiteMaterialQualityReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
     private async Task<List<WorkReportDto>> GetActivityReportData(WorkReportRequest? request, CancellationToken cancellationToken)
     {
         try
@@ -2454,7 +2638,7 @@ public class RajDataHandler : LabDataHandler
 
                 // Use prefetched trackings for this activity
                 var activityTrackings = allTrackings.Where(t => t.ActivityId == activity.Id && t.ActivityAmendmentId == null).ToList();
-                decimal accumulatedCost = activityTrackings.Sum(t => t.Cost ?? 0m );
+                decimal accumulatedCost = activityTrackings.Sum(t => t.Cost ?? 0m);
 
                 int pregressPercentage = 0;
                 if (activityTrackings.Count > 0)
@@ -2663,7 +2847,7 @@ public class RajDataHandler : LabDataHandler
                     StartDate = activity.ActualStartDate,
                     EndDate = activity.ActualEndDate,
                     Engineer = activity.Member,
-                    Assignee = activity.Member,                    
+                    Assignee = activity.Member,
                     Status = (StatusType)activity.Status,
                     AmendmentPercentageOfWork = pregressPercentage,
                 };
