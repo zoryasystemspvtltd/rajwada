@@ -14,6 +14,7 @@ namespace RajApi.Data.Models
         public virtual string? Item { get; set; }
         public virtual string? ActivityTrackStatus { get; set; }
         public virtual int? ProgressPercentage { get; set; }
+        public virtual string? Remarks { get; set; }
 
         #region Relations
         /// <summary>
