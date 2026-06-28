@@ -2271,7 +2271,7 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
-        
+
     /// <summary>
     /// Get detailed Activity Wise Budget vs Actual report with all required fields
     /// </summary>
@@ -2316,7 +2316,7 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
-    
+
     /// <summary>
     /// Get detailed Engineer Performance report with all required fields
     /// </summary>
@@ -2453,9 +2453,8 @@ public class RajDataHandler : LabDataHandler
                 decimal estimateCost = activity.CostEstimate;
 
                 // Use prefetched trackings for this activity
-                var activityTrackings = allTrackings.Where(t => t.ActivityId == activity.Id).ToList();
-
-                decimal accumulatedCost = activityTrackings.Sum(t => t.Cost ?? 0m);
+                var activityTrackings = allTrackings.Where(t => t.ActivityId == activity.Id && t.ActivityAmendmentId == null).ToList();
+                decimal accumulatedCost = activityTrackings.Sum(t => t.Cost ?? 0m );
 
                 int pregressPercentage = 0;
                 if (activityTrackings.Count > 0)
@@ -2468,11 +2467,8 @@ public class RajDataHandler : LabDataHandler
                 return new WorkReportDto
                 {
                     ActivityId = activity.Id,
-
                     CompanyName = company?.Name ?? "N/A",
-
                     ProjectName = activity.Project?.Name ?? "N/A",
-
                     InsideOutside = string.IsNullOrWhiteSpace(activity.Type)
                         ? "N/A"
                         : activity.Type.ToUpper(),
@@ -2513,6 +2509,177 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
+
+    /// <summary>
+    /// Get detailed Contractor Wise Work Ammendment report with all required fields
+    /// </summary>
+    /// 
+    public async Task<List<WorkReportDto>> GetContractorWiseWorkAmendmentReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityAmendmentReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.Contractor)
+                    .ThenBy(x => x.ActivityName)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetContractorWiseWorkAmendmentReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+    /// <summary>
+    /// Get detailed Developer Wise Work Ammendment report with all required fields
+    /// </summary>
+    /// 
+    public async Task<List<WorkReportDto>> GetDeveloperWiseWorkAmendmentReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var data = await GetActivityAmendmentReportData(request, cancellationToken);
+
+            return data.OrderBy(x => x.CompanyName)
+                    .ThenBy(x => x.ProjectName)
+                    .ThenBy(x => x.TowerName)
+                    .ThenBy(x => x.Developer)
+                    .ThenBy(x => x.ActivityName)
+                    .ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Exception in GetDeveloperWiseWorkAmendmentReportAsync: '{ex.Message}'");
+            throw;
+        }
+    }
+
+    private async Task<List<WorkReportDto>> GetActivityAmendmentReportData(WorkReportRequest? request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = dbContext.Set<Activity>()
+                   .AsNoTracking()
+                   .Where(x => x.Status != StatusType.Deleted);
+
+            if (request?.ProjectId.HasValue == true)
+                query = query.Where(x => x.ProjectId == request.ProjectId);
+
+            if (request?.TowerId.HasValue == true)
+                query = query.Where(x => x.TowerId == request.TowerId);
+
+            if (request?.StartDate.HasValue == true)
+                query = query.Where(x => x.Date >= request.StartDate.Value);
+
+            if (request?.EndDate.HasValue == true)
+                query = query.Where(x => x.Date <= request.EndDate.Value);
+
+            var activities = await query
+                .Include(x => x.Project)
+                .Include(x => x.Tower)
+                .Include(x => x.Floor)
+                .Include(x => x.Flat)
+                .Include(x => x.RoomDetails)
+                .ToListAsync(cancellationToken);
+
+            // Company lookup
+            var companyLookup = await dbContext.Set<Company>()
+                .AsNoTracking()
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            // Contractor lookup (used for both Developer and Contractor)
+            var contractorLookup = await dbContext.Set<Contractor>()
+                .AsNoTracking()
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            // Prefetch all relevant activity trackings to avoid awaiting inside LINQ projection
+            var activityIds = activities.Select(a => a.Id).ToList();
+            var allTrackings = new List<ActivityTracking>();
+            if (activityIds.Count > 0)
+            {
+                allTrackings = await dbContext.Set<ActivityTracking>()
+                    .AsNoTracking()
+                    .Where(w => w.Status != StatusType.Deleted && w.ActivityId != null && activityIds.Contains(w.ActivityId.Value))
+                    .OrderBy(a => a.Date)
+                    .ToListAsync(cancellationToken);
+            }
+
+            var result = activities.Select(activity =>
+            {
+                companyLookup.TryGetValue(
+                    activity.Project?.CompanyId ?? 0,
+                    out var company);
+
+                contractorLookup.TryGetValue(
+                    activity.MaterialProvidedBy ?? 0,
+                    out var developer);
+
+                contractorLookup.TryGetValue(
+                    activity.LabourProvidedBy ?? 0,
+                    out var contractor);
+
+                decimal estimateCost = activity.CostEstimate;
+
+                // Use prefetched trackings for this activity
+                var activitybeforeTrackings = allTrackings.Where(t => t.ActivityId == activity.Id && t.ActivityAmendmentId == null).ToList();
+                decimal beforeAmendmentCost = activitybeforeTrackings.Sum(t => t.Cost ?? 0m);
+
+                var activityAfterTrackings = allTrackings.Where(t => t.ActivityId == activity.Id && t.ActivityAmendmentId != null).ToList();
+                decimal amendmentCost = activityAfterTrackings.Sum(t => t.Cost ?? 0m);
+
+                int pregressPercentage = 0;
+                if (activityAfterTrackings.Count > 0)
+                {
+                    // take the last tracking (ordered by Date) progress percentage similar to original logic
+                    var last = activityAfterTrackings.LastOrDefault();
+                    pregressPercentage = last?.ProgressPercentage ?? 0;
+                }
+
+                return new WorkReportDto
+                {
+                    ActivityId = activity.Id,
+                    CompanyName = company?.Name ?? "N/A",
+                    ProjectName = activity.Project?.Name ?? "N/A",
+                    InsideOutside = string.IsNullOrWhiteSpace(activity.Type)
+                        ? "N/A"
+                        : activity.Type.ToUpper(),
+
+                    TowerName = activity.Tower?.Name ?? string.Empty,
+                    FloorName = activity.Floor?.Name ?? string.Empty,
+                    FlatName = activity.Flat?.Name ?? string.Empty,
+                    RoomName = activity.RoomDetails?.Name ?? string.Empty,
+
+                    Developer = developer?.Name ?? string.Empty,
+                    Contractor = contractor?.Name ?? string.Empty,
+
+                    ActivityName = activity.Name ?? string.Empty,
+                    BeforeAmendmentCost = beforeAmendmentCost,
+                    AmendmentCost = amendmentCost,
+                    ActualCost = beforeAmendmentCost + amendmentCost,
+
+                    StartDate = activity.ActualStartDate,
+                    EndDate = activity.ActualEndDate,
+                    Engineer = activity.Member,
+                    Assignee = activity.Member,                    
+                    Status = (StatusType)activity.Status,
+                    AmendmentPercentageOfWork = pregressPercentage,
+                };
+            })
+            .ToList();
+
+            return result;
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Exception occurred in GetActivityReportData");
+            throw;
+        }
+    }
+
 
     /// <summary>
     /// Get detailed Project Wise on Hold report with all required fields
@@ -2622,7 +2789,7 @@ public class RajDataHandler : LabDataHandler
             throw;
         }
     }
-    
+
     private async Task<WorkReportData> GetWorkReportData(WorkReportRequest? request, CancellationToken cancellationToken)
     {
         try

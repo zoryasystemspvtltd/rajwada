@@ -1550,6 +1550,50 @@ namespace ILab.Data
                 throw;
             }
         }
+
+        public async Task<List<WorkReportDto>> GetContractorWiseWorkAmendmentReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetContractorWiseWorkAmendmentReportAsync));
+                object[] parameters = [request, cancellationToken];
+                var result = method?.Invoke(dataHandler, parameters);
+                if (result is Task task)
+                {
+                    await task;
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    return (List<WorkReportDto>)(resultProperty?.GetValue(task) ?? new List<WorkReportDto>());
+                }
+                return new List<WorkReportDto>();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetContractorWiseWorkAmendmentReportAsync: '{ex.Message}'");
+                throw;
+            }
+        }
+
+        public async Task<List<WorkReportDto>> GetDeveloperWiseWorkAmendmentReportAsync(WorkReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var method = typeof(RajDataHandler).GetMethod(nameof(RajDataHandler.GetDeveloperWiseWorkAmendmentReportAsync));
+                object[] parameters = [request, cancellationToken];
+                var result = method?.Invoke(dataHandler, parameters);
+                if (result is Task task)
+                {
+                    await task;
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    return (List<WorkReportDto>)(resultProperty?.GetValue(task) ?? new List<WorkReportDto>());
+                }
+                return new List<WorkReportDto>();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetDeveloperWiseWorkAmendmentReportAsync: '{ex.Message}'");
+                throw;
+            }
+        }
         #endregion
 
         #region Calender API

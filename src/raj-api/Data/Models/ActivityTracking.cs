@@ -29,6 +29,14 @@ namespace RajApi.Data.Models
         public virtual long? OutSideEntityId { get; set; }
         [JsonIgnore]
         public virtual OutSideEntity? OutSideEntities { get; set; }
+
+        /// <summary>
+        /// ActivityAmendment is also a collection of other Activity tracking
+        /// </summary>
+        [ForeignKey("ActivityAmendment")]
+        public virtual long? ActivityAmendmentId { get; set; }
+        [JsonIgnore]
+        public virtual ActivityAmendment? ActivityAmendment { get; set; }
         #endregion
     }
 

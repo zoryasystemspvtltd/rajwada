@@ -1415,6 +1415,9 @@
 "type": "string",
 "nullable": true
 },
+"AmendmentRemarks": {
+"type": "string",
+},
 "ParentId": {
 "type": "string",
 "nullable": true
@@ -1775,6 +1778,9 @@
 "ProgressPercentage": {
 "type": "string",
 "nullable": true
+},
+"Remarks": {
+"type": "string",
 },
 "ActivityId": {
 "type": "string",

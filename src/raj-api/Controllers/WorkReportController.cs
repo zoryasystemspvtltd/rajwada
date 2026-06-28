@@ -357,6 +357,58 @@ namespace RajApi.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [HttpPost("contractorwise-work-amendment-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetContractorWiseWorkAmendmentReport(
+          [FromBody] WorkReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching contractor wise work amendment report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetContractorWiseWorkAmendmentReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetContractorWiseWorkAmendmentReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("developerwise-work-amendment-report")]
+        public async Task<ActionResult<IEnumerable<WorkReportDto>>> GetDeveloperWiseWorkAmendmentReport(
+          [FromBody] WorkReportRequest? request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                //SetUserIdentity();
+                logger.LogInformation($"Fetching developer wise work amendment report with filters - ProjectId: {request?.ProjectId}, TowerId: {request?.TowerId}");
+
+                var result = await dataService.GetDeveloperWiseWorkAmendmentReportAsync(request, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    totalRecords = result.Count,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception in GetDeveloperWiseWorkAmendmentReport: '{ex.Message}'");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
         /// <summary>
         /// Helper method to set user identity from JWT claims
         /// </summary>

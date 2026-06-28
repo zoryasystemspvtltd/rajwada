@@ -294,6 +294,20 @@
                 "access": "activity"
             },
             {
+                "name": "contractorWiseWorkAmendmentReport",
+                "text": "Contractor Wise Work Amendment Report",
+                "icon": "vector-square",
+                "path": "/contractorwise-work-amendment-report",
+                "access": "activity"
+            },
+            {
+                "name": "developerWiseWorkAmendmentReport",
+                "text": "Developer Wise Work Amendment Report",
+                "icon": "vector-square",
+                "path": "/developerwise-work-amendment-report",
+                "access": "activity"
+            },
+            {
                 "name": "auditReport",
                 "text": "Audit Report",
                 "icon": "user",
