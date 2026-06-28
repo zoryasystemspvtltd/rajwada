@@ -2532,36 +2532,56 @@ public class RajDataHandler : LabDataHandler
             if (request?.EndDate.HasValue == true)
                 query = query.Where(x => x.Date <= request.EndDate.Value);
 
+            var activities = await query
+               .ToListAsync(cancellationToken);
 
-            //var levelSetups = dbContext.Set<LevelSetup>()
-            //     .Where(l => l.Id == id).ToList();
-            //var details = dbContext.Set<LevelSetupDetails>()
-            //    .Where(l => l.HeaderId == id)
-            //    .ToList();
+            // Company lookup
+            var companyLookup = await dbContext.Set<Company>()
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
 
-            //var final = details.Join(levelSetups,
-            //        d => d.HeaderId,
-            //        m => m.Id,
-            //        (d, m) => new SiteMaterialDto()
-            //        {
-            //            Project = m.ProjectName,
-            //            DocumentDate = m.DocumentDate,
-            //            VechileNo = m.VechileNo,
-            //            TrackingNo = m.TrackingNo,
-            //            SupplierName = m.SupplierName,
-            //            QCChargeName = m.InChargeName,
-            //            Item = d.Name,
-            //            Quantity = d.Quantity,
-            //            Price = d.Price,
-            //            UOM = d.UOMName,
-            //            ReceiverStatus = d.ReceiverStatus,
-            //            ReceiverRemarks = d.ReceiverRemarks,
-            //            QCStatus = d.QualityStatus,
-            //            QCRemarks = d.QualityRemarks,
-            //            DirectorFinalRemarks = m.ApprovedRemarks
-            //        });
+            // Project lookup
+            var projectLookup = await dbContext.Set<Project>()
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
 
-            return null;
+            // Project lookup
+            var levelSetupDetails = await dbContext.Set<LevelSetupDetails>()
+                .AsNoTracking()
+                .Where(x => x.Status != StatusType.Deleted)
+                .ToListAsync(cancellationToken);
+
+            var result = activities.Select(activity =>
+            {
+                var project = projectLookup
+                     .Where(x => x.Id.Equals(activity.ProjectId))
+                      .FirstOrDefault();
+
+                var company = companyLookup
+                   .Where(x => x.Id == project?.CompanyId)
+                    .FirstOrDefault();
+
+                var details = levelSetupDetails
+                    .Where(x => x.HeaderId == activity.Id)
+                     .FirstOrDefault();
+
+                return new SiteMaterialDto
+                {
+                    CompanyName= company?.Name ?? "N/A",
+                    ProjectName = project?.Name ?? "N/A",
+                    Supplier = activity?.SupplierName ?? "N/A",
+                    ItemName = details?.Name ?? "N/A",
+                    UOM = details?.UOMName ?? "N/A",
+                    QualityChecker = activity?.InChargeName ?? "N/A",
+                    ReceiverName = "N/A",
+                    ReceivedDate = details?.Date,
+                    QualityPercentage = Convert.ToInt32(details?.Quantity),
+                    Status = (StatusType)activity.Status,
+                };
+            })
+            .ToList();
+
+            return result;            
         }
         catch (Exception ex)
         {
