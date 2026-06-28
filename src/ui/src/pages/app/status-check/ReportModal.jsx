@@ -16,6 +16,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
         activityId,
         date: today,
         cost: "",
+        remarks: "",
         manPower: "",
         progressPercentage: activity?.progressPercentage ?? 0,
         checkpoints: [],
@@ -170,6 +171,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
                         activityId,
                         date: today,
                         cost: latest.cost ?? "",
+                        remarks: latest.remarks ?? "",
                         manPower: latest.manPower ?? "",
                         progressPercentage: latest.progressPercentage ?? activityData.progressPercentage,
                         checkpoints,
@@ -305,9 +307,12 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
                 const role = item?.roleName?.toLowerCase() || "";
                 return role.includes("quality") || role.includes("qc");
             });
-            
+
             const updatedData_a = {
                 ...activityData,
+                isQCApproved: false,
+                isOnHold: false,
+                isApproved: false,
                 progressPercentage: formData.progressPercentage,
                 status: 2,
                 isCompleted: userList?.length > 0 ? true : false
@@ -324,7 +329,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
 
             if (userList?.length > 0) {
                 for (let user of userList) {
-                    const action = { module: "activity", data: { id: parseInt(activityId), member: user?.member, status: 2, modifiedBy: loggedInUser?.email } }
+                    const action = { module: "activity", data: { id: parseInt(activityId), member: user?.member, isQCApproved: false, status: 2, modifiedBy: loggedInUser?.email } }
                     try {
                         await api.editPartialData(action);
                     } catch (e) {
@@ -471,6 +476,23 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
                                     readonly={itemListSchema.readonly}
                                     onChange={(e) =>
                                         updateField("item", e.target.value)
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        {/* Report remarks */}
+
+                        <div className="row">
+                            <div className="col">
+                                <Form.Label>Remarks</Form.Label>
+
+                                <Form.Control
+                                    type="text"
+                                    value={formData.remarks}
+                                    disabled={activityData?.isCompleted || submitDisabled}
+                                    onChange={(e) =>
+                                        updateField("remarks", e.target.value)
                                     }
                                 />
                             </div>

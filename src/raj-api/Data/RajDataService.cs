@@ -121,6 +121,7 @@ namespace ILab.Data
                         existingData.ApprovedDate = jsonData.ApprovedDate;
                         existingData.IsApproved = jsonData.IsApproved;
                         existingData.HODRemarks = jsonData.HODRemarks;
+                        existingData.ActualEndDate = jsonData.ActualEndDate;
 
                         remarks = jsonData.HODRemarks;
                     }

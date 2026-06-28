@@ -126,16 +126,16 @@ const ReportDetailsPage = () => {
     };
 
     const handleDeleteClick = async (report) => {
-        let actiivityDetails = await api.getSingleData({ module: 'activity', id: parseInt(activityId) });
-        if (actiivityDetails.item.status === 2) {
+        let activityDetails = await api.getSingleData({ module: 'activity', id: parseInt(activityId) });
+        if (activityDetails.data.status === 2) {
             notify("info", "Activity submitted for QC Approval, cannot delete report");
             return;
         }
-        else if (actiivityDetails.item.status === 7) {
+        else if (activityDetails.data.status === 7) {
             notify("info", "Activity submitted for HOD Approval, cannot delete report");
             return;
         }
-        else if ([4, 6].includes(actiivityDetails.item.status)) {
+        else if ([4, 6].includes(activityDetails.data.status)) {
             notify("error", "Activity already completed, cannot delete report");
             return;
         }
@@ -178,8 +178,9 @@ const ReportDetailsPage = () => {
             setReports((prev) => prev.filter((r) => r.id !== id));
 
             notify('success', 'Deletion successful !');
+            setShowDeleteModal(false);
         } catch (err) {
-            notify("error", "Deletion failed ! Kindly check for relation constraints");
+            notify("error", "Deletion failed ! Kindly check for permissions");
         }
     };
 
@@ -266,6 +267,17 @@ const ReportDetailsPage = () => {
                                         />
                                     </Form.Group>
 
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Remarks</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={editData.remarks || ""}
+                                            onChange={(e) =>
+                                                setEditData({ ...editData, remarks: e.target.value })
+                                            }
+                                        />
+                                    </Form.Group>
+
                                     <Button
                                         size="sm"
                                         className="mt-2"
@@ -279,6 +291,7 @@ const ReportDetailsPage = () => {
                                     <p><strong>Cost:</strong> {report?.cost}</p>
                                     <p><strong>Man Power:</strong> {report?.manPower}</p>
                                     <p><strong>Progress Percentage:</strong> {report?.progressPercentage}</p>
+                                    <p><strong>Remarks:</strong> {report?.remarks}</p>
                                 </>
                             )}
 
