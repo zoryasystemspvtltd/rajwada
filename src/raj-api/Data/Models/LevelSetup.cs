@@ -56,3 +56,28 @@ public class DateWiseActivity
     public bool? IsCuringDone { get; set; }
     public List<DailyActivity>? Activities { get; set; }
 }
+
+public class SiteMaterialDto
+{   
+    public string CompanyName { get; set; } = null!;
+    public string ProjectName { get; set; } = null!;
+    public StatusType Status { get; set; }
+    public string? ItemName { get; set; }
+    public string? UOM { get; set; } //Unit of Measure
+    public string? Supplier { get; set; }
+    public DateTime? ReceivedDate { get; set; }
+    public int? QualityPercentage { get; set; }
+    public string? ReceiverName { get; set; }
+    public string? QualityChecker { get; set; }
+}
+
+/// <summary>
+/// Work Progress Report Request filter
+/// </summary>
+public class SiteMeterialRequest
+{  
+    public long? ProjectId { get; set; }    
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    
+}
