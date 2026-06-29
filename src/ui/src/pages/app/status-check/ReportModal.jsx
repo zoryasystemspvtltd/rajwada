@@ -227,7 +227,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
 
             const trackingId = await api.addData({
                 module: "activitytracking",
-                data: formData
+                data: { ...formData, activityAmendmentId: activityData?.amendmentId ?? null }
             });
 
             // console.log(trackingId)
