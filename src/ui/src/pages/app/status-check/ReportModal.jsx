@@ -227,7 +227,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
 
             const trackingId = await api.addData({
                 module: "activitytracking",
-                data: formData
+                data: { ...formData, activityAmendmentId: activityData?.amendmentId ? activityData.amendmentId : null }
             });
 
             // console.log(trackingId)
@@ -322,7 +322,7 @@ const ReportModal = ({ activityId, show, onClose, submitDisabled = false, report
 
             const trackingId = await api.addData({
                 module: "activitytracking",
-                data: formData
+                data: { ...formData, activityAmendmentId: activityData?.amendmentId ? activityData.amendmentId : null }
             });
 
             await saveWorkCheckpoints(trackingId.data);

@@ -60,7 +60,7 @@ const deleteDependency = {
     "activity": {
         "dependent": [
             {
-                "module": "activityResources",
+                "module": "activityResource",
                 "field": "activityId"
             },
             {
