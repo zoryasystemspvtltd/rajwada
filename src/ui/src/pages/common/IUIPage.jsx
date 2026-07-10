@@ -930,18 +930,20 @@ const IUIPage = (props) => {
                                                                     }
                                                                 </>
                                                             }
-                                                            {schema?.deleting &&
-                                                                <>
-                                                                    {privileges?.delete &&
-                                                                        <Button
-                                                                            variant="contained"
-                                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                            onClick={handleDeleteClick}
-                                                                        >
-                                                                            Delete
-                                                                        </Button>
-                                                                    }
-                                                                </>
+                                                        </>
+                                                    }
+                                                    {
+                                                        // Delete Logic Separated - Allow delete in all cases
+                                                        schema?.deleting &&
+                                                        <>
+                                                            {privileges?.delete &&
+                                                                <Button
+                                                                    variant="contained"
+                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                                    onClick={handleDeleteClick}
+                                                                >
+                                                                    Delete
+                                                                </Button>
                                                             }
                                                         </>
                                                     }

@@ -117,7 +117,7 @@ export default function IUIDeleteModal({ item, onConfirm, onCancel }) {
                                                     {dep.data.map((d) => (
 
                                                         <ListGroup.Item key={d.id}>
-                                                            {d.name || d.id}
+                                                            {d.name || `${dep.module} Item-${d.id}`.toUpperCase()}
                                                         </ListGroup.Item>
 
                                                     ))}
