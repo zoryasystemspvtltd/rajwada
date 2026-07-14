@@ -1008,10 +1008,10 @@ const IUIPage = (props) => {
                                                                 }
                                                             </> : <></>
                                                     }
-                                                    {schema?.assign && privileges?.assign && schema?.assignType === 'single' && (approvalStatus !== 3 && approvalStatus !== 4 && approvalStatus !== 6) ?
+                                                    {schema?.assign && privileges?.assign && schema?.assignType === 'single' && (![3, 4, 6].includes(approvalStatus)) ?
                                                         <IUIAssign onClick={assignPageValue} /> : <></>
                                                     }
-                                                    {schema?.assign && privileges?.assign && schema?.assignType === 'multiple' && (approvalStatus !== 4 && approvalStatus !== 6) ?
+                                                    {schema?.assign && privileges?.assign && schema?.assignType === 'multiple' && (![2, 4, 6, 7].includes(approvalStatus)) ?
                                                         <IUIMultiAssign onClick={assignMultiPageValue} schema={{ module: module, id: id }} /> : <></>
                                                     }
                                                     {/* Condition modified by Adrish, here 2 means QC Assigned */}
