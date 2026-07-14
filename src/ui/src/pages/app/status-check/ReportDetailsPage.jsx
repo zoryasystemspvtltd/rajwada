@@ -127,22 +127,22 @@ const ReportDetailsPage = () => {
 
     const handleDeleteClick = async (report) => {
         let activityDetails = await api.getSingleData({ module: 'activity', id: parseInt(activityId) });
-        if (activityDetails.data.status === 2) {
-            notify("info", "Activity submitted for QC Approval, cannot delete report");
-            return;
-        }
-        else if (activityDetails.data.status === 7) {
-            notify("info", "Activity submitted for HOD Approval, cannot delete report");
-            return;
-        }
-        else if ([4, 6].includes(activityDetails.data.status)) {
-            notify("error", "Activity already completed, cannot delete report");
-            return;
-        }
-        else {
-            setSelectedItem({ module: 'activitytracking', id: report.id });
-            setShowDeleteModal(true);
-        }
+        // if (activityDetails.data.status === 2) {
+        //     notify("info", "Activity submitted for QC Approval, cannot delete report");
+        //     return;
+        // }
+        // else if (activityDetails.data.status === 7) {
+        //     notify("info", "Activity submitted for HOD Approval, cannot delete report");
+        //     return;
+        // }
+        // else if ([4, 6].includes(activityDetails.data.status)) {
+        //     notify("error", "Activity already completed, cannot delete report");
+        //     return;
+        // }
+
+        setSelectedItem({ module: 'activitytracking', id: report.id });
+        setShowDeleteModal(true);
+
     };
 
     const deleteCheckpointTracking = async (itemId) => {
