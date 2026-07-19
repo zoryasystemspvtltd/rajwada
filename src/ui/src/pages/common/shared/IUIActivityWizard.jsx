@@ -212,10 +212,11 @@ const IUIActivityWizard = (props) => {
 
 
 
-
                 // Check for already created activities for a selected Dependency
                 props?.sequence?.forEach((workItem) => {
-                    let existingActivities = activities?.filter((activity) => activity?.name?.includes(workItem?.label) || activity?.description?.includes(workItem?.label))
+                    console.log(workItem);
+                    console.log(activities)
+                    let existingActivities = activities?.filter((activity) => activity?.dependencyId === workItem?.activityId); // Issue fix July 19, 2026
                     if (existingActivities?.length === 0) {
                         finalSequence.push(workItem);
                     }

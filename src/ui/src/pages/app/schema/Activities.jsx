@@ -127,8 +127,8 @@ export const ViewActivity = () => {
                         text: 'Type', field: 'type', type: 'lookup-link', width: 4,
                         schema: {
                             items: [ // or use items for fixed value
-                                { name: 'Main Task' },
-                                { name: 'Sub Task' }
+                                { name: 'Inside' },
+                                { name: 'Outside' }
                             ]
                         }
                     },
@@ -278,8 +278,8 @@ export const EditActivity = () => {
                         text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4,
                         schema: {
                             items: [ // or use items for fixed value
-                                { name: 'Main Task' },
-                                { name: 'Sub Task' }
+                                { name: 'Inside' },
+                                { name: 'Outside' }
                             ]
                         }
                     },
