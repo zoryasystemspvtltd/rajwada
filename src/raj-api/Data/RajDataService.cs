@@ -358,7 +358,7 @@ namespace ILab.Data
                 string floorCount = GetFloorNumber(str?[2]);
                 if (floorCount == null) return 0;
 
-                var floorName = $"{str?[0]}/{str?[1]}/{floorCount}";
+                var floorName = $"{str?[0]}/{str?[1]}/Floor{floorCount}"; // Change on July 19, 2026 - Floor word added
                 var descriptionPrefix = jsonData?.Description ?? "";
 
                 foreach (var template in templateList)

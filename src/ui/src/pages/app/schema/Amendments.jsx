@@ -177,8 +177,8 @@ export const EditAmendment = () => {
                         text: 'Type', field: 'type', placeholder: 'Type here...', type: 'lookup', required: true, width: 4, readonly: true,
                         schema: {
                             items: [ // or use items for fixed value
-                                { name: 'Main Task' },
-                                { name: 'Sub Task' }
+                                { name: 'Inside' },
+                                { name: 'Outside' }
                             ]
                         }
                     },

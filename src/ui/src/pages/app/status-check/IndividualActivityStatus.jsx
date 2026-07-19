@@ -44,8 +44,8 @@ const ViewActivityStatus = () => {
                         text: 'Type', field: 'type', type: 'lookup-link', width: 4,
                         schema: {
                             items: [ // or use items for fixed value
-                                { name: 'Main Task' },
-                                { name: 'Sub Task' }
+                                { name: 'Inside' },
+                                { name: 'Outside' }
                             ]
                         }
                     },
