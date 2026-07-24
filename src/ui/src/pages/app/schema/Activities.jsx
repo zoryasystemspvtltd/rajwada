@@ -197,7 +197,10 @@ export const ViewActivity = () => {
                             editing: true,
                             adding: true,
                             fields: [
-                                { text: 'Name', field: 'name', type: 'text', sorting: true, searching: true, width: 100, }
+                                {
+                                    text: 'Name', field: 'workCheckPointId', width: 100, type: 'lookup',
+                                    schema: { module: 'workCheckPoint' }
+                                },
                             ]
                         },
                     }
@@ -377,7 +380,7 @@ export const EditActivity = () => {
                     //     }
                     // },
                     {
-                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: true,
+                        text: 'Priority', field: 'priorityStatus', width: 4, type: 'lookup-enum', required: false,
                         hasDefaultValue: true,
                         defaultType: 'indirect',
                         dependsOnModule: 'plan',
@@ -470,7 +473,7 @@ export const EditActivity = () => {
                 type: "area", width: 12
                 , fields: [
                     {
-                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: true,
+                        text: 'Item List', field: 'items', width: 12, type: 'table-input', required: false,
                         schema: {
                             title: 'Item',
                             module: 'activity',
