@@ -75,13 +75,22 @@ const IUIList = (props) => {
         }
     }, [props, showUploadStatus]);
 
-    const pageChanges = async (e) => {
-        e.preventDefault();
-        const pageOptions = {
-            currentPage: e.target.text
+    const pageChanges = async (page) => {
+        if (
+            page < 1 ||
+            page > dataSet?.totalPages ||
+            page === dataSet?.options?.currentPage
+        ) {
+            return;
         }
-        dispatch(getData({ module: module, options: pageOptions }));
+
+        const pageOptions = {
+            currentPage: page
+        };
+
+        dispatch(getData({ module, options: pageOptions }));
     };
+
     const sortData = async (e, field) => {
         e.preventDefault();
         const sortOptions = {
@@ -404,20 +413,83 @@ const IUIList = (props) => {
                                                     {schema.paging &&
                                                         <tfoot>
                                                             <tr>
-                                                                <td colSpan={schema?.fields.length}>
-                                                                    <Pagination size="sm" onClick={pageChanges}>
-                                                                        {[...Array(dataSet?.totalPages)].map((e, i) => {
-                                                                            return <Pagination.Item key={i}
-                                                                                className="paginate_button"
-                                                                                active={(`${dataSet?.options?.currentPage}` === `${i + 1}`)}
-                                                                            >{i + 1}</Pagination.Item>
-                                                                        })}
+                                                                <td colSpan={schema?.fields.length + (schema?.editing ? 1 : 0)}>
+                                                                    <Pagination size="sm" className="justify-content-center">
+
+                                                                        <Pagination.First
+                                                                            disabled={dataSet?.options?.currentPage === 1}
+                                                                            onClick={() => pageChanges(1)}
+                                                                        />
+
+                                                                        <Pagination.Prev
+                                                                            disabled={dataSet?.options?.currentPage === 1}
+                                                                            onClick={() => pageChanges(dataSet?.options?.currentPage - 1)}
+                                                                        />
+
+                                                                        {(() => {
+                                                                            const current = dataSet?.options?.currentPage || 1;
+                                                                            const total = dataSet?.totalPages || 1;
+
+                                                                            let start = Math.max(1, current - 2);
+                                                                            let end = Math.min(total, current + 2);
+
+                                                                            // Always try to display 5 page numbers
+                                                                            if (end - start < 4) {
+                                                                                if (start === 1) {
+                                                                                    end = Math.min(total, 5);
+                                                                                } else if (end === total) {
+                                                                                    start = Math.max(1, total - 4);
+                                                                                }
+                                                                            }
+
+                                                                            const pages = [];
+
+                                                                            if (start > 1) {
+                                                                                pages.push(
+                                                                                    <Pagination.Ellipsis
+                                                                                        key="start-ellipsis"
+                                                                                        disabled
+                                                                                    />
+                                                                                );
+                                                                            }
+
+                                                                            for (let i = start; i <= end; i++) {
+                                                                                pages.push(
+                                                                                    <Pagination.Item
+                                                                                        key={i}
+                                                                                        active={current === i}
+                                                                                        onClick={() => pageChanges(i)}
+                                                                                        className='mt-2'
+                                                                                    >
+                                                                                        {i}
+                                                                                    </Pagination.Item>
+                                                                                );
+                                                                            }
+
+                                                                            if (end < total) {
+                                                                                pages.push(
+                                                                                    <Pagination.Ellipsis
+                                                                                        key="end-ellipsis"
+                                                                                        disabled
+                                                                                    />
+                                                                                );
+                                                                            }
+
+                                                                            return pages;
+                                                                        })()}
+
+                                                                        <Pagination.Next
+                                                                            disabled={dataSet?.options?.currentPage === dataSet?.totalPages}
+                                                                            onClick={() => pageChanges(dataSet?.options?.currentPage + 1)}
+                                                                        />
+
+                                                                        <Pagination.Last
+                                                                            disabled={dataSet?.options?.currentPage === dataSet?.totalPages}
+                                                                            onClick={() => pageChanges(dataSet?.totalPages)}
+                                                                        />
+
                                                                     </Pagination>
                                                                 </td>
-                                                                {schema?.editing &&
-                                                                    <td>
-                                                                    </td>
-                                                                }
                                                             </tr>
                                                         </tfoot>
                                                     }
